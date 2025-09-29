@@ -1,0 +1,13 @@
+# Life Leveling
+
+## Purpose
+
+Welcome to Life Leveling! Your very own personal reminder system to help you remember to do self care tasks. In this document we will explore every aspect of the application we can from a technical perspective to provide our users with a powerful solution to forgetting daily self care. In our fast-paced lives, it's all too easy to overlook the small yet significant actions that contribute to our overall well-being. Life Leveling aims to bridge that gap by providing a user-friendly platform that encourages and facilitates self-care routines.
+
+## Goal
+
+Our goal is to equip our users with a powerful solution that not only helps them remember daily self-care tasks but also enhances their overall quality of life. We believe that self care is not just a routine but an important aspect of personal well-being that deserves attention and care. We focus on both functionality and users' well-being, to ensure we provide the best experience possible. When used properly this will provide the user with necessary tools to build better habits, and encourage them to make healthier choices.
+
+By tracking progress through a gamified levelling system users will not only see their achievements but also feel motivated to continue their self-care journey. The visual representation of their progress, and the ability to set personal goals, gives a sense of accomplishment and accountability. Our ultimate goal here is to empower users to take charge of their health and well-being, by transforming self-care from a chore into a rewarding and fulfilling experience. [We've seen surveys that show how gamification impacts peoples productivity in the workplace[1]](https://www.talentlms.com/blog/gamification-survey-results/), and we're trying to apply these same principles to productivity in taking care of one's self.
+
+Our target audience here is neurodivergent people who struggle with remembering daily self care tasks, and in a more expansive sense anyone who struggles remembering to do various self care tasks or chores. [This is especially effective in people with ADHD[2]](https://www.adhdcentre.co.uk/adhd-gamification-and-its-role-in-boosting-focus-and-learning/), because when someone with ADHD receives immediate feedback, like earning points or seeing visible progress, their brain releases dopamine. This kind of approach is grounded in how the ADHD brain works, and if executed properly can help create and enforce better habits.
