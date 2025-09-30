@@ -4,31 +4,117 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
+import com.lifeleveling.app.R
 
-// Set of Material typography styles to start with
+// Downloading selected Font within app
+val LexendDeca = FontFamily(
+    Font(R.font.lexend_deca_variable, FontWeight.Normal),
+    Font(R.font.lexend_deca_variable, FontWeight.Bold)
+)
+
+// Material typography changed to customized styles
 val Typography = Typography(
+    // HeadingOne
+    displayLarge = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 61.04.sp,
+        lineHeight = 76.3.sp,
+        letterSpacing = 0.5.sp
+    ),
+    // HeadingTwo
+    displayMedium = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 48.83.sp,
+        lineHeight = 61.sp,
+        letterSpacing = 0.5.sp
+    ),
+    // HeadingThree
+    displaySmall = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 39.06.sp,
+        lineHeight = 48.8.sp,
+        letterSpacing = 0.5.sp
+    ),
+    // HeadingFour
+    headlineLarge = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 31.25.sp,
+        lineHeight = 39.1.sp,
+        letterSpacing = 0.25.sp
+    ),
+    // HeadingFive
+    headlineMedium = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 25.sp,
+        lineHeight = 31.3.sp,
+        letterSpacing = 0.25.sp
+    ),
+    // HeadingSix
+    headlineSmall = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        lineHeight = 25.sp,
+        letterSpacing = 0.25.sp
+    ),
+    // Default
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = LexendDeca,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        lineHeight = 20.sp,
+        letterSpacing = 0.15.sp
     ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
+    // Small
+    bodyMedium = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.8.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.1.sp
+    ),
+    // XSmall
+    bodySmall = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.Normal,
+        fontSize = 8.sp,
+        lineHeight = 10.sp,
+        letterSpacing = 0.1.sp
+    ),
+    // BoldDefault
+    titleMedium = TextStyle(
+        fontFamily = LexendDeca,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.15.sp
     )
-    */
+)
+
+// Wrappers for styles to match wireframe styles names
+val HeadingOne = Typography.displayLarge
+val HeadingTwo = Typography.displayMedium
+val HeadingThree = Typography.displaySmall
+val HeadingFour = Typography.headlineLarge
+val HeadingFive = Typography.headlineMedium
+val HeadingSix = Typography.headlineSmall
+val Default = Typography.bodyLarge
+val Small = Typography.bodyMedium
+val XSmall = Typography.bodySmall
+val Emphasized = Typography.titleMedium.copy(
+    textDecoration = TextDecoration.Underline
+)
+val DefaultUnderlined = Typography.bodyLarge.copy(
+    textDecoration = TextDecoration.Underline
+)
+val SmallUnderlined = Typography.bodyMedium.copy(
+    textDecoration = TextDecoration.Underline
 )
