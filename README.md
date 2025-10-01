@@ -1,6 +1,9 @@
 # Life Leveling
 
-![lifeleveling logo](./docs/img/Life_Leveling_4.png)
+<p align="center"><img src="./docs/img/Life_Leveling_4.png" alt="Life Leveling Logo"/></p>
+
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/thefool309/lifeleveling) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/thefool309/lifeleveling/latest?include_prereleases)
+![GitHub top language](https://img.shields.io/github/languages/top/thefool309/lifeleveling) ![GitHub License](https://img.shields.io/github/license/thefool309/lifeleveling) ![Static Badge](https://img.shields.io/badge/made_with-love-pink)
 
 ## Purpose
 
@@ -8,8 +11,15 @@ Welcome to Life Leveling! Your very own personal reminder system to help you rem
 
 ## Goal
 
-Our goal is to equip our users with a powerful solution that not only helps them remember daily self-care tasks but also enhances their overall quality of life. We believe that self care is not just a routine but an important aspect of personal well-being that deserves attention and care. We focus on both functionality and users' well-being, to ensure we provide the best experience possible. When used properly this will provide the user with necessary tools to build better habits, and encourage them to make healthier choices.
+Our goal is to equip our users with a powerful solution that not only helps them remember daily self-care tasks but also enhances their overall quality of life. We believe that self care is not just a routine but an important aspect of personal well-being that deserves attention and care. We focus on both functionality and users' well-being, to ensure we provide the best experience possible. When used properly this will provide the user with necessary tools to build better habits, and encourage them to make healthier choices. By tracking progress through a gamified levelling system users will not only see their achievements but also feel motivated to continue their self-care journey. The visual representation of their progress, and the ability to set personal goals, gives a sense of accomplishment and accountability. Our ultimate goal here is to empower users to take charge of their health and well-being, by transforming self-care from a chore into a rewarding and fulfilling experience. [We've seen surveys that show how gamification impacts peoples productivity in the workplace](https://www.talentlms.com/blog/gamification-survey-results/), and we're trying to apply these same principles to productivity in taking care of one's self. Our target audience here is neurodivergent people who struggle with remembering daily self care tasks, and in a more expansive sense anyone who struggles remembering to do various self care tasks or chores. [This is especially effective in people with ADHD](https://www.adhdcentre.co.uk/adhd-gamification-and-its-role-in-boosting-focus-and-learning/), because when someone with ADHD receives immediate feedback, like earning points or seeing visible progress, their brain releases dopamine. This kind of approach is grounded in how the ADHD brain works, and if executed properly can help create and enforce better habits.
 
-By tracking progress through a gamified levelling system users will not only see their achievements but also feel motivated to continue their self-care journey. The visual representation of their progress, and the ability to set personal goals, gives a sense of accomplishment and accountability. Our ultimate goal here is to empower users to take charge of their health and well-being, by transforming self-care from a chore into a rewarding and fulfilling experience. [We've seen surveys that show how gamification impacts peoples productivity in the workplace[1]](https://www.talentlms.com/blog/gamification-survey-results/), and we're trying to apply these same principles to productivity in taking care of one's self.
+## Installation
+For now Installation will be handled via an .apk file that will be bundled with github releases. If possible in the future we are considering publishing the app for free on the google play store. 
 
-Our target audience here is neurodivergent people who struggle with remembering daily self care tasks, and in a more expansive sense anyone who struggles remembering to do various self care tasks or chores. [This is especially effective in people with ADHD[2]](https://www.adhdcentre.co.uk/adhd-gamification-and-its-role-in-boosting-focus-and-learning/), because when someone with ADHD receives immediate feedback, like earning points or seeing visible progress, their brain releases dopamine. This kind of approach is grounded in how the ADHD brain works, and if executed properly can help create and enforce better habits.
+## Contributing
+
+Forks are welcome, pull requests will not be accepted until February 2026. For any major changes please open an issue and discuss what you would like to change. Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
