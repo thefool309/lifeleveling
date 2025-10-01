@@ -99,22 +99,39 @@ val Typography = Typography(
     )
 )
 
-// Wrappers for styles to match wireframe styles names
-val HeadingOne = Typography.displayLarge
-val HeadingTwo = Typography.displayMedium
-val HeadingThree = Typography.displaySmall
-val HeadingFour = Typography.headlineLarge
-val HeadingFive = Typography.headlineMedium
-val HeadingSix = Typography.headlineSmall
-val Default = Typography.bodyLarge
-val Small = Typography.bodyMedium
-val XSmall = Typography.bodySmall
-val Emphasized = Typography.titleMedium.copy(
-    textDecoration = TextDecoration.Underline
+data class TextStyles(
+    val HeadingOne: TextStyle,
+    val HeadingTwo: TextStyle,
+    val HeadingThree: TextStyle,
+    val HeadingFour: TextStyle,
+    val HeadingFive: TextStyle,
+    val HeadingSix: TextStyle,
+    val Default: TextStyle,
+    val Small: TextStyle,
+    val XSmall: TextStyle,
+    val Emphasized: TextStyle,
+    val DefaultUnderlined: TextStyle,
+    val SmallUnderlined: TextStyle
 )
-val DefaultUnderlined = Typography.bodyLarge.copy(
-    textDecoration = TextDecoration.Underline
-)
-val SmallUnderlined = Typography.bodyMedium.copy(
-    textDecoration = TextDecoration.Underline
+
+
+val AppTextStyles = TextStyles(
+    HeadingOne = Typography.displayLarge,
+    HeadingTwo = Typography.displayMedium,
+    HeadingThree = Typography.displaySmall,
+    HeadingFour = Typography.headlineLarge,
+    HeadingFive = Typography.headlineMedium,
+    HeadingSix = Typography.headlineSmall,
+    Default = Typography.bodyLarge,
+    Small = Typography.bodyMedium,
+    XSmall = Typography.bodySmall,
+    Emphasized = Typography.titleMedium.copy(
+        textDecoration = TextDecoration.Underline
+    ),
+    DefaultUnderlined = Typography.bodyLarge.copy(
+        textDecoration = TextDecoration.Underline
+    ),
+    SmallUnderlined = Typography.bodyMedium.copy(
+        textDecoration = TextDecoration.Underline
+    )
 )
