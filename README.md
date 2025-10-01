@@ -1,5 +1,7 @@
 # Life Leveling
 
+![lifeleveling logo](./docs/img/Life_Leveling_4.png)
+
 ## Purpose
 
 Welcome to Life Leveling! Your very own personal reminder system to help you remember to do self care tasks. In this document we will explore every aspect of the application we can from a technical perspective to provide our users with a powerful solution to forgetting daily self care. In our fast-paced lives, it's all too easy to overlook the small yet significant actions that contribute to our overall well-being. Life Leveling aims to bridge that gap by providing a user-friendly platform that encourages and facilitates self-care routines.
