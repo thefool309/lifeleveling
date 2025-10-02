@@ -15,35 +15,47 @@ Our goal is to equip our users with a powerful solution that not only helps them
 
 ## Features
 
-### Minimum Features
+### Core Features
 
 - Set reminders for self-care activities, ensuring they prioritize their well-being throughout the day.
-- Track progress through a levelling system, and be given a visual representation of an avatar that communicates how well they are doing. They will earn EXP which will give them "Life Points" to increase their characters stats. Their character will have a set amount of times per day he can "go adventuring" which is an idle experience that returns coins, and EXP based on their stats and overall level.
-- A daily summary in the application, that will help give them a sense of progression. The daily summary will go over all completed tasks for the day, and how much overall EXP and coins were earned.
+- Track progress through a levelling system, with an avatar that communicates how well you are doing.
+- A daily summary in the application, that will help give them a sense of progression.
 
 ### Alpha Version Features
 
 - Access to Resources and medical studies to help you make informed decisions when it comes to self care.
-- Track your mood before and after performing tasks, allowing for better self-awareness and emotional management.
-- You can change the notification tone, providing a personalized experience that enhances user engagement.
-- You will have the option to share progress with friends or a community, fostering motivation and accountability
-- You will be able to create and manage personal goals, allowing for tailored self-improvement journeys.
+- Track your mood before and after performing tasks.
+- change the notification tone.
+- share progress with friends or a community.
+- create and manage personal goals, allowing for tailored self-improvement journeys.
 
 ### Beta Version Features
 
 - enable and disable voice reminders, like Siri or Google Assistant, making it easier to receive notifications hands-free.
-- integrate daily tasks into their calendar ensuring that they can manage their time effectively and keep track of their commitments.
-- integrate with fitness apps such as Google Fit allowing for a holistic view of their health and wellness journey.
-- customize application theme to fit individual preferences enhancing user satisfaction and making the app more visually appealing.
-- User will be able to track water intake and receive reminders that are geared towards hydration, promoting overall health.
-- User will have access to guided meditations or relaxation exercises, helping them manage stress and improve mental well-being.
+- integrate daily tasks into your calendar.
+- integrate with fitness apps such as Google Fit.
+- customize application theme to fit individual preferences.
+- track water intake and receive reminders that are geared towards hydration, promoting overall health.
 
 ## Installation
-For now Installation will be handled via an .apk file that will be bundled with github releases. If possible in the future we are considering publishing the app for free on the google play store. 
+For now Installation will be handled via an .apk file that will be bundled with github releases. As the app progresses we will add detailed installation instructions. If possible in the future we are considering publishing the app for free on the google play store. 
 
 ## Contributing
 
 Forks are welcome, pull requests will not be accepted until February 2026. For any major changes please open an issue and discuss what you would like to change. Please make sure to update tests as appropriate.
+
+## Contributors
+
+### [Cass](https://github.com/Elyseia)
+
+### [Felipe](https://github.com/fdesouza1992)
+
+### [Stephen](https://github.com/sgcfsu1993)
+
+### [Velma](https://github.com/thefool309)
+
+## Project Status
+Project is still in the MVP/core feature development stage.
 
 ## License
 
