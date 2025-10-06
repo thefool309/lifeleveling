@@ -163,8 +163,6 @@ fun LifelevelingTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val isDark = remember { mutableStateOf(darkTheme) }
-
     val materialColorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
