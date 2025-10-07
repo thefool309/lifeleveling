@@ -11,13 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.navigation.Constants
+import com.lifeleveling.app.navigation.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
@@ -41,10 +46,23 @@ import com.lifeleveling.app.navigation.TempStreaksScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Splash Screen to show before app loads
+        val splashScreen = installSplashScreen()
+        var keepSplash = true
+        splashScreen.setKeepOnScreenCondition { keepSplash }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            // Keep splash until app is ready
+            var appReady by remember { mutableStateOf(false) }
+            if (!appReady) {
+                SplashAnimationOverlay()
+            }
+
+            // Setting theme
             val isDarkTheme = remember { mutableStateOf(true) }
+
             LifelevelingTheme(darkTheme = isDarkTheme.value) {
                 val navController = rememberNavController()
 
@@ -57,6 +75,12 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
+            }
+
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(3000)
+                appReady = true
+                keepSplash = false
             }
         }
 
