@@ -1,5 +1,6 @@
-package com.lifeleveling.app.navigation
+package com.lifeleveling.app.ui.theme
 
+import android.graphics.drawable.Animatable
 import android.widget.ImageView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
 
 @Composable
@@ -34,7 +34,7 @@ fun SplashAnimationOverlay(
                     setImageDrawable(drawable)
                     scaleType = ImageView.ScaleType.CENTER_INSIDE
                     drawable?.let {
-                        if (it is android.graphics.drawable.Animatable) it.start()
+                        if (it is Animatable) it.start()
                     }
                 }
             },

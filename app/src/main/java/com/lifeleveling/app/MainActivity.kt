@@ -5,23 +5,26 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.core.splashscreen.SplashScreen
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,50 +40,59 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.navigation.Constants
-import com.lifeleveling.app.navigation.SplashAnimationOverlay
+import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.theme.StartLogic
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Splash Screen to show before app loads
-        val splashScreen = installSplashScreen()
-        var keepSplash = true
-        splashScreen.setKeepOnScreenCondition { keepSplash }
-
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // Keep splash until app is ready
+            // Startup logic and Splash Screen values
+            val startLogic: StartLogic = viewModel() // TODO: Go to this file to put in start logic
+            val isInitialized by startLogic.isInitialized.collectAsState()
             var appReady by remember { mutableStateOf(false) }
-            if (!appReady) {
-                SplashAnimationOverlay()
+            val startTime = remember { System.currentTimeMillis() }
+            val minSplashTime = 2000L // How long Splash shows at a minimum for loading reassurance
+
+            // Splash Screen effect while loading
+            LaunchedEffect(isInitialized) {
+                if (isInitialized) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val remaining = minSplashTime - elapsed
+                    if (remaining > 0) kotlinx.coroutines.delay(remaining)
+                    appReady = true
+                }
             }
 
             // Setting theme
             val isDarkTheme = remember { mutableStateOf(true) }
 
-            LifelevelingTheme(darkTheme = isDarkTheme.value) {
-                val navController = rememberNavController()
+            Box(modifier = Modifier.fillMaxSize()) {
+                // If app isn't ready, show splash
+                if (!appReady) {
+                    SplashAnimationOverlay()
+                } else {
+                    // App is ready, go to ui logic
+                    LifelevelingTheme(darkTheme = isDarkTheme.value) {
+                        val navController = rememberNavController()
 
-                Surface(color = AppTheme.colors.Background) {
-                    Scaffold(
-                        bottomBar = {
-                            BottomNavigatioonBar(navController = navController)
-                        }, content = { padding ->
-                            NavHostContainer(navController = navController, padding = padding)
+                        Surface(color = AppTheme.colors.Background) {
+                            Scaffold(
+                                bottomBar = {
+                                    BottomNavigatioonBar(navController = navController)
+                                }, content = { padding ->
+                                    NavHostContainer(navController = navController, padding = padding)
+                                }
+                            )
                         }
-                    )
+                    }
                 }
-            }
-
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(3000)
-                appReady = true
-                keepSplash = false
             }
         }
 
