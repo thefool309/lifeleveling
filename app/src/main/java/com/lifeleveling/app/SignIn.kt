@@ -77,33 +77,43 @@ fun SignIn(
                 //column keeping box items centered
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(0.8f),
+                        .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                     //email
                     OutlinedTextField(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth(0.9f),
                         value = email,
                         onValueChange = {email = it},
                         label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text("Email address", color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        supportingText = {
+                            if (email.isEmpty()) {
+                                Text("Email can not be empty", style = AppTheme.textStyles.Small)
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.size(16.dp))
                     //password
                     OutlinedTextField(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth(0.9f),
                         value = password,
                         onValueChange = {password = it},
                         label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                       supportingText = {
+                           if (password.isEmpty()) {
+                               Text("Password can not be empty", style = AppTheme.textStyles.Small)
+                           }
+                       }
                     )
                     Spacer(modifier = Modifier.size(16.dp))
                     //login button
@@ -113,6 +123,7 @@ fun SignIn(
                             onClick = onLogin,
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.SecondaryTwo),
+                        enabled = email.isNotEmpty() && password.isNotEmpty()
                         ) {
                         Text("Login", color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                     }
