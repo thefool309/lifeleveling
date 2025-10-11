@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Lifeleveling" parent="android:Theme.Material.Light.NoActionBar"/>
+    <style name="Theme.Lifeleveling" parent="android:Theme.Material.NoActionBar"/>
+    <style name="Theme.Lifeleveling.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/smaller_tree</item>
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="postSplashScreenTheme">@style/Theme.Lifeleveling</item>
+
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

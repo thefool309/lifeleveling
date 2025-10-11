@@ -18,6 +18,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Enables Icon Use
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -61,4 +66,10 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // UI added in dependencies
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.navigation:navigation-runtime-ktx:2.9.5")
+    implementation("androidx.navigation:navigation-compose:2.9.5")
+
 }
