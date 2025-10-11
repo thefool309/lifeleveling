@@ -54,3 +54,4 @@ Thumbs.db
 .cxx
 local.properties
 /.idea/deviceManager.xml
+google-services.json
