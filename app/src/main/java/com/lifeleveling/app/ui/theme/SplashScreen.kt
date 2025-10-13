@@ -36,7 +36,7 @@ fun SplashAnimationOverlay(
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth(0.9f)
                 .aspectRatio(1f)
         )
     }
