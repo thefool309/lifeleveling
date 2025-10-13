@@ -6,13 +6,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.lifeleveling.app.R
 
 @Preview
 @Composable
 fun TestScreen() {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val screenWidth = configuration.screenWidthDp.dp
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = AppTheme.colors.Background
@@ -25,7 +33,7 @@ fun TestScreen() {
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-                fixedHeight = 200.dp
+                height = (screenHeight / 2)
             ) {
                 Text(
                     "Testing Page Elements",
@@ -66,6 +74,26 @@ fun TestScreen() {
                     )
                 }
             }
+            HighlightCard(
+                modifier = Modifier,
+                width = (screenWidth / 2),
+                innerPadding = 2.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.smaller_tree),
+                        contentDescription = null,
+                        tint = AppTheme.colors.BrandTwo,
+                        modifier = Modifier.size(80.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -74,17 +102,20 @@ fun TestScreen() {
 @Composable
 fun HighlightCard(
     modifier: Modifier = Modifier,
+    width: Dp? = null,
+    height: Dp? = null, // If null, dynamic height
     cornerRadius: Dp = 5.dp,
     outerPadding: Dp = 16.dp,
     innerPadding: Dp = 16.dp,
     backgroundColor: Color = AppTheme.colors.DarkerBackground,
-    fixedHeight: Dp? = null, // If null, dynamic height
     content: @Composable BoxScope.() -> Unit
 ) {
     val baseModifier = modifier
-        .fillMaxWidth()
         .then(
-            if (fixedHeight != null) Modifier.height(fixedHeight) else Modifier
+            if (width != null) Modifier.width(width) else Modifier.fillMaxWidth()
+        )
+        .then(
+            if (height != null) Modifier.height(height) else Modifier.wrapContentHeight()
         )
         .padding(outerPadding)
     Box(
@@ -117,7 +148,8 @@ fun HighlightCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (fixedHeight != null) Modifier.fillMaxHeight() else Modifier.wrapContentWidth())
+                //.then(if (width != null) Modifier.fillMaxWidth() else Modifier.wrapContentWidth())
+                .then(if (height != null) Modifier.fillMaxHeight() else Modifier.wrapContentWidth())
                 .padding(innerPadding),
         ){ content() }
     }
