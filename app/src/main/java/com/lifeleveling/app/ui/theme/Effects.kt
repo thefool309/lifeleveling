@@ -20,6 +20,24 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+// =============== Use this example to add shadow to text =============
+/* I tried to put it in several ways but putting it in manually worked best
+* Just add the .copy section onto the style to get a drop shadow*/
+/*
+Text(
+    "Testing Page Elements",
+    color = AppTheme.colors.SecondaryOne,
+    style = AppTheme.textStyles.HeadingThree.copy(
+        shadow = Shadow(
+            color = AppTheme.colors.DropShadow,
+            offset = Offset(3f, 4f),
+            blurRadius = 6f,
+        )
+    ),
+modifier = Modifier.align(Alignment.TopStart),
+)
+*/
+
 @Composable
 fun InnerShadow(
     modifier: Modifier = Modifier,
