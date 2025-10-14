@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import java.lang.reflect.AnnotatedElement
 
 // This screen shows the different effects that are within this file
 @Preview
@@ -87,11 +88,11 @@ fun TestScreen() {
                             progressColor = AppTheme.colors.SecondaryThree
                         )
                         // Switch
-                        SlideingSwitch(
+                        SlidingSwitch(
                             selectedIndex = switch,
                             onOptionSelected = { switch = it },
                         )
-                        SlideingSwitch(
+                        SlidingSwitch(
                             selectedIndex = switch,
                             options = listOf("Day", "Month"),
                             onOptionSelected = { switch = it },
@@ -625,64 +626,50 @@ fun ProgressBar(
 }
 
 @Composable
-fun SlideingSwitch(
+fun SlidingSwitch(
     options: List<String> = listOf("Light Mode", "Dark Mode"),
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
-    horizontalSpacing: Dp = 120.dp,
-    verticalSpacing: Dp = 24.dp,
+    horizontalPadding: Dp = 24.dp,
+    verticalPadding: Dp = 12.dp,
     backgroundColor: Color = AppTheme.colors.DarkerBackground,
     selectedColor: Color = AppTheme.colors.BrandOne,
     unselectedColor: Color = AppTheme.colors.Gray,
     cornerRadius: Dp = 24.dp,
-    textStyle: TextStyle = AppTheme.textStyles.Default
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    insetAmount: Dp = 5.dp,
+    extraWidth: Dp = 32.dp,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
-    val textSizes = options.map { text ->
+    val textSizes = options.map {
         textMeasurer.measure(
-            text = AnnotatedString(text),
-            style = textStyle,
+            text = AnnotatedString(it),
+            style = textStyle
         ).size
     }
-
     val textWidths = textSizes.map { with(density) { it.width.toDp() } }
     val textHeights = textSizes.map { with(density) { it.height.toDp() } }
 
-    val totalWidth = textWidths.fold(0.dp) { acc, width -> acc + width } + horizontalSpacing
-    val totalHeight = textHeights.fold(0.dp) { acc, height -> acc + height } + verticalSpacing
+    val maxTextWidth = textWidths.maxOrNull() ?: 0.dp
+    val maxTextHeight = textHeights.maxOrNull() ?: 0.dp
 
-//    val sliderWidth = textWidths[selectedIndex] + horizontalSpacing / 2
-//    val textHeights = options.map { text ->
-//        with(density) {
-//            textMeasurer.measure(
-//                text = AnnotatedString(text),
-//                style = textStyle,
-//            ).size.height.toDp()
-//        }
-//    }
-//    val textWidths = options.map { text ->
-//        with(density) {
-//            textMeasurer.measure(
-//                text = AnnotatedString(text),
-//                style = textStyle,
-//            ).size.width.toDp()
-//        }
-//    }
+    val totalWidth = (maxTextWidth * options.size) + (horizontalPadding * 2) + extraWidth
+    val totalHeight = maxTextHeight + (verticalPadding * 2)
 
-    val largerTextWidth = if (textWidths[0] > textWidths[1]) textWidths[0] else textWidths[1]
-    val width = largerTextWidth * 2 + horizontalSpacing
-    val height = (if (textHeights[0] > textHeights[1]) textHeights[0] else textHeights[1]) + verticalSpacing
+    val optionWidth = totalWidth / options.size
 
-    val sliderVerticalInset = 10.dp
-    val sliderHorizontalInset = 6.dp
-    val sliderWidth = (width / options.size)
-    val animatedOffset by animateDpAsState(targetValue = sliderWidth * selectedIndex)
+    val sliderWidth = optionWidth - (insetAmount * 2)
+    val sliderHeight = totalHeight - (insetAmount * 2)
 
-    Box(
+    val animatedOffset by animateDpAsState(
+        targetValue = optionWidth * selectedIndex + insetAmount
+    )
+
+    Box (
         modifier = Modifier
-            .width(width)
-            .height(height)
+            .width(totalWidth)
+            .height(totalHeight)
             .clip(RoundedCornerShape(cornerRadius))
             .background(backgroundColor)
     ) {
@@ -712,13 +699,12 @@ fun SlideingSwitch(
         // Slider
         Box(
             modifier = Modifier
-                .offset(x = animatedOffset + sliderHorizontalInset)
-//                .fillMaxHeight()
-                .height(height - sliderVerticalInset)
-                .width(sliderWidth - (sliderHorizontalInset * 2))
-                .clip(RoundedCornerShape(cornerRadius))
-                .background(Color.White)
+                .offset(x = animatedOffset)
+                .width(sliderWidth)
+                .height(sliderHeight)
                 .align(Alignment.CenterStart)
+                .clip(RoundedCornerShape(cornerRadius))
+                .background(selectedColor)
         ) {
             // Top left
             InnerShadow(
@@ -753,10 +739,10 @@ fun SlideingSwitch(
             )
         }
 
-        // Options
+        // Text Options
         Row(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -765,15 +751,13 @@ fun SlideingSwitch(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .clickable {
-                            if (index != selectedIndex) onOptionSelected(index)
-                        },
+                        .clickable { if (index != selectedIndex) onOptionSelected(index) },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = option,
                         style = textStyle,
-                        color = if (index == selectedIndex) backgroundColor else unselectedColor,
+                        color = if (index == selectedIndex) backgroundColor else unselectedColor
                     )
                 }
             }
