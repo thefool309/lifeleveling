@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.theme
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,6 +36,7 @@ fun TestScreen() {
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
     var showPopup by remember { mutableStateOf(false) }
+    var switch by remember { mutableStateOf(0) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -55,7 +58,8 @@ fun TestScreen() {
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {// =============== Use this example to add shadow to text =============
                         /* I tried to put it in several ways but putting it in manually worked best
@@ -78,6 +82,12 @@ fun TestScreen() {
                         ProgressBar(
                             progress = .4f,
                             progressColor = AppTheme.colors.SecondaryThree
+                        )
+                        // Switch
+                        SlideingSwitch(
+                            selectedIndex = switch,
+                            onOptionSelected = { switch = it },
+                            textStyle = AppTheme.textStyles.HeadingFive
                         )
                     }
                     //Custom Button Example
@@ -605,3 +615,118 @@ fun ProgressBar(
     }
 }
 
+@Composable
+fun SlideingSwitch(
+    options: List<String> = listOf("Light", "Dark"),
+    selectedIndex: Int,
+    onOptionSelected: (Int) -> Unit,
+    width: Dp = 200.dp,
+    height: Dp = 48.dp,
+    backgroundColor: Color = AppTheme.colors.DarkerBackground,
+    selectedColor: Color = AppTheme.colors.BrandOne,
+    unselectedColor: Color = AppTheme.colors.Gray,
+    cornerRadius: Dp = 24.dp,
+    textStyle: TextStyle = AppTheme.textStyles.HeadingSix
+) {
+    val sliderWidth = width / options.size
+    val animatedOffset by animateDpAsState(targetValue = sliderWidth * selectedIndex)
+
+    Box(
+        modifier = Modifier
+            .width(width)
+            .height(height)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(backgroundColor)
+    ) {
+        // Top Left
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = backgroundColor,
+            shadowColor = AppTheme.colors.DropShadow,
+            blur = 2.dp,
+            offsetX = .5.dp,
+            offsetY = .5.dp,
+            spread = 5.dp,
+            cornerRadius = cornerRadius,
+        )
+        //Bottom Right Shadow
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = Color.Transparent,
+            shadowColor = AppTheme.colors.FadedGray,
+            blur = 2.dp,
+            offsetX = (-.5).dp,
+            offsetY = (-1).dp,
+            spread = 1.25.dp,
+            cornerRadius = (cornerRadius),
+        )
+
+        // Slider
+        Box(
+            modifier = Modifier
+                .offset(x = animatedOffset)
+                .fillMaxHeight()
+                .width(sliderWidth)
+                .clip(RoundedCornerShape(cornerRadius))
+                .background(Color.White)
+        ) {
+            // Top left
+            InnerShadow(
+                modifier = Modifier.matchParentSize(),
+                color = selectedColor,
+                shadowColor = AppTheme.colors.Gray,
+                blur = 4.dp,
+                offsetX = 1.dp,
+                offsetY = 1.dp,
+                spread = 2.dp,
+                cornerRadius = cornerRadius,
+            )
+            // Bottom right
+            InnerShadow(
+                modifier = Modifier.matchParentSize(),
+                color = Color.Transparent,
+                shadowColor = AppTheme.colors.LightShadow,
+                blur = 1.5.dp,
+                offsetX = (-.5).dp,
+                offsetY = (-1).dp,
+                spread = .75.dp,
+                cornerRadius = (cornerRadius),
+            )
+            // All over inside
+            InnerShadow(
+                modifier = Modifier.matchParentSize(),
+                color = Color.Transparent,
+                shadowColor = AppTheme.colors.DropShadow,
+                blur = 2.dp,
+                spread = .75.dp,
+                cornerRadius = (cornerRadius),
+            )
+        }
+
+        // Options
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            options.forEachIndexed { index, option ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clickable {
+                            if (index != selectedIndex) onOptionSelected(index)
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = option,
+                        style = textStyle,
+                        color = if (index == selectedIndex) backgroundColor else unselectedColor,
+                    )
+                }
+            }
+        }
+    }
+}
