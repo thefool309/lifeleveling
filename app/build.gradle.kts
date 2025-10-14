@@ -45,16 +45,16 @@ android {
 
 dependencies {
     // Firebase Bill of Materials (keeps all Firebase libraries in sync)
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
 
     // Firebase (Authentication, Cloud Firestore, Firebase Cloud Messaging, Firebase Crashlytics)
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-messaging")
-    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     // Google Play Services Auth – enables Google Sign-In and OAuth authentication
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
 
     // Firebase Kotlin Extensions to add Kotlin-specific conveniences
     implementation("com.google.firebase:firebase-firestore-ktx")
@@ -63,7 +63,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 
     //Lifecycle Runtime KTX: lifecycle-aware components for Compose and ViewModels
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
 
     //Activity Compose: integrates Jetpack compose with Activity lifecycle
