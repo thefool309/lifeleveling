@@ -21,8 +21,11 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -87,6 +90,13 @@ fun TestScreen() {
                         SlideingSwitch(
                             selectedIndex = switch,
                             onOptionSelected = { switch = it },
+                        )
+                        SlideingSwitch(
+                            selectedIndex = switch,
+                            options = listOf("Day", "Month"),
+                            onOptionSelected = { switch = it },
+                            textStyle = AppTheme.textStyles.HeadingThree,
+                            cornerRadius = 50.dp
                         )
                     }
                     //Custom Button Example
@@ -616,18 +626,57 @@ fun ProgressBar(
 
 @Composable
 fun SlideingSwitch(
-    options: List<String> = listOf("Light", "Dark"),
+    options: List<String> = listOf("Light Mode", "Dark Mode"),
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
-    width: Dp = 280.dp,
-    height: Dp = 45.dp,
+    horizontalSpacing: Dp = 120.dp,
+    verticalSpacing: Dp = 24.dp,
     backgroundColor: Color = AppTheme.colors.DarkerBackground,
     selectedColor: Color = AppTheme.colors.BrandOne,
     unselectedColor: Color = AppTheme.colors.Gray,
     cornerRadius: Dp = 24.dp,
     textStyle: TextStyle = AppTheme.textStyles.Default
 ) {
-    val sliderWidth = width / options.size
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val textSizes = options.map { text ->
+        textMeasurer.measure(
+            text = AnnotatedString(text),
+            style = textStyle,
+        ).size
+    }
+
+    val textWidths = textSizes.map { with(density) { it.width.toDp() } }
+    val textHeights = textSizes.map { with(density) { it.height.toDp() } }
+
+    val totalWidth = textWidths.fold(0.dp) { acc, width -> acc + width } + horizontalSpacing
+    val totalHeight = textHeights.fold(0.dp) { acc, height -> acc + height } + verticalSpacing
+
+//    val sliderWidth = textWidths[selectedIndex] + horizontalSpacing / 2
+//    val textHeights = options.map { text ->
+//        with(density) {
+//            textMeasurer.measure(
+//                text = AnnotatedString(text),
+//                style = textStyle,
+//            ).size.height.toDp()
+//        }
+//    }
+//    val textWidths = options.map { text ->
+//        with(density) {
+//            textMeasurer.measure(
+//                text = AnnotatedString(text),
+//                style = textStyle,
+//            ).size.width.toDp()
+//        }
+//    }
+
+    val largerTextWidth = if (textWidths[0] > textWidths[1]) textWidths[0] else textWidths[1]
+    val width = largerTextWidth * 2 + horizontalSpacing
+    val height = (if (textHeights[0] > textHeights[1]) textHeights[0] else textHeights[1]) + verticalSpacing
+
+    val sliderVerticalInset = 10.dp
+    val sliderHorizontalInset = 6.dp
+    val sliderWidth = (width / options.size)
     val animatedOffset by animateDpAsState(targetValue = sliderWidth * selectedIndex)
 
     Box(
@@ -660,15 +709,13 @@ fun SlideingSwitch(
             cornerRadius = (cornerRadius),
         )
 
-        val sliderVerticalInset = 10.dp
-        val sliderHorizontalInset = 6.dp
         // Slider
         Box(
             modifier = Modifier
                 .offset(x = animatedOffset + sliderHorizontalInset)
 //                .fillMaxHeight()
                 .height(height - sliderVerticalInset)
-                .width(sliderWidth - sliderHorizontalInset * 2)
+                .width(sliderWidth - (sliderHorizontalInset * 2))
                 .clip(RoundedCornerShape(cornerRadius))
                 .background(Color.White)
                 .align(Alignment.CenterStart)
