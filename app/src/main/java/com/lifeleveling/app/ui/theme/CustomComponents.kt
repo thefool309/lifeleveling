@@ -87,7 +87,6 @@ fun TestScreen() {
                         SlideingSwitch(
                             selectedIndex = switch,
                             onOptionSelected = { switch = it },
-                            textStyle = AppTheme.textStyles.HeadingFive
                         )
                     }
                     //Custom Button Example
@@ -620,13 +619,13 @@ fun SlideingSwitch(
     options: List<String> = listOf("Light", "Dark"),
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
-    width: Dp = 200.dp,
-    height: Dp = 48.dp,
+    width: Dp = 280.dp,
+    height: Dp = 45.dp,
     backgroundColor: Color = AppTheme.colors.DarkerBackground,
     selectedColor: Color = AppTheme.colors.BrandOne,
     unselectedColor: Color = AppTheme.colors.Gray,
     cornerRadius: Dp = 24.dp,
-    textStyle: TextStyle = AppTheme.textStyles.HeadingSix
+    textStyle: TextStyle = AppTheme.textStyles.Default
 ) {
     val sliderWidth = width / options.size
     val animatedOffset by animateDpAsState(targetValue = sliderWidth * selectedIndex)
@@ -661,14 +660,18 @@ fun SlideingSwitch(
             cornerRadius = (cornerRadius),
         )
 
+        val sliderVerticalInset = 10.dp
+        val sliderHorizontalInset = 6.dp
         // Slider
         Box(
             modifier = Modifier
-                .offset(x = animatedOffset)
-                .fillMaxHeight()
-                .width(sliderWidth)
+                .offset(x = animatedOffset + sliderHorizontalInset)
+//                .fillMaxHeight()
+                .height(height - sliderVerticalInset)
+                .width(sliderWidth - sliderHorizontalInset * 2)
                 .clip(RoundedCornerShape(cornerRadius))
                 .background(Color.White)
+                .align(Alignment.CenterStart)
         ) {
             // Top left
             InnerShadow(
