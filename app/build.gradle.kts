@@ -64,6 +64,7 @@ dependencies {
 
     //Lifecycle Runtime KTX: lifecycle-aware components for Compose and ViewModels
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
 
     //Activity Compose: integrates Jetpack compose with Activity lifecycle
     implementation("androidx.activity:activity-compose:1.8.0")
