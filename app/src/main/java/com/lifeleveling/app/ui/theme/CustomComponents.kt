@@ -4,13 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,21 +53,33 @@ fun TestScreen() {
                         .fillMaxWidth(),
                     height = (screenHeight / 2)
                 ) {
-                    // =============== Use this example to add shadow to text =============
-                    /* I tried to put it in several ways but putting it in manually worked best
-                    * Just add the .copy section onto the style to get a drop shadow*/
-                    Text(
-                        "Testing Page Elements",
-                        color = AppTheme.colors.SecondaryOne,
-                        style = AppTheme.textStyles.HeadingThree.copy(
-                            shadow = Shadow(
-                                color = AppTheme.colors.DropShadow,
-                                offset = Offset(3f, 4f),
-                                blurRadius = 6f,
-                            )
-                        ),
-                        modifier = Modifier.align(Alignment.TopStart),
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {// =============== Use this example to add shadow to text =============
+                        /* I tried to put it in several ways but putting it in manually worked best
+                        * Just add the .copy section onto the style to get a drop shadow*/
+                        Text(
+                            "Testing Page Elements",
+                            color = AppTheme.colors.SecondaryOne,
+                            style = AppTheme.textStyles.HeadingThree.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                        )
+                        // Progress Bar
+                        ProgressBar(
+                            progress = .8f,
+                        )
+                        ProgressBar(
+                            progress = .4f,
+                            progressColor = AppTheme.colors.SecondaryThree
+                        )
+                    }
                     //Custom Button Example
                     CustomButton(
                         onClick = { showPopup = true },
@@ -106,26 +116,40 @@ fun TestScreen() {
                         )
                     }
                 }
-                // Dynamic height but fixed width
-                HighlightCard(
-                    modifier = Modifier,
-                    width = (screenWidth / 2),
-                    innerPadding = 8.dp
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {// Dynamic height but fixed width
+                    HighlightCard(
+                        modifier = Modifier,
+                        width = (screenWidth / 2),
+                        innerPadding = 8.dp
                     ) {
-                        // Same Custom Icon
-                        ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(R.drawable.person),
-                            tint = AppTheme.colors.BrandTwo,
-                            modifier = Modifier.size(80.dp)
-                        )
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Same Custom Icon
+                            ShadowedIcon(
+                                imageVector = ImageVector.vectorResource(R.drawable.person),
+                                tint = AppTheme.colors.BrandTwo,
+                                modifier = Modifier.size(80.dp),
+                                shadowAlpha = 1f,
+                                shadowOffset = Offset(5f, 6f)
+                            )
+                        }
                     }
+                    //Example Circle Button
+                    CircleButton(
+                        onClick = { },
+                        imageVector = ImageVector.vectorResource(R.drawable.backpack),
+                        size = 64.dp,
+                    )
                 }
                 //Showing popup example
                 PopupCard {
@@ -247,7 +271,6 @@ fun HighlightCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                //.then(if (width != null) Modifier.fillMaxWidth() else Modifier.wrapContentWidth())
                 .then(if (height != null) Modifier.fillMaxHeight() else Modifier.wrapContentWidth())
                 .padding(innerPadding),
         ){ content() }
@@ -275,7 +298,7 @@ fun CustomButton(
                 ambientColor = AppTheme.colors.DropShadow,
             )
             .clip(RoundedCornerShape(cornerRadius))
-            .background(backgroundColor)
+            .background(Color.White)
             .clickable(onClick = onClick)
     ) {
         // Top left
@@ -329,20 +352,22 @@ fun ShadowedIcon(
     contentDescription: String? = null,
     tint: Color = AppTheme.colors.Background,
     shadowColor: Color = AppTheme.colors.DropShadow,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shadowOffset: Offset = Offset(3f,3f),
+    shadowAlpha: Float = .5f
 ) {
     val painter = rememberVectorPainter(image = imageVector)
 
     Box(
         modifier = modifier
-            .drawBehind {
+            .drawBehind {5
                 drawIntoCanvas { canvas ->
                     canvas.save()
-                    canvas.translate(5f,6f)
+                    canvas.translate(shadowOffset.x, shadowOffset.y)
                     painter.apply {
                         draw(
                             size = this@drawBehind.size,
-                            alpha = 1f,
+                            alpha = shadowAlpha,
                             colorFilter = ColorFilter.tint(shadowColor),
                         )
                     }
@@ -421,3 +446,162 @@ fun PopupCard(
         ) { content() }
     }
 }
+
+@Composable
+fun CircleButton(
+    onClick: () -> Unit,
+    imageVector: ImageVector,
+    contentDescription: String? = null,
+    size: Dp = 64.dp, // Button Size
+    backgroundColor: Color = AppTheme.colors.SecondaryOne,
+    iconTint: Color = AppTheme.colors.DarkerBackground,
+    shadowColor: Color = AppTheme.colors.DropShadow,
+    elevation: Dp = 8.dp,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .shadow(
+                elevation = elevation,
+                shape = CircleShape,
+                ambientColor = shadowColor,
+                spotColor = shadowColor,
+            )
+            .clip(CircleShape)
+            .background(Color.White)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(
+                    bounded = true,
+                    radius = size / 2
+                )
+            ) { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        // Top left
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = backgroundColor,
+            shadowColor = AppTheme.colors.Gray,
+            blur = 4.dp,
+            offsetX = 1.dp,
+            offsetY = 1.dp,
+            spread = 2.dp,
+            cornerRadius = size / 2,
+        )
+        // Bottom right
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = Color.Transparent,
+            shadowColor = AppTheme.colors.LightShadow,
+            blur = 1.5.dp,
+            offsetX = (-.5).dp,
+            offsetY = (-1).dp,
+            spread = 1.dp,
+            cornerRadius = size / 2,
+        )
+        // All over inside
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = Color.Transparent,
+            shadowColor = AppTheme.colors.DropShadow,
+            blur = 2.dp,
+            spread = .5.dp,
+            cornerRadius = size / 2,
+        )
+        ShadowedIcon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = iconTint,
+            shadowColor = shadowColor,
+            modifier = Modifier.size(size * .75f)
+        )
+    }
+}
+
+@Composable
+fun ProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .height (16.dp),
+    backgroundColor: Color = AppTheme.colors.DarkerBackground,
+    progressColor: Color = AppTheme.colors.SecondaryTwo,
+    cornerRadius: Dp = 5.dp
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(backgroundColor)
+    ) {
+        // Top Left
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = backgroundColor,
+            shadowColor = AppTheme.colors.DropShadow,
+            blur = 2.dp,
+            offsetX = .5.dp,
+            offsetY = .5.dp,
+            spread = 3.dp,
+            cornerRadius = cornerRadius,
+        )
+        //Bottom Right Shadow
+        InnerShadow(
+            modifier = Modifier.matchParentSize(),
+            color = Color.Transparent,
+            shadowColor = AppTheme.colors.FadedGray,
+            blur = 1.dp,
+            offsetX = (-.5).dp,
+            offsetY = (-1).dp,
+            spread = 1.dp,
+            cornerRadius = (cornerRadius),
+        )
+        Box(
+            modifier = Modifier
+                .padding(
+                    start = 1.dp,
+                    top = 1.5.dp,
+                    end = 1.dp,
+                    bottom = 1.5.dp,
+                    )
+                .fillMaxHeight()
+                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .clip(RoundedCornerShape(cornerRadius - 1.dp))
+                .background(progressColor)
+        ) {
+            // Top left
+            InnerShadow(
+                modifier = Modifier.matchParentSize(),
+                color = Color.Transparent,
+                shadowColor = AppTheme.colors.Gray,
+                blur = 4.dp,
+                offsetX = 1.dp,
+                offsetY = 1.dp,
+                spread = 2.dp,
+                cornerRadius = (cornerRadius - 1.dp),
+            )
+            // Bottom right
+            InnerShadow(
+                modifier = Modifier.matchParentSize(),
+                color = Color.Transparent,
+                shadowColor = AppTheme.colors.LightShadow,
+                blur = 1.5.dp,
+                offsetX = (-.5).dp,
+                offsetY = (-1).dp,
+                spread = 1.dp,
+                cornerRadius = (cornerRadius - 1.dp),
+            )
+            // All over inside
+            InnerShadow(
+                modifier = Modifier.matchParentSize(),
+                color = Color.Transparent,
+                shadowColor = AppTheme.colors.DropShadow,
+                blur = 2.dp,
+                spread = .5.dp,
+                cornerRadius = (cornerRadius - 1.dp),
+            )
+        }
+    }
+}
+
