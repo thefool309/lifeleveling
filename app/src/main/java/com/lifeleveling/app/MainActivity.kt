@@ -1,10 +1,14 @@
 package com.lifeleveling.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -31,13 +35,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
-
-
-// Temp Check to ensure firebase connection
-import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
@@ -48,16 +45,34 @@ import com.lifeleveling.app.navigation.TempStreaksScreen
 import com.lifeleveling.app.ui.theme.StartLogic
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
+    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Register the launcher and forward the result to AuthViewModel
+        googleLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            authVm.handleGoogleResultIntent(result.data)
+        }
+
+        // TEMP: force sign out to see SignIn (remove later)
+        authVm.signOut(this)
+
         enableEdgeToEdge()
         setContent {
             // Startup logic and Splash Screen values
-            val startLogic: StartLogic = viewModel() // TODO: Go to this file to put in start logic
+            val startLogic: StartLogic = viewModel()
             val isInitialized by startLogic.isInitialized.collectAsState()
             var appReady by remember { mutableStateOf(false) }
             val startTime = remember { System.currentTimeMillis() }
             val minSplashTime = 2000L // How long Splash shows at a minimum for loading reassurance
+
+            // Auth state from VM
+            val authState by authVm.ui.collectAsState()
 
             // Splash Screen effect while loading
             LaunchedEffect(isInitialized) {
@@ -73,46 +88,44 @@ class MainActivity : ComponentActivity() {
             val isDarkTheme = remember { mutableStateOf(true) }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                // If app isn't ready, show splash
                 if (!appReady) {
                     SplashAnimationOverlay()
                 } else {
-                    // App is ready, go to ui logic
+                    // Show SignIn when not authenticated; show your app when signed in
                     LifelevelingTheme(darkTheme = isDarkTheme.value) {
-                        val navController = rememberNavController()
+                        if (authState.user == null) {
 
-                        Surface(color = AppTheme.colors.Background) {
-                            Scaffold(
-                                bottomBar = {
-                                    BottomNavigatioonBar(navController = navController)
-                                }, content = { padding ->
+                            // -------- Sign In UI --------
+                            SignIn(
+                                // Auth using email and password
+                                onLogin = { /* TODO: email/password */ },
+
+                                // Auth with Google Sign In
+                                onGoogleLogin = {
+                                    authVm.beginGoogleSignIn()
+                                    val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                    googleLauncher.launch(intent)
+                                },
+
+                                // Create account screen
+                                onCreateAccount = { /* TODO: navigate to sign-up */ }
+                            )
+                        } else {
+
+                            // Main App UI
+                            val navController = rememberNavController()
+                            Surface(color = AppTheme.colors.Background) {
+                                Scaffold(
+                                    bottomBar = { BottomNavigatioonBar(navController = navController) },
+                                ) { padding ->
                                     NavHostContainer(navController = navController, padding = padding)
                                 }
-                            )
+                            }
                         }
                     }
                 }
             }
         }
-
-        // ==== TEMP healthcheck: sign in anonymously, then write a doc ====
-        FirebaseAuth.getInstance()
-            .signInAnonymously()
-            .addOnSuccessListener {
-                Log.d("FB", "Anon sign-in OK: uid=${it.user?.uid}")
-                Firebase.firestore.collection("healthchecks")
-                    .add(mapOf("ts" to Timestamp.now(), "source" to "android"))
-                    .addOnSuccessListener { docRef ->
-                        Log.d("FB", "Healthcheck doc: ${docRef.id}")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("FB", "Healthcheck failed", e)
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.e("FB", "Anon sign-in failed", e)
-            }
-        // ==== END TEMP ====
     }
 }
 
@@ -126,21 +139,11 @@ fun NavHostContainer(
         startDestination = "home",
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
-            composable("calendar") {
-                TempCalendarScreen()
-            }
-            composable("stats") {
-                TempStatsScreen()
-            }
-            composable("home") {
-                TempHomeScreen()
-            }
-            composable("streaks") {
-                TempStreaksScreen()
-            }
-            composable("settings") {
-                TempSettingsScreen()
-            }
+            composable("calendar") { TempCalendarScreen() }
+            composable("stats") { TempStatsScreen() }
+            composable("home") { TempHomeScreen() }
+            composable("streaks") { TempStreaksScreen() }
+            composable("settings") { TempSettingsScreen() }
         }
     )
 }
@@ -163,7 +166,7 @@ fun BottomNavigatioonBar(navController: NavHostController) {
                         imageVector = ImageVector.vectorResource(navItem.icon),
                         contentDescription = navItem.route,
                         modifier = Modifier.size(40.dp),
-                        )
+                    )
                 },
                 alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
