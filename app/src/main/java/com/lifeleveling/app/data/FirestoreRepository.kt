@@ -5,7 +5,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -87,18 +86,18 @@ class FirestoreRepository {
             )
             try {
                 docRef.set(result).await()
-                result;
+                result
             }
             catch (e: Exception) {
                 // unknown error saving user to Firebase
                 Log.e("Firestore", "Error Saving User: ", e)
-                null;
+                null
             }
 
         } else {
             // No user is signed in
             Log.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
-            null;
+            null
         }
 
     }
@@ -106,7 +105,7 @@ class FirestoreRepository {
     // function to edit user in firebase
     suspend fun editUser(userData: Map<String, Any>) : Boolean {
         val userId = FirebaseAuth.getInstance().currentUser!!.uid
-        var result: Boolean = false
+        var result: Boolean
         try {
             db.collection("users")
                 .document(userId)
@@ -122,7 +121,7 @@ class FirestoreRepository {
     }
     // TODO: function to retrieve user information from firebase
     fun getUser(uID: String): Users {
-        val result = Users();
-        return result;
+        val result = Users()
+        return result
     }
 }
