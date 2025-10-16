@@ -74,6 +74,8 @@ class FirestoreRepository {
 
         return if (currentUser != null) {
             val uid = currentUser.uid
+            val docRef = db.collection("users")
+                            .document(uid)
 
             val result = Users(
                 userId = uid,
@@ -84,13 +86,7 @@ class FirestoreRepository {
                 lastUpdate = Timestamp.now()
             )
             try {
-                FirebaseFirestore
-                    .getInstance()
-                    .collection("users")
-                    .document(uid)
-                    .set(result)
-                    .await()
-
+                docRef.set(result).await()
                 result;
             }
             catch (e: Exception) {
@@ -106,9 +102,23 @@ class FirestoreRepository {
         }
 
     }
-    // TODO: function to edit user in firebase
-    fun editUser(userData: Map<String, Any>) {
-
+    // TODO: Test editUser function
+    // function to edit user in firebase
+    suspend fun editUser(userData: Map<String, Any>) : Boolean {
+        val userId = FirebaseAuth.getInstance().currentUser!!.uid
+        var result: Boolean = false
+        try {
+            db.collection("users")
+                .document(userId)
+                .update(userData)
+                .await()
+            result = true
+        }
+        catch (e: Exception) {
+            Log.e("Auth", "Error Updating User: ", e)
+            result = false
+        }
+        return result
     }
     // TODO: function to retrieve user information from firebase
     fun getUser(uID: String): Users {
