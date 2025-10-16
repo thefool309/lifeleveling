@@ -1,8 +1,11 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -59,5 +62,56 @@ class FirestoreRepository {
 
         Log.d("FB", "users/$uid created=$firstTime")
         return firstTime
+    }
+
+    // Function to create user and store in firebase
+    // returns null on failure. We use a suspend function because
+    // FirebaseFirestore is async
+    suspend fun CreateUser(userData: Map<String, Any>): Users? {
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        return if (currentUser != null) {
+            val uid = currentUser.uid
+
+            val result = Users(
+                userId = uid,
+                displayName = userData["displayName"].toString(),
+                email = userData["email"].toString(),
+                photoUrl = userData["photoUrl"].toString(),
+                createdAt = Timestamp.now(),
+                lastUpdate = Timestamp.now()
+            )
+            try {
+                FirebaseFirestore
+                    .getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .set(result)
+                    .await()
+
+                result;
+            }
+            catch (e: Exception) {
+                // unknown error saving user to Firebase
+                Log.e("Firestore", "Error Saving User: ", e)
+                null;
+            }
+
+        } else {
+            // No user is signed in
+            Log.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
+            null;
+        }
+
+    }
+    // TODO: function to edit user in firebase
+    fun EditUser(user: Users) {
+
+    }
+    // TODO: function to retrieve user information from firebase
+    fun GetUser(uID: String): Users {
+        val result = Users();
+        return result;
     }
 }
