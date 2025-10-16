@@ -23,6 +23,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+import com.lifeleveling.app.data.FirestoreRepository
+import kotlinx.coroutines.tasks.await
+
 data class AuthUiState(
     val user: FirebaseUser? = null,
     val isLoading: Boolean = false,
@@ -31,6 +34,7 @@ data class AuthUiState(
 
 class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val repo = FirestoreRepository()
 
     private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
     val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
@@ -78,6 +82,16 @@ class AuthViewModel : ViewModel() {
             .addOnSuccessListener { res ->
                 val user = res.user
                 Log.d("FB", "Google sign-in OK: uid=${user?.uid}, name=${user?.displayName}")
+
+                if (user != null) {
+                    viewModelScope.launch {
+                        try {
+                            repo.ensureUserCreated(user)
+                        } catch (e: Exception) {
+                            Log.e("FB", "ensureUserCreated failed", e)
+                        }
+                    }
+                }
 
                 // Writes healthcheck on database
                 Firebase.firestore.collection("healthchecks")
