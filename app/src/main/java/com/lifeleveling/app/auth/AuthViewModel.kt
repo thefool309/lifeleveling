@@ -79,7 +79,7 @@ class AuthViewModel : ViewModel() {
                 val user = res.user
                 Log.d("FB", "Google sign-in OK: uid=${user?.uid}, name=${user?.displayName}")
 
-                // optional healthcheck write (kept from your logic)
+                // Writes healthcheck on database
                 Firebase.firestore.collection("healthchecks")
                     .add(mapOf(
                         "ts" to Timestamp.now(),
