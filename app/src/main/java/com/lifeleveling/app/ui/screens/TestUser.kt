@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 object TestUser {
     var name by mutableStateOf("John Doe")
     var level by mutableStateOf(3)
-    var currentExp by mutableStateOf(280)
+    var currentExp by mutableStateOf(250)
     var expToLevel by mutableStateOf(300)
     var coins by mutableStateOf(301)
     var currentHealth by mutableStateOf(34)
