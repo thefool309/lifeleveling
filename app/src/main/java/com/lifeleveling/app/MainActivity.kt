@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,8 @@ import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.theme.HideSystemBars
+import com.lifeleveling.app.ui.theme.ShadowedIcon
 import com.lifeleveling.app.ui.theme.StartLogic
 
 class MainActivity : ComponentActivity() {
@@ -73,6 +77,9 @@ class MainActivity : ComponentActivity() {
             val isDarkTheme = remember { mutableStateOf(true) }
 
             Box(modifier = Modifier.fillMaxSize()) {
+                // Hide system bars
+                HideSystemBars()
+
                 // If app isn't ready, show splash
                 if (!appReady) {
                     SplashAnimationOverlay()
@@ -83,6 +90,7 @@ class MainActivity : ComponentActivity() {
 
                         Surface(color = AppTheme.colors.Background) {
                             Scaffold(
+                                //contentWindowInsets = WindowInsets(0,0,0,0),
                                 bottomBar = {
                                     BottomNavigatioonBar(navController = navController)
                                 }, content = { padding ->
