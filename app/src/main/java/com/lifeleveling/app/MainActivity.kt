@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
 
                         Surface(color = AppTheme.colors.Background) {
                             Scaffold(
-                                //contentWindowInsets = WindowInsets(0,0,0,0),
+                                //contentWindowInsets = WindowInsets(0,0,0,0),  // Add this if bottom nav keeps jumping up
                                 bottomBar = {
                                     BottomNavigatioonBar(navController = navController)
                                 }, content = { padding ->
