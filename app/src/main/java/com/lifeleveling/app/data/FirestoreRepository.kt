@@ -64,10 +64,11 @@ class FirestoreRepository {
         return firstTime
     }
 
+    // TODO: Test createUser
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
-    suspend fun CreateUser(userData: Map<String, Any>): Users? {
+    suspend fun createUser(userData: Map<String, Any>): Users? {
 
         val currentUser = FirebaseAuth.getInstance().currentUser
 
@@ -106,11 +107,11 @@ class FirestoreRepository {
 
     }
     // TODO: function to edit user in firebase
-    fun EditUser(user: Users) {
+    fun editUser(userData: Map<String, Any>) {
 
     }
     // TODO: function to retrieve user information from firebase
-    fun GetUser(uID: String): Users {
+    fun getUser(uID: String): Users {
         val result = Users();
         return result;
     }
