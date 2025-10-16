@@ -3,11 +3,11 @@ package com.lifeleveling.app
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,7 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -48,14 +49,44 @@ import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
-import com.lifeleveling.app.ui.theme.ShadowedIcon
 import com.lifeleveling.app.ui.theme.StartLogic
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        var isDarkTheme = true  // TODO: Change to pull on saved preference
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Transparent.toArgb()
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Transparent.toArgb()
+            )
+        )
+
         setContent {
+            // Setting theme
+            val isDarkThemeState = remember { mutableStateOf(isDarkTheme) }
+
+            // System icon change
+            LaunchedEffect(isDarkThemeState.value) {
+                enableEdgeToEdge(
+                    statusBarStyle = if(isDarkThemeState.value) {
+                        SystemBarStyle.dark(Color.Transparent.toArgb())
+                    } else {
+                        SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                    },
+                    navigationBarStyle = if(isDarkThemeState.value) {
+                        SystemBarStyle.dark(Color.Transparent.toArgb())
+                    } else {
+                        SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                    }
+                )
+            }
+
             // Startup logic and Splash Screen values
             val startLogic: StartLogic = viewModel() // TODO: Go to this file to put in start logic
             val isInitialized by startLogic.isInitialized.collectAsState()
@@ -73,9 +104,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // Setting theme
-            val isDarkTheme = remember { mutableStateOf(true) }
-
             Box(modifier = Modifier.fillMaxSize()) {
                 // Hide system bars
                 HideSystemBars()
@@ -85,7 +113,7 @@ class MainActivity : ComponentActivity() {
                     SplashAnimationOverlay()
                 } else {
                     // App is ready, go to ui logic
-                    LifelevelingTheme(darkTheme = isDarkTheme.value) {
+                    LifelevelingTheme(darkTheme = isDarkThemeState.value) {
                         val navController = rememberNavController()
 
                         Surface(color = AppTheme.colors.Background) {
