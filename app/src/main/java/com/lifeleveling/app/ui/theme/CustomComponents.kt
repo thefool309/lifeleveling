@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import java.lang.reflect.AnnotatedElement
 
 // This screen shows the different effects that are within this file
 @Preview
@@ -368,11 +367,11 @@ fun CustomButton(
 
 @Composable
 fun ShadowedIcon(
+    modifier: Modifier = Modifier,
     imageVector: ImageVector,
     contentDescription: String? = null,
     tint: Color = AppTheme.colors.Background,
     shadowColor: Color = AppTheme.colors.DropShadow,
-    modifier: Modifier = Modifier,
     shadowOffset: Offset = Offset(3f,3f),
     shadowAlpha: Float = .5f
 ) {
@@ -469,6 +468,7 @@ fun PopupCard(
 
 @Composable
 fun CircleButton(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     imageVector: ImageVector,
     contentDescription: String? = null,
@@ -477,7 +477,6 @@ fun CircleButton(
     iconTint: Color = AppTheme.colors.DarkerBackground,
     shadowColor: Color = AppTheme.colors.DropShadow,
     elevation: Dp = 8.dp,
-    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -543,15 +542,15 @@ fun CircleButton(
 @Composable
 fun ProgressBar(
     progress: Float,
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .height (16.dp),
+    modifier: Modifier = Modifier,
     backgroundColor: Color = AppTheme.colors.DarkerBackground,
     progressColor: Color = AppTheme.colors.SecondaryTwo,
     cornerRadius: Dp = 5.dp
 ) {
     Box(
         modifier = modifier
+            .fillMaxWidth()
+            .height (16.dp)
             .clip(RoundedCornerShape(cornerRadius))
             .background(backgroundColor)
     ) {
