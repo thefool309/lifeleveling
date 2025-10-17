@@ -8,6 +8,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.firestoreSettings
+import com.lifeleveling.app.data.FirestoreRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -61,10 +62,18 @@ class FirestoreRepositoryIntegrationTest {
         latch.await(10, TimeUnit.SECONDS) // Wait for up to 10 seconds
     }
 
-
     // TODO: Test createUser
     @Test
     fun createUserPositiveTest() = runTest {
+        auth.createUserWithEmailAndPassword(testEmail, testPassword)
+        val createdUser = auth.currentUser
+        val repo = FirestoreRepository()
+        repo.createUser(mapOf("displayName" to testUsername,
+                                         "email" to testEmail,
+                                         "userId" to createdUser!!.uid))
+    }
+
+    fun createUserNullPointerNegativeTest() {
 
     }
     // TODO: Test editUser function
