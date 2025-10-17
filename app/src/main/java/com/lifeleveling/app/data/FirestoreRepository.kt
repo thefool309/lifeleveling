@@ -121,6 +121,7 @@ class FirestoreRepository {
         }
         return result
     }
+
     // TODO: function to retrieve user information from firebase
     fun getUser(uID: String): Users {
         val result = Users()
