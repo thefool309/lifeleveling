@@ -58,3 +58,4 @@ google-services.json
 
 .firebaserc
 firebase.json
+*.log
