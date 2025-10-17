@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
 class FirestoreRepository {
@@ -67,7 +68,7 @@ class FirestoreRepository {
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
-    suspend fun createUser(userData: Map<String, Any>): Users? {
+    suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
 
         val currentUser = FirebaseAuth.getInstance().currentUser
 
@@ -90,20 +91,20 @@ class FirestoreRepository {
             }
             catch (e: Exception) {
                 // unknown error saving user to Firebase
-                Log.e("Firestore", "Error Saving User: ", e)
+                logger.e("Firestore", "Error Saving User: ", e)
                 null
             }
 
         } else {
             // No user is signed in
-            Log.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
+            logger.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
             null
         }
 
     }
 
     // function to edit user in firebase
-    suspend fun editUser(userData: Map<String, Any>) : Boolean {
+    suspend fun editUser(userData: Map<String, Any>, logger: ILogger) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
         // if the user is not authenticated then authenticate before calling this function
         val userId: String = FirebaseAuth.getInstance().currentUser!!.uid
@@ -116,14 +117,30 @@ class FirestoreRepository {
             result = true
         }
         catch (e: Exception) {
-            Log.e("Auth", "Error Updating User: ", e)
+            logger.e("Auth", "Error Updating User: ", e)
             result = false
         }
         return result
     }
 
+    suspend fun editUserName(userName: String, logger: ILogger) : Boolean {
+        var result: Boolean = false
+        val userId: String = FirebaseAuth.getInstance().currentUser!!.uid
+        val docRef = db.collection("users")
+        .document(userId)
+        try {
+            docRef.update("displayName", userName)
+            .await()
+            result = true
+        }
+        catch (e: Exception) {
+            logger.e("Auth", "Error Updating User: ", e)
+        }
+        return result
+    }
+
     // TODO: function to retrieve user information from firebase
-    fun getUser(uID: String): Users {
+    fun getUser(uID: String, logger: ILogger): Users {
         val result = Users()
         return result
     }

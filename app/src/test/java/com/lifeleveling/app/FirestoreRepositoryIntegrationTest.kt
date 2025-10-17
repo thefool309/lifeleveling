@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.firestoreSettings
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.TestLogger
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -69,21 +70,23 @@ class FirestoreRepositoryIntegrationTest {
     @Test
     fun createUserPositiveTest() = runTest {
         auth.createUserWithEmailAndPassword(testEmail, testPassword)
+        val logger: TestLogger = TestLogger()
         val createdUser = auth.currentUser
         val repo = FirestoreRepository()
         val result = repo.createUser(mapOf("displayName" to testUsername,
                                          "email" to testEmail,
-                                         "userId" to createdUser!!.uid))
+                                         "userId" to createdUser!!.uid), logger)
         assert(createdUser.uid == result!!.userId)
     }
     // create test expecting null pointer exception
     @Test
     fun createUserNullPointerNegativeTest() = runTest{
+        val logger: TestLogger = TestLogger()
         val repo = FirestoreRepository()
         val exception = assertFailsWith<NullPointerException> {
         val result =  repo.createUser(mapOf("displayName" to testUsername,
             "email" to testEmail,
-            "userId" to "broken user"))
+            "userId" to "broken user"), logger)
         }
     }
     // TODO: Test editUser function
