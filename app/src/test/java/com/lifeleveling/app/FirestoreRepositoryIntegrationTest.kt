@@ -1,5 +1,7 @@
 package com.lifeleveling.app
 
+import android.util.Log
+import androidx.compose.ui.platform.LocalGraphicsContext
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -9,9 +11,11 @@ import com.google.firebase.firestore.firestoreSettings
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-class FirestoreUserRepositoryIntegrationTest {
+class FirestoreRepositoryIntegrationTest {
 
     // Late-initialized properties for the Firebase instances
     private lateinit var auth: FirebaseAuth
@@ -27,6 +31,8 @@ class FirestoreUserRepositoryIntegrationTest {
     fun setup() {
         // Connect to the Firestore emulator
         val firestoreSettings = firestoreSettings {
+            // Android emulator uses 10.0.2.2 to connect to local loopback address
+            // https://stackoverflow.com/questions/9808560/why-do-we-use-10-0-2-2-to-connect-to-local-web-server-instead-of-using-computer
             host = "10.0.2.2:8080"
             isSslEnabled = false
             isPersistenceEnabled = false
@@ -43,13 +49,15 @@ class FirestoreUserRepositoryIntegrationTest {
     @After
     fun cleanup() {
         // Clean up Auth and Firestore data after each test
-        runTest {
-            // Un-authenticate the user
-            auth.signOut()
+        val latch = CountDownLatch(2)
 
-            // Clear all data in the Firestore emulator
-            firestore.clearPersistence()
-        }
+        auth.signOut()
+        latch.countDown()
+        firestore.clearPersistence().addOnSuccessListener { Log.d("FirestoreRepositoryIntegrationTest", "Firebase database cleanup success") }
+            .addOnFailureListener { e -> Log.e("FirestoreRepositoryIntegrationTest", "Firebase database cleanup failed", e) }
+            .addOnCompleteListener { latch.countDown() }
+
+        latch.await(10, TimeUnit.SECONDS) // Wait for up to 10 seconds
     }
 
 
