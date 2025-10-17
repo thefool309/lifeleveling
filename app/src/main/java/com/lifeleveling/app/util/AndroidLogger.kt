@@ -1,19 +1,21 @@
-package util
+package com.lifeleveling.app.util
 
-class TestLogger : iLogger{
+import android.util.Log
+
+class AndroidLogger : iLogger {
     override fun d(tag: String, message: String) {
-        TODO("Not yet implemented")
+        Log.d(tag, message)
     }
 
     override fun e(tag: String, message: String, throwable: Throwable) {
-        TODO("Not yet implemented")
+        Log.e(tag, message, throwable)
     }
 
     override fun w(tag: String, message: String) {
-        TODO("Not yet implemented")
+        Log.w(tag, message)
     }
 
     override fun i(tag: String, message: String) {
-        TODO("Not yet implemented")
+        Log.i(tag, message)
     }
 }

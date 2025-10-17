@@ -1,4 +1,4 @@
-package util
+package com.lifeleveling.app.util
 
 interface iLogger {
     fun d(tag: String, message: String)
