@@ -33,6 +33,7 @@ class FirestoreRepositoryIntegrationTest {
     //TODO: initialize testing environment
     @Before
     fun setup() {
+        Log.d("Integration Tests", "Running Setup...")
         // Connect to the Firestore emulator
         val firestoreSettings = firestoreSettings {
             // Android emulator uses 10.0.2.2 to connect to local loopback address
@@ -46,7 +47,7 @@ class FirestoreRepositoryIntegrationTest {
         }
 
         // Connect to the Auth emulator
-        auth = Firebase.auth
+        auth = FirebaseAuth.getInstance()
         auth.useEmulator("10.0.2.2", 9099)
     }
 
