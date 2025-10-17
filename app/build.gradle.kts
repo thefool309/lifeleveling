@@ -44,6 +44,10 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
+    androidTestImplementation("com.google.firebase:firebase-auth-ktx")
+    androidTestImplementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.4.0")
@@ -65,6 +69,7 @@ dependencies {
 
     // Splashscreen
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.test.ext:junit-ktx:1.3.0")
 
     // Tests
     testImplementation("junit:junit:4.13.2")
@@ -74,7 +79,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-
+    // TODO: add the below to figma
     val coroutinesVersion = "1.8.1"
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion")
@@ -84,4 +89,15 @@ dependencies {
     // Use for local unit tests
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
+    androidTestImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    testImplementation("androidx.test.ext:junit-ktx:1.3.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.3.0")
+    testImplementation("androidx.test:rules:1.7.0")
+    androidTestImplementation("androidx.test:rules:1.7.0")
+
+
 }
