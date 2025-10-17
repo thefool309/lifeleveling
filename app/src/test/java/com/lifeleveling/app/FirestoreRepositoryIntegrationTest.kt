@@ -11,6 +11,7 @@ import com.google.firebase.firestore.firestoreSettings
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
@@ -62,8 +63,15 @@ class FirestoreRepositoryIntegrationTest {
 
 
     // TODO: Test createUser
+    @Test
+    fun createUserPositiveTest() = runTest {
 
+    }
     // TODO: Test editUser function
+    @Test
+    fun editUserPositiveTest() = runTest {
+
+    }
 
 
 }
