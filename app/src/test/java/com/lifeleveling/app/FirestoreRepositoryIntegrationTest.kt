@@ -65,7 +65,7 @@ class FirestoreRepositoryIntegrationTest {
         latch.await(10, TimeUnit.SECONDS) // Wait for up to 10 seconds
     }
 
-    // TODO: Test createUser
+    // Test createUser
     @Test
     fun createUserPositiveTest() = runTest {
         auth.createUserWithEmailAndPassword(testEmail, testPassword)
@@ -76,7 +76,7 @@ class FirestoreRepositoryIntegrationTest {
                                          "userId" to createdUser!!.uid))
         assert(createdUser.uid == result!!.userId)
     }
-    // TODO: create test expecting null pointer exception
+    // create test expecting null pointer exception
     @Test
     fun createUserNullPointerNegativeTest() = runTest{
         val repo = FirestoreRepository()
