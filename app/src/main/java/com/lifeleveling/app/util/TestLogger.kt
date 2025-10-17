@@ -1,6 +1,6 @@
 package com.lifeleveling.app.util
 
-class TestLogger : iLogger{
+class TestLogger : ILogger{
     override fun d(tag: String, message: String) {
         TODO("Not yet implemented")
     }

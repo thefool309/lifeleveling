@@ -2,7 +2,7 @@ package com.lifeleveling.app.util
 
 import android.util.Log
 
-class AndroidLogger : iLogger {
+class AndroidLogger : ILogger {
     override fun d(tag: String, message: String) {
         Log.d(tag, message)
     }
