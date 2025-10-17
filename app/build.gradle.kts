@@ -83,4 +83,5 @@ dependencies {
 
     // Use for local unit tests
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
 }
