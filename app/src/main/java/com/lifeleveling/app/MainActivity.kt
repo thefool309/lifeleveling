@@ -130,7 +130,7 @@ fun NavHostContainer(
                 TempCalendarScreen()
             }
             composable("stats") {
-                TempStatsScreen()
+                StatsScreen()
             }
             composable("home") {
                 TempHomeScreen()
