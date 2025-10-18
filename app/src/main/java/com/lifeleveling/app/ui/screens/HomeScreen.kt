@@ -2,23 +2,29 @@ package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -27,11 +33,15 @@ import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.LevelAndProgress
 import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
+import com.lifeleveling.app.ui.theme.ProgressBar
+import com.lifeleveling.app.ui.theme.ShadowedIcon
+import com.lifeleveling.app.ui.theme.SlidingSwitch
 
 @Preview
 @Composable
 fun HomeScreen() {
     val showLevelTip = remember { mutableStateOf(false) }
+    val fightMeditateSwitch = remember { mutableStateOf(0) }
 
     // Main screen pulling everything in 16.dp from edge
     Box(
@@ -92,11 +102,51 @@ fun HomeScreen() {
             }
 
             // Bottom health and switch
-            Box(
+            Column(
                 modifier = Modifier
                     .weight(.2f)
-            ) {
-                Text("Bottom bar")
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+            ) {// This line of health display
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ShadowedIcon(
+                        modifier = Modifier
+                            .size(20.dp),
+                        imageVector = ImageVector.vectorResource(R.drawable.heart),
+                        tint = AppTheme.colors.SecondaryThree,
+                        shadowOffset = Offset(4f, 4f)
+                    )
+                    Text(
+                        text = stringResource(R.string.health_display, TestUser.currentHealth, TestUser.maxHealth),
+                        style = AppTheme.textStyles.Default,
+                        color = AppTheme.colors.Gray
+                    )
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.info),
+                        tint = AppTheme.colors.FadedGray,
+                        modifier = Modifier
+                            .size(20.dp)
+//                            .clickable {
+//                                if(!showLevelTip) {showLevelTip = true} else {showLevelTip = false}
+//                            }
+                    )
+                }
+
+                // Progress bar
+                ProgressBar(
+                    progress = TestUser.currentHealth.toFloat() / TestUser.maxHealth,
+                    progressColor = AppTheme.colors.SecondaryThree
+                )
+
+                // Fight to Meditate Switch
+                SlidingSwitch(
+                    options = listOf("Fight", "Meditate"),
+                    selectedIndex = fightMeditateSwitch.value,
+                    onOptionSelected = { fightMeditateSwitch.value = it },
+                )
             }
         }
     }
