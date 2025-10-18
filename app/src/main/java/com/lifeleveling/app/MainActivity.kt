@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
                     SplashAnimationOverlay()
                 } else {
                     // Show SignIn when not authenticated; show your app when signed in
-                    LifelevelingTheme(darkTheme = isDarkTheme.value) {
+                    LifelevelingTheme(darkTheme = isDarkTheme) {
                         if (authState.user == null) {
 
                             // -------- Sign In UI --------
@@ -154,7 +154,7 @@ class MainActivity : ComponentActivity() {
                             val navController = rememberNavController()
                             Surface(color = AppTheme.colors.Background) {
                                 Scaffold(
-                                    bottomBar = { BottomNavigatioonBar(navController = navController) },
+                                    bottomBar = { BottomNavigationBar(navController = navController) },
                                 ) { padding ->
                                     NavHostContainer(navController = navController, padding = padding)
                                 }
