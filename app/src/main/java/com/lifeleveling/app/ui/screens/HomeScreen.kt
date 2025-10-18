@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
+import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.LevelAndProgress
 import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
@@ -43,6 +44,7 @@ fun HomeScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Box of Level and Exp
             LevelAndProgress(Modifier.weight(.2f))
@@ -50,12 +52,11 @@ fun HomeScreen() {
             // Coins display
             Box(
                 modifier = Modifier
-                    .weight(1f)
                     .fillMaxWidth(),
             ){
                 HighlightCard(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.CenterEnd)
                         .wrapContentWidth(Alignment.End),
                     wrapContent = true,
                     outerPadding = 0.dp,
@@ -80,6 +81,22 @@ fun HomeScreen() {
                         )
                     }
                 }
+            }
+
+            // Middle section
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                TempHomeScreen()
+            }
+
+            // Bottom health and switch
+            Box(
+                modifier = Modifier
+                    .weight(.2f)
+            ) {
+                Text("Bottom bar")
             }
         }
     }
