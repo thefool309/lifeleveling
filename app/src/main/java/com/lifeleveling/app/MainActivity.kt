@@ -3,6 +3,7 @@ package com.lifeleveling.app
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -41,17 +44,49 @@ import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
-import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        var isDarkTheme = true  // TODO: Change to pull on saved preference
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Transparent.toArgb()
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Transparent.toArgb()
+            )
+        )
+
         setContent {
+            // Setting theme
+            val isDarkThemeState = remember { mutableStateOf(isDarkTheme) }
+
+            // System icon change
+            LaunchedEffect(isDarkThemeState.value) {
+                enableEdgeToEdge(
+                    statusBarStyle = if(isDarkThemeState.value) {
+                        SystemBarStyle.dark(Color.Transparent.toArgb())
+                    } else {
+                        SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                    },
+                    navigationBarStyle = if(isDarkThemeState.value) {
+                        SystemBarStyle.dark(Color.Transparent.toArgb())
+                    } else {
+                        SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                    }
+                )
+            }
+
             // Startup logic and Splash Screen values
             val startLogic: StartLogic = viewModel() // TODO: Go to this file to put in start logic
             val isInitialized by startLogic.isInitialized.collectAsState()
@@ -69,22 +104,23 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // Setting theme
-            val isDarkTheme = remember { mutableStateOf(true) }
-
             Box(modifier = Modifier.fillMaxSize()) {
+                // Hide system bars
+                HideSystemBars()
+
                 // If app isn't ready, show splash
                 if (!appReady) {
                     SplashAnimationOverlay()
                 } else {
                     // App is ready, go to ui logic
-                    LifelevelingTheme(darkTheme = isDarkTheme.value) {
+                    LifelevelingTheme(darkTheme = isDarkThemeState.value) {
                         val navController = rememberNavController()
 
                         Surface(color = AppTheme.colors.Background) {
                             Scaffold(
+                                //contentWindowInsets = WindowInsets(0,0,0,0),  // Add this if bottom nav keeps jumping up
                                 bottomBar = {
-                                    BottomNavigatioonBar(navController = navController)
+                                    BottomNavigationBar(navController = navController)
                                 }, content = { padding ->
                                     NavHostContainer(navController = navController, padding = padding)
                                 }
@@ -133,7 +169,7 @@ fun NavHostContainer(
                 StatsScreen()
             }
             composable("home") {
-                TempHomeScreen()
+                HomeScreen()
             }
             composable("streaks") {
                 TempStreaksScreen()
@@ -146,7 +182,7 @@ fun NavHostContainer(
 }
 
 @Composable
-fun BottomNavigatioonBar(navController: NavHostController) {
+fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
         containerColor = AppTheme.colors.DarkerBackground,
         modifier = Modifier.height(80.dp)
