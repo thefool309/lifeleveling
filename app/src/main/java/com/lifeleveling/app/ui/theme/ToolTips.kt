@@ -93,3 +93,52 @@ fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
         }
     }
 }
+
+@Composable
+fun HealthToolTip(toShow: MutableState<Boolean>) {
+    // Level and Experience tips
+    val firstHealthTip = buildAnnotatedString {}
+
+    Dialog(
+        onDismissRequest = { toShow.value = false },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        // Making a custom dim
+        Box (
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = AppTheme.colors.DarkerBackground.copy(alpha = 0.1f))
+                .clickable { toShow.value = false },
+        ) {
+            PopupCard(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clickable { toShow.value = false }
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "Example Popup",
+                        color = AppTheme.colors.SecondaryThree,
+                        style = AppTheme.textStyles.HeadingFour.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(3f, 4f),
+                                blurRadius = 6f,
+                            )
+                        )
+                    )
+                    Text(
+                        "Testing popup capabilities and text wrapping. Click me to close.",
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.Default
+                    )
+                }
+            }
+        }
+    }
+}

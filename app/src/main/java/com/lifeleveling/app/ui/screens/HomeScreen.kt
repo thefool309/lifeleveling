@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -27,9 +28,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
 import com.lifeleveling.app.navigation.TempHomeScreen
+import com.lifeleveling.app.ui.theme.CircleButton
+import com.lifeleveling.app.ui.theme.EquipmentDisplay
+import com.lifeleveling.app.ui.theme.HealthToolTip
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.LevelAndProgress
 import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
@@ -41,6 +46,7 @@ import com.lifeleveling.app.ui.theme.SlidingSwitch
 @Composable
 fun HomeScreen() {
     val showLevelTip = remember { mutableStateOf(false) }
+    val showHealthTip = remember { mutableStateOf(false) }
     val fightMeditateSwitch = remember { mutableStateOf(0) }
 
     // Main screen pulling everything in 16.dp from edge
@@ -57,61 +63,145 @@ fun HomeScreen() {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Box of Level and Exp
-            LevelAndProgress(Modifier.weight(.2f))
+            LevelAndProgress(
+//                Modifier.weight(.2f)
+            )
 
-            // Coins display
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-            ){
-                HighlightCard(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .wrapContentWidth(Alignment.End),
-                    wrapContent = true,
-                    outerPadding = 0.dp,
-                    innerPadding = 8.dp,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .wrapContentWidth(Alignment.End),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.coins, TestUser.coins),
-                            style = AppTheme.textStyles.Default,
-                            color = AppTheme.colors.Gray
-                        )
-
-                        Image(
-                            painter = painterResource(R.drawable.coin),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-            }
+//            // Coins display
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//            ){
+//                HighlightCard(
+//                    modifier = Modifier
+//                        .align(Alignment.CenterEnd)
+//                        .wrapContentWidth(Alignment.End),
+//                    wrapContent = true,
+//                    outerPadding = 0.dp,
+//                    innerPadding = 8.dp,
+//                ) {
+//                    Row(
+//                        modifier = Modifier
+//                            .wrapContentWidth(Alignment.End),
+//                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+//                        verticalAlignment = Alignment.CenterVertically,
+//                    ) {
+//                        Text(
+//                            text = stringResource(R.string.coins, TestUser.coins),
+//                            style = AppTheme.textStyles.Default,
+//                            color = AppTheme.colors.Gray
+//                        )
+//
+//                        Image(
+//                            painter = painterResource(R.drawable.coin),
+//                            contentDescription = null,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
+//                }
+//            }
 
             // Middle section
             Box(
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxWidth()
             ) {
-                TempHomeScreen()
+                // =====================Avatar display here============================
+                Box(
+                    modifier = Modifier
+                        .matchParentSize(),
+                ) {
+
+                }
+
+                // Equipment
+                EquipmentDisplay(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .zIndex(1f),
+                )
+
+                // Circle Buttons
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .zIndex(1f),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Coins display
+                    Box(
+                        modifier = Modifier
+//                            .fillMaxWidth(),
+                    ){
+                        HighlightCard(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .wrapContentWidth(Alignment.End),
+                            wrapContent = true,
+                            outerPadding = 0.dp,
+                            innerPadding = 8.dp,
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .wrapContentWidth(Alignment.End),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.coins, TestUser.coins),
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.Gray
+                                )
+
+                                Image(
+                                    painter = painterResource(R.drawable.coin),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                    // Avatar Editing
+                    CircleButton(
+                        imageVector = ImageVector.vectorResource(R.drawable.head),
+                        onClick = {},
+                        size = 50.dp
+                    )
+                    // Store
+                    CircleButton(
+                        imageVector = ImageVector.vectorResource(R.drawable.store_basket),
+                        onClick = {},
+                        size = 50.dp
+                    )
+                    // Avatar positions
+                    CircleButton(
+                        imageVector = ImageVector.vectorResource(R.drawable.hand),
+                        onClick = {},
+                        size = 50.dp
+                    )
+                    // Inventory
+                    CircleButton(
+                        imageVector = ImageVector.vectorResource(R.drawable.backpack),
+                        onClick = {},
+                        size = 50.dp
+                    )
+                }
             }
 
             // Bottom health and switch
             Column(
                 modifier = Modifier
-                    .weight(.2f)
+//                    .weight(.2f)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(9.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {// This line of health display
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    // Heart
                     ShadowedIcon(
                         modifier = Modifier
                             .size(20.dp),
@@ -119,19 +209,21 @@ fun HomeScreen() {
                         tint = AppTheme.colors.SecondaryThree,
                         shadowOffset = Offset(4f, 4f)
                     )
+                    // Health Text
                     Text(
                         text = stringResource(R.string.health_display, TestUser.currentHealth, TestUser.maxHealth),
                         style = AppTheme.textStyles.Default,
                         color = AppTheme.colors.Gray
                     )
+                    // Info Pop-up Button
                     ShadowedIcon(
                         imageVector = ImageVector.vectorResource(R.drawable.info),
                         tint = AppTheme.colors.FadedGray,
                         modifier = Modifier
                             .size(20.dp)
-//                            .clickable {
-//                                if(!showLevelTip) {showLevelTip = true} else {showLevelTip = false}
-//                            }
+                            .clickable {
+                                if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
+                            }
                     )
                 }
 
@@ -143,6 +235,8 @@ fun HomeScreen() {
 
                 // Fight to Meditate Switch
                 SlidingSwitch(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally),
                     options = listOf("Fight", "Meditate"),
                     selectedIndex = fightMeditateSwitch.value,
                     onOptionSelected = { fightMeditateSwitch.value = it },
@@ -151,7 +245,11 @@ fun HomeScreen() {
         }
     }
 
+    // Show Tooltip Popups
     if (showLevelTip.value) {
         LifeExperienceToolTip(showLevelTip)
+    }
+    if (showHealthTip.value) {
+        HealthToolTip(showHealthTip)
     }
 }

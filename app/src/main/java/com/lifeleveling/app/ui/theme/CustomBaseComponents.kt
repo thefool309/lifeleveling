@@ -601,6 +601,7 @@ fun ProgressBar(
     progressColor: Color = AppTheme.colors.SecondaryTwo,  // Filled space
     cornerRadius: Dp = 5.dp
 ) {
+    // Outer Box
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -630,12 +631,13 @@ fun ProgressBar(
             spread = 1.dp,
             cornerRadius = (cornerRadius),
         )
+        // Inner bar
         Box(
             modifier = Modifier
                 .padding(
-                    start = 1.dp,
+                    start = 1.5.dp,
                     top = 1.5.dp,
-                    end = 1.dp,
+                    end = 1.5.dp,
                     bottom = 1.5.dp,
                     )
                 .fillMaxHeight()
@@ -693,6 +695,7 @@ fun ProgressBar(
  */
 @Composable
 fun SlidingSwitch(
+    modifier: Modifier = Modifier,
     options: List<String> = listOf("Light Mode", "Dark Mode"), // Switch options
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
@@ -733,7 +736,7 @@ fun SlidingSwitch(
     )
 
     Box (
-        modifier = Modifier
+        modifier = modifier
             .width(totalWidth)
             .height(totalHeight)
             .clip(RoundedCornerShape(cornerRadius))
@@ -828,62 +831,5 @@ fun SlidingSwitch(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun LevelAndProgress(
-    modifier: Modifier = Modifier, // add a weight for how much of the page or a size
-) {
-    var showLevelTip by remember { mutableStateOf(false) }
-
-    Column (
-        modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Level and info icon
-        Row(
-            modifier = Modifier
-                .align(Alignment.Start),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // Level Display
-            Text(
-                text = stringResource(R.string.level, TestUser.level),
-                color = AppTheme.colors.SecondaryOne,
-                style = AppTheme.textStyles.HeadingThree.copy(
-                    shadow = Shadow(
-                        color = AppTheme.colors.DropShadow,
-                        offset = Offset(3f, 4f),
-                        blurRadius = 6f,
-                    )
-                ),
-            )
-            // Info Icon
-            ShadowedIcon(
-                imageVector = ImageVector.vectorResource(R.drawable.info),
-                tint = AppTheme.colors.FadedGray,
-                modifier = Modifier
-                    .size(20.dp)
-                    .offset(y = 9.74.dp)
-                    .clickable {
-                        if(!showLevelTip) {showLevelTip = true} else {showLevelTip = false}
-                    }
-            )
-        }
-
-        // Progress Bar
-        ProgressBar(
-            progress = TestUser.currentExp.toFloat() / TestUser.expToLevel
-        )
-
-        // Experience Display
-        Text(
-            text = stringResource(R.string.exp_display, TestUser.currentExp, TestUser.expToLevel),
-            color = AppTheme.colors.Gray,
-            style = AppTheme.textStyles.Default,
-            modifier = Modifier.align(Alignment.End)
-        )
     }
 }

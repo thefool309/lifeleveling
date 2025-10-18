@@ -4,4 +4,8 @@
     <string name="exp_display">Exp: %1$d/%2$d</string>
     <string name="coins">Coins:\u00A0\u00A0\u00A0%1$d</string>
     <string name="health_display">Health:\u00A0\u00A0%1$d/%2$d</string>
+    <string name="helmet">Helmet</string>
+    <string name="armor">Armor</string>
+    <string name="weapon">Weapon</string>
+    <string name="accessory">Accessory</string>
 </resources>
