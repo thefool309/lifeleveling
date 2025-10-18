@@ -9,12 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
-import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.ui.theme.CircleButton
 import com.lifeleveling.app.ui.theme.EquipmentDisplay
 import com.lifeleveling.app.ui.theme.HealthToolTip
@@ -67,40 +63,6 @@ fun HomeScreen() {
 //                Modifier.weight(.2f)
             )
 
-//            // Coins display
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//            ){
-//                HighlightCard(
-//                    modifier = Modifier
-//                        .align(Alignment.CenterEnd)
-//                        .wrapContentWidth(Alignment.End),
-//                    wrapContent = true,
-//                    outerPadding = 0.dp,
-//                    innerPadding = 8.dp,
-//                ) {
-//                    Row(
-//                        modifier = Modifier
-//                            .wrapContentWidth(Alignment.End),
-//                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-//                        verticalAlignment = Alignment.CenterVertically,
-//                    ) {
-//                        Text(
-//                            text = stringResource(R.string.coins, TestUser.coins),
-//                            style = AppTheme.textStyles.Default,
-//                            color = AppTheme.colors.Gray
-//                        )
-//
-//                        Image(
-//                            painter = painterResource(R.drawable.coin),
-//                            contentDescription = null,
-//                            modifier = Modifier.size(20.dp)
-//                        )
-//                    }
-//                }
-//            }
-
             // Middle section
             Box(
                 modifier = Modifier
@@ -112,7 +74,12 @@ fun HomeScreen() {
                     modifier = Modifier
                         .matchParentSize(),
                 ) {
-
+                    Text(
+                        text = "Avatar",
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.HeadingThree,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
 
                 // Equipment

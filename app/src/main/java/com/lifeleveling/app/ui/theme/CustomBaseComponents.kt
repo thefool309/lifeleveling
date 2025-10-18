@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.screens.TestUser
 
 /*
 Components declared in this file
@@ -44,7 +42,6 @@ CircleButton  -  A circular button with an icon in the center
 ProgressBar  -  The progress bar for different variables
 SlidingSwitch  -  The two option switch toggle
 Text Sample  -  Inside TestScreen is a sample of shadowed text to use
-LevelAndProgress  -  Top bar of level and progress display
  */
 
 // This screen shows the different effects that are within this file
