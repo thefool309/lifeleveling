@@ -48,6 +48,7 @@ import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 
@@ -169,7 +170,7 @@ fun NavHostContainer(
                 TempStatsScreen()
             }
             composable("home") {
-                TempHomeScreen()
+                HomeScreen()
             }
             composable("streaks") {
                 TempStreaksScreen()
