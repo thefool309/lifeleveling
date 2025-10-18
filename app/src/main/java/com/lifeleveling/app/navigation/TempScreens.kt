@@ -8,13 +8,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.theme.CustomButton
 
 @Composable
 fun TempCalendarScreen() {
@@ -108,6 +114,7 @@ fun TempStreaksScreen() {
     }
 }
 
+@Preview
 @Composable
 fun TempSettingsScreen() {
     Column(
@@ -117,6 +124,18 @@ fun TempSettingsScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        var signout by remember { mutableStateOf(0) }
+
+        CustomButton(
+            onClick = { signout = 1 },
+            backgroundColor = AppTheme.colors.Error75
+        ) {
+            Text(
+                "Sign Out",
+                color = AppTheme.colors.DarkerBackground,
+                style = AppTheme.textStyles.HeadingSix,
+            )
+        }
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.settings_icon),
             contentDescription = null,
