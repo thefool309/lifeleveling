@@ -44,7 +44,6 @@ import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
-import com.lifeleveling.app.navigation.TempHomeScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
@@ -121,7 +120,7 @@ class MainActivity : ComponentActivity() {
                             Scaffold(
                                 //contentWindowInsets = WindowInsets(0,0,0,0),  // Add this if bottom nav keeps jumping up
                                 bottomBar = {
-                                    BottomNavigatioonBar(navController = navController)
+                                    BottomNavigationBar(navController = navController)
                                 }, content = { padding ->
                                     NavHostContainer(navController = navController, padding = padding)
                                 }
@@ -183,7 +182,7 @@ fun NavHostContainer(
 }
 
 @Composable
-fun BottomNavigatioonBar(navController: NavHostController) {
+fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
         containerColor = AppTheme.colors.DarkerBackground,
         modifier = Modifier.height(80.dp)
