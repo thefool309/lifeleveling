@@ -319,6 +319,8 @@ fun HighlightCard(
 /**
  * A custom button shaded inside with a drop shadow.
  * Will grow based on the content inside
+ * A weight can be passed in to adjust the width
+ * @param width Sets a specific width. Only use for precision
  */
 @Composable
 fun CustomButton(
@@ -328,21 +330,26 @@ fun CustomButton(
     backgroundColor: Color = AppTheme.colors.Success75,
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 8.dp,
+    width: Dp? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val customModifier = modifier
+        .wrapContentHeight()
+        .then(
+            if (width != null) Modifier.width(width) else Modifier.wrapContentWidth()
+        )
+        .shadow(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(cornerRadius),
+            spotColor = AppTheme.colors.DropShadow,
+            ambientColor = AppTheme.colors.DropShadow,
+        )
+        .clip(RoundedCornerShape(cornerRadius))
+        .background(Color.White)
+        .clickable(onClick = onClick)
+
     Box(
-        modifier = modifier
-            .wrapContentHeight()
-            .wrapContentWidth()
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(cornerRadius),
-                spotColor = AppTheme.colors.DropShadow,
-                ambientColor = AppTheme.colors.DropShadow,
-            )
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(Color.White)
-            .clickable(onClick = onClick)
+        modifier = customModifier
     ) {
         // Top left
         InnerShadow(
@@ -411,7 +418,7 @@ fun ShadowedIcon(
 
     Box(
         modifier = modifier
-            .drawBehind {5
+            .drawBehind {
                 drawIntoCanvas { canvas ->
                     canvas.save()
                     canvas.translate(shadowOffset.x, shadowOffset.y)
