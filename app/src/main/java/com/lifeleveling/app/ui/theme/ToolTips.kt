@@ -153,6 +153,10 @@ fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
     )
 }
 
+/**
+ * HealthToolTip window
+ * @param toShow The boolean to toggle if it is shown
+ */
 @Composable
 fun HealthToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points

@@ -204,7 +204,7 @@ fun HomeScreen() {
                 SlidingSwitch(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),
-                    options = listOf("Fight", "Meditate"),
+                    options = listOf(stringResource(R.string.fight), stringResource(R.string.meditate)),
                     selectedIndex = fightMeditateSwitch.value,
                     onOptionSelected = { fightMeditateSwitch.value = it },
                 )
