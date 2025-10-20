@@ -1,7 +1,6 @@
 <resources>
     <!-- \u00A0 is for spaces to not be skipped -->
     <!-- %1$d is to pass in parameters, change the number for more -->
-    <!-- -->
 
     <string name="app_name">lifeleveling</string>
 
