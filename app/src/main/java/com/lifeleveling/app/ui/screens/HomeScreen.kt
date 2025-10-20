@@ -60,7 +60,7 @@ fun HomeScreen() {
         ) {
             // Box of Level and Exp
             LevelAndProgress(
-//                Modifier.weight(.2f)
+                showLevelTip = showLevelTip
             )
 
             // Middle section

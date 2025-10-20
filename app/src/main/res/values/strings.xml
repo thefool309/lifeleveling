@@ -8,4 +8,6 @@
     <string name="armor">Armor</string>
     <string name="weapon">Weapon</string>
     <string name="accessory">Accessory</string>
+    <string name="life_tip_title">Level and Experience</string>
+    <string name="life_tip_one">This is your current level.</string>
 </resources>

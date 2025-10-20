@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,10 +35,9 @@ fun found in this file
  */
 @Composable
 fun LevelAndProgress(
-    modifier: Modifier = Modifier, // add a weight for how much of the page or a size
+    modifier: Modifier = Modifier,// add a weight for how much of the page or a size
+    showLevelTip: MutableState<Boolean>
 ) {
-    var showLevelTip by remember { mutableStateOf(false) }
-
     Column (
         modifier = modifier
             .fillMaxWidth(),
@@ -73,7 +69,7 @@ fun LevelAndProgress(
                     .size(20.dp)
                     .offset(y = 9.74.dp)
                     .clickable {
-                        if(!showLevelTip) {showLevelTip = true} else {showLevelTip = false}
+                        showLevelTip.value = !showLevelTip.value
                     }
             )
         }
@@ -108,6 +104,8 @@ fun EquipmentDisplay(
     ) {
         // Helmet
         Column(
+            modifier = Modifier
+                .clickable { },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -132,6 +130,8 @@ fun EquipmentDisplay(
         }
         // Armor
         Column(
+            modifier = Modifier
+                .clickable { },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -156,6 +156,8 @@ fun EquipmentDisplay(
         }
         // Weapon
         Column(
+            modifier = Modifier
+                .clickable { },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -180,6 +182,8 @@ fun EquipmentDisplay(
         }
         // Accessory 1
         Column(
+            modifier = Modifier
+                .clickable { },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -204,6 +208,8 @@ fun EquipmentDisplay(
         }
         // Accessory 2
         Column(
+            modifier = Modifier
+                .clickable { },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(

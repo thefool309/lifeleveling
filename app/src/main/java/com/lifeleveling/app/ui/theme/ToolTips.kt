@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,25 +18,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlin.collections.forEach
+import com.lifeleveling.app.R
 
 
 /**
- * Makes a bullet list of the list passed in.
+ * Makes a list of the bullets passed in.
  */
 @Composable
 fun BulletPoints(items: List<AnnotatedString>) {
-    Column {
+    Column (
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
         items.forEach { item ->
-            Row {
-                Text("•")
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(item)
+            Row(
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "•",
+                    style = AppTheme.textStyles.Small,
+                    color = AppTheme.colors.Gray,
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+                Text(
+                    text = item,
+                    style = AppTheme.textStyles.Small,
+                    color = AppTheme.colors.Gray,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -48,7 +68,28 @@ fun BulletPoints(items: List<AnnotatedString>) {
 @Composable
 fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
     // Level and Experience tips
-    val firstLevelTip = buildAnnotatedString {}
+    val LevelTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.life_tip_one))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append("The bar shows your experience progress toward your next level.")
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append("You earn experience idly while your character is fighting.")
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append("Experience earned is based on your stats.")
+            }
+        }
+    )
 
     Dialog(
         onDismissRequest = { toShow.value = false },
@@ -63,19 +104,22 @@ fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
                 .background(color = AppTheme.colors.DarkerBackground.copy(alpha = 0.1f))
                 .clickable { toShow.value = false },
         ) {
+            // Popup Card shading
             PopupCard(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .clickable { toShow.value = false }
             ) {
+                // Content inside card
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Title
                     Text(
-                        "Example Popup",
+                        stringResource(R.string.life_tip_title),
                         color = AppTheme.colors.SecondaryThree,
-                        style = AppTheme.textStyles.HeadingFour.copy(
+                        style = AppTheme.textStyles.HeadingSix.copy(
                             shadow = Shadow(
                                 color = AppTheme.colors.DropShadow,
                                 offset = Offset(3f, 4f),
@@ -83,11 +127,8 @@ fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
                             )
                         )
                     )
-                    Text(
-                        "Testing popup capabilities and text wrapping. Click me to close.",
-                        color = AppTheme.colors.Gray,
-                        style = AppTheme.textStyles.Default
-                    )
+                    // Content
+                    BulletPoints(LevelTips)
                 }
             }
         }
