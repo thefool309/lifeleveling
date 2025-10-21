@@ -19,3 +19,14 @@ data class Users(
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null
 )
+
+data class Reminders(
+    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
+    val title: String = "",
+    val notes: String = "",
+    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val isCompleted: Boolean = false,
+    val completedAt: Timestamp? = null,  // set when marked complete
+    val createdAt: Timestamp? = null,    // serverTimestamp on create
+    val lastUpdate: Timestamp? = null    // serverTimestamp on any write
+)
