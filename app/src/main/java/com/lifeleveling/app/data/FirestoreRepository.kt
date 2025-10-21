@@ -218,4 +218,30 @@ class FirestoreRepository {
         }
     }
 
+    // Mark a reminder complete/incomplete and set/unset completedAt automatically.
+    suspend fun setReminderCompleted(
+        reminderId: String,
+        isCompleted: Boolean,
+        logger: ILogger
+    ): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "setReminderCompleted: user not authenticated.")
+            return false
+        }
+        return try {
+            val payload = hashMapOf<String, Any?>(
+                "isCompleted" to isCompleted,
+                "completedAt" to if (isCompleted) FieldValue.serverTimestamp() else null,
+                "lastUpdate" to FieldValue.serverTimestamp()
+            )
+            remindersCol(uid).document(reminderId).update(payload).await()
+            logger.d("Reminders", "setReminderCompleted: $reminderId -> $isCompleted")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "setReminderCompleted failed", e)
+            false
+        }
+    }
+
 }
