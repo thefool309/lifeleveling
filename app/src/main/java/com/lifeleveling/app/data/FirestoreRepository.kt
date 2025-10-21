@@ -147,8 +147,8 @@ class FirestoreRepository {
     }
 
     private fun remindersCol(uid: String) =
-        Firebase.firestore.collection("users").document(uid).collection("reminders")
-
+        //Firebase.firestore.collection("users").document(uid).collection("reminders")
+        db.collection("users").document(uid).collection("reminders")
 
     // Creates a new reminder for the current user.
     suspend fun createReminder(
@@ -191,6 +191,30 @@ class FirestoreRepository {
         } catch (e: Exception) {
             logger.e("Reminders", "createReminder failed", e)
             null
+        }
+    }
+
+    // Update a reminder by id
+    suspend fun updateReminder(
+        reminderId: String,
+        updates: Map<String, Any?>,
+        logger: ILogger
+    ): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "updateReminder: user not authenticated.")
+            return false
+        }
+        return try {
+            val payload = updates.toMutableMap().apply {
+                this["lastUpdate"] = FieldValue.serverTimestamp()
+            }
+            remindersCol(uid).document(reminderId).update(payload).await()
+            logger.d("Reminders", "updateReminder: $reminderId")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "updateReminder failed", e)
+            false
         }
     }
 
