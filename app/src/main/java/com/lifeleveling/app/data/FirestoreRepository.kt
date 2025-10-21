@@ -65,7 +65,6 @@ class FirestoreRepository {
         return firstTime
     }
 
-
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
@@ -244,4 +243,26 @@ class FirestoreRepository {
         }
     }
 
+    // Deletes a reminder
+    suspend fun deleteReminder(reminderId: String, logger: ILogger): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "deleteReminder: user not authenticated.")
+            return false
+        }
+        return try {
+            remindersCol(uid).document(reminderId).delete().await()
+            logger.d("Reminders", "deleteReminder: $reminderId")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "deleteReminder failed", e)
+            false
+        }
+    }
+
+    // Fetch a single reminder
+
+    // Fetch a list of reminders
+
+    // Realtime stream of reminders (ordered by dueAt)
 }
