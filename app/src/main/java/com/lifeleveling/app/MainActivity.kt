@@ -77,9 +77,6 @@ class MainActivity : ComponentActivity() {
             authVm.handleGoogleResultIntent(result.data)
         }
 
-        // TEMP: force sign out to see SignIn (remove later)
-        authVm.signOut(this)
-
         enableEdgeToEdge()
         setContent {
             // Setting theme
@@ -156,7 +153,8 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
                                 ) { padding ->
-                                    NavHostContainer(navController = navController, padding = padding)
+                                    NavHostContainer(navController = navController, padding = padding,
+                                        onSignOut = {authVm.signOut(this@MainActivity)},)
                                 }
                             }
                         }
@@ -170,7 +168,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavHostContainer(
     navController: NavHostController,
-    padding: PaddingValues
+    padding: PaddingValues,
+    onSignOut: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -190,7 +189,7 @@ fun NavHostContainer(
                 TempStreaksScreen()
             }
             composable("settings") {
-                TempSettingsScreen()
+                TempSettingsScreen(onSignOut=onSignOut)
             }
         }
     )

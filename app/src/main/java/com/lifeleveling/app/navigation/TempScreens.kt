@@ -114,9 +114,10 @@ fun TempStreaksScreen() {
     }
 }
 
-@Preview
 @Composable
-fun TempSettingsScreen() {
+fun TempSettingsScreen(
+    onSignOut: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -124,10 +125,8 @@ fun TempSettingsScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        var signout by remember { mutableStateOf(0) }
-
         CustomButton(
-            onClick = { signout = 1 },
+            onClick = onSignOut,
             backgroundColor = AppTheme.colors.Error75
         ) {
             Text(
