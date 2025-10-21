@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
+
 class FirestoreRepository {
     private val db = Firebase.firestore
 
@@ -144,4 +145,53 @@ class FirestoreRepository {
         val result = Users()
         return result
     }
+
+    private fun remindersCol(uid: String) =
+        Firebase.firestore.collection("users").document(uid).collection("reminders")
+
+
+    // Creates a new reminder for the current user.
+    suspend fun createReminder(
+        reminders: Reminders,
+        logger: ILogger
+    ): String? {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "createReminder: user not authenticated.")
+            return null
+        }
+
+        // Build the payload; let Firestore set timestamps
+        val payload = hashMapOf(
+            "reminderId" to (if (reminders.reminderId.isNotBlank()) reminders.reminderId else null),
+            "title" to reminders.title,
+            "notes" to reminders.notes,
+            "dueAt" to reminders.dueAt,
+            "isCompleted" to reminders.isCompleted,
+            "completedAt" to reminders.completedAt,
+            "createdAt" to FieldValue.serverTimestamp(),
+            "lastUpdate" to FieldValue.serverTimestamp()
+        ).filterValues { it != null } // don't write null reminderId if empty
+
+        return try {
+            val docRef = if (reminders.reminderId.isBlank()) {
+                remindersCol(uid).document() // auto id
+            } else {
+                remindersCol(uid).document(reminders.reminderId)
+            }
+
+            // Persist reminderId inside the doc for simple mapping
+            val finalPayload = payload.toMutableMap().apply {
+                put("reminderId", docRef.id)
+            }
+
+            docRef.set(finalPayload, SetOptions.merge()).await()
+            logger.d("Reminders", "createReminder: created ${docRef.id}")
+            docRef.id
+        } catch (e: Exception) {
+            logger.e("Reminders", "createReminder failed", e)
+            null
+        }
+    }
+
 }
