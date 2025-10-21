@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -130,23 +131,44 @@ class MainActivity : ComponentActivity() {
                     LifelevelingTheme(darkTheme = isDarkTheme) {
                         if (authState.user == null) {
 
-                            // -------- Sign In UI --------
-                            SignIn(
-                                // Auth using email and password
-                                onLogin = { /* TODO: email/password */ },
+                            val preAuthNav = rememberNavController()
+                            NavHost(navController = preAuthNav, startDestination = "signin") {
+                                composable("signin") {
+                                    // -------- Sign In UI --------
+                                    SignIn(
+                                        // Auth using email and password
+                                        onLogin = { /* TODO: email/password */ },
 
-                                // Auth with Google Sign In
-                                onGoogleLogin = {
-                                    authVm.beginGoogleSignIn()
-                                    val intent = authVm.googleClient(this@MainActivity).signInIntent
-                                    googleLauncher.launch(intent)
-                                },
+                                        // Auth with Google Sign In
+                                        onGoogleLogin = {
+                                            authVm.beginGoogleSignIn()
+                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                            googleLauncher.launch(intent)
+                                        },
 
-                                // Create account screen
-                                onCreateAccount = { /* TODO: navigate to sign-up */ }
-                            )
+                                        // Create account screen
+                                        onCreateAccount = {
+                                            preAuthNav.navigate("createaccount"){
+                                                //launchSingleTop = false
+                                            }
+                                        }
+                                    )
+                                }
+                                composable("createaccount") {
+                                    CreateAccountScreen(
+                                        onJoin = {/*TODO: Handle sign-up logic*/},
+                                        onGoogleLogin = {
+                                            authVm.beginGoogleSignIn()
+                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                            googleLauncher.launch(intent)
+                                        },
+                                        onLog = {
+                                            preAuthNav.navigate("signin") // Back to Sign-In
+                                        }
+                                    )
+                                }
+                            }
                         } else {
-
                             // Main App UI
                             val navController = rememberNavController()
                             Surface(color = AppTheme.colors.Background) {
