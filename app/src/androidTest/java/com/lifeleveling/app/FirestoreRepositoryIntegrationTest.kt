@@ -111,8 +111,19 @@ class FirestoreRepositoryIntegrationTest {
     // TODO: Test editUser function
     @Test
     fun editUserPositiveTest() = runTest {
-        TODO("Implement editUserPositiveTest")
-
+        // TODO("Implement editUserPositiveTest")
+        auth.signInWithEmailAndPassword(testEmail, testPassword).await()
+        val logger: AndroidLogger = AndroidLogger()
+        val repo = FirestoreRepository()
+        val user = repo.createUser(mapOf(
+            "displayName" to testUsername,
+            "email" to testEmail,
+            "userId" to "broken user"
+        ), logger)
+        val result = repo.editUser(mapOf(
+            "displayName" to "sillyGoose420",
+        ), logger)
+        assert(result)
     }
 
 
