@@ -14,9 +14,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -138,79 +140,97 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Uses the last created id
-    // var lastId by remember { mutableStateOf<String?>(null) }
+    data class ReminderRow(
+        val id: String,
+        val title: String,
+        val notes: String,
+        val isCompleted: Boolean,
+        val lastUpdate: com.google.firebase.Timestamp?
+    )
 
-    // simple in-memory list of reminders (id + title)
-    var items by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var items by remember { mutableStateOf<List<ReminderRow>>(emptyList()) }
     var selectedId by remember { mutableStateOf<String?>(null) }
     var expanded by remember { mutableStateOf(false) }
 
-    val logger = object : ILogger {
-        override fun d(tag: String, message: String) {
-            Log.d(tag, message) }
-        override fun e(tag: String, message: String) {
-            Log.e(tag, message)}
-        override fun e(tag: String, message: String, throwable: Throwable) {
-            Log.e(tag, message, throwable)}
-        override fun w(tag: String, message: String) {
-            Log.w(tag, message)}
-        override fun i(tag: String, message: String)  {
-            Log.i(tag, message)}
+    val logger = object : com.lifeleveling.app.util.ILogger {
+        override fun d(tag: String, message: String) { android.util.Log.d(tag, message) }
+        override fun e(tag: String, message: String) { android.util.Log.e(tag, message) }
+        override fun e(tag: String, message: String, throwable: Throwable) { android.util.Log.e(tag, message, throwable) }
+        override fun w(tag: String, message: String) { android.util.Log.w(tag, message) }
+        override fun i(tag: String, message: String) { android.util.Log.i(tag, message) }
     }
 
-    // Load reminders once when the panel appears
-    LaunchedEffect(Unit) {
-        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            val snap = com.google.firebase.ktx.Firebase.firestore
-                .collection("users").document(uid)
-                .collection("reminders")
-                .get().await()
-            items = snap.documents.map { it.id to (it.getString("title") ?: "(no title)") }
-            selectedId = items.firstOrNull()?.first
-        }
+    // Realtime listener: attach when we have a user, detach on dispose
+    val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+    DisposableEffect(uid) {
+        if (uid == null) return@DisposableEffect onDispose { }
+
+        val reg = com.google.firebase.ktx.Firebase.firestore
+            .collection("users").document(uid)
+            .collection("reminders")
+            .orderBy("lastUpdate", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .addSnapshotListener { qs, e ->
+                if (e != null) {
+                    android.util.Log.e("DebugPanel", "listen error", e)
+                    return@addSnapshotListener
+                }
+                val list = qs?.documents?.map { d ->
+                    ReminderRow(
+                        id = d.id,
+                        title = d.getString("title") ?: "(no title)",
+                        notes = d.getString("notes") ?: "",
+                        isCompleted = d.getBoolean("isCompleted") ?: false,
+                        lastUpdate = d.getTimestamp("lastUpdate")
+                    )
+                } ?: emptyList()
+
+                items = list
+                // pick a default if none selected or selected disappeared
+                if (selectedId == null || list.none { it.id == selectedId }) {
+                    selectedId = list.firstOrNull()?.id
+                }
+            }
+
+        onDispose { reg.remove() }
     }
+
+    val selected = items.firstOrNull { it.id == selectedId }
 
     Column(Modifier.padding(16.dp)) {
         // Create new reminder
         Button(onClick = {
             scope.launch {
                 val id = repo.createReminder(
-                    reminders = Reminders(title = "Hydrate", notes = "Drink water"),
+                    reminders = com.lifeleveling.app.data.Reminders(
+                        title = "Hydrate",
+                        notes = "Drink water"
+                    ),
                     logger = logger
                 )
                 if (id != null) {
-                    // refresh list
-                    val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-                    if (uid != null) {
-                        val snap = com.google.firebase.ktx.Firebase.firestore
-                            .collection("users").document(uid)
-                            .collection("reminders")
-                            .get().await()
-                        items = snap.documents.map { it.id to (it.getString("title") ?: "(no title)") }
-                        selectedId = id
-                    }
+                    // selection will auto-update from the listener; make it the selected one
+                    selectedId = id
                 }
-                android.widget.Toast.makeText(ctx, "Created id=$id", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast
+                    .makeText(ctx, "Created id=$id", android.widget.Toast.LENGTH_SHORT)
+                    .show()
             }
         }) { Text("Create Reminder") }
 
         Spacer(Modifier.height(12.dp))
 
-        // Picker: choose which reminder to update
+        // Picker
         OutlinedButton(onClick = { expanded = true }, enabled = items.isNotEmpty()) {
-            Text(selectedId?.let { id ->
-                val title = items.find { it.first == id }?.second ?: ""
-                "Selected: $title ($id)"
-            } ?: "Select a reminder")
+            Text(
+                selected?.let { "Selected: ${it.title} (${it.id})" } ?: "Select a reminder"
+            )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            items.forEach { (id, title) ->
+            items.forEach { row ->
                 DropdownMenuItem(
-                    text = { Text("$title  •  $id") },
+                    text = { Text("${row.title} • ${row.id}") },
                     onClick = {
-                        selectedId = id
+                        selectedId = row.id
                         expanded = false
                     }
                 )
@@ -219,7 +239,16 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
 
         Spacer(Modifier.height(12.dp))
 
-        // Button to update a reminder that was created(U)
+        // Live details of selected reminder
+        if (selected != null) {
+            Text("Title: ${selected.title}", style = MaterialTheme.typography.bodyLarge)
+            Text("Notes: ${selected.notes}", style = MaterialTheme.typography.bodyMedium)
+            Text("Completed: ${selected.isCompleted}", style = MaterialTheme.typography.bodyMedium)
+            Text("Last Update: ${selected.lastUpdate ?: "(null)"}", style = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.height(12.dp))
+        }
+
+        // Update selected reminder
         Button(
             enabled = selectedId != null,
             onClick = {
@@ -228,17 +257,39 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
                     val ok = repo.updateReminder(
                         reminderId = id,
                         updates = mapOf(
-                        "title" to "Go on a walk",
-                        "notes" to "Try to break your record of walking 1 in 8 minutes!"
-                    ),
-                    logger = logger
-                )
-                Toast.makeText(ctx, "Updated($id) -> $ok", Toast.LENGTH_SHORT).show()
+                            "title" to "Go on a walk",
+                            "notes" to "Try to break your record of walking 1 mile in 8 minutes!",
+                            "isCompleted" to false,
+                            "lastUpdate" to com.google.firebase.Timestamp.now()
+                        ),
+                        logger = logger
+                    )
+                    android.widget.Toast
+                        .makeText(ctx, "Updated($id) -> $ok", android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
-        }) { Text("Update Reminder") }
+        ) { Text("Update Selected") }
+
+        // Marks the reminder as completed
+        Button(
+            enabled = selectedId != null,
+            onClick = {
+                scope.launch {
+                    val id = selectedId ?: return@launch
+                    val ok = repo.setReminderCompleted(
+                        reminderId = id,
+                        isCompleted = true,
+                        logger = logger
+                    )
+                    android.widget.Toast
+                        .makeText(ctx, "Completed($id) -> $ok", android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        ) { Text("Complete Reminder") }
     }
 }
-
 
 
 
