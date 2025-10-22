@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -288,6 +289,49 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
                 }
             }
         ) { Text("Complete Reminder") }
+
+        // Marks reminder as un-completed
+        Button(
+            enabled = selectedId != null,
+            onClick = {
+                scope.launch {
+                    val id = selectedId ?: return@launch
+                    val ok = repo.setReminderCompleted(
+                        reminderId = id,
+                        isCompleted = false,
+                        logger = logger
+                    )
+                    android.widget.Toast
+                        .makeText(ctx, "Un-completed($id) -> $ok", android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        ) { Text("Un-complete Reminder") }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Deletes reminder
+        Button(
+            enabled = selectedId != null,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+            onClick = {
+                scope.launch {
+                    val id = selectedId ?: return@launch
+                    val ok = repo.deleteReminder(
+                        reminderId = id,
+                        logger = logger
+                    )
+                    if(ok) {
+                        items = items.filterNot { it.id == id }
+                        selectedId = items.firstOrNull()?.id
+                    }
+                    android.widget.Toast
+                        .makeText(ctx, "Deleted($id) -> $ok", android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        ){Text(text = "Delete Reminder")}
+
     }
 }
 
