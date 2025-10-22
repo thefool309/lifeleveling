@@ -73,7 +73,7 @@ fun StreaksScreen() {
                 )
             }
 
-            // Streaks window
+            // Weekly Goals
             HighlightCard(
                 modifier = Modifier,
                 outerPadding = 0.dp,
@@ -106,9 +106,131 @@ fun StreaksScreen() {
                     // Add in reminders display
 
                     // Add goal
-
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .clickable {},
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(R.drawable.plus),
+                            tint = AppTheme.colors.SecondaryThree,
+                            modifier = Modifier
+                                .size(20.dp)
+                        )
+                        Text(
+                            text = "Add Goal",
+                            color = AppTheme.colors.SecondaryThree,
+                            style = AppTheme.textStyles.Default.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                        )
+                    }
                 }
             }
+
+            // Month Goals
+            HighlightCard(
+                modifier = Modifier,
+                outerPadding = 0.dp,
+            ) {
+                Column (
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ){
+                    // Title
+                    Text(
+                        text = "This Month",
+                        color = AppTheme.colors.SecondaryThree,
+                        style = AppTheme.textStyles.HeadingFive.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(3f, 4f),
+                                blurRadius = 6f,
+                            )
+                        ),
+                    )
+                    // Separator
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
+                        tint = AppTheme.colors.SecondaryTwo,
+                        contentDescription = null,
+                    )
+
+                    // Add in reminders display
+
+                    // Add goal
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .clickable {},
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(R.drawable.plus),
+                            tint = AppTheme.colors.SecondaryThree,
+                            modifier = Modifier
+                                .size(20.dp)
+                        )
+                        Text(
+                            text = "Add Goal",
+                            color = AppTheme.colors.SecondaryThree,
+                            style = AppTheme.textStyles.Default.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                        )
+                    }
+                }
+            }
+
+            // Extra Space between elements
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Badges Title
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Start),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = "Badges",
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingThree.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    ),
+                )
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.info),
+                    tint = AppTheme.colors.FadedGray,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .offset(y = 9.74.dp)
+                        .clickable {
+                            showStreaksTip.value = !showStreaksTip.value
+                        }
+                )
+            }
+
+            // Badges Display
+            HighlightCard(
+                modifier = Modifier,
+                outerPadding = 0.dp,
+            ) {}
         }
     }
 }
