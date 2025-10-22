@@ -1,7 +1,6 @@
 package com.lifeleveling.app
 
 import android.content.Context
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.Firebase
@@ -11,7 +10,6 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.firestoreSettings
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.TestLogger
 import kotlinx.coroutines.tasks.await
@@ -20,10 +18,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.random.Random
-import kotlin.test.assertFailsWith
 
 @RunWith(AndroidJUnit4::class)
 class FirestoreRepositoryIntegrationTest {
@@ -95,13 +89,13 @@ class FirestoreRepositoryIntegrationTest {
     }
     // create test expecting null pointer exception
     @Test
-    fun createUserNullPointerNegativeTest() = runTest {
-        firestore = Firebase.firestore.apply {
-            firestore.firestoreSettings = firestoreSettings
+    fun createUserExpectNullNegativeTest() = runTest {
+        if(auth.currentUser != null) {
+            auth.signOut()
         }
         val logger: TestLogger = TestLogger()
         val repo = FirestoreRepository()
-        val exception = assertFailsWith<NullPointerException> {
+
             val result = repo.createUser(
                 mapOf(
                     "displayName" to testUsername,
@@ -109,14 +103,12 @@ class FirestoreRepositoryIntegrationTest {
                     "userId" to "broken user"
                 ), logger
             )
-        }
+        assert(result == null)
     }
     // TODO: Test editUser function
     @Test
     fun editUserPositiveTest() = runTest {
-        firestore = Firebase.firestore.apply {
-            firestore.firestoreSettings = firestoreSettings
-        }
+        TODO("Implement me")
     }
 
 
