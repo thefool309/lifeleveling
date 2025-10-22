@@ -128,7 +128,7 @@ class FirestoreRepositoryIntegrationTest {
     }
 
     @Test
-    fun editUserFailedNegativeTest() = runTest {
+    fun editUserNegativeTest() = runTest {
         TODO("Implement negative test for editUser")
     }
 
