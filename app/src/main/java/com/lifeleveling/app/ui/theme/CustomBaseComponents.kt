@@ -2,11 +2,14 @@ package com.lifeleveling.app.ui.theme
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -36,12 +39,13 @@ import com.lifeleveling.app.R
 Components declared in this file
 HighlightCard  -  Used for the darker sunk in sections of the screen
 CustomButton  -  A shaded button
-ShdowedIcon  -  Adds a shadow to icons
+ShadowedIcon  -  Adds a shadow to icons
 PopupCard  -  Shaded card for overlay popup screens
 CircleButton  -  A circular button with an icon in the center
 ProgressBar  -  The progress bar for different variables
 SlidingSwitch  -  The two option switch toggle
 Text Sample  -  Inside TestScreen is a sample of shadowed text to use
+CustomCheckbox  -  Precolored and laid out checkbox item
  */
 
 // This screen shows the different effects that are within this file
@@ -176,6 +180,14 @@ fun TestScreen() {
                             )
                         }
                     }
+
+                    var checked by remember { mutableStateOf(true) }
+                    // Check box
+                    CustomCheckbox(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                    )
+
                     //Example Circle Button
                     CircleButton(
                         onClick = { },
@@ -834,6 +846,46 @@ fun SlidingSwitch(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Custom Checkbox
+ * @param checked The bool that box's state depends on
+ * @param onCheckedChange What to do when it is clicked, defaults to changing the bool state
+ * @param size Adjusts size of box and icon inside
+ * @param mainColor Outline of unchecked area and fill of checked box
+ * @param checkColor Color of the checkmark inside
+ */
+@Composable
+fun CustomCheckbox(
+    modifier: Modifier = Modifier,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    size: Dp = 20.dp,
+    cornerRadius: Dp = 4.dp,
+    mainColor: Color = AppTheme.colors.SecondaryOne,
+    checkColor: Color = AppTheme.colors.DarkerBackground
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(
+                if (checked) mainColor else Color.Transparent
+            )
+            .clickable { onCheckedChange(!checked) }
+            .border(2.dp, mainColor,RoundedCornerShape(cornerRadius)),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (checked) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                tint = checkColor,
+                modifier = Modifier.size(size)
+            )
         }
     }
 }
