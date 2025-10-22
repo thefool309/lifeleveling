@@ -851,7 +851,7 @@ fun SlidingSwitch(
 }
 
 /**
- * Custom Check box
+ * Custom Checkbox
  * @param checked The bool that box's state depends on
  * @param onCheckedChange What to do when it is clicked, defaults to changing the bool state
  * @param size Adjusts size of box and icon inside
