@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -74,9 +75,39 @@ fun StreaksScreen() {
 
             // Streaks window
             HighlightCard(
-                modifier = Modifier
-            ) {
+                modifier = Modifier,
+                outerPadding = 0.dp,
 
+            ) {
+                Column (
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ){
+                    // Title
+                    Text(
+                        text = "This Week",
+                        color = AppTheme.colors.SecondaryThree,
+                        style = AppTheme.textStyles.HeadingFive.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(3f, 4f),
+                                blurRadius = 6f,
+                            )
+                        ),
+                    )
+                    // Separator
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
+                        tint = AppTheme.colors.SecondaryTwo,
+                        contentDescription = null,
+                    )
+
+                    // Add in reminders display
+
+                    // Add goal
+
+                }
             }
         }
     }
