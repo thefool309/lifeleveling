@@ -108,10 +108,9 @@ class FirestoreRepositoryIntegrationTest {
 
         assert(result == null)
     }
-    // TODO: Test editUser function
+    // Test editUser function
     @Test
     fun editUserPositiveTest() = runTest {
-        // TODO("Implement editUserPositiveTest")
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger: AndroidLogger = AndroidLogger()
         val repo = FirestoreRepository()
