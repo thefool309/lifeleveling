@@ -10,6 +10,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.descriptors.PrimitiveKind
 
 class FirestoreRepository {
     private val db = Firebase.firestore
@@ -139,9 +140,25 @@ class FirestoreRepository {
         return result
     }
 
-    // TODO: function to retrieve user information from firebase
-    fun getUser(uID: String, logger: ILogger): Users {
-        val result = Users()
-        return result
+
+    suspend fun getUser(uID: String, logger: ILogger): Users {
+        // TODO("Implement getUser")
+        // get the document snapshot
+        val docRef = db.collection("users").document(uID)
+        val docSnapshot = docRef.get().await()
+        // extract the data from the snapshot
+        val result = docSnapshot.data
+        val userId = result!!["userId"] as String
+        val displayName = result["displayName"] as String
+        val email = result["email"] as String
+        val photoUrl = result["photoUrl"] as String
+        val coinsBalance = result["coinsBalance"] as Long
+        val stats = result["stats"] as Map<*, *> // warning here caused me to change type to Map<*, *> in Users data class to avoid casting issues
+        val streaks = result["streaks"] as Long
+        val onboardingComplete = result["onboardingComplete"] as Boolean
+        val createdAt = result["createdAt"] as Timestamp
+        val lastUpdate = result["lastUpdate"] as Timestamp
+        // return the data as a Users object.
+        return Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate)
     }
 }

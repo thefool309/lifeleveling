@@ -8,7 +8,7 @@ data class Users(
     val email: String = "",
     val photoUrl: String = "",
     val coinsBalance: Long = 0,
-    val stats: Map<String, Long> = mapOf(
+    val stats: Map<*, *> = mapOf(
         "agility" to 0,
         "defense" to 0,
         "healthPoints" to 0,

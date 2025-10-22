@@ -74,7 +74,8 @@ class FirestoreRepositoryIntegrationTest {
     // Test createUser
     @Test
     fun createUserPositiveTest() = runTest {
-
+        //comment top line in if you need to create a user in auth
+        // auth.createUserWithEmailAndPassword(testEmail, testPassword)
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger: AndroidLogger = AndroidLogger()
         val createdUser = auth.currentUser
@@ -83,10 +84,9 @@ class FirestoreRepositoryIntegrationTest {
             mapOf(
                 "displayName" to testUsername,
                 "email" to testEmail,
-                "userId" to createdUser!!.uid
             ), logger
         )
-        assert(createdUser.uid == result!!.userId)
+        assert(createdUser!!.uid == result!!.userId)
     }
     // create test expecting null pointer exception
     @Test
@@ -101,7 +101,6 @@ class FirestoreRepositoryIntegrationTest {
                 mapOf(
                     "displayName" to testUsername,
                     "email" to testEmail,
-                    "userId" to "broken user"
                 ), logger
             )
         //if create user returns a null user something went wrong
@@ -111,18 +110,43 @@ class FirestoreRepositoryIntegrationTest {
     // Test editUser function
     @Test
     fun editUserPositiveTest() = runTest {
+        //comment top line in if you need to create a user  in auth
+        // auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger: AndroidLogger = AndroidLogger()
         val repo = FirestoreRepository()
         val user = repo.createUser(mapOf(
             "displayName" to testUsername,
             "email" to testEmail,
-            "userId" to "broken user"
         ), logger)
         val result = repo.editUser(mapOf(
             "displayName" to "sillyGoose420",
         ), logger)
         assert(result)
+    }
+
+    @Test
+    fun editUserExpectNullNegativeTest() = runTest {
+        TODO("Implement negative test for editUser")
+    }
+
+    @Test
+    fun getUserPositiveTest() = runTest {
+        // the test passes :3 and log output is correct
+        //comment top line in if you need to create a user  in auth
+        // auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
+        auth.signInWithEmailAndPassword(testEmail, testPassword).await()
+        val logger: AndroidLogger = AndroidLogger()
+        val repo = FirestoreRepository()
+        val user = repo.createUser(mapOf(
+            "displayName" to testUsername,
+            "email" to testEmail,
+        ), logger)
+        val result = repo.getUser(auth.currentUser!!.uid, logger)
+        logger.d("getUserPositiveTest", "result: $result")
+        assert(result.userId == auth.currentUser!!.uid)
+        assert(result.displayName == testUsername)
+        assert(result.email == testEmail)
     }
 
 
