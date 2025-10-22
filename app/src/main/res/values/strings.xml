@@ -1,3 +1,42 @@
 <resources>
+    <!-- \u00A0 is for spaces to not be skipped -->
+    <!-- %1$d is to pass in parameters, change the number for more -->
+
     <string name="app_name">lifeleveling</string>
+
+    <!-- For level and exp display -->
+    <string name="level">Level %1$d</string>
+    <string name="exp_display">Exp: %1$d/%2$d</string>
+    <string name="coins">Coins:\u00A0\u00A0\u00A0%1$d</string>
+    <string name="health_display">Health:\u00A0\u00A0%1$d/%2$d</string>
+
+    <!-- For equipment display -->
+    <string name="helmet">Helmet</string>
+    <string name="armor">Armor</string>
+    <string name="weapon">Weapon</string>
+    <string name="accessory">Accessory</string>
+
+    <!-- Stats -->
+    <string name="strength">Strength</string>
+    <string name="defense">Defense</string>
+    <string name="intelligence">Intelligence</string>
+    <string name="agility">Agility</string>
+    <string name="health">Health</string>
+
+    <!-- Avatar state -->
+    <string name="fight">Fight</string>
+    <string name="meditate">Meditate</string>
+
+    <!-- Life and Experience Tips -->
+    <string name="life_tip_title">Level and Experience</string>
+    <string name="life_tip_one">This is your current level.</string>
+    <string name="life_tip_two">The bar shows your experience progress toward your next level.</string>
+    <string name="life_tip_three">You earn experience idly while your character is fighting.</string>
+    <string name="life_tip_four">Experience earned is based on your stats.</string>
+
+    <!-- Health tips -->
+    <string name="health_tip_title">Health, Fighting, and Meditating</string>
+    <string name="health_tip_one">\u00A0effects how long your character will fight for. Your character will go through one health every minute. You start with 60 health and every Life Point you put in gives you 5 more health. You can put in a maximum of 100 life points into the health stat.</string>
+    <string name="health_tip_two">Completing your tasks on your calendar will heal your character to keep them fighting longer.</string>
+    <string name="health_tip_three">When your health runs out, your character will meditate to start healing themselves. You may also manually switch them to meditate. While meditating, your character will start to recover health.</string>
 </resources>

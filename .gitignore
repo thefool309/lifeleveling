@@ -38,15 +38,7 @@ proguard/
 Thumbs.db
 
 # Intellij IDEA (see https://intellij-support.jetbrains.com/entries/23393067)
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/datasources.xml
-.idea/dataSources.ids
-.idea/caches
-.idea/libraries
-.idea/misc.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
+.idea/
 
 /build
 /captures
@@ -55,3 +47,7 @@ Thumbs.db
 local.properties
 /.idea/deviceManager.xml
 google-services.json
+
+.firebaserc
+firebase.json
+*.log

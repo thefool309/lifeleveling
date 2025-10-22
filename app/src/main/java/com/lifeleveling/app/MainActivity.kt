@@ -1,11 +1,15 @@
 package com.lifeleveling.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -34,6 +39,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
+import com.lifeleveling.app.navigation.Constants
+import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
+import com.lifeleveling.app.navigation.TempCalendarScreen
+import com.lifeleveling.app.navigation.TempSettingsScreen
+import com.lifeleveling.app.navigation.TempStatsScreen
+import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.theme.HideSystemBars
+import com.lifeleveling.app.ui.theme.StartLogic
 
 
 // Temp Check to ensure firebase connection
@@ -41,17 +55,12 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.lifeleveling.app.navigation.Constants
-import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
-import com.lifeleveling.app.navigation.TempCalendarScreen
-import com.lifeleveling.app.navigation.TempHomeScreen
-import com.lifeleveling.app.navigation.TempSettingsScreen
-import com.lifeleveling.app.navigation.TempStatsScreen
-import com.lifeleveling.app.navigation.TempStreaksScreen
-import com.lifeleveling.app.ui.theme.HideSystemBars
-import com.lifeleveling.app.ui.theme.StartLogic
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
+    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -67,6 +76,18 @@ class MainActivity : ComponentActivity() {
             )
         )
 
+
+        // Register the launcher and forward the result to AuthViewModel
+        googleLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            authVm.handleGoogleResultIntent(result.data)
+        }
+
+        // TEMP: force sign out to see SignIn (remove later)
+        authVm.signOut(this)
+
+        enableEdgeToEdge()
         setContent {
             // Setting theme
             val isDarkThemeState = remember { mutableStateOf(isDarkTheme) }
@@ -88,11 +109,14 @@ class MainActivity : ComponentActivity() {
             }
 
             // Startup logic and Splash Screen values
-            val startLogic: StartLogic = viewModel() // TODO: Go to this file to put in start logic
+            val startLogic: StartLogic = viewModel()
             val isInitialized by startLogic.isInitialized.collectAsState()
             var appReady by remember { mutableStateOf(false) }
             val startTime = remember { System.currentTimeMillis() }
             val minSplashTime = 2000L // How long Splash shows at a minimum for loading reassurance
+
+            // Auth state from VM
+            val authState by authVm.ui.collectAsState()
 
             // Splash Screen effect while loading
             LaunchedEffect(isInitialized) {
@@ -112,43 +136,41 @@ class MainActivity : ComponentActivity() {
                 if (!appReady) {
                     SplashAnimationOverlay()
                 } else {
-                    // App is ready, go to ui logic
-                    LifelevelingTheme(darkTheme = isDarkThemeState.value) {
-                        val navController = rememberNavController()
+                    // Show SignIn when not authenticated; show your app when signed in
+                    LifelevelingTheme(darkTheme = isDarkTheme) {
+                        if (authState.user == null) {
 
-                        Surface(color = AppTheme.colors.Background) {
-                            Scaffold(
-                                //contentWindowInsets = WindowInsets(0,0,0,0),  // Add this if bottom nav keeps jumping up
-                                bottomBar = {
-                                    BottomNavigatioonBar(navController = navController)
-                                }, content = { padding ->
+                            // -------- Sign In UI --------
+                            SignIn(
+                                // Auth using email and password
+                                onLogin = { /* TODO: email/password */ },
+
+                                // Auth with Google Sign In
+                                onGoogleLogin = {
+                                    authVm.beginGoogleSignIn()
+                                    val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                    googleLauncher.launch(intent)
+                                },
+
+                                // Create account screen
+                                onCreateAccount = { /* TODO: navigate to sign-up */ }
+                            )
+                        } else {
+
+                            // Main App UI
+                            val navController = rememberNavController()
+                            Surface(color = AppTheme.colors.Background) {
+                                Scaffold(
+                                    bottomBar = { BottomNavigationBar(navController = navController) },
+                                ) { padding ->
                                     NavHostContainer(navController = navController, padding = padding)
                                 }
-                            )
+                            }
                         }
                     }
                 }
             }
         }
-
-        // ==== TEMP healthcheck: sign in anonymously, then write a doc ====
-        FirebaseAuth.getInstance()
-            .signInAnonymously()
-            .addOnSuccessListener {
-                Log.d("FB", "Anon sign-in OK: uid=${it.user?.uid}")
-                Firebase.firestore.collection("healthchecks")
-                    .add(mapOf("ts" to Timestamp.now(), "source" to "android"))
-                    .addOnSuccessListener { docRef ->
-                        Log.d("FB", "Healthcheck doc: ${docRef.id}")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("FB", "Healthcheck failed", e)
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.e("FB", "Anon sign-in failed", e)
-            }
-        // ==== END TEMP ====
     }
 }
 
@@ -166,10 +188,10 @@ fun NavHostContainer(
                 TempCalendarScreen()
             }
             composable("stats") {
-                TempStatsScreen()
+                StatsScreen()
             }
             composable("home") {
-                TempHomeScreen()
+                HomeScreen()
             }
             composable("streaks") {
                 TempStreaksScreen()
@@ -182,7 +204,7 @@ fun NavHostContainer(
 }
 
 @Composable
-fun BottomNavigatioonBar(navController: NavHostController) {
+fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
         containerColor = AppTheme.colors.DarkerBackground,
         modifier = Modifier.height(80.dp)
@@ -199,7 +221,7 @@ fun BottomNavigatioonBar(navController: NavHostController) {
                         imageVector = ImageVector.vectorResource(navItem.icon),
                         contentDescription = navItem.route,
                         modifier = Modifier.size(40.dp),
-                        )
+                    )
                 },
                 alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
