@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -141,24 +142,49 @@ class FirestoreRepository {
     }
 
 
-    suspend fun getUser(uID: String, logger: ILogger): Users {
-        // TODO("Implement getUser")
+    suspend fun getUser(uID: String?, logger: ILogger): Users? {
         // get the document snapshot
-        val docRef = db.collection("users").document(uID)
+        var result: Users? = null
+        if (uID == null) {
+            logger.e("Auth", "User ID null")
+            return result
+        }
+        if (uID.isEmpty() || uID.isBlank()) {
+            logger.e("Auth", "User ID is empty or blank")
+            return result
+        }
+        var docRef: DocumentReference? = null
+        try {
+            docRef = db.collection("users").document(uID)
+        }
+        catch(e: Exception) {
+            logger.e("Auth", "Error Getting User: ", e)
+            return result
+        }
         val docSnapshot = docRef.get().await()
         // extract the data from the snapshot
-        val result = docSnapshot.data
-        val userId = result!!["userId"] as String
-        val displayName = result["displayName"] as String
-        val email = result["email"] as String
-        val photoUrl = result["photoUrl"] as String
-        val coinsBalance = result["coinsBalance"] as Long
-        val stats = result["stats"] as Map<*, *> // warning here caused me to change type to Map<*, *> in Users data class to avoid casting issues
-        val streaks = result["streaks"] as Long
-        val onboardingComplete = result["onboardingComplete"] as Boolean
-        val createdAt = result["createdAt"] as Timestamp
-        val lastUpdate = result["lastUpdate"] as Timestamp
-        // return the data as a Users object.
-        return Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate)
+        var data: Map<String, *>? = null
+
+        try {
+            data = docSnapshot.data
+            val userId = data!!["userId"] as String
+            val displayName = data["displayName"] as String
+            val email = data["email"] as String
+            val photoUrl = data["photoUrl"] as String
+            val coinsBalance = data["coinsBalance"] as Long
+            val stats = data["stats"] as Map<*, *> // warning here caused me to change type to Map<*, *> in Users data class to avoid casting issues
+            val streaks = data["streaks"] as Long
+            val onboardingComplete = data["onboardingComplete"] as Boolean
+            val createdAt = data["createdAt"] as Timestamp
+            val lastUpdate = data["lastUpdate"] as Timestamp
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate)
+            // return the data as a Users object.
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Getting User: ", e)
+            return null
+        }
+
+        return result
     }
 }

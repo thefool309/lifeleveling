@@ -66,7 +66,9 @@ class FirestoreRepositoryIntegrationTest {
     @After
     fun cleanup()  = runTest {
         // Clean up Auth and Firestore data after each test
-        auth.signOut()
+        if (auth.currentUser != null) {
+            auth.signOut()
+        }
         firestore.terminate().await()
         firestore.clearPersistence().await()
     }
@@ -126,7 +128,7 @@ class FirestoreRepositoryIntegrationTest {
     }
 
     @Test
-    fun editUserExpectNullNegativeTest() = runTest {
+    fun editUserFailedNegativeTest() = runTest {
         TODO("Implement negative test for editUser")
     }
 
@@ -144,10 +146,39 @@ class FirestoreRepositoryIntegrationTest {
         ), logger)
         val result = repo.getUser(auth.currentUser!!.uid, logger)
         logger.d("getUserPositiveTest", "result: $result")
-        assert(result.userId == auth.currentUser!!.uid)
+        assert(result!!.userId == auth.currentUser!!.uid)
         assert(result.displayName == testUsername)
         assert(result.email == testEmail)
     }
 
+    @Test
+    fun getUserExpectNullNegativeTest() = runTest {
+        val logger: AndroidLogger = AndroidLogger()
+        val repo = FirestoreRepository()
+        val result = repo.getUser("not a user id", logger)
+        //if create user returns a null user something went wrong
+        assert(result == null)
+    }
 
+    @Test
+    fun getUserBlankIDNegativeTest() = runTest {
+        val logger: AndroidLogger = AndroidLogger()
+        val repo = FirestoreRepository()
+        val result = repo.getUser("     ", logger)
+        assert(result == null)
+    }
+
+    @Test
+    fun getUserNullIDNegativeTest() = runTest {
+        if (auth.currentUser != null) {
+            auth.signOut()
+        }
+        val logger: AndroidLogger = AndroidLogger()
+        val repo = FirestoreRepository()
+        // if someone were to pass null in as the userID it also gracefully fails
+        // if you use a non null asserted operator (auth.currentUser!!.uid) here it will throw a nullpointer exception
+        // when calling getUser it is safer to use a "Safe" operator as below
+        val result = repo.getUser(auth.currentUser?.uid, logger)
+        assert(result == null)
+    }
 }
