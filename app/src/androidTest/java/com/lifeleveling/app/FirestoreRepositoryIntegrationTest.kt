@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.TestLogger
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
@@ -75,7 +76,7 @@ class FirestoreRepositoryIntegrationTest {
     fun createUserPositiveTest() = runTest {
 
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
-        val logger: TestLogger = TestLogger()
+        val logger: AndroidLogger = AndroidLogger()
         val createdUser = auth.currentUser
         val repo = FirestoreRepository()
         val result = repo.createUser(
@@ -93,7 +94,7 @@ class FirestoreRepositoryIntegrationTest {
         if(auth.currentUser != null) {
             auth.signOut()
         }
-        val logger: TestLogger = TestLogger()
+        val logger: AndroidLogger = AndroidLogger()
         val repo = FirestoreRepository()
 
             val result = repo.createUser(
@@ -103,12 +104,15 @@ class FirestoreRepositoryIntegrationTest {
                     "userId" to "broken user"
                 ), logger
             )
+        //if create user returns a null user something went wrong
+
         assert(result == null)
     }
     // TODO: Test editUser function
     @Test
     fun editUserPositiveTest() = runTest {
-        TODO("Implement me")
+        TODO("Implement editUserPositiveTest")
+
     }
 
 
