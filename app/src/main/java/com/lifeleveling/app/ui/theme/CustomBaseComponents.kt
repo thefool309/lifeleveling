@@ -39,12 +39,13 @@ import com.lifeleveling.app.R
 Components declared in this file
 HighlightCard  -  Used for the darker sunk in sections of the screen
 CustomButton  -  A shaded button
-ShdowedIcon  -  Adds a shadow to icons
+ShadowedIcon  -  Adds a shadow to icons
 PopupCard  -  Shaded card for overlay popup screens
 CircleButton  -  A circular button with an icon in the center
 ProgressBar  -  The progress bar for different variables
 SlidingSwitch  -  The two option switch toggle
 Text Sample  -  Inside TestScreen is a sample of shadowed text to use
+CustomCheckbox  -  Precolored and laid out checkbox item
  */
 
 // This screen shows the different effects that are within this file
