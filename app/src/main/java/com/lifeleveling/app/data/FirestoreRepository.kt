@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
@@ -15,7 +16,7 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 
 class FirestoreRepository {
     private val db = Firebase.firestore
-
+    private val auth = Firebase.auth
     suspend fun ensureUserCreated(user: FirebaseUser): Boolean {
         val uid = user.uid
         val docRef = db.collection("users").document(uid)
@@ -105,11 +106,13 @@ class FirestoreRepository {
 
     }
 
-    // function to edit user in firebase
+    // function to edit user in firebase this function is unsafe and can
+    // make dangerous type mismatches between the database and the code
+    // Use at your own peril
     suspend fun editUser(userData: Map<String, Any>, logger: ILogger) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
         // if the user is not authenticated then authenticate before calling this function
-        val userId: String = FirebaseAuth.getInstance().currentUser!!.uid
+        val userId: String = auth.currentUser!!.uid
         var result: Boolean
         try {
             db.collection("users")
@@ -125,20 +128,41 @@ class FirestoreRepository {
         return result
     }
 
-    suspend fun editUserName(userName: String, logger: ILogger) : Boolean {
-        var result: Boolean = false
-        val userId: String = FirebaseAuth.getInstance().currentUser!!.uid
+    suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
+        val userId: String = auth.currentUser!!.uid
         val docRef = db.collection("users")
         .document(userId)
+        if(userName.isEmpty()) {
+            logger.e("Invalid Parameter","User name is empty. Please add user name...")
+            return false
+        }
         try {
             docRef.update("displayName", userName)
             .await()
-            result = true
+            return true
         }
         catch (e: Exception) {
             logger.e("Auth", "Error Updating User: ", e)
+            return false
         }
-        return result
+    }
+
+    suspend fun editEmail(email: String, logger: ILogger) : Boolean {
+        val userId: String = auth.currentUser!!.uid
+        val docRef = db.collection("users")
+            .document(userId)
+        if(email.isEmpty()) {
+            logger.e("Invalid Parameter","User email is empty. Please add user email.")
+        }
+        try {
+            docRef.update("email", email).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Auth", "Error Updating User: ", e)
+            return false
+        }
+
     }
 
 
