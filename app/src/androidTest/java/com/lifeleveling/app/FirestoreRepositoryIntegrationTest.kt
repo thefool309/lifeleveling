@@ -132,7 +132,9 @@ class FirestoreRepositoryIntegrationTest {
 
     @Test
     fun getUserMalformedNegativeTest() = runTest {
-        // ("Implement negative test for editUser")
+        // Implementing negative test for editUser kind of became a negative test for get user.
+        // editUser will take in any type and assign it to a value in the database
+        // causing major problems when you try to read the user back in.
         //comment top line in if you need to create a user  in auth
         //auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
