@@ -144,7 +144,7 @@ class FirestoreRepositoryIntegrationTest {
             "displayName" to testUsername,
             "email" to testEmail,
         ), logger)
-        val editUserResult = repo.editUser(mapOf("displayName" to 150), logger)
+        val editUserResult = repo.editUser(mapOf("displayName" to 150), logger) // this is where I discovered the danger of the editUser function I made
         // expect null pointer exception
         var result: Users? = null
 
