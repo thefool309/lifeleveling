@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -23,6 +24,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.BadgesToolTip
 import com.lifeleveling.app.ui.theme.HighlightCard
+import com.lifeleveling.app.ui.theme.ProgressBar
 import com.lifeleveling.app.ui.theme.ShadowedIcon
 import com.lifeleveling.app.ui.theme.StreaksToolTip
 
@@ -79,12 +81,11 @@ fun StreaksScreen() {
             HighlightCard(
                 modifier = Modifier,
                 outerPadding = 0.dp,
-
             ) {
                 Column (
                     modifier = Modifier
                         .fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ){
                     // Title
                     Text(
@@ -106,6 +107,48 @@ fun StreaksScreen() {
                     )
 
                     // Add in reminders display
+                    TestUser.weeklyStreaks.forEach { streak ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ){
+                                    ShadowedIcon(
+                                        imageVector = ImageVector.vectorResource(streak.reminder.icon),
+                                        tint = if (streak.reminder.color == null) Color.Unspecified
+                                                else resolveReminderColor(streak.reminder.color),
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = streak.reminder.name,
+                                        style = AppTheme.textStyles.HeadingSix,
+                                        color = AppTheme.colors.Gray
+                                    )
+                                }
+                                Spacer(Modifier.weight(1f))
+                                Text(
+                                    text = "${streak.numberCompleted}/${streak.totalAmount}",
+                                    style = AppTheme.textStyles.HeadingSix,
+                                    color = AppTheme.colors.Gray,
+                                )
+                            }
+                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+                            ProgressBar(
+                                progress = percentageCompleted,
+                            )
+                        }
+                    }
 
                     // Add goal
                     Row(
@@ -124,7 +167,7 @@ fun StreaksScreen() {
                         Text(
                             text = stringResource(R.string.add_goal),
                             color = AppTheme.colors.SecondaryThree,
-                            style = AppTheme.textStyles.Default.copy(
+                            style = AppTheme.textStyles.DefaultUnderlined.copy(
                                 shadow = Shadow(
                                     color = AppTheme.colors.DropShadow,
                                     offset = Offset(3f, 4f),
@@ -144,7 +187,7 @@ fun StreaksScreen() {
                 Column (
                     modifier = Modifier
                         .fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ){
                     // Title
                     Text(
@@ -166,6 +209,48 @@ fun StreaksScreen() {
                     )
 
                     // Add in reminders display
+                    TestUser.monthlyStreaks.forEach { streak ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ){
+                                    ShadowedIcon(
+                                        imageVector = ImageVector.vectorResource(streak.reminder.icon),
+                                        tint = if (streak.reminder.color == null) Color.Unspecified
+                                        else resolveReminderColor(streak.reminder.color),
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = streak.reminder.name,
+                                        style = AppTheme.textStyles.HeadingSix,
+                                        color = AppTheme.colors.Gray
+                                    )
+                                }
+                                Spacer(Modifier.weight(1f))
+                                Text(
+                                    text = "${streak.numberCompleted}/${streak.totalAmount}",
+                                    style = AppTheme.textStyles.HeadingSix,
+                                    color = AppTheme.colors.Gray,
+                                )
+                            }
+                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+                            ProgressBar(
+                                progress = percentageCompleted,
+                            )
+                        }
+                    }
 
                     // Add goal
                     Row(
@@ -184,7 +269,7 @@ fun StreaksScreen() {
                         Text(
                             text = stringResource(R.string.add_goal),
                             color = AppTheme.colors.SecondaryThree,
-                            style = AppTheme.textStyles.Default.copy(
+                            style = AppTheme.textStyles.DefaultUnderlined.copy(
                                 shadow = Shadow(
                                     color = AppTheme.colors.DropShadow,
                                     offset = Offset(3f, 4f),

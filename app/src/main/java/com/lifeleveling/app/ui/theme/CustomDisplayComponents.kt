@@ -32,6 +32,7 @@ fun found in this file
 
 /**
  * Level and Experience Display
+ * @param showLevelTip The bool that controls showing the tooltip window
  */
 @Composable
 fun LevelAndProgress(
