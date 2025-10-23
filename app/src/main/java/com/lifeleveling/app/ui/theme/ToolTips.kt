@@ -188,3 +188,79 @@ fun HealthToolTip(toShow: MutableState<Boolean>) {
         tips = healthTips
     )
 }
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun StreaksToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val streaksTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_one))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_two))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_three))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_four))
+            }
+        }
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.streaks,
+        tips = streaksTips
+    )
+}
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun BadgesToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val badgesTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.badges_tip_one))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.badges_tip_two))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.badges_tip_three))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.badges_tip_four))
+            }
+        }
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.badges,
+        tips = badgesTips
+    )
+}

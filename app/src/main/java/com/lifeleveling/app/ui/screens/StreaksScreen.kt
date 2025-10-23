@@ -21,13 +21,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.BadgesToolTip
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.ShadowedIcon
+import com.lifeleveling.app.ui.theme.StreaksToolTip
 
 @Preview
 @Composable
 fun StreaksScreen() {
-    // Bools for pop up tips
+    // Pop up tips
     val showStreaksTip = remember { mutableStateOf(false) }
     val showBadgesTip = remember { mutableStateOf(false) }
 
@@ -51,7 +53,7 @@ fun StreaksScreen() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = "Streaks",
+                    text = stringResource(R.string.streaks),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -86,7 +88,7 @@ fun StreaksScreen() {
                 ){
                     // Title
                     Text(
-                        text = "This Week",
+                        text = stringResource(R.string.this_week),
                         color = AppTheme.colors.SecondaryThree,
                         style = AppTheme.textStyles.HeadingFive.copy(
                             shadow = Shadow(
@@ -120,7 +122,7 @@ fun StreaksScreen() {
                                 .size(20.dp)
                         )
                         Text(
-                            text = "Add Goal",
+                            text = stringResource(R.string.add_goal),
                             color = AppTheme.colors.SecondaryThree,
                             style = AppTheme.textStyles.Default.copy(
                                 shadow = Shadow(
@@ -146,7 +148,7 @@ fun StreaksScreen() {
                 ){
                     // Title
                     Text(
-                        text = "This Month",
+                        text = stringResource(R.string.this_month),
                         color = AppTheme.colors.SecondaryThree,
                         style = AppTheme.textStyles.HeadingFive.copy(
                             shadow = Shadow(
@@ -180,7 +182,7 @@ fun StreaksScreen() {
                                 .size(20.dp)
                         )
                         Text(
-                            text = "Add Goal",
+                            text = stringResource(R.string.add_goal),
                             color = AppTheme.colors.SecondaryThree,
                             style = AppTheme.textStyles.Default.copy(
                                 shadow = Shadow(
@@ -204,7 +206,7 @@ fun StreaksScreen() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = "Badges",
+                    text = stringResource(R.string.badges),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -232,5 +234,13 @@ fun StreaksScreen() {
                 outerPadding = 0.dp,
             ) {}
         }
+    }
+
+    // Show Tooltip Popups
+    if (showStreaksTip.value) {
+        StreaksToolTip(showStreaksTip)
+    }
+    if (showBadgesTip.value) {
+        BadgesToolTip(showBadgesTip)
     }
 }
