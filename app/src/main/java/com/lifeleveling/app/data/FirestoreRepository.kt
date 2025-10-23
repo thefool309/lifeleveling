@@ -181,7 +181,7 @@ class FirestoreRepository {
             // return the data as a Users object.
         }
         catch (e: Exception) {
-            logger.e("Firestore", "Error Getting User: ", e)
+            logger.e("Firestore", "Error Getting User Data: ", e)
             return null
         }
 
