@@ -11,14 +11,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Users
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.TestLogger
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertFailsWith
 
 @RunWith(AndroidJUnit4::class)
 class FirestoreRepositoryIntegrationTest {
@@ -128,8 +131,26 @@ class FirestoreRepositoryIntegrationTest {
     }
 
     @Test
-    fun editUserNegativeTest() = runTest {
-        TODO("Implement negative test for editUser")
+    fun getUserMalformedNegativeTest() = runTest {
+        // ("Implement negative test for editUser")
+        //comment top line in if you need to create a user  in auth
+        //auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
+        auth.signInWithEmailAndPassword(testEmail, testPassword).await()
+        val logger = AndroidLogger()
+        val repo = FirestoreRepository()
+        val user = repo.createUser(mapOf(
+            "displayName" to testUsername,
+            "email" to testEmail,
+        ), logger)
+        val editUserResult = repo.editUser(mapOf("displayName" to 150), logger)
+        // expect null pointer exception
+        var result: Users? = null
+
+        result = repo.getUser(auth.currentUser?.uid, logger)
+        assert(result == null)
+        assertFailsWith<NullPointerException> {
+            result = repo.getUser(auth.currentUser?.uid, logger)!!
+        }
     }
 
     @Test
@@ -176,7 +197,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger: AndroidLogger = AndroidLogger()
         val repo = FirestoreRepository()
         // if someone were to pass null in as the userID it also gracefully fails
-        // if you use a non null asserted operator (auth.currentUser!!.uid) here it will throw a nullpointer exception
+        // if you use a non-null asserted operator (auth.currentUser!!.uid) here it will throw a nullpointer exception
         // when calling getUser it is safer to use a "Safe" operator as below
         val result = repo.getUser(auth.currentUser?.uid, logger)
         assert(result == null)
