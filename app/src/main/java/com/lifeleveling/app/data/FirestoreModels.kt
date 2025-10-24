@@ -1,6 +1,7 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
+import kotlin.math.pow
 
 data class Users(
     val userId: String = "",
@@ -20,7 +21,21 @@ data class Users(
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
-    val level: Int = 0,
-    val currentXP: Float = 0.0f,
-    val xpToNextLevel: Float = 300.0f
-)
+    val level: Int = 1,
+    val lifePoints: Int = 0,
+    val currXp: Double = 0.0,
+
+) {
+    // for a derived property like this it is not necessary to include in firebase
+    // since it's calculated everytime a user is instantiated
+    // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
+    var xpToNextLevel: Double = 0.0
+
+    init {
+        calculateXpToNextLevel(level)
+    }
+
+    fun calculateXpToNextLevel(level: Int) {
+        xpToNextLevel = (level / 100.0).pow(2)
+    }
+}

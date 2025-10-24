@@ -80,7 +80,6 @@ class FirestoreRepository {
                             .document(uid)
 
             val result = Users(
-                userId = uid,
                 displayName = userData["displayName"].toString(),
                 email = userData["email"].toString(),
                 photoUrl = userData["photoUrl"].toString(),
@@ -108,6 +107,8 @@ class FirestoreRepository {
     private fun getUserId() : String? {
         return auth.currentUser?.uid
     }
+
+
 
     private fun updateTimestamp(userId: String, logger: ILogger) {
         try {
