@@ -138,7 +138,7 @@ class FirestoreRepository {
             return false
         }
         val docRef = db.collection("users")
-        .document(userId)
+            .document(userId)
         if(userName.isEmpty()) {
             logger.e("Invalid Parameter","User name is empty. Please add user name...")
             return false
@@ -184,7 +184,7 @@ class FirestoreRepository {
             return false
         }
         val docRef = db.collection("users")
-        .document(userId)
+            .document(userId)
 
         try{
             val data = docRef.get().await()
@@ -205,7 +205,7 @@ class FirestoreRepository {
             return false
         }
         val docRef = db.collection("users")  // and waste a ton of time
-        .document(userId)
+            .document(userId)
         try {
             val data = docRef.get().await()
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
@@ -219,6 +219,160 @@ class FirestoreRepository {
             return false
         }
     }
+
+    suspend fun decrementStrength(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newStrength = newStats["strength"] as Long
+            newStats["strength"] = --newStrength
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun setStrength(strength: Long, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            newStats["strength"] = strength
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun incrementDexterity(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newDexterity = newStats["dexterity"] as Long
+            newStats["dexterity"] = ++newDexterity
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun decrementDexterity(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newDexterity = newStats["dexterity"] as Long
+            newStats["dexterity"] = --newDexterity
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun setDexterity(dexterity: Long, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            newStats["dexterity"] = dexterity
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun incrementDefense(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newDefense = newStats["defense"] as Long
+            newStats["defense"] = ++newDefense
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun incrementIntellect(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newIntellect = newStats["intellect"] as Long
+            newIntellect++
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+
     // A toggler for setOnboardingComplete
     suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
