@@ -660,6 +660,37 @@ class FirestoreRepository {
             return false
         }
     }
+
+    suspend fun addXp(xp: Double, logger: ILogger) : Users? /*returns the updated User or null if it fails*/ {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return null
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            var newXp = data["currXp"] as Double
+            newXp += xp
+            docRef.update("xp", newXp).await()
+            var user = getUser(userId, logger)
+            if(user == null) {
+                logger.e("Auth", "Error Updating User: Please make sure you're logged in")
+                return null
+            }
+            if(newXp > user.xpToNextLevel) {
+                incrementLevel(logger)
+                user = getUser(userId, logger)
+                user?.calculateXpToNextLevel(level = (user.level) + 1)
+            }
+            return user
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return null
+        }
+    }
     
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
         // get the document snapshot
