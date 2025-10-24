@@ -281,4 +281,45 @@ class FirestoreRepositoryIntegrationTest {
         val result = repo.editEmail("   ", logger)
         assert(!result)
     }
+
+    @Test
+    fun editPhotoUrlPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editPhotoUrl("www.reallycoolpicture.com/123456789.png", logger)
+        assert(result)
+    }
+
+    @Test
+    fun editPhotoUrlIsEmptyNegativeTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editPhotoUrl("", logger)
+        assert(!result)
+    }
+
+    @Test
+    fun editPhotoUrlIsBlankNegativeTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editPhotoUrl("    ", logger)
+        assert(!result)
+    }
+
+    @Test
+    fun incrementStreaksPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldStreaks = user!!.streaks
+        val result = repo.incrementStreaks(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newStreaks = user!!.streaks
+        assert(newStreaks == (oldStreaks + 1))
+        assert(result)
+    }
 }

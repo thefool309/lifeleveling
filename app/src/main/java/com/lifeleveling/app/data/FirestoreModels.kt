@@ -21,11 +21,11 @@ data class Users(
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
-    val level: Int = 1,
-    val lifePoints: Int = 0,
+    val level: Long = 1,
+    val lifePoints: Long = 0,
     val currXp: Double = 0.0,
 
-) {
+    ) {
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
     // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
@@ -35,7 +35,7 @@ data class Users(
         calculateXpToNextLevel(level)
     }
 
-    fun calculateXpToNextLevel(level: Int) {
+    fun calculateXpToNextLevel(level: Long) {
         xpToNextLevel = (level / 100.0).pow(2)
     }
 }

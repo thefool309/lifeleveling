@@ -2,7 +2,6 @@ package com.lifeleveling.app.data
 
 import android.util.Log
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
@@ -675,7 +674,7 @@ class FirestoreRepository {
             .document(userId)
         try {
             val data = docRef.get().await()
-            var newLevel = data["level"] as Long
+            var newLevel = data["level"] as Int
             newLevel = ++newLevel
             docRef.update("level", newLevel).await()
             updateTimestamp(userId, logger)
@@ -753,10 +752,10 @@ class FirestoreRepository {
             val onboardingComplete = data["onboardingComplete"] as Boolean
             val createdAt = data["createdAt"] as Timestamp
             val lastUpdate = data["lastUpdate"] as Timestamp
-            val lifePoints = data["lifePoints"] as Int
-            val level = data["level"] as Int
-            val currentXP = data["currentXP"] as Double
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currentXP)
+            val lifePoints = data["lifePoints"] as Long
+            val level = data["level"] as Long
+            val currXp = data["currXp"] as Double
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currXp)
             // return the data as a Users object.
         }
         catch (e: Exception) {
