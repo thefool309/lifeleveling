@@ -12,7 +12,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
-import kotlinx.serialization.descriptors.PrimitiveKind
 
 class FirestoreRepository {
     private val db = Firebase.firestore
@@ -177,7 +176,7 @@ class FirestoreRepository {
             logger.e("Auth", "User ID is empty or blank")
             return result
         }
-        var docRef: DocumentReference? = null
+        var docRef: DocumentReference?
         try {
             docRef = db.collection("users").document(uID)
         }
@@ -187,7 +186,7 @@ class FirestoreRepository {
         }
         val docSnapshot = docRef.get().await()
         // extract the data from the snapshot
-        var data: Map<String, *>? = null
+        var data: Map<String, *>?
 
         try {
             data = docSnapshot.data

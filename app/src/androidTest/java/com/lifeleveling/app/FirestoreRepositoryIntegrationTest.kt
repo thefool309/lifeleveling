@@ -15,11 +15,9 @@ import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.data.Users
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
-import com.lifeleveling.app.util.TestLogger
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +49,7 @@ class FirestoreRepositoryIntegrationTest {
             auth.signInWithEmailAndPassword(testEmail, testPassword).await()
             return true
         } catch (e: FirebaseAuthException) {
+            logger.e("Test Auth Failure", "Failure signing in, attempting to create user...", e)
             try {
                 // if a FirebaseAuthException is thrown try creating the user first
                 auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
@@ -59,7 +58,7 @@ class FirestoreRepositoryIntegrationTest {
             }
             catch (e: FirebaseAuthException) {
                 // if both of these fail it's something else so check the logs
-                logger.e("Auth", "createUserWithEmailAndPassword:", e)
+                logger.e("Test Auth Failure", "createUserWithEmailAndPassword Failed: ", e)
                 return false
             }
         }
@@ -103,7 +102,7 @@ class FirestoreRepositoryIntegrationTest {
         //comment top line in if you need to create a user in auth
         // auth.createUserWithEmailAndPassword(testEmail, testPassword)
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val createdUser = auth.currentUser
         val repo = FirestoreRepository()
         val result = repo.createUser(
@@ -120,7 +119,7 @@ class FirestoreRepositoryIntegrationTest {
         if(auth.currentUser != null) {
             auth.signOut()
         }
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val repo = FirestoreRepository()
 
             val result = repo.createUser(
@@ -139,9 +138,9 @@ class FirestoreRepositoryIntegrationTest {
         //comment top line in if you need to create a user  in auth
         // auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val repo = FirestoreRepository()
-        val user = repo.createUser(mapOf(
+        repo.createUser(mapOf(
             "displayName" to testUsername,
             "email" to testEmail,
         ), logger)
@@ -161,13 +160,13 @@ class FirestoreRepositoryIntegrationTest {
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger = AndroidLogger()
         val repo = FirestoreRepository()
-        val user = repo.createUser(mapOf(
+        repo.createUser(mapOf(
             "displayName" to testUsername,
             "email" to testEmail,
         ), logger)
-        val editUserResult = repo.editUser(mapOf("displayName" to 150), logger) // this is where I discovered the danger of the editUser function I made
-        // expect null pointer exception
-        var result: Users? = null
+        repo.editUser(mapOf("displayName" to 150), logger) // this is where I discovered the danger of the editUser function I made
+
+        var result: Users?
 
         result = repo.getUser(auth.currentUser?.uid, logger)
         assert(result == null)
@@ -179,14 +178,14 @@ class FirestoreRepositoryIntegrationTest {
     @Test
     fun getUserPositiveTest() = runTest {
         // the test passes :3 and log output is correct
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val authSuccess: Boolean = authorizeFirebaseUser(logger)
         if (!authSuccess) {
             throw Exception("Check Logs for Auth")
         }
         val repo = FirestoreRepository()
 
-        val user = repo.createUser(mapOf(
+        repo.createUser(mapOf(
             "displayName" to testUsername,
             "email" to testEmail,
         ), logger)
@@ -199,7 +198,7 @@ class FirestoreRepositoryIntegrationTest {
 
     @Test
     fun getUserExpectNullNegativeTest() = runTest {
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val repo = FirestoreRepository()
         val result = repo.getUser("not a user id", logger)
         //if create user returns a null user something went wrong
@@ -208,7 +207,7 @@ class FirestoreRepositoryIntegrationTest {
 
     @Test
     fun getUserBlankIDNegativeTest() = runTest {
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val repo = FirestoreRepository()
         val result = repo.getUser("     ", logger)
         assert(result == null)
@@ -219,7 +218,7 @@ class FirestoreRepositoryIntegrationTest {
         if (auth.currentUser != null) {
             auth.signOut()
         }
-        val logger: AndroidLogger = AndroidLogger()
+        val logger = AndroidLogger()
         val repo = FirestoreRepository()
         // if someone were to pass null in as the userID it also gracefully fails
         // if you use a non-null asserted operator (auth.currentUser!!.uid) here it will throw a nullpointer exception
