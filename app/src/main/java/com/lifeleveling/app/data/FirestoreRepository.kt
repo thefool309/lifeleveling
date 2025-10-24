@@ -65,14 +65,14 @@ class FirestoreRepository {
         Log.d("FB", "users/$uid created=$firstTime")
         return firstTime
     }
-
-
+    /**
+     * :3c Velma wuz here >^.^<
+     */
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
     suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
-
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = auth.currentUser
 
         return if (currentUser != null) {
             val uid = currentUser.uid
@@ -80,6 +80,7 @@ class FirestoreRepository {
                             .document(uid)
 
             val result = Users(
+                userId = uid,
                 displayName = userData["displayName"].toString(),
                 email = userData["email"].toString(),
                 photoUrl = userData["photoUrl"].toString(),
@@ -107,8 +108,6 @@ class FirestoreRepository {
     private fun getUserId() : String? {
         return auth.currentUser?.uid
     }
-
-
 
     private fun updateTimestamp(userId: String, logger: ILogger) {
         try {
@@ -144,6 +143,8 @@ class FirestoreRepository {
         return result
     }
 
+    // User information
+
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -152,7 +153,7 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")
             .document(userId)
-        if(userName.isEmpty()) {
+        if(userName.isBlank()) {
             logger.e("Invalid Parameter","User name is empty. Please add user name...")
             return false
         }
@@ -176,7 +177,7 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")
             .document(userId)
-        if(email.isEmpty()) {
+        if(email.isBlank()) {
             logger.e("Invalid Parameter","User email is empty. Please add user email.")
             return false
         }
@@ -190,6 +191,29 @@ class FirestoreRepository {
             return false
         }
 
+    }
+
+    suspend fun editPhotoUrl(url: String, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        if(url.isBlank()) {
+            logger.e("Invalid Parameter","Photo url is empty. Please add Photo url.")
+            return false
+        }
+        try {
+            docRef.update("photoUrl", url).await()
+            updateTimestamp(userId, logger)
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Auth", "Error Updating User: ", e)
+            return false
+        }
     }
 
     suspend fun incrementStreaks( logger: ILogger) : Boolean {
@@ -213,6 +237,8 @@ class FirestoreRepository {
             return false
         }
     }
+
+      //functions for modifying stats below
 
     suspend fun incrementStrength(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
