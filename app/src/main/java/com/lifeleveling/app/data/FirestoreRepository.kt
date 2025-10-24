@@ -521,31 +521,7 @@ class FirestoreRepository {
             .document(userId)
         try {
             val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["currentHealth"] = health
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun setMaxHealth(health: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["maxHealth"] = health
-            docRef.update("stats", newStats).await()
+            docRef.update("currHealth", health).await()
             updateTimestamp(userId, logger)
             return true
         }
@@ -755,7 +731,8 @@ class FirestoreRepository {
             val lifePoints = data["lifePoints"] as Long
             val level = data["level"] as Long
             val currXp = data["currXp"] as Double
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, level, lifePoints, currXp, stats, streaks, onboardingComplete, createdAt, lastUpdate)
+            val currHealth = data["currHealth"] as Long
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, level, lifePoints, currXp, currHealth, stats, streaks, onboardingComplete, createdAt, lastUpdate)
             // return the data as a Users object.
         }
         catch (e: Exception) {
