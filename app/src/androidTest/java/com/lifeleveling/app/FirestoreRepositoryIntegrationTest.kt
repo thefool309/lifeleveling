@@ -1,7 +1,6 @@
 package com.lifeleveling.app
 
 import android.content.Context
-import androidx.compose.foundation.AndroidExternalSurfaceZOrder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.Firebase
@@ -228,6 +227,16 @@ class FirestoreRepositoryIntegrationTest {
         assert(result == null)
     }
 
+    private suspend fun resetUser(logger: ILogger, repo: FirestoreRepository) {
+        // a helper function to reset the User back to test environment defaults
+        repo.createUser(
+            mapOf(
+                "displayName" to testUsername,
+                "email" to testEmail,
+            ), logger
+        )
+    }
+
     @Test
     fun editDisplayNamePositiveTest() = runTest {
         val logger = AndroidLogger()
@@ -309,11 +318,14 @@ class FirestoreRepositoryIntegrationTest {
         assert(!result)
     }
 
+
+
     @Test
     fun incrementStreaksPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository()
+        resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid, logger)
         val oldStreaks = user!!.streaks
         val result = repo.incrementStreaks(logger)
@@ -321,5 +333,127 @@ class FirestoreRepositoryIntegrationTest {
         val newStreaks = user!!.streaks
         assert(newStreaks == (oldStreaks + 1))
         assert(result)
+    }
+
+   @Test
+    fun incrementStrengthPositiveTest() = runTest {
+       val logger = AndroidLogger()
+       authorizeFirebaseUser(logger)
+       val repo = FirestoreRepository()
+       resetUser(logger, repo)
+       var user = repo.getUser(auth.currentUser!!.uid, logger)
+       val oldStrength = user!!.stats["strength"]
+       repo.incrementStrength(logger)
+       user = repo.getUser(auth.currentUser!!.uid, logger)
+       val newStrength = user!!.stats["strength"]
+       assert(newStrength == (oldStrength!! + 1))
+   }
+
+    @Test
+    fun decrementStrengthPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldStrength = user!!.stats["strength"]
+        repo.decrementStrength(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newStrength = user!!.stats["strength"]
+        assert(newStrength == (oldStrength!! - 1))
+    }
+
+    @Test
+    fun setStrengthPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var strength = user!!.stats["strength"]
+        repo.setStrength(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        strength = user!!.stats["strength"]
+        assert(strength == 52L)
+    }
+
+    @Test
+    fun incrementAgilityPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldAgility = user!!.stats["agility"]
+        repo.incrementAgility(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newAgility = user!!.stats["agility"]
+        assert(newAgility == (oldAgility!! + 1))
+    }
+    @Test
+    fun decrementAgilityPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldAgility = user!!.stats["agility"]
+        repo.decrementAgility(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newAgility = user!!.stats["agility"]
+        assert(newAgility == (oldAgility!! - 1))
+    }
+    @Test
+    fun setAgilityPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var agility = user!!.stats["agility"]
+        repo.setAgility(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        agility = user!!.stats["agility"]
+        assert(agility == 52L)
+    }
+
+    @Test
+    fun incrementDefensePositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldDefense = user!!.stats["defense"]
+        repo.incrementDefense(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newDefense = user!!.stats["defense"]
+        assert(newDefense == (oldDefense!! + 1))
+    }
+    @Test
+    fun decrementDefensePositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldDefense = user!!.stats["defense"]
+        repo.decrementDefense(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newDefense = user!!.stats["defense"]
+        assert(newDefense == (oldDefense!! - 1))
+    }
+    @Test
+    fun setDefensePositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var defense = user!!.stats["defense"]
+        repo.setDefense(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        defense = user!!.stats["defense"]
+        assert(defense == 52L)
     }
 }

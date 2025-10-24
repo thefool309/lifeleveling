@@ -307,7 +307,7 @@ class FirestoreRepository {
         }
     }
 
-    suspend fun incrementDexterity(logger: ILogger) : Boolean {
+    suspend fun incrementAgility(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e("Auth","ID is null. Please login to firebase.")
@@ -318,8 +318,8 @@ class FirestoreRepository {
         try {
             val data = docRef.get().await()
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newDexterity = newStats["dexterity"] as Long
-            newStats["dexterity"] = ++newDexterity
+            var newAgility = newStats["agility"] as Long
+            newStats["agility"] = ++newAgility
             docRef.update("stats", newStats).await()
             updateTimestamp(userId, logger)
             return true
@@ -330,7 +330,7 @@ class FirestoreRepository {
         }
     }
 
-    suspend fun decrementDexterity(logger: ILogger) : Boolean {
+    suspend fun decrementAgility(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e("Auth","ID is null. Please login to firebase.")
@@ -341,8 +341,8 @@ class FirestoreRepository {
         try {
             val data = docRef.get().await()
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newDexterity = newStats["dexterity"] as Long
-            newStats["dexterity"] = --newDexterity
+            var newAgility = newStats["agility"] as Long
+            newStats["agility"] = --newAgility
             docRef.update("stats", newStats).await()
             updateTimestamp(userId, logger)
             return true
@@ -353,7 +353,7 @@ class FirestoreRepository {
         }
     }
 
-    suspend fun setDexterity(dexterity: Long, logger: ILogger) : Boolean {
+    suspend fun setAgility(agility: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e("Auth","ID is null. Please login to firebase.")
@@ -364,7 +364,7 @@ class FirestoreRepository {
         try {
             val data = docRef.get().await()
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["dexterity"] = dexterity
+            newStats["agility"] = agility
             docRef.update("stats", newStats).await()
             updateTimestamp(userId, logger)
             return true
@@ -747,8 +747,8 @@ class FirestoreRepository {
             val email = data["email"] as String
             val photoUrl = data["photoUrl"] as String
             val coinsBalance = data["coinsBalance"] as Long
-            val stats = data["stats"] as Map<*, *> // warning here caused me to change type to Map<*, *> in Users data class to avoid casting issues
-            val streaks = data["streaks"] as Long
+            val stats = data["stats"] as Map<String, Long> // warning here caused me to change type to Map<*, *> in Users data class to avoid casting issues
+            val streaks = data["streaks"] as Long           // this proved to be detrimental to usage, so I changed it back
             val onboardingComplete = data["onboardingComplete"] as Boolean
             val createdAt = data["createdAt"] as Timestamp
             val lastUpdate = data["lastUpdate"] as Timestamp

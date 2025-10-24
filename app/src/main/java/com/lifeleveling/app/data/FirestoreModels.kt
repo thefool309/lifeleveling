@@ -9,7 +9,7 @@ data class Users(
     val email: String = "",
     val photoUrl: String = "",
     val coinsBalance: Long = 0,
-    val stats: Map<*, *> = mapOf(
+    val stats: Map<String, Long> = mapOf( //stats had to be explicitly typed for usage
         "agility" to 0,
         "defense" to 0,
         "intellect" to 0,
