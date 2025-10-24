@@ -9,11 +9,15 @@ data class Users(
     val email: String = "",
     val photoUrl: String = "",
     val coinsBalance: Long = 0,
+    val level: Long = 1,
+    val lifePoints: Long = 0,
+    val currXp: Double = 0.0,
     val stats: Map<String, Long> = mapOf( //stats had to be explicitly typed for usage
         "agility" to 0,
         "defense" to 0,
         "intellect" to 0,
         "strength" to 0,
+        "health" to 0,
         "currentHealth" to 50,
         "maxHealth" to 50,
     ),
@@ -21,9 +25,7 @@ data class Users(
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
-    val level: Long = 1,
-    val lifePoints: Long = 0,
-    val currXp: Double = 0.0,
+
 
     ) {
     // for a derived property like this it is not necessary to include in firebase
@@ -36,6 +38,6 @@ data class Users(
     }
 
     fun calculateXpToNextLevel(level: Long) {
-        xpToNextLevel = (level / 100.0).pow(2)
+        xpToNextLevel = (level / 0.5).pow(2)
     }
 }

@@ -584,7 +584,7 @@ class FirestoreRepository {
             .document(userId)
         try {
             val data = docRef.get().await()
-            var newCoinsBalance = data["coins"] as Long
+            var newCoinsBalance = data["coinsBalance"] as Long
             newCoinsBalance += coins
             docRef.update("coinsBalance", newCoinsBalance).await()
             updateTimestamp(userId, logger)
@@ -606,7 +606,7 @@ class FirestoreRepository {
             .document(userId)
         try {
             val data = docRef.get().await()
-            var newCoinsBalance = data["coins"] as Long
+            var newCoinsBalance = data["coinsBalance"] as Long
             newCoinsBalance -= coins
             docRef.update("coinsBalance", newCoinsBalance).await()
             updateTimestamp(userId, logger)
@@ -755,7 +755,7 @@ class FirestoreRepository {
             val lifePoints = data["lifePoints"] as Long
             val level = data["level"] as Long
             val currXp = data["currXp"] as Double
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currXp)
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, level, lifePoints, currXp, stats, streaks, onboardingComplete, createdAt, lastUpdate)
             // return the data as a Users object.
         }
         catch (e: Exception) {

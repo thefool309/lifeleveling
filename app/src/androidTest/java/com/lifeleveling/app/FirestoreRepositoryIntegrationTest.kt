@@ -496,4 +496,70 @@ class FirestoreRepositoryIntegrationTest {
         intellect = user!!.stats["intellect"]
         assert(intellect == 52L)
     }
+
+    @Test
+    fun setCurrHealthPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var health = user!!.stats["currentHealth"]
+        repo.setCurrHealth(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        health = user!!.stats["currentHealth"]
+        assert(health == 52L)
+    }
+    @Test
+    fun setMaxHealthPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var health = user!!.stats["maxHealth"]
+        repo.setMaxHealth(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        health = user!!.stats["maxHealth"]
+        assert(health == 52L)
+    }
+    @Test
+    fun setCoinsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var coins = user!!.coinsBalance
+        repo.setCoins(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        coins = user!!.coinsBalance
+        assert(coins == 52L)
+    }
+    @Test
+    fun addCoinsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldCoins = user!!.coinsBalance
+        repo.addCoins(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newCoins = user!!.coinsBalance
+        assert(newCoins == (oldCoins + 52L))
+    }
+    @Test
+    fun subtractCoinsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldCoins = user!!.coinsBalance
+        repo.subtractCoins(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newCoins = user!!.coinsBalance
+        assert(newCoins == (oldCoins - 52L))
+    }
 }
