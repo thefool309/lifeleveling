@@ -456,4 +456,44 @@ class FirestoreRepositoryIntegrationTest {
         defense = user!!.stats["defense"]
         assert(defense == 52L)
     }
+
+    @Test
+    fun incrementIntellectPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldIntellect = user!!.stats["intellect"]
+        repo.incrementIntellect(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newIntellect = user!!.stats["intellect"]
+        assert(newIntellect == (oldIntellect!! + 1))
+    }
+    @Test
+    fun decrementIntellectPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldIntellect = user!!.stats["intellect"]
+        repo.decrementIntellect(logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newIntellect = user!!.stats["intellect"]
+        assert(newIntellect == (oldIntellect!! - 1))
+    }
+    @Test
+    fun setIntellectPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        var intellect = user!!.stats["intellect"]
+        repo.setIntellect(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        intellect = user!!.stats["intellect"]
+        assert(intellect == 52L)
+    }
 }
