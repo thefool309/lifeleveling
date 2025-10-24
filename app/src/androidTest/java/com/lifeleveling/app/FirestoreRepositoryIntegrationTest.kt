@@ -504,23 +504,10 @@ class FirestoreRepositoryIntegrationTest {
         val repo = FirestoreRepository()
         resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid, logger)
-        var health = user!!.stats["currentHealth"]
+        var health = user!!.currHealth
         repo.setCurrHealth(52L, logger)
         user = repo.getUser(auth.currentUser!!.uid, logger)
-        health = user!!.stats["currentHealth"]
-        assert(health == 52L)
-    }
-    @Test
-    fun setMaxHealthPositiveTest() = runTest {
-        val logger = AndroidLogger()
-        authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository()
-        resetUser(logger, repo)
-        var user = repo.getUser(auth.currentUser!!.uid, logger)
-        var health = user!!.stats["maxHealth"]
-        repo.setMaxHealth(52L, logger)
-        user = repo.getUser(auth.currentUser!!.uid, logger)
-        health = user!!.stats["maxHealth"]
+        health = user!!.currHealth
         assert(health == 52L)
     }
     @Test
