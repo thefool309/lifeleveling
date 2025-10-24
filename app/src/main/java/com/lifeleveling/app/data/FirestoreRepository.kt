@@ -109,6 +109,17 @@ class FirestoreRepository {
         return auth.currentUser?.uid
     }
 
+    private fun updateTimestamp(userId: String, logger: ILogger) {
+        try {
+            db.collection("users")
+                .document(userId)
+                .update("lastUpdate", Timestamp.now())
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating Timestamp", e)
+        }
+    }
+
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
     // Use at your own peril
@@ -123,6 +134,7 @@ class FirestoreRepository {
                 .update(userData)
                 .await()
             result = true
+            updateTimestamp(userId, logger)
         }
         catch (e: Exception) {
             logger.e("Auth", "Error Updating User: ", e)
@@ -146,6 +158,7 @@ class FirestoreRepository {
         try {
             docRef.update("displayName", userName)
             .await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -168,6 +181,7 @@ class FirestoreRepository {
         }
         try {
             docRef.update("email", email).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -190,6 +204,7 @@ class FirestoreRepository {
             val data = docRef.get().await()
             var newStreaks = data["streaks"] as Long
             docRef.update("streaks", ++newStreaks).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -212,6 +227,7 @@ class FirestoreRepository {
             var newStrength = newStats["strength"] as Long
             newStats["strength"] = ++newStrength
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -234,6 +250,7 @@ class FirestoreRepository {
             var newStrength = newStats["strength"] as Long
             newStats["strength"] = --newStrength
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -255,6 +272,7 @@ class FirestoreRepository {
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             newStats["strength"] = strength
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -277,6 +295,7 @@ class FirestoreRepository {
             var newDexterity = newStats["dexterity"] as Long
             newStats["dexterity"] = ++newDexterity
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -299,6 +318,7 @@ class FirestoreRepository {
             var newDexterity = newStats["dexterity"] as Long
             newStats["dexterity"] = --newDexterity
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -320,6 +340,7 @@ class FirestoreRepository {
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             newStats["dexterity"] = dexterity
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -342,6 +363,7 @@ class FirestoreRepository {
             var newDefense = newStats["defense"] as Long
             newStats["defense"] = ++newDefense
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -364,6 +386,7 @@ class FirestoreRepository {
             var newDefense = newStats["defense"] as Long
             newStats["defense"] = --newDefense
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -385,6 +408,7 @@ class FirestoreRepository {
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             newStats["defense"] = defense
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -405,8 +429,9 @@ class FirestoreRepository {
             val data = docRef.get().await()
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             var newIntellect = newStats["intellect"] as Long
-            newIntellect++
+            newStats["intellect"] = ++newIntellect
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -429,6 +454,7 @@ class FirestoreRepository {
             var newIntellect = newStats["intellect"] as Long
             newStats["intellect"] = --newIntellect
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -450,6 +476,7 @@ class FirestoreRepository {
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             newStats["intellect"] = intellect
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -471,6 +498,7 @@ class FirestoreRepository {
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             newStats["currentHealth"] = health
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -492,6 +520,7 @@ class FirestoreRepository {
             val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             newStats["maxHealth"] = health
             docRef.update("stats", newStats).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -509,8 +538,8 @@ class FirestoreRepository {
         val docRef = db.collection("users")
             .document(userId)
         try {
-            val data = docRef.get().await()
             docRef.update("coinsBalance", coins).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -532,6 +561,7 @@ class FirestoreRepository {
             var newCoinsBalance = data["coins"] as Long
             newCoinsBalance += coins
             docRef.update("coinsBalance", newCoinsBalance).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -553,6 +583,7 @@ class FirestoreRepository {
             var newCoinsBalance = data["coins"] as Long
             newCoinsBalance -= coins
             docRef.update("coinsBalance", newCoinsBalance).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch(e: Exception) {
@@ -579,6 +610,7 @@ class FirestoreRepository {
             else {
                 docRef.update("onboardingComplete", true).await()
             }
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
@@ -597,6 +629,7 @@ class FirestoreRepository {
         .document(userId)
         try {
             docRef.update("onboardingComplete", onboardingComplete).await()
+            updateTimestamp(userId, logger)
             return true
         }
         catch (e: Exception) {
