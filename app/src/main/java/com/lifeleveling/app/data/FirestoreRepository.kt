@@ -105,6 +105,10 @@ class FirestoreRepository {
 
     }
 
+    private fun getUserId() : String? {
+        return auth.currentUser?.uid
+    }
+
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
     // Use at your own peril
@@ -128,7 +132,11 @@ class FirestoreRepository {
     }
 
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
-        val userId: String = auth.currentUser!!.uid
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
         val docRef = db.collection("users")
         .document(userId)
         if(userName.isEmpty()) {
@@ -147,7 +155,11 @@ class FirestoreRepository {
     }
 
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
-        val userId: String = auth.currentUser!!.uid
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
         val docRef = db.collection("users")
             .document(userId)
         if(email.isEmpty()) {
@@ -159,20 +171,21 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e("Auth", "Error Updating User: ", e)
+            logger.e("Firestore", "Error Updating User: ", e)
             return false
         }
 
     }
 
     suspend fun incrementStreaks( logger: ILogger) : Boolean {
-        val userId: String = auth.currentUser!!.uid
-        val docRef = db.collection("users")
-        .document(userId)
-        if (userId.isEmpty()) {
+        val userId: String? = getUserId()
+        if (userId == null) {
             logger.e("Auth","User ID is empty. Please make sure you're signed in.")
             return false
         }
+        val docRef = db.collection("users")
+        .document(userId)
+
         try{
             val data = docRef.get().await()
             var newStreaks = data["streaks"] as Long
@@ -186,16 +199,16 @@ class FirestoreRepository {
     }
 
     suspend fun incrementStrength(logger: ILogger) : Boolean {
-        val userId: String = auth.currentUser!!.uid
-        val docRef = db.collection("users")
-        .document(userId)
-        if (userId.isEmpty()) {
-            logger.e("Auth","User ID is empty. Please make sure you're signed in.")
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
             return false
         }
+        val docRef = db.collection("users")  // and waste a ton of time
+        .document(userId)
         try {
             val data = docRef.get().await()
-            var newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
             var newStrength = newStats["strength"] as Long
             newStats["strength"] = ++newStrength
             docRef.update("stats", newStats).await()
@@ -206,15 +219,40 @@ class FirestoreRepository {
             return false
         }
     }
-
-    suspend fun setOnboardingComplete(onboardingComplete: Boolean = true, logger: ILogger) : Boolean {
-        val userId: String = auth.currentUser!!.uid
-        val docRef = db.collection("users")
-        .document(userId)
-        if (userId.isEmpty()) {
-            logger.e("Auth","User ID is empty. Please make sure you're signed in.")
+    // A toggler for setOnboardingComplete
+    suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
             return false
         }
+        val docRef = db.collection("users")  // and waste a ton of time
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val onboarding = data["onboarding"] as Boolean
+            if(onboarding) {
+                docRef.update("onboardingComplete", false).await()
+            }
+            else {
+                docRef.update("onboardingComplete", true).await()
+            }
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("FireStore", "Error Updating User: ", e)
+            return false
+        }
+    }
+    // an overload to pass in a specific value
+    suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+        .document(userId)
         try {
             docRef.update("onboardingComplete", onboardingComplete).await()
             return true
@@ -226,14 +264,14 @@ class FirestoreRepository {
     }
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
         // get the document snapshot
-        var result: Users? = null
+        var result: Users?
         if (uID == null) {
-            logger.e("Auth", "User ID null")
-            return result
+            logger.e("Auth", "User ID null when trying to retrieve user please ensure you're signed in.")
+            return null
         }
         if (uID.isEmpty() || uID.isBlank()) {
             logger.e("Auth", "User ID is empty or blank")
-            return result
+            return null
         }
         var docRef: DocumentReference?
         try {
@@ -241,7 +279,7 @@ class FirestoreRepository {
         }
         catch(e: Exception) {
             logger.e("Auth", "Error Getting User: ", e)
-            return result
+            return null
         }
         val docSnapshot = docRef.get().await()
         // extract the data from the snapshot
