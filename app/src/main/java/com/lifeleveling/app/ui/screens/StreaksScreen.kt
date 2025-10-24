@@ -25,6 +25,8 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.BadgeDisplay
 import com.lifeleveling.app.ui.theme.BadgesToolTip
 import com.lifeleveling.app.ui.theme.HighlightCard
+import com.lifeleveling.app.ui.theme.LevelAndProgress
+import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
 import com.lifeleveling.app.ui.theme.ProgressBar
 import com.lifeleveling.app.ui.theme.ShadowedIcon
 import com.lifeleveling.app.ui.theme.StreaksToolTip
@@ -33,6 +35,7 @@ import com.lifeleveling.app.ui.theme.StreaksToolTip
 @Composable
 fun StreaksScreen() {
     // Pop up tips
+    val showLevelTip = remember { mutableStateOf(false) }
     val showStreaksTip = remember { mutableStateOf(false) }
     val showBadgesTip = remember { mutableStateOf(false) }
 
@@ -49,6 +52,10 @@ fun StreaksScreen() {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Level and exp
+            LevelAndProgress(
+                showLevelTip = showLevelTip
+            )
             // Streaks title
             Row(
                 modifier = Modifier
@@ -326,6 +333,9 @@ fun StreaksScreen() {
     }
 
     // Show Tooltip Popups
+    if (showLevelTip.value) {
+        LifeExperienceToolTip(showLevelTip)
+    }
     if (showStreaksTip.value) {
         StreaksToolTip(showStreaksTip)
     }
