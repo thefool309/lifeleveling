@@ -1,6 +1,7 @@
 package com.lifeleveling.app
 
 import android.content.Context
+import androidx.compose.foundation.AndroidExternalSurfaceZOrder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.Firebase
@@ -225,5 +226,59 @@ class FirestoreRepositoryIntegrationTest {
         // when calling getUser it is safer to use a "Safe" operator as below
         val result = repo.getUser(auth.currentUser?.uid, logger)
         assert(result == null)
+    }
+
+    @Test
+    fun editDisplayNamePositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editDisplayName("Tinkle", logger)
+        assert(result)
+    }
+
+    @Test
+    fun editDisplayNameIsEmptyNegativeTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editDisplayName("", logger)
+        assert(!result)
+    }
+
+    @Test
+    fun editDisplayNameIsBlankNegativeTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editDisplayName("    ", logger)
+        assert(!result)
+    }
+
+    @Test
+    fun editEmailPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editEmail("tinkle@annoyingasscharacters.com", logger)
+        assert(result)
+    }
+
+    @Test
+    fun editEmailIsEmptyNegativeTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editEmail("", logger)
+        assert(!result)
+    }
+
+    @Test
+    fun editEmailIsBlankNegativeTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        val result = repo.editEmail("   ", logger)
+        assert(!result)
     }
 }
