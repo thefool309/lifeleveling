@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,8 +42,6 @@ import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
-import com.lifeleveling.app.navigation.TempStatsScreen
-import com.lifeleveling.app.navigation.TempStreaksScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
