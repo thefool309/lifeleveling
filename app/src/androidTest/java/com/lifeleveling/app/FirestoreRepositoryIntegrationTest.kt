@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.data.Users
 import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.TestLogger
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
@@ -43,11 +45,30 @@ class FirestoreRepositoryIntegrationTest {
 //    }
 
 
-    //TODO: initialize testing environment
+    private suspend fun authorizeFirebaseUser(logger: ILogger): Boolean {
+        // a fancy way to check if the user exists without having their ID
+        try {
+            auth.signInWithEmailAndPassword(testEmail, testPassword).await()
+            return true
+        } catch (e: FirebaseAuthException) {
+            try {
+                // if a FirebaseAuthException is thrown try creating the user first
+                auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
+                auth.signInWithEmailAndPassword(testEmail, testPassword).await()
+                return true
+            }
+            catch (e: FirebaseAuthException) {
+                // if both of these fail it's something else so check the logs
+                logger.e("Auth", "createUserWithEmailAndPassword:", e)
+                return false
+            }
+        }
+    }
+    // initialize testing environment
     @Before
     fun setup() = runTest {
 
-        val logger = TestLogger()
+        val logger = AndroidLogger()
         logger.d("Test setup", "Test setup commencing...")
         val context = ApplicationProvider.getApplicationContext<Context>()
         // Ensure FirebaseApp is only initialized once
@@ -158,11 +179,13 @@ class FirestoreRepositoryIntegrationTest {
     @Test
     fun getUserPositiveTest() = runTest {
         // the test passes :3 and log output is correct
-        //comment top line in if you need to create a user  in auth
-        // auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
-        auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger: AndroidLogger = AndroidLogger()
+        val authSuccess: Boolean = authorizeFirebaseUser(logger)
+        if (!authSuccess) {
+            throw Exception("Check Logs for Auth")
+        }
         val repo = FirestoreRepository()
+
         val user = repo.createUser(mapOf(
             "displayName" to testUsername,
             "email" to testEmail,
