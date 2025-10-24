@@ -637,6 +637,29 @@ class FirestoreRepository {
             return false
         }
     }
+
+    suspend fun incrementLevel(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            var newLevel = data["level"] as Long
+            newLevel = ++newLevel
+            docRef.update("level", newLevel).await()
+            updateTimestamp(userId, logger)
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+    
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
         // get the document snapshot
         var result: Users?
