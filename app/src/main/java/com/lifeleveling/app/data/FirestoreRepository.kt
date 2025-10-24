@@ -372,6 +372,27 @@ class FirestoreRepository {
         }
     }
 
+    suspend fun setDefense(defense: Long, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            newStats["defense"] = defense
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
     suspend fun incrementIntellect(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
