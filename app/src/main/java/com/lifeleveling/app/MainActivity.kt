@@ -55,6 +55,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.ui.screens.StreaksScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -194,7 +195,7 @@ fun NavHostContainer(
                 HomeScreen()
             }
             composable("streaks") {
-                TempStreaksScreen()
+                StreaksScreen()
             }
             composable("settings") {
                 TempSettingsScreen()

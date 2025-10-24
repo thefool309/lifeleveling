@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.BadgeDisplay
 import com.lifeleveling.app.ui.theme.BadgesToolTip
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.ProgressBar
@@ -125,7 +126,7 @@ fun StreaksScreen() {
                                     ShadowedIcon(
                                         imageVector = ImageVector.vectorResource(streak.reminder.icon),
                                         tint = if (streak.reminder.color == null) Color.Unspecified
-                                                else resolveReminderColor(streak.reminder.color),
+                                                else resolveEnumColor(streak.reminder.color),
                                         modifier = Modifier
                                             .size(20.dp)
                                     )
@@ -227,7 +228,7 @@ fun StreaksScreen() {
                                     ShadowedIcon(
                                         imageVector = ImageVector.vectorResource(streak.reminder.icon),
                                         tint = if (streak.reminder.color == null) Color.Unspecified
-                                        else resolveReminderColor(streak.reminder.color),
+                                        else resolveEnumColor(streak.reminder.color),
                                         modifier = Modifier
                                             .size(20.dp)
                                     )
@@ -308,7 +309,7 @@ fun StreaksScreen() {
                         .size(20.dp)
                         .offset(y = 9.74.dp)
                         .clickable {
-                            showStreaksTip.value = !showStreaksTip.value
+                            showBadgesTip.value = !showBadgesTip.value
                         }
                 )
             }
@@ -317,7 +318,10 @@ fun StreaksScreen() {
             HighlightCard(
                 modifier = Modifier,
                 outerPadding = 0.dp,
-            ) {}
+                height = 200.dp
+            ) {
+                BadgeDisplay()
+            }
         }
     }
 

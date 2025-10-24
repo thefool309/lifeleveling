@@ -27,9 +27,9 @@ object TestUser {
     // All reminders
     private val reminders = mutableListOf (
         Reminder(1, "Drink Water", R.drawable.water_drop, null, true, 3, 0),
-        Reminder(2, "Laundry", R.drawable.shirt, ReminderColor.BrandTwo, false, 0, 4),
+        Reminder(2, "Laundry", R.drawable.shirt, enumColor.BrandTwo, false, 0, 4),
         Reminder(3, "Shower", R.drawable.shower_bath, null, false, 0, 15),
-        Reminder(4, "Read", R.drawable.person_reading, ReminderColor.SecondaryTwo, false, 0, 8),
+        Reminder(4, "Read", R.drawable.person_reading, enumColor.SecondaryTwo, false, 0, 8),
         Reminder(5, "Run", R.drawable.person_running_color, null, false, 0, 4),
         Reminder(6, "Make my bed", R.drawable.bed_color, null, true, 1, 0),
         Reminder(7, "Brush teeth", R.drawable.toothbrush, null, true, 2, 0),
@@ -49,7 +49,7 @@ object TestUser {
 
     // Functions on reminders
     // Add a reminder
-    fun addReminder(name: String, icon: Int, color: ReminderColor?, daily: Boolean, timesPerDay: Int, timesPerMonth: Int) {
+    fun addReminder(name: String, icon: Int, color: enumColor?, daily: Boolean, timesPerDay: Int, timesPerMonth: Int) {
         val newReminder = Reminder(nextId++, name, icon, color, daily, timesPerDay, timesPerMonth)
         reminders.add(newReminder)
         updateLists()
@@ -128,13 +128,200 @@ object TestUser {
     fun incrementStreak(streak: Streak) {
         streak.numberCompleted += 1
     }
+
+    // =============== Badges ========================
+    var badges by mutableStateOf(
+        listOf(
+            Badge(
+                4,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                5,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                6,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                7,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                8,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                9,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                10,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                11,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                12,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                13,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                14,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                15,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                16,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                17,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                18,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                19,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                20,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+            Badge(
+                21,
+                R.drawable.question_mark,
+                enumColor.BrandTwo,
+                "TBA",
+                "Other badges to be filled out.",
+                false
+            ),
+        )
+    )
+
+    // Completed badges
+    var completedBadges by mutableStateOf(
+        listOf(
+            Badge(
+                1,
+                R.drawable.one,
+                enumColor.SecondaryTwo,
+                "Everyone Starts at the Beginning",
+                "You created your account and started your Life Leveling journey!",
+                true
+            ),
+            Badge(
+                2,
+                R.drawable.sun_glasses,
+                enumColor.BrandOne,
+                "Looking Good!",
+                "Customize the look of your avatar.",
+                true
+            ),
+            Badge(
+                3,
+                R.drawable.flame,
+                enumColor.BrandOne,
+                "On Fire!",
+                "Complete your first week streak.",
+                true
+            ),
+        )
+    )
+
+    // Complete a badge by ID
+    fun completeBadge(badgeId: Int) {
+        val badge = badges.find { it.id == badgeId } ?: return
+        badges = badges.filter { it.id != badgeId }
+        completedBadges = completedBadges + badge.copy(completed = true)
+    }
 }
 
 data class Reminder (
     val id: Int,
     val name: String,
     val icon: Int,
-    val color: ReminderColor?,
+    val color: enumColor?,
     val daily: Boolean,
     val timesPerDay: Int,
     val timesPerMonth: Int,
@@ -146,7 +333,7 @@ data class Streak (
     var numberCompleted: Int = 0
 )
 
-enum class ReminderColor {
+enum class enumColor {
     BrandOne,
     BrandTwo,
     SecondaryOne,
@@ -167,22 +354,31 @@ enum class ReminderColor {
 }
 
 @Composable
-fun resolveReminderColor(color: ReminderColor): Color = when (color) {
-    ReminderColor.BrandOne -> AppTheme.colors.BrandOne
-    ReminderColor.BrandTwo -> AppTheme.colors.BrandTwo
-    ReminderColor.SecondaryOne -> AppTheme.colors.SecondaryOne
-    ReminderColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
-    ReminderColor.SecondaryThree -> AppTheme.colors.SecondaryThree
-    ReminderColor.Background -> AppTheme.colors.Background
-    ReminderColor.DarkerBackground -> AppTheme.colors.DarkerBackground
-    ReminderColor.PopUpBackground -> AppTheme.colors.PopUpBackground
-    ReminderColor.DropShadow -> AppTheme.colors.DropShadow
-    ReminderColor.LightShadow -> AppTheme.colors.LightShadow
-    ReminderColor.Gray -> AppTheme.colors.Gray
-    ReminderColor.FadedGray -> AppTheme.colors.FadedGray
-    ReminderColor.Success -> AppTheme.colors.Success
-    ReminderColor.Success75 -> AppTheme.colors.Success75
-    ReminderColor.Error -> AppTheme.colors.Error
-    ReminderColor.Error75 -> AppTheme.colors.Error75
-    ReminderColor.Warning -> AppTheme.colors.Warning
+fun resolveEnumColor(color: enumColor): Color = when (color) {
+    enumColor.BrandOne -> AppTheme.colors.BrandOne
+    enumColor.BrandTwo -> AppTheme.colors.BrandTwo
+    enumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
+    enumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
+    enumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
+    enumColor.Background -> AppTheme.colors.Background
+    enumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
+    enumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
+    enumColor.DropShadow -> AppTheme.colors.DropShadow
+    enumColor.LightShadow -> AppTheme.colors.LightShadow
+    enumColor.Gray -> AppTheme.colors.Gray
+    enumColor.FadedGray -> AppTheme.colors.FadedGray
+    enumColor.Success -> AppTheme.colors.Success
+    enumColor.Success75 -> AppTheme.colors.Success75
+    enumColor.Error -> AppTheme.colors.Error
+    enumColor.Error75 -> AppTheme.colors.Error75
+    enumColor.Warning -> AppTheme.colors.Warning
 }
+
+data class Badge (
+    val id: Int,
+    val icon: Int,
+    val color: enumColor,
+    val title: String,
+    val description: String,
+    val completed: Boolean = false,
+)
