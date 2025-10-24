@@ -457,6 +457,49 @@ class FirestoreRepository {
             return false
         }
     }
+
+    suspend fun setCurrHealth(health: Long, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            newStats["currentHealth"] = health
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun setMaxHealth(health: Long, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            newStats["maxHealth"] = health
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
     // A toggler for setOnboardingComplete
     suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
