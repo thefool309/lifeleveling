@@ -201,7 +201,10 @@ class FirestoreRepository {
             val onboardingComplete = data["onboardingComplete"] as Boolean
             val createdAt = data["createdAt"] as Timestamp
             val lastUpdate = data["lastUpdate"] as Timestamp
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate)
+            val level = data["level"] as Int
+            val xpToNextLevel = data["xpToNextLevel"] as Float
+            val currentXP = data["currentXP"] as Float
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, currentXP, xpToNextLevel)
             // return the data as a Users object.
         }
         catch (e: Exception) {
