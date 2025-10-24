@@ -415,7 +415,27 @@ class FirestoreRepository {
         }
     }
 
-
+    suspend fun decrementIntellect(logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if(userId == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newIntellect = newStats["intellect"] as Long
+            newStats["intellect"] = --newIntellect
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
     // A toggler for setOnboardingComplete
     suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
