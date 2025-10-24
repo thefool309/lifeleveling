@@ -152,6 +152,7 @@ class FirestoreRepository {
             .document(userId)
         if(email.isEmpty()) {
             logger.e("Invalid Parameter","User email is empty. Please add user email.")
+            return false
         }
         try {
             docRef.update("email", email).await()
@@ -164,7 +165,65 @@ class FirestoreRepository {
 
     }
 
+    suspend fun incrementStreaks( logger: ILogger) : Boolean {
+        val userId: String = auth.currentUser!!.uid
+        val docRef = db.collection("users")
+        .document(userId)
+        if (userId.isEmpty()) {
+            logger.e("Auth","User ID is empty. Please make sure you're signed in.")
+            return false
+        }
+        try{
+            val data = docRef.get().await()
+            var newStreaks = data["streaks"] as Long
+            docRef.update("streaks", ++newStreaks).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
 
+    suspend fun incrementStrength(logger: ILogger) : Boolean {
+        val userId: String = auth.currentUser!!.uid
+        val docRef = db.collection("users")
+        .document(userId)
+        if (userId.isEmpty()) {
+            logger.e("Auth","User ID is empty. Please make sure you're signed in.")
+            return false
+        }
+        try {
+            val data = docRef.get().await()
+            var newStats = (data["stats"] as Map<*, *>).toMutableMap()
+            var newStrength = newStats["strength"] as Long
+            newStats["strength"] = ++newStrength
+            docRef.update("stats", newStats).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
+    }
+
+    suspend fun setOnboardingComplete(onboardingComplete: Boolean = true, logger: ILogger) : Boolean {
+        val userId: String = auth.currentUser!!.uid
+        val docRef = db.collection("users")
+        .document(userId)
+        if (userId.isEmpty()) {
+            logger.e("Auth","User ID is empty. Please make sure you're signed in.")
+            return false
+        }
+        try {
+            docRef.update("onboardingComplete", onboardingComplete).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e("FireStore", "Error Updating User: ", e)
+            return false
+        }
+    }
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
         // get the document snapshot
         var result: Users? = null
