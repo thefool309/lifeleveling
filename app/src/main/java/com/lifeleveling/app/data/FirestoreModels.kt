@@ -8,12 +8,8 @@ data class Users(
     val email: String = "",
     val photoUrl: String = "",
     val coinsBalance: Long = 0,
-    val stats: Map<String, Long> = mapOf(
-        "agility" to 0,
-        "defense" to 0,
-        "healthPoints" to 0,
-        "strength" to 0
-    ),
+    // Update from inline map to now use Stats data class
+    val stats: Stats = Stats(),
     val streaks: Long = 0,
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
