@@ -30,3 +30,12 @@ data class Reminders(
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null    // serverTimestamp on any write
 )
+
+data class Stats (
+    val agility: Long = 0,
+    val defense: Long = 0,
+    val intellect: Long = 0,
+    val strength: Long = 0,
+    val currentHealth: Long = 0,
+    val maxHealth: Long = 0,
+)
