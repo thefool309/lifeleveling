@@ -10,6 +10,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
+import kotlin.Long
 
 
 class FirestoreRepository {
@@ -30,15 +31,23 @@ class FirestoreRepository {
             photoUrl = user.photoUrl?.toString().orEmpty(),
             coinsBalance = 0L,
             stats = Stats(
-                0L,
-                0L,
-                0L,
-                0L
+                agility = 0L,
+                defense = 0L,
+                intellect = 0L,
+                strength = 0L,
+                currentHealth = 50L,
+                maxHealth = 50L,
             ),
             streaks = 0L,
             onboardingComplete = false,
             createdAt = null,
             lastUpdate = null,
+            level = 1L,
+            lifePoints = 0L,
+            currentXp = 0.0,
+            xpToNextLevel = 300.0,
+            badgesLocked = emptyList(),
+            badgesUnlocked = emptyList(),
         )
 
         val data = mutableMapOf<String, Any?>(
@@ -51,7 +60,13 @@ class FirestoreRepository {
             "streaks" to model.streaks,
             "onboardingComplete" to model.onboardingComplete,
             "createdAt" to model.createdAt,
-            "lastUpdate" to FieldValue.serverTimestamp()
+            "lastUpdate" to FieldValue.serverTimestamp(),
+            "level" to model.level,
+            "lifePoints" to model.lifePoints,
+            "currentXp" to model.currentXp,
+            "xpToNextLevel" to model.xpToNextLevel,
+            "badgesLocked" to model.badgesLocked,
+            "badgesUnlocked" to model.badgesUnlocked,
         )
 
         if (firstTime) {
