@@ -29,11 +29,11 @@ class FirestoreRepository {
             email = user.email.orEmpty(),
             photoUrl = user.photoUrl?.toString().orEmpty(),
             coinsBalance = 0L,
-            stats = mapOf(
-                "agility" to 0L,
-                "defense" to 0L,
-                "healthPoints" to 0L,
-                "strength" to 0L
+            stats = Stats(
+                0L,
+                0L,
+                0L,
+                0L
             ),
             streaks = 0L,
             onboardingComplete = false,
