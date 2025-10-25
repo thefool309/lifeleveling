@@ -14,11 +14,15 @@ data class Users(
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
+
     // variables that were missing during our first introduction of the Users collection
     val level: Long = 1,
-    val lifePoints: Long = 0,
-    val currentXp: Double = 0.0,
-    val xpToNextLevel: Double = 0.0,
+    val lifePoints: Long = 0,           // unused lifePoints
+    val currentXp: Double = 0.0,        // Current Experience
+    val xpToNextLevel: Double = 0.0,    // Experience needed to level up
+    // Badges can be stored in arrays of Badge objects on user doc.
+    val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
+    val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
 )
 
 // Nested Models
