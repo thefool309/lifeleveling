@@ -1,4 +1,4 @@
-package com.lifeleveling.app
+package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,31 +33,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.CustomButton
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.PopupCard
+import com.lifeleveling.app.ui.theme.ProgressBar
 import com.lifeleveling.app.ui.theme.ShadowedIcon
 
 @Preview
 @Composable
 fun StatsScreen(
-                userLevel: Int = 5,
-                userExperiance: Int = 65,
-                maxExperience: Int = 255,
-
-                usedLifePoints: Int = 6,
-                unusedLifePoints: Int = 12,
-                userStrength: Int = 3,
-                userDefesne: Int = 2,
-                userIntel: Int = 3,
-                userAgility: Int = 3,
-                userHealth: Int = 3,
-                onConfirm: () -> Unit = {println("Confirm pressed")},
-                onCancel: () -> Unit = {println("Cancel pressed")},
+    userLevel: Int = TestUser.level,
+    userExperience: Int = TestUser.currentExp,
+    maxExperience: Int = TestUser.expToLevel,
+    usedLifePoints: Int = TestUser.LifePointsUsed,
+    unusedLifePoints: Int = TestUser.UnusedLifePoints,
+    userStrength: Int = TestUser.StatStrength,
+    userDefense: Int = TestUser.StatDefense,
+    userIntel: Int = TestUser.StatIntelligence,
+    userAgility: Int = TestUser.StatAgility,
+    userHealth: Int = TestUser.StatHealth,
+    onConfirm: () -> Unit = {println("Confirm pressed")},
+    onCancel: () -> Unit = {println("Cancel pressed")},
                 ) {
-    val progress = (userExperiance.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
+    val progress = (userExperience.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
     var showHelpDialog by remember { mutableStateOf(false) }
     var showStatsDialog by remember { mutableStateOf(false) }
     var usedPoints by remember { mutableStateOf(usedLifePoints) }
@@ -117,23 +116,33 @@ fun StatsScreen(
 
                     }
                 }
-                // This is the level progress bar
-                Box(
+                // This is the old level progress bar
+//                Box(
+//                    modifier = Modifier
+//                        .padding(horizontal = 16.dp)
+//                        .fillMaxWidth()
+//                        .height(16.dp)
+//                        .background(AppTheme.colors.Gray.copy(alpha = 0.3f),shape = RoundedCornerShape(10.dp))
+//                ){
+//                    Box(modifier = Modifier
+//                        .fillMaxHeight()
+//                    .fillMaxWidth(progress)
+//                        .background(AppTheme.colors.SecondaryTwo, shape = RoundedCornerShape(10.dp)))
+//                }
+                ProgressBar(
+                    progress = progress,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
-                        .height(16.dp)
-                        .background(AppTheme.colors.Gray.copy(alpha = 0.3f),shape = RoundedCornerShape(10.dp))
-                ){
-                    Box(modifier = Modifier
-                        .fillMaxHeight()
-                    .fillMaxWidth(progress)
-                        .background(AppTheme.colors.SecondaryTwo, shape = RoundedCornerShape(10.dp)))
-                }
+                        .height(16.dp),
+                    backgroundColor = AppTheme.colors.DarkerBackground,
+                    progressColor = AppTheme.colors.SecondaryTwo,
+                    cornerRadius = 5.dp
+                )
                 Spacer(Modifier.height(6.dp))
                 //This is the field that shows the experience gained vs the max experience level
                 Text(
-                    text = "$userExperiance / $maxExperience xp",
+                    text = "$userExperience / $maxExperience xp",
                     color = AppTheme.colors.Gray,
                     style = AppTheme.textStyles.Default,
                     modifier = Modifier
@@ -202,14 +211,14 @@ fun StatsScreen(
                         .fillMaxWidth()
                 ) {
                     val strength = remember { mutableStateOf(userStrength) }
-                    val defense = remember { mutableStateOf(userDefesne) }
+                    val defense = remember { mutableStateOf(userDefense) }
                     val intelligence = remember { mutableStateOf(userIntel) }
                     val agility = remember { mutableStateOf(userAgility) }
                     val health = remember { mutableStateOf(userHealth) }
                     // create baseStats so user is not able to go lower then what is saved
                     val baseStats = mapOf(
                         "Strength" to userStrength,
-                        "Defense" to userDefesne,
+                        "Defense" to userDefense,
                         "Intelligence" to userIntel,
                         "Agility" to userAgility,
                         "Health" to userHealth

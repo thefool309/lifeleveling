@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +43,17 @@ import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
+import com.lifeleveling.app.navigation.TempStatsScreen
+import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.screens.CreateAccountScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.screens.NotificationScreen
+import com.lifeleveling.app.ui.screens.SelfCareScreen
+import com.lifeleveling.app.ui.screens.SettingScreen
+import com.lifeleveling.app.ui.screens.SignIn
+import com.lifeleveling.app.ui.screens.StatsScreen
+import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
+import com.lifeleveling.app.ui.screens.TestUser
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 
@@ -135,24 +146,41 @@ class MainActivity : ComponentActivity() {
                     SplashAnimationOverlay()
                 } else {
                     // Show SignIn when not authenticated; show your app when signed in
-                    LifelevelingTheme(darkTheme = isDarkTheme) {
+                    LifelevelingTheme(darkTheme = isDarkThemeState.value) {
                         if (authState.user == null) {
+                            val preAuthNav = rememberNavController()
+                            NavHost(
+                                navController = preAuthNav,
+                                startDestination = "signin"
+                            ) {
+                                composable("signin") {
+                                    SignIn(
+                                        onLogin = { /* handle login */ },
+                                        onGoogleLogin = {
+                                            authVm.beginGoogleSignIn()
+                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                            googleLauncher.launch(intent)
+                                        },
+                                        onCreateAccount = {
+                                            preAuthNav.navigate("createaccount")
+                                        }
+                                    )
+                                }
 
-                            // -------- Sign In UI --------
-                            SignIn(
-                                // Auth using email and password
-                                onLogin = { /* TODO: email/password */ },
-
-                                // Auth with Google Sign In
-                                onGoogleLogin = {
-                                    authVm.beginGoogleSignIn()
-                                    val intent = authVm.googleClient(this@MainActivity).signInIntent
-                                    googleLauncher.launch(intent)
-                                },
-
-                                // Create account screen
-                                onCreateAccount = { /* TODO: navigate to sign-up */ }
-                            )
+                                composable("createaccount") {
+                                    CreateAccountScreen(
+                                        onJoin = { /* handle sign-up logic */ },
+                                        onGooleLogin = {
+                                            authVm.beginGoogleSignIn()
+                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                            googleLauncher.launch(intent)
+                                        },
+                                        onLog = {
+                                            preAuthNav.navigate("signin") // back to SignIn
+                                        }
+                                    )
+                                }
+                            }
                         } else {
 
                             // Main App UI
@@ -161,7 +189,7 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
                                 ) { padding ->
-                                    NavHostContainer(navController = navController, padding = padding)
+                                    NavHostContainer(navController = navController, padding = padding, isDarkThemeState = isDarkThemeState)
                                 }
                             }
                         }
@@ -175,7 +203,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavHostContainer(
     navController: NavHostController,
-    padding: PaddingValues
+    padding: PaddingValues,
+    isDarkThemeState: MutableState<Boolean>,
 ) {
     NavHost(
         navController = navController,
@@ -187,6 +216,16 @@ fun NavHostContainer(
             }
             composable("stats") {
                 StatsScreen()
+//                StatsScreen( TestUser.level,
+//                TestUser.currentExp,
+//                TestUser.expToLevel,
+//                TestUser.LifePointsUsed,
+//                TestUser.UnusedLifePoints,
+//                TestUser.StatStrength,
+//                 TestUser.StatDefense,
+//                TestUser.StatIntelligence,
+//                TestUser.StatAgility,
+//                TestUser.StatHealth)
             }
             composable("home") {
                 HomeScreen()
@@ -195,7 +234,22 @@ fun NavHostContainer(
                 StreaksScreen()
             }
             composable("settings") {
-                TempSettingsScreen()
+                SettingScreen(
+                    navController = navController,
+                    isDarkTheme = isDarkThemeState.value,
+                    onThemeChange = { newIsDark ->
+                        isDarkThemeState.value = newIsDark
+                    }
+                )
+            }
+            composable ("notifications"){
+                NotificationScreen(navController = navController)
+            }
+            composable ("selfcare"){
+                SelfCareScreen(navController = navController)
+            }
+            composable ("termsAndPrivacy") {
+                TermsAndPrivacyScreen(navController = navController)
             }
         }
     )

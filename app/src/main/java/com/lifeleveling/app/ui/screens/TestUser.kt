@@ -22,6 +22,13 @@ object TestUser {
     var coins by mutableStateOf(301)
     var currentHealth by mutableStateOf(34)
     var maxHealth by mutableStateOf(85)
+    var StatStrength by mutableStateOf(3)
+    var StatDefense by mutableStateOf(2)
+    var StatIntelligence by mutableStateOf(3)
+    var StatAgility by mutableStateOf(3)
+    var StatHealth by mutableStateOf(3)
+    var LifePointsUsed by mutableStateOf(6)
+    var UnusedLifePoints by mutableStateOf(12)
 
     // ================= Reminder  handling =================================
     // All reminders
