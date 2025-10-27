@@ -307,7 +307,50 @@ fun SettingScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
 
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(AppTheme.colors.Gray)
+                            .padding(horizontal = 8.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(modifier = Modifier){
+
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.minus),
+                            contentDescription = "Bell icon",
+                            tint = AppTheme.colors.SecondaryThree,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .align(Alignment.CenterVertically)
+
+
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
+                        Text(
+                            text = "Logout",
+                            color = AppTheme.colors.Gray,
+                            style = AppTheme.textStyles.HeadingSix.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable {
+
+                                }
+
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                 }
             }
