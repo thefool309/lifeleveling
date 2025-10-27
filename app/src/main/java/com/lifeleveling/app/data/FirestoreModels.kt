@@ -39,7 +39,7 @@ data class Users(
     }
 
     fun calculateXpToNextLevel(level: Long) {
-        xpToNextLevel = (level / 0.5).pow(5)
+        xpToNextLevel = (level / 0.5).pow(5) // TODO: Change to level * 100
     }
 
     fun calculateMaxHealth(health: Long) {
