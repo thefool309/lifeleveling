@@ -26,17 +26,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.BuildConfig
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
@@ -60,9 +66,9 @@ import com.lifeleveling.app.ui.theme.StartLogic
 
 // Temp Check to ensure firebase connection
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
+
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+
 import com.lifeleveling.app.ui.screens.StreaksScreen
 
 class MainActivity : ComponentActivity() {
@@ -72,6 +78,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // It is important to do this before any Firebase use
+        if (BuildConfig.DEBUG) {
+            Firebase.firestore.useEmulator("10.0.2.2", 8080)
+            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099)
+        }
+
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
         enableEdgeToEdge(
@@ -92,9 +105,6 @@ class MainActivity : ComponentActivity() {
         ) { result ->
             authVm.handleGoogleResultIntent(result.data)
         }
-
-        // TEMP: force sign out to see SignIn (remove later)
-        authVm.signOut(this)
 
         enableEdgeToEdge()
         setContent {
@@ -148,35 +158,40 @@ class MainActivity : ComponentActivity() {
                     // Show SignIn when not authenticated; show your app when signed in
                     LifelevelingTheme(darkTheme = isDarkThemeState.value) {
                         if (authState.user == null) {
+
                             val preAuthNav = rememberNavController()
-                            NavHost(
-                                navController = preAuthNav,
-                                startDestination = "signin"
-                            ) {
+                            NavHost(navController = preAuthNav, startDestination = "signin") {
                                 composable("signin") {
+                                    // -------- Sign In UI --------
                                     SignIn(
-                                        onLogin = { /* handle login */ },
+                                        // Auth using email and password
+                                        onLogin = { /* TODO: email/password */ },
+
+                                        // Auth with Google Sign In
                                         onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)
                                         },
+
+                                        // Create account screen
                                         onCreateAccount = {
-                                            preAuthNav.navigate("createaccount")
+                                            preAuthNav.navigate("createaccount"){
+                                                //launchSingleTop = false
+                                            }
                                         }
                                     )
                                 }
-
                                 composable("createaccount") {
                                     CreateAccountScreen(
-                                        onJoin = { /* handle sign-up logic */ },
+                                        onJoin = {/*TODO: Handle sign-up logic*/},
                                         onGooleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)
                                         },
                                         onLog = {
-                                            preAuthNav.navigate("signin") // back to SignIn
+                                            preAuthNav.navigate("signin") // Back to Sign-In
                                         }
                                     )
                                 }
@@ -189,7 +204,8 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
                                 ) { padding ->
-                                    NavHostContainer(navController = navController, padding = padding, isDarkThemeState = isDarkThemeState)
+                                    NavHostContainer(navController = navController, padding = padding, isDarkThemeState = isDarkThemeState,
+                                        onSignOut = {authVm.signOut(this@MainActivity)})
                                 }
                             }
                         }
@@ -203,6 +219,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavHostContainer(
     navController: NavHostController,
+    onSignOut: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
 ) {
