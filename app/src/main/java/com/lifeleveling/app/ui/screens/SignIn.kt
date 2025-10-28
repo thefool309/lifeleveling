@@ -1,4 +1,4 @@
-package com.lifeleveling.app
+package com.lifeleveling.app.ui.screens
 
 
 import androidx.compose.foundation.Image
@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 
 
@@ -41,7 +42,7 @@ import com.lifeleveling.app.ui.theme.AppTheme
 @Composable
 fun SignIn(
     onLogin: () -> Unit = {println("Login pressed")},
-    onGoogleLogin: () -> Unit = {println("Google login pressed")},
+    onGoogleLogin: () -> Unit = {println("Google Login pressed")},
     onCreateAccount: () -> Unit = {println("Create account pressed")},
 ) {
     var email by remember { mutableStateOf("") }
@@ -60,7 +61,7 @@ fun SignIn(
         ){
             //logo
             Image(
-                painter = painterResource(id=R.drawable.ll_circle_logo_dots),
+                painter = painterResource(id= R.drawable.ll_circle_logo_dots),
                 contentDescription = "logo",
                 modifier = Modifier
                     .width(300.dp)

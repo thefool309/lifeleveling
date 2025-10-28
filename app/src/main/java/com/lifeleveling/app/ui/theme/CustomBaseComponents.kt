@@ -2,11 +2,14 @@ package com.lifeleveling.app.ui.theme
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -22,7 +25,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -32,19 +34,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.screens.TestUser
 
 /*
 Components declared in this file
 HighlightCard  -  Used for the darker sunk in sections of the screen
 CustomButton  -  A shaded button
-ShdowedIcon  -  Adds a shadow to icons
+ShadowedIcon  -  Adds a shadow to icons
 PopupCard  -  Shaded card for overlay popup screens
 CircleButton  -  A circular button with an icon in the center
 ProgressBar  -  The progress bar for different variables
 SlidingSwitch  -  The two option switch toggle
 Text Sample  -  Inside TestScreen is a sample of shadowed text to use
-LevelAndProgress  -  Top bar of level and progress display
+CustomCheckbox  -  Precolored and laid out checkbox item
  */
 
 // This screen shows the different effects that are within this file
@@ -179,6 +180,14 @@ fun TestScreen() {
                             )
                         }
                     }
+
+                    var checked by remember { mutableStateOf(true) }
+                    // Check box
+                    CustomCheckbox(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                    )
+
                     //Example Circle Button
                     CircleButton(
                         onClick = { },
@@ -322,6 +331,8 @@ fun HighlightCard(
 /**
  * A custom button shaded inside with a drop shadow.
  * Will grow based on the content inside
+ * A weight can be passed in to adjust the width
+ * @param width Sets a specific width. Only use for precision
  */
 @Composable
 fun CustomButton(
@@ -331,21 +342,26 @@ fun CustomButton(
     backgroundColor: Color = AppTheme.colors.Success75,
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 8.dp,
+    width: Dp? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val customModifier = modifier
+        .wrapContentHeight()
+        .then(
+            if (width != null) Modifier.width(width) else Modifier.wrapContentWidth()
+        )
+        .shadow(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(cornerRadius),
+            spotColor = AppTheme.colors.DropShadow,
+            ambientColor = AppTheme.colors.DropShadow,
+        )
+        .clip(RoundedCornerShape(cornerRadius))
+        .background(Color.White)
+        .clickable(onClick = onClick)
+
     Box(
-        modifier = modifier
-            .wrapContentHeight()
-            .wrapContentWidth()
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(cornerRadius),
-                spotColor = AppTheme.colors.DropShadow,
-                ambientColor = AppTheme.colors.DropShadow,
-            )
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(Color.White)
-            .clickable(onClick = onClick)
+        modifier = customModifier
     ) {
         // Top left
         InnerShadow(
@@ -414,7 +430,7 @@ fun ShadowedIcon(
 
     Box(
         modifier = modifier
-            .drawBehind {5
+            .drawBehind {
                 drawIntoCanvas { canvas ->
                     canvas.save()
                     canvas.translate(shadowOffset.x, shadowOffset.y)
@@ -601,6 +617,7 @@ fun ProgressBar(
     progressColor: Color = AppTheme.colors.SecondaryTwo,  // Filled space
     cornerRadius: Dp = 5.dp
 ) {
+    // Outer Box
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -630,12 +647,13 @@ fun ProgressBar(
             spread = 1.dp,
             cornerRadius = (cornerRadius),
         )
+        // Inner bar
         Box(
             modifier = Modifier
                 .padding(
-                    start = 1.dp,
+                    start = 1.5.dp,
                     top = 1.5.dp,
-                    end = 1.dp,
+                    end = 1.5.dp,
                     bottom = 1.5.dp,
                     )
                 .fillMaxHeight()
@@ -693,6 +711,7 @@ fun ProgressBar(
  */
 @Composable
 fun SlidingSwitch(
+    modifier: Modifier = Modifier,
     options: List<String> = listOf("Light Mode", "Dark Mode"), // Switch options
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
@@ -733,7 +752,7 @@ fun SlidingSwitch(
     )
 
     Box (
-        modifier = Modifier
+        modifier = modifier
             .width(totalWidth)
             .height(totalHeight)
             .clip(RoundedCornerShape(cornerRadius))
@@ -831,59 +850,42 @@ fun SlidingSwitch(
     }
 }
 
+/**
+ * Custom Checkbox
+ * @param checked The bool that box's state depends on
+ * @param onCheckedChange What to do when it is clicked, defaults to changing the bool state
+ * @param size Adjusts size of box and icon inside
+ * @param mainColor Outline of unchecked area and fill of checked box
+ * @param checkColor Color of the checkmark inside
+ */
 @Composable
-fun LevelAndProgress(
-    modifier: Modifier = Modifier, // add a weight for how much of the page or a size
+fun CustomCheckbox(
+    modifier: Modifier = Modifier,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    size: Dp = 20.dp,
+    cornerRadius: Dp = 4.dp,
+    mainColor: Color = AppTheme.colors.SecondaryOne,
+    checkColor: Color = AppTheme.colors.DarkerBackground
 ) {
-    var showLevelTip by remember { mutableStateOf(false) }
-
-    Column (
+    Box(
         modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Level and info icon
-        Row(
-            modifier = Modifier
-                .align(Alignment.Start),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // Level Display
-            Text(
-                text = stringResource(R.string.level, TestUser.level),
-                color = AppTheme.colors.SecondaryOne,
-                style = AppTheme.textStyles.HeadingThree.copy(
-                    shadow = Shadow(
-                        color = AppTheme.colors.DropShadow,
-                        offset = Offset(3f, 4f),
-                        blurRadius = 6f,
-                    )
-                ),
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(
+                if (checked) mainColor else Color.Transparent
             )
-            // Info Icon
-            ShadowedIcon(
-                imageVector = ImageVector.vectorResource(R.drawable.info),
-                tint = AppTheme.colors.FadedGray,
-                modifier = Modifier
-                    .size(20.dp)
-                    .offset(y = 9.74.dp)
-                    .clickable {
-                        if(!showLevelTip) {showLevelTip = true} else {showLevelTip = false}
-                    }
+            .clickable { onCheckedChange(!checked) }
+            .border(2.dp, mainColor,RoundedCornerShape(cornerRadius)),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (checked) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                tint = checkColor,
+                modifier = Modifier.size(size)
             )
         }
-
-        // Progress Bar
-        ProgressBar(
-            progress = TestUser.currentExp.toFloat() / TestUser.expToLevel
-        )
-
-        // Experience Display
-        Text(
-            text = stringResource(R.string.exp_display, TestUser.currentExp, TestUser.expToLevel),
-            color = AppTheme.colors.Gray,
-            style = AppTheme.textStyles.Default,
-            modifier = Modifier.align(Alignment.End)
-        )
     }
 }

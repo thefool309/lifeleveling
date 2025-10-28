@@ -11,6 +11,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
+import kotlin.Long
+
 
 class FirestoreRepository {
     private val db = Firebase.firestore
@@ -29,16 +31,23 @@ class FirestoreRepository {
             email = user.email.orEmpty(),
             photoUrl = user.photoUrl?.toString().orEmpty(),
             coinsBalance = 0L,
-            stats = mapOf(
-                "agility" to 0L,
-                "defense" to 0L,
-                "healthPoints" to 0L,
-                "strength" to 0L
+            stats = Stats(
+                agility = 0L,
+                defense = 0L,
+                intellect = 0L,
+                strength = 0L,
+                currentHealth = 50L,
+                maxHealth = 50L,
             ),
             streaks = 0L,
             onboardingComplete = false,
             createdAt = null,
             lastUpdate = null,
+            level = 1L,
+            lifePoints = 0L,
+            currentXp = 0.0,
+            badgesLocked = emptyList(),
+            badgesUnlocked = emptyList(),
         )
 
         val data = mutableMapOf<String, Any?>(
@@ -51,7 +60,13 @@ class FirestoreRepository {
             "streaks" to model.streaks,
             "onboardingComplete" to model.onboardingComplete,
             "createdAt" to model.createdAt,
-            "lastUpdate" to FieldValue.serverTimestamp()
+            "lastUpdate" to FieldValue.serverTimestamp(),
+            "level" to model.level,
+            "lifePoints" to model.lifePoints,
+            "currentXp" to model.currentXp,
+            "xpToNextLevel" to model.xpToNextLevel,
+            "badgesLocked" to model.badgesLocked,
+            "badgesUnlocked" to model.badgesUnlocked,
         )
 
         if (firstTime) {
@@ -67,6 +82,7 @@ class FirestoreRepository {
     /**
      * :3c Velma wuz here >^.^<
      */
+
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
@@ -692,7 +708,7 @@ class FirestoreRepository {
             return null
         }
     }
-    
+
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
         // get the document snapshot
         var result: Users?
@@ -742,4 +758,125 @@ class FirestoreRepository {
 
         return result
     }
+
+    private fun remindersCol(uid: String) =
+        //Firebase.firestore.collection("users").document(uid).collection("reminders")
+        db.collection("users").document(uid).collection("reminders")
+
+    // Creates a new reminder for the current user.
+    suspend fun createReminder(
+        reminders: Reminders,
+        logger: ILogger
+    ): String? {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "createReminder: user not authenticated.")
+            return null
+        }
+
+        // Build the payload; let Firestore set timestamps
+        val payload = hashMapOf(
+            "reminderId" to (if (reminders.reminderId.isNotBlank()) reminders.reminderId else null),
+            "title" to reminders.title,
+            "notes" to reminders.notes,
+            "dueAt" to reminders.dueAt,
+            "isCompleted" to reminders.isCompleted,
+            "completedAt" to reminders.completedAt,
+            "createdAt" to FieldValue.serverTimestamp(),
+            "lastUpdate" to FieldValue.serverTimestamp()
+        ).filterValues { it != null } // don't write null reminderId if empty
+
+        return try {
+            val docRef = if (reminders.reminderId.isBlank()) {
+                remindersCol(uid).document() // auto id
+            } else {
+                remindersCol(uid).document(reminders.reminderId)
+            }
+
+            // Persist reminderId inside the doc for simple mapping
+            val finalPayload = payload.toMutableMap().apply {
+                put("reminderId", docRef.id)
+            }
+
+            docRef.set(finalPayload, SetOptions.merge()).await()
+            logger.d("Reminders", "createReminder: created ${docRef.id}")
+            docRef.id
+        } catch (e: Exception) {
+            logger.e("Reminders", "createReminder failed", e)
+            null
+        }
+    }
+
+    // Update a reminder by id
+    suspend fun updateReminder(
+        reminderId: String,
+        updates: Map<String, Any?>,
+        logger: ILogger
+    ): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "updateReminder: user not authenticated.")
+            return false
+        }
+        return try {
+            val payload = updates.toMutableMap().apply {
+                this["lastUpdate"] = FieldValue.serverTimestamp()
+            }
+            remindersCol(uid).document(reminderId).update(payload).await()
+            logger.d("Reminders", "updateReminder: $reminderId")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "updateReminder failed", e)
+            false
+        }
+    }
+
+    // Mark a reminder complete/incomplete and set/unset completedAt automatically.
+    suspend fun setReminderCompleted(
+        reminderId: String,
+        isCompleted: Boolean,
+        logger: ILogger
+    ): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "setReminderCompleted: user not authenticated.")
+            return false
+        }
+        return try {
+            val payload = hashMapOf<String, Any?>(
+                "isCompleted" to isCompleted,
+                "completedAt" to if (isCompleted) FieldValue.serverTimestamp() else null,
+                "lastUpdate" to FieldValue.serverTimestamp()
+            )
+            remindersCol(uid).document(reminderId).update(payload).await()
+            logger.d("Reminders", "setReminderCompleted: $reminderId -> $isCompleted")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "setReminderCompleted failed", e)
+            false
+        }
+    }
+
+    // Deletes a reminder
+    suspend fun deleteReminder(reminderId: String, logger: ILogger): Boolean {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "deleteReminder: user not authenticated.")
+            return false
+        }
+        return try {
+            remindersCol(uid).document(reminderId).delete().await()
+            logger.d("Reminders", "deleteReminder: $reminderId")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "deleteReminder failed", e)
+            false
+        }
+    }
+
+    // Fetch a single reminder
+
+    // Fetch a list of reminders
+
+    // Realtime stream of reminders (ordered by dueAt)
 }

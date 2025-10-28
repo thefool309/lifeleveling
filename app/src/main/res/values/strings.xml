@@ -1,6 +1,59 @@
 <resources>
+    <!-- &#160; is for spaces to not be skipped -->
+    <!-- %1$d is to pass in parameters, change the number for more -->
+
     <string name="app_name">lifeleveling</string>
+
+    <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
     <string name="exp_display">Exp: %1$d/%2$d</string>
-    <string name="coins">Coins:\u00A0\u00A0\u00A0%1$d</string>
+    <string name="coins">Coins:&#160;&#160;&#160;%1$d</string>
+    <string name="health_display">Health:&#160;&#160;%1$d/%2$d</string>
+
+    <!-- For equipment display -->
+    <string name="helmet">Helmet</string>
+    <string name="armor">Armor</string>
+    <string name="weapon">Weapon</string>
+    <string name="accessory">Accessory</string>
+
+    <!-- Stats -->
+    <string name="strength">Strength</string>
+    <string name="defense">Defense</string>
+    <string name="intelligence">Intelligence</string>
+    <string name="agility">Agility</string>
+    <string name="health">Health</string>
+
+    <!-- Avatar state -->
+    <string name="fight">Fight</string>
+    <string name="meditate">Meditate</string>
+
+    <!-- Life and Experience Tips -->
+    <string name="life_tip_title">Level and Experience</string>
+    <string name="life_tip_one">This is your current level.</string>
+    <string name="life_tip_two">The bar shows your experience progress toward your next level.</string>
+    <string name="life_tip_three">You earn experience idly while your character is fighting.</string>
+    <string name="life_tip_four">Experience earned is based on your stats.</string>
+
+    <!-- Health tips -->
+    <string name="health_tip_title">Health, Fighting, and Meditating</string>
+    <string name="health_tip_one">&#160;effects how long your character will fight for. Your character will go through one health every minute. You start with 60 health and every Life Point you put in gives you 5 more health. You can put in a maximum of 100 life points into the health stat.</string>
+    <string name="health_tip_two">Completing your tasks on your calendar will heal your character to keep them fighting longer.</string>
+    <string name="health_tip_three">When your health runs out, your character will meditate to start healing themselves. You may also manually switch them to meditate. While meditating, your character will start to recover health.</string>
+
+    <!-- Streaks -->
+    <string name="streaks">Streaks</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="add_goal">Add Goal</string>
+    <string name="streaks_tip_one">Streaks are goals that you set for yourself.</string>
+    <string name="streaks_tip_two">Completing streaks will get you extra experience and coins.</string>
+    <string name="streaks_tip_three">Weekly streaks are based on your daily reminders. Completing them throughout the week adds to your streak.</string>
+    <string name="streaks_tip_four">Monthly streaks are based on tasks that happen less often such as every few days or once a week.</string>
+
+    <!-- Badges -->
+    <string name="badges">Badges</string>
+    <string name="badges_tip_one">Badges are earned by completing different milestones. They can also be though of as achievements.</string>
+    <string name="badges_tip_two">By starting your journey in building better habits, you have earned the badge &quot;Everyone Starts at the Beginning&quot; by creating your account.</string>
+    <string name="badges_tip_three">Badges that are colored and brighter have a picture are the ones you have earned. If they are greyed out with a question mark, they are for you to reach for.</string>
+    <string name="badges_tip_four">Clicking on a badge will tell you what it is for.</string>
 </resources>
