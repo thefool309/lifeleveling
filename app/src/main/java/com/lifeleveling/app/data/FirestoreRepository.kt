@@ -519,6 +519,9 @@ class FirestoreRepository {
 
         return result
     }
+
+    // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
+
     /**
      * >^w^<
      */
