@@ -7,8 +7,8 @@
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
     <string name="exp_display">Exp: %1$d/%2$d</string>
-    <string name="coins">Coins:&#160;&#160;&#160;%1$d</string>
-    <string name="health_display">Health:&#160;&#160;%1$d/%2$d</string>
+    <string name="coins">Coins:/u00A0/u00A0/u00A0%1$d</string>
+    <string name="health_display">Health:/u00A0/u00A0%1$d/%2$d</string>
 
     <!-- For equipment display -->
     <string name="helmet">Helmet</string>
@@ -26,6 +26,13 @@
     <!-- Avatar state -->
     <string name="fight">Fight</string>
     <string name="meditate">Meditate</string>
+    <!-- Button Titles -->
+    <string name="Confrim">Confirm</string>
+    <string name="Cancel">Cancel</string>
+
+    <!-- Life Points Stats Screen -->
+    <string name="LPUsed">Life Points Used:&#160;&#160;&#160;%1$d/%2$d</string>
+    <string name="LPRemaining">Life Points Remining:&#160;&#160;&#160;%1$d</string>
 
     <!-- Life and Experience Tips -->
     <string name="life_tip_title">Level and Experience</string>
@@ -56,4 +63,14 @@
     <string name="badges_tip_two">By starting your journey in building better habits, you have earned the badge &quot;Everyone Starts at the Beginning&quot; by creating your account.</string>
     <string name="badges_tip_three">Badges that are colored and brighter have a picture are the ones you have earned. If they are greyed out with a question mark, they are for you to reach for.</string>
     <string name="badges_tip_four">Clicking on a badge will tell you what it is for.</string>
+
+    <!-- Stats tips -->
+    <string name="stats">Stats</string>
+    <string name="StatTipOne">Your stats effect how much experience and coins you get from fighting.</string>
+    <string name="Life_Points">Life Points</string>
+    <string name="StatTipTwo">&#160;can be spent to increase your stats</string>
+    <string name="StatTipThree">&#160;and&#160;</string>
+    <string name="StatTipFour">&#160;effect how much experience you gain while fighting.</string>
+    <string name="StatTipFive">&#160;effect how many coins you earn when fighting.</string>
+
 </resources>

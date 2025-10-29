@@ -264,3 +264,66 @@ fun BadgesToolTip(toShow: MutableState<Boolean>) {
         tips = badgesTips
     )
 }
+
+@Composable
+fun StatsToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val StatTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.StatTipOne))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.SmallUnderlined.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.Life_Points))
+            }
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.StatTipTwo))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.SmallUnderlined.toSpanStyle().copy(color = AppTheme.colors.BrandOne)) {
+                append(stringResource(R.string.strength))
+            }
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.StatTipThree))
+            }
+            withStyle(style = AppTheme.textStyles.SmallUnderlined.toSpanStyle().copy(color = AppTheme.colors.BrandTwo)) {
+                append(stringResource(R.string.defense))
+            }
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.StatTipFour))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.SmallUnderlined.toSpanStyle().copy(color = AppTheme.colors.SecondaryOne)) {
+                append(stringResource(R.string.intelligence))
+            }
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.StatTipThree))
+            }
+            withStyle(style = AppTheme.textStyles.SmallUnderlined.toSpanStyle().copy(color = AppTheme.colors.SecondaryTwo)) {
+                append(stringResource(R.string.agility))
+            }
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.StatTipFive))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.SmallUnderlined.toSpanStyle().copy(color = AppTheme.colors.SecondaryThree)) {
+                append(stringResource(R.string.health))
+            }
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.health_tip_one))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.stats,
+        tips = StatTips
+    )
+}
