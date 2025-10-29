@@ -15,7 +15,7 @@ data class Users(
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
     // variables that were missing during our first introduction of the Users collection
-    val level: Long = 1,
+    var level: Long = 1,
     val lifePoints: Long = 0,           // unused lifePoints
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
     // Badges can be stored in arrays of Badge objects on user doc.

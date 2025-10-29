@@ -17,6 +17,29 @@ import kotlin.Long
 class FirestoreRepository {
     private val db = Firebase.firestore
     private val auth = Firebase.auth
+
+    /**
+     * Velma wuz here :3
+     */
+    // Helper functions
+    private fun getUserId() : String? {
+        return auth.currentUser?.uid
+    }
+
+    private fun updateTimestamp(userId: String, logger: ILogger) {
+        try {
+            db.collection("users")
+                .document(userId)
+                .update("lastUpdate", Timestamp.now())
+        }
+        catch (e: Exception) {
+            logger.e("Firestore", "Error Updating Timestamp", e)
+        }
+    }
+    /**
+     * >^w^<
+     */
+
     suspend fun ensureUserCreated(user: FirebaseUser): Boolean {
         val uid = user.uid
         val docRef = db.collection("users").document(uid)
@@ -36,8 +59,7 @@ class FirestoreRepository {
                 defense = 0L,
                 intellect = 0L,
                 strength = 0L,
-                currentHealth = 50L,
-                maxHealth = 50L,
+                health = 0L
             ),
             streaks = 0L,
             onboardingComplete = false,
@@ -82,7 +104,6 @@ class FirestoreRepository {
     /**
      * :3c Velma wuz here >^.^<
      */
-
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
@@ -120,20 +141,7 @@ class FirestoreRepository {
 
     }
 
-    private fun getUserId() : String? {
-        return auth.currentUser?.uid
-    }
 
-    private fun updateTimestamp(userId: String, logger: ILogger) {
-        try {
-            db.collection("users")
-                .document(userId)
-                .update("lastUpdate", Timestamp.now())
-        }
-        catch (e: Exception) {
-            logger.e("Firestore", "Error Updating Timestamp", e)
-        }
-    }
 
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
@@ -255,276 +263,24 @@ class FirestoreRepository {
 
       //functions for modifying stats below
 
-    suspend fun incrementStrength(logger: ILogger) : Boolean {
+    suspend fun setStats(stats: Stats, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")  // and waste a ton of time
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newStrength = newStats["strength"] as Long
-            newStats["strength"] = ++newStrength
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch (e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun decrementStrength(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
+        if (userId == null) {
             logger.e("Auth","ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newStrength = newStats["strength"] as Long
-            newStats["strength"] = --newStrength
-            docRef.update("stats", newStats).await()
+        try{
+            docRef.update("stats", stats).await()
             updateTimestamp(userId, logger)
             return true
         }
-        catch (e: Exception) {
+        catch (e: Exception){
             logger.e("Firestore", "Error Updating User: ", e)
             return false
         }
-    }
 
-    suspend fun setStrength(strength: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["strength"] = strength
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch (e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun incrementAgility(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newAgility = newStats["agility"] as Long
-            newStats["agility"] = ++newAgility
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun decrementAgility(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newAgility = newStats["agility"] as Long
-            newStats["agility"] = --newAgility
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun setAgility(agility: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["agility"] = agility
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun incrementDefense(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newDefense = newStats["defense"] as Long
-            newStats["defense"] = ++newDefense
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch (e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun decrementDefense(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newDefense = newStats["defense"] as Long
-            newStats["defense"] = --newDefense
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun setDefense(defense: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["defense"] = defense
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun incrementIntellect(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newIntellect = newStats["intellect"] as Long
-            newStats["intellect"] = ++newIntellect
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch (e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun decrementIntellect(logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            var newIntellect = newStats["intellect"] as Long
-            newStats["intellect"] = --newIntellect
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    suspend fun setIntellect(intellect: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            val newStats = (data["stats"] as Map<*, *>).toMutableMap()
-            newStats["intellect"] = intellect
-            docRef.update("stats", newStats).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
     }
 
     suspend fun setCurrHealth(health: Long, logger: ILogger) : Boolean {
@@ -699,7 +455,10 @@ class FirestoreRepository {
             if(newXp > user.xpToNextLevel) {
                 incrementLevel(logger)
                 user = getUser(userId, logger)
-                user?.calculateXpToNextLevel(level = (user.level) + 1)
+                if(user == null) {
+                    return null
+                }
+                user.calculateXpToNextLevel()
             }
             return user
         }
@@ -739,16 +498,17 @@ class FirestoreRepository {
             val email = data["email"] as String
             val photoUrl = data["photoUrl"] as String
             val coinsBalance = data["coinsBalance"] as Long
-            val stats = data["stats"] as Map<String, Long> // warning here caused me to change type to Map<*, *> in Users data class to avoid casting issues
-            val streaks = data["streaks"] as Long           // this proved to be detrimental to usage, so I changed it back
+            val stats = data["stats"] as Stats // Changes to stats object made this type checking safer
+            val streaks = data["streaks"] as Long
             val onboardingComplete = data["onboardingComplete"] as Boolean
             val createdAt = data["createdAt"] as Timestamp
             val lastUpdate = data["lastUpdate"] as Timestamp
             val lifePoints = data["lifePoints"] as Long
             val level = data["level"] as Long
             val currXp = data["currXp"] as Double
+
             val currHealth = data["currHealth"] as Long
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, level, lifePoints, currXp, currHealth, stats, streaks, onboardingComplete, createdAt, lastUpdate)
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currXp,)
             // return the data as a Users object.
         }
         catch (e: Exception) {
@@ -758,6 +518,9 @@ class FirestoreRepository {
 
         return result
     }
+    /**
+     * >^w^<
+     */
 
     private fun remindersCol(uid: String) =
         //Firebase.firestore.collection("users").document(uid).collection("reminders")
@@ -768,7 +531,7 @@ class FirestoreRepository {
         reminders: Reminders,
         logger: ILogger
     ): String? {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e("Reminders", "createReminder: user not authenticated.")
             return null
@@ -813,7 +576,7 @@ class FirestoreRepository {
         updates: Map<String, Any?>,
         logger: ILogger
     ): Boolean {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val uid = getUserId()
         if (uid == null) {
             logger.e("Reminders", "updateReminder: user not authenticated.")
             return false
@@ -837,7 +600,7 @@ class FirestoreRepository {
         isCompleted: Boolean,
         logger: ILogger
     ): Boolean {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val uid = getUserId()
         if (uid == null) {
             logger.e("Reminders", "setReminderCompleted: user not authenticated.")
             return false
@@ -859,7 +622,7 @@ class FirestoreRepository {
 
     // Deletes a reminder
     suspend fun deleteReminder(reminderId: String, logger: ILogger): Boolean {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val uid = getUserId()
         if (uid == null) {
             logger.e("Reminders", "deleteReminder: user not authenticated.")
             return false
