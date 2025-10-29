@@ -18,11 +18,10 @@ data class Users(
     var level: Long = 1,
     val lifePoints: Long = 0,           // unused lifePoints
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
+    val currHealth: Long = 0,
     // Badges can be stored in arrays of Badge objects on user doc.
     val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
     val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
-
-    val currHealth: Long = 0,
     ) {
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated

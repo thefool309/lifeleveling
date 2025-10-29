@@ -506,9 +506,10 @@ class FirestoreRepository {
             val lifePoints = data["lifePoints"] as Long
             val level = data["level"] as Long
             val currXp = data["currXp"] as Double
-
             val currHealth = data["currHealth"] as Long
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currXp,)
+            val badgesLocked = data["badgesLocked"] as List<Badge>
+            val badgesUnlocked = data["badgesUnlocked"] as List<Badge>
+            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currXp,currHealth, badgesLocked, badgesUnlocked)
             // return the data as a Users object.
         }
         catch (e: Exception) {
