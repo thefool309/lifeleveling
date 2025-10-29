@@ -333,18 +333,23 @@ fun HighlightCard(
  * Will grow based on the content inside
  * A weight can be passed in to adjust the width
  * @param width Sets a specific width. Only use for precision
+ * @param enabled Sets a boolean condition of if the button is clickable
  */
 @Composable
 fun CustomButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     cornerRadius: Dp = 100.dp,
     backgroundColor: Color = AppTheme.colors.Success75,
+    disabledColor: Color = AppTheme.colors.FadedGray,
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 8.dp,
     width: Dp? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val buttonColor = if (enabled) backgroundColor else disabledColor
+
     val customModifier = modifier
         .wrapContentHeight()
         .then(
@@ -358,7 +363,9 @@ fun CustomButton(
         )
         .clip(RoundedCornerShape(cornerRadius))
         .background(Color.White)
-        .clickable(onClick = onClick)
+        .then(
+            if (enabled) Modifier.clickable(onClick = onClick) else Modifier,
+        )
 
     Box(
         modifier = customModifier
@@ -366,7 +373,7 @@ fun CustomButton(
         // Top left
         InnerShadow(
             modifier = Modifier.matchParentSize(),
-            color = backgroundColor,
+            color = buttonColor,
             shadowColor = AppTheme.colors.Gray,
             blur = 4.dp,
             offsetX = 1.dp,
