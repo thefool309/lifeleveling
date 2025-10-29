@@ -1,4 +1,4 @@
-package com.lifeleveling.app.ui.screens
+package com.lifeleveling.app
 
 
 import androidx.compose.foundation.Image
@@ -34,24 +34,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.CustomButton
+import com.lifeleveling.app.ui.theme.HighlightCard
+import com.lifeleveling.app.ui.theme.PopupCard
 
 
 @Preview(showBackground = true)
 @Composable
 fun SignIn(
     onLogin: () -> Unit = {println("Login pressed")},
-    onGoogleLogin: () -> Unit = {println("Google Login pressed")},
+    onGoogleLogin: () -> Unit = {println("Google login pressed")},
     onCreateAccount: () -> Unit = {println("Create account pressed")},
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     //screen
     Box(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(color = AppTheme.colors.Background),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = AppTheme.colors.Background),
         contentAlignment = Alignment.Center
     ){
         Column(
@@ -61,7 +63,7 @@ fun SignIn(
         ){
             //logo
             Image(
-                painter = painterResource(id= R.drawable.ll_circle_logo_dots),
+                painter = painterResource(id=R.drawable.ll_circle_logo_dots),
                 contentDescription = "logo",
                 modifier = Modifier
                     .width(300.dp)
@@ -69,19 +71,20 @@ fun SignIn(
             )
 
             //inner box holding text fields
-            Box( modifier = Modifier
+            HighlightCard( modifier = Modifier
                 .height(350.dp)
                 .width(300.dp)
                 .background(color = AppTheme.colors.DarkerBackground),
-                contentAlignment = Alignment.Center
+
+                outerPadding = 0.dp
             ){
                 //column keeping box items centered
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
                     //email
                     OutlinedTextField(
                         modifier = Modifier
@@ -110,22 +113,20 @@ fun SignIn(
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                       supportingText = {
-                           if (password.isEmpty()) {
-                               Text("Password can not be empty", style = AppTheme.textStyles.Small)
-                           }
-                       }
+                        supportingText = {
+                            if (password.isEmpty()) {
+                                Text("Password can not be empty", style = AppTheme.textStyles.Small)
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.size(16.dp))
                     //login button
-                    Button(
+                    CustomButton(
                         modifier = Modifier
                             .width(120.dp),
-                            onClick = onLogin,
-                            shape = RoundedCornerShape(50),
-                            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.SecondaryTwo),
+                        onClick = onLogin,
                         enabled = email.isNotEmpty() && password.isNotEmpty()
-                        ) {
+                    ) {
                         Text("Login", color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                     }
                 }
@@ -139,33 +140,33 @@ fun SignIn(
 
                 Button(
                     modifier = Modifier
-                            .width(250.dp)
-                            .height(50.dp),
+                        .width(250.dp)
+                        .height(50.dp),
 
-                        onClick = onGoogleLogin,
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
-                    ) {         //This below can place and image in the button
+                    onClick = onGoogleLogin,
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
+                ) {         //This below can place and image in the button
 //                        Image(
 //                            painter = painterResource(id = R.drawable.gmail_color),
 //                            contentDescription = "Google Image",
 //                            modifier = Modifier
 //                                .size(48.dp)
 //                        )
-                        //button text
-                        Text(
-                            "G",
-                            color = AppTheme.colors.DropShadow,
-                            style = AppTheme.textStyles.HeadingThree,
-                            fontSize = 28.sp,
+                    //button text
+                    Text(
+                        "G",
+                        color = AppTheme.colors.DropShadow,
+                        style = AppTheme.textStyles.HeadingThree,
+                        fontSize = 28.sp,
 
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            "Login using Google",
-                            color = AppTheme.colors.DropShadow,
-                            style = AppTheme.textStyles.HeadingSix,
-                            fontSize = 16.sp,
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        "Login using Google",
+                        color = AppTheme.colors.DropShadow,
+                        style = AppTheme.textStyles.HeadingSix,
+                        fontSize = 16.sp,
 
                         )
                 }
@@ -177,10 +178,12 @@ fun SignIn(
                     color = AppTheme.colors.SecondaryThree,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
-                    style = AppTheme.textStyles.Default,
+                    style = AppTheme.textStyles.DefaultUnderlined,
                     modifier = Modifier.clickable { onCreateAccount() }
                 )
             }
         }
     }
 }
+
+

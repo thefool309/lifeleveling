@@ -1,7 +1,6 @@
 package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,13 +11,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +39,7 @@ import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.CustomButton
 import com.lifeleveling.app.ui.theme.HighlightCard
-import com.lifeleveling.app.ui.theme.PopupCard
-import com.lifeleveling.app.ui.theme.ProgressBar
+import com.lifeleveling.app.ui.theme.LevelAndProgress
 import com.lifeleveling.app.ui.theme.ShadowedIcon
 
 @Preview
@@ -59,7 +59,7 @@ fun StatsScreen(
     onCancel: () -> Unit = {println("Cancel pressed")},
                 ) {
     val progress = (userExperience.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
-    var showHelpDialog by remember { mutableStateOf(false) }
+    var showHelpDialog = remember { mutableStateOf(false) }
     var showStatsDialog by remember { mutableStateOf(false) }
     var usedPoints by remember { mutableStateOf(usedLifePoints) }
     var remainingPoints by remember { mutableStateOf(unusedLifePoints - usedLifePoints) }
@@ -70,27 +70,27 @@ fun StatsScreen(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(16.dp),
 
         ){
             Column(
                 modifier = Modifier
-
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ){
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.TopStart
 
-                ){
+                LevelAndProgress(
+                    modifier = Modifier,
+                    showLevelTip = showHelpDialog,
+                )
+                Column(){
                     Row(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 16.dp),
+                        modifier = Modifier,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ){
                         Text(
-                            "Level $userLevel",
+                            "Stats",
                             color = AppTheme.colors.SecondaryOne,
                             style = AppTheme.textStyles.HeadingThree.copy(
                                 shadow = Shadow(
@@ -101,63 +101,22 @@ fun StatsScreen(
                             ),
 
                             )
-                        IconButton(onClick = {showHelpDialog = true}) {
-                            Image(
-                                painter = painterResource(id = R.drawable.info),
-                                contentDescription = "Help Level",
-                                colorFilter = ColorFilter.tint(AppTheme.colors.Gray),
-                                modifier = Modifier
-                                    .size(20.dp),
-                                    //.align(Alignment.Top),
-
-
-                            )
-                        }
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(R.drawable.info),
+                            tint = AppTheme.colors.FadedGray,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .offset(y = 9.74.dp)
+                                .clickable {
+                                    showStatsDialog = showStatsDialog.not()
+                                }
+                        )
 
                     }
-                }
-                // This is the old level progress bar
-//                Box(
-//                    modifier = Modifier
-//                        .padding(horizontal = 16.dp)
-//                        .fillMaxWidth()
-//                        .height(16.dp)
-//                        .background(AppTheme.colors.Gray.copy(alpha = 0.3f),shape = RoundedCornerShape(10.dp))
-//                ){
-//                    Box(modifier = Modifier
-//                        .fillMaxHeight()
-//                    .fillMaxWidth(progress)
-//                        .background(AppTheme.colors.SecondaryTwo, shape = RoundedCornerShape(10.dp)))
-//                }
-                ProgressBar(
-                    progress = progress,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .height(16.dp),
-                    backgroundColor = AppTheme.colors.DarkerBackground,
-                    progressColor = AppTheme.colors.SecondaryTwo,
-                    cornerRadius = 5.dp
-                )
-                Spacer(Modifier.height(6.dp))
-                //This is the field that shows the experience gained vs the max experience level
-                Text(
-                    text = "$userExperience / $maxExperience xp",
-                    color = AppTheme.colors.Gray,
-                    style = AppTheme.textStyles.Default,
-                    modifier = Modifier
-                    .padding(horizontal = 16.dp)
-
-                )
-                Spacer(Modifier.height(32.dp))
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                ){
                     Text(
-                        "Stats",
-                        color = AppTheme.colors.SecondaryOne,
-                        style = AppTheme.textStyles.HeadingThree.copy(
+                        text = "Life Points Used: $usedPoints / $unusedLifePoints",
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.Default.copy(
                             shadow = Shadow(
                                 color = AppTheme.colors.DropShadow,
                                 offset = Offset(3f, 4f),
@@ -166,56 +125,34 @@ fun StatsScreen(
                         ),
 
                         )
-                    IconButton(onClick = {showStatsDialog = true}) {
-                        Image(
-                            painter = painterResource(id = R.drawable.info),
-                            contentDescription = "Help Stats",
-                            colorFilter = ColorFilter.tint(AppTheme.colors.Gray),
-                            modifier = Modifier
-                                .size(20.dp),
-                            //.align(Alignment.Top),
 
+                    Text(
+                        text = "Life Points remaining to use: $remainingPoints",
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.Default.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(3f, 4f),
+                                blurRadius = 6f,
+                            )
+                        ),
 
                         )
-                    }
-
                 }
-                Text(
-                    text = "Life Points Used: $usedPoints / $unusedLifePoints",
-                    color = AppTheme.colors.Gray,
-                    style = AppTheme.textStyles.Default.copy(
-                        shadow = Shadow(
-                            color = AppTheme.colors.DropShadow,
-                            offset = Offset(3f, 4f),
-                            blurRadius = 6f,
-                        )
-                    ),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
 
-                Text(
-                    text = "Life Points remaining to use: $remainingPoints",
-                    color = AppTheme.colors.Gray,
-                    style = AppTheme.textStyles.Default.copy(
-                        shadow = Shadow(
-                            color = AppTheme.colors.DropShadow,
-                            offset = Offset(3f, 4f),
-                            blurRadius = 6f,
-                        )
-                    ),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+
 
                 HighlightCard(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    outerPadding = 0.dp
                 ) {
                     val strength = remember { mutableStateOf(userStrength) }
                     val defense = remember { mutableStateOf(userDefense) }
                     val intelligence = remember { mutableStateOf(userIntel) }
                     val agility = remember { mutableStateOf(userAgility) }
                     val health = remember { mutableStateOf(userHealth) }
-                    // create baseStats so user is not able to go lower then what is saved
+                    // create baseStats so user is not able to go lower than what is saved
                     val baseStats = mapOf(
                         "Strength" to userStrength,
                         "Defense" to userDefense,
@@ -225,11 +162,11 @@ fun StatsScreen(
                     )
                         //create a list of triples that contain the icon, label, and stat level
                     val statItems = listOf(
-                        Triple(R.drawable.sword, "Strength", strength),
-                        Triple(R.drawable.shield, "Defense", defense),
-                        Triple(R.drawable.brain, "Intelligence", intelligence),
-                        Triple(R.drawable.person_running, "Agility", agility),
-                        Triple(R.drawable.heart, "Health", health)
+                        StatItem((R.drawable.sword), "Strength", AppTheme.colors.BrandOne, strength),
+                        StatItem((R.drawable.shield), "Defense", AppTheme.colors.BrandTwo, defense),
+                        StatItem((R.drawable.brain), "Intelligence", AppTheme.colors.SecondaryOne,intelligence),
+                        StatItem((R.drawable.person_running), "Agility", AppTheme.colors.SecondaryTwo,agility),
+                        StatItem((R.drawable.heart), "Health", AppTheme.colors.SecondaryThree,health)
                     )
                     //create column
                     Column(
@@ -240,11 +177,10 @@ fun StatsScreen(
                     ) {
                         // for each item in the list create a row
                         // track index of list so divider line is not place after last
-                        statItems.forEachIndexed { index, (iconRes, label, statValue) ->
+                        statItems.forEachIndexed { index, (iconRes, label, color, statValue) ->
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp),
+                                    .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -253,7 +189,7 @@ fun StatsScreen(
 
                                     ShadowedIcon(
                                         imageVector = ImageVector.vectorResource(iconRes),
-                                        tint = AppTheme.colors.SecondaryThree,
+                                        tint = color,
                                         modifier = Modifier.size(38.dp),
 
                                     )
@@ -272,14 +208,14 @@ fun StatsScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.minus),
                                         contentDescription = "Decrease $label",
-                                        colorFilter = ColorFilter.tint(AppTheme.colors.SecondaryTwo),
+                                        colorFilter = ColorFilter.tint(AppTheme.colors.FadedGray),
                                         modifier = Modifier
                                             .size(42.dp)
                                             .clickable(
                                                 indication = null,
                                                 interactionSource = remember { MutableInteractionSource() },
                                                 onClick = {
-                                                    val base = baseStats[label] ?: 0
+                                                    val base: Int = baseStats[label] ?: 0
                                                     if (statValue.value > base) {
                                                         statValue.value -= 1
                                                         usedPoints -= 1
@@ -330,12 +266,10 @@ fun StatsScreen(
 
                             // divider lines
                             if (index < statItems.lastIndex) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(AppTheme.colors.Gray)
-                                        .padding(horizontal = 8.dp)
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.separator_line),
+                                    tint = AppTheme.colors.FadedGray,
+                                    contentDescription = null,
                                 )
                             }
                         }
@@ -350,16 +284,14 @@ fun StatsScreen(
                 ) {
 
                     CustomButton(
-                        modifier = Modifier
-                            .size(148.dp),
+                        width = 122.dp,
                         content = { Text("Cancel", style = AppTextStyles.HeadingSix, color = AppTheme.colors.Background) },
                         onClick = { onCancel() },
                         backgroundColor = AppTheme.colors.Error,
                     )
-
+                    Spacer(modifier = Modifier.width(32.dp))
                     CustomButton(
-                        modifier = Modifier
-                            .size(148.dp),
+                       width = 122.dp,
                         content = { Text("Confirm", style = AppTextStyles.HeadingSix, color = AppTheme.colors.Background) },
                         onClick = { onConfirm() },
                         backgroundColor = AppTheme.colors.SecondaryTwo,
@@ -367,50 +299,56 @@ fun StatsScreen(
                 }
             }
             // and here
-            if(showHelpDialog){
-                PopupCard {
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ){
-                        Text("This is your current level.\n" +
-                                "The bar shows your experience progress toward your next level.\n" +
-                                "You earn experience idly while your character is fighting.\n" +
-                                "Experience earned is based on your stats."
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        CustomButton(
-                            content = { Text("Understood!") },
-                            onClick = {showHelpDialog = false},
-                        )
-                    }
-
-                }
-            }
-                if(showStatsDialog){
-                PopupCard {
-                     Column(
-                     modifier = Modifier
-                         .padding(horizontal = 12.dp),
-                     horizontalAlignment = Alignment.CenterHorizontally,
-                    ){
-                        Text("Your stats effect how much experience and coins you get from fighting.\n"+
-                             "Life Points can be spent to increase your stats.\n" +
-                             "Strength and Defense effect how much experience you gain while fighting.\n" +
-                             "Intelligence and Agility effect how many coins you earn when fighting.\n" +
-                             "Health effects how long your character will fight for. Your character will go through one health every minute. You start with 60 health and every Life Point you put in gives you 5 more health. 100 Life Points is the max you can put into this stat."
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                         CustomButton(
-                         content = { Text("Understood!") },
-                         onClick = {showStatsDialog = false},
-                        )
-                    }
-                 
-                }
+//            if(showHelpDialog){
+//                PopupCard {
+//                    Column(
+//                        modifier = Modifier
+//                            .padding(horizontal = 12.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                    ){
+//                        Text("This is your current level.\n" +
+//                                "The bar shows your experience progress toward your next level.\n" +
+//                                "You earn experience idly while your character is fighting.\n" +
+//                                "Experience earned is based on your stats."
+//                        )
+//                        Spacer(modifier = Modifier.height(8.dp))
+//                        CustomButton(
+//                            content = { Text("Understood!") },
+//                            onClick = {showHelpDialog = false},
+//                        )
+//                    }
+//
+//                }
+//            }
+//                if(showStatsDialog){
+//                PopupCard {
+//                     Column(
+//                     modifier = Modifier
+//                         .padding(horizontal = 12.dp),
+//                     horizontalAlignment = Alignment.CenterHorizontally,
+//                    ){
+//                        Text("Your stats effect how much experience and coins you get from fighting.\n"+
+//                             "Life Points can be spent to increase your stats.\n" +
+//                             "Strength and Defense effect how much experience you gain while fighting.\n" +
+//                             "Intelligence and Agility effect how many coins you earn when fighting.\n" +
+//                             "Health effects how long your character will fight for. Your character will go through one health every minute. You start with 60 health and every Life Point you put in gives you 5 more health. 100 Life Points is the max you can put into this stat."
+//                        )
+//                        Spacer(modifier = Modifier.height(8.dp))
+//                         CustomButton(
+//                         content = { Text("Understood!") },
+//                         onClick = {showStatsDialog = false},
+//                        )
+//                    }
+//
+//                }
             }
         }
     }
-}
 
+
+data class StatItem(
+    val icon: Int,
+    val label: String,
+    val color: androidx.compose.ui.graphics.Color,
+    val value: MutableState<Int>
+)

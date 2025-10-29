@@ -51,12 +51,10 @@ import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
-import com.lifeleveling.app.ui.screens.CreateAccountScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
-import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.screens.TestUser
@@ -185,7 +183,7 @@ class MainActivity : ComponentActivity() {
                                 composable("createaccount") {
                                     CreateAccountScreen(
                                         onJoin = {/*TODO: Handle sign-up logic*/},
-                                        onGooleLogin = {
+                                        onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)

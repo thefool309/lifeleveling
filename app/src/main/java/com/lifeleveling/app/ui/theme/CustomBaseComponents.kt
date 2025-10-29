@@ -121,6 +121,7 @@ fun TestScreen() {
                         onClick = { showPopup = true },
                         modifier = Modifier
                             .align(Alignment.BottomCenter),
+                        width = 255.dp,
                     ) {
                         Text(
                             "Click Me",
@@ -368,7 +369,8 @@ fun CustomButton(
         )
 
     Box(
-        modifier = customModifier
+        modifier = customModifier,
+        contentAlignment = Alignment.Center
     ) {
         // Top left
         InnerShadow(
