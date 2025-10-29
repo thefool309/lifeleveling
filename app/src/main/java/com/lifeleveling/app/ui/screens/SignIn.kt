@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -91,13 +92,13 @@ fun SignIn(
                             .fillMaxWidth(0.9f),
                         value = email,
                         onValueChange = {email = it},
-                        label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text("Email address", color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
+                        //label = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        placeholder = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
                             if (email.isEmpty()) {
-                                Text("Email can not be empty", style = AppTheme.textStyles.Small)
+                                Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small)
                             }
                         }
                     )
@@ -108,14 +109,14 @@ fun SignIn(
                             .fillMaxWidth(0.9f),
                         value = password,
                         onValueChange = {password = it},
-                        label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        //label = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        placeholder = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         supportingText = {
                             if (password.isEmpty()) {
-                                Text("Password can not be empty", style = AppTheme.textStyles.Small)
+                                Text(stringResource(R.string.passwordNotEmpty), style = AppTheme.textStyles.Small)
                             }
                         }
                     )
@@ -127,7 +128,7 @@ fun SignIn(
                         onClick = onLogin,
                         enabled = email.isNotEmpty() && password.isNotEmpty()
                     ) {
-                        Text("Login", color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
+                        Text(stringResource(R.string.login), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                     }
                 }
             }
@@ -163,7 +164,7 @@ fun SignIn(
                         )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        "Login using Google",
+                        stringResource(R.string.useGoogle),
                         color = AppTheme.colors.DropShadow,
                         style = AppTheme.textStyles.HeadingSix,
                         fontSize = 16.sp,
@@ -174,7 +175,7 @@ fun SignIn(
                 Spacer(modifier = Modifier.height(32.dp))
                 //create an account nav link
                 Text(
-                    text = "Create an Account",
+                    text = stringResource(R.string.createAccount),
                     color = AppTheme.colors.SecondaryThree,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,

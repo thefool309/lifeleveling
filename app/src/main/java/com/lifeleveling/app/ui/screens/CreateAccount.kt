@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -85,7 +86,7 @@ fun CreateAccountScreen(
                 contentAlignment = Alignment.Center
 
             ){
-                Text("Create An Account", color = AppTheme.colors.BrandOne,style = AppTheme.textStyles.HeadingThree, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.createAccountTitle), color = AppTheme.colors.BrandOne,style = AppTheme.textStyles.HeadingThree, textAlign = TextAlign.Center)
             }
 
             //inner box holding text fields
@@ -111,13 +112,13 @@ fun CreateAccountScreen(
                             .fillMaxWidth(0.9f),
                         value = email,
                         onValueChange = {email = it},
-                        label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text("Email address", color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
+                        //label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        placeholder = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
                             if(email.isEmpty()){
-                                Text("Email can not be empty", style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
+                                Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
                             }
                         }
 
@@ -134,8 +135,8 @@ fun CreateAccountScreen(
                             password.isNotEmpty()
                         },
 
-                        label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        //label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        placeholder = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -163,7 +164,7 @@ fun CreateAccountScreen(
                         onClick = onJoin,
                         enabled = isPasswordValid,
                         content = {
-                            Text("Join", color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
+                            Text(stringResource(R.string.join), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                         }
                     )
                 }
@@ -200,7 +201,7 @@ fun CreateAccountScreen(
                         )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        "Login using Google",
+                        stringResource(R.string.useGoogle),
                         color = AppTheme.colors.DropShadow,
                         style = AppTheme.textStyles.HeadingSix,
                         fontSize = 16.sp,
@@ -211,7 +212,7 @@ fun CreateAccountScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 //create an account nav link
                 Text(
-                    text = "Already have an account? Login",
+                    text = stringResource(R.string.backToLogin),
                     color = AppTheme.colors.SecondaryThree,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
@@ -223,13 +224,14 @@ fun CreateAccountScreen(
     }
 }
 
+@Composable
 fun PasswordRules(pWord: String): List<Pair<String, Boolean>> {
     return listOf(
-        "8–20 characters" to (pWord.length in 8..20),
-        "No spaces" to pWord.none { it.isWhitespace() },
-        "1 lowercase (a–z)" to pWord.any { it.isLowerCase() },
-        "1 uppercase (A–Z)" to pWord.any { it.isUpperCase() },
-        "1 number (0–9)" to pWord.any { it.isDigit() },
-        "1 special character (!@#\$%^&*()_+-=)" to pWord.any { it in "!@#\$%^&*()_+-=" }
+        stringResource(R.string.passwordLength) to (pWord.length in 8..20),
+        stringResource(R.string.noSpace) to pWord.none { it.isWhitespace() },
+        stringResource(R.string.lowercase) to pWord.any { it.isLowerCase() },
+        stringResource(R.string.uppercase) to pWord.any { it.isUpperCase() },
+        stringResource(R.string.number) to pWord.any { it.isDigit() },
+        stringResource(R.string.specialChar) to pWord.any { it in "!@#\$%^&*()_+-=" }
     )
 }

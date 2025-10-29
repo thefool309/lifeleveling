@@ -3,6 +3,7 @@
     <!-- %1$d is to pass in parameters, change the number for more -->
 
     <string name="app_name">lifeleveling</string>
+    <string name="useGoogle">Login using Google</string>
 
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
@@ -29,6 +30,25 @@
     <!-- Button Titles -->
     <string name="Confrim">Confirm</string>
     <string name="Cancel">Cancel</string>
+
+    <!-- SignIn Screen -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="emailNotEmpty">Email can not be empty</string>
+    <string name="passwordNotEmpty">Password can not be empty</string>
+    <string name="createAccount">Create an Account</string>
+
+    <!-- Create Account Screen -->
+    <string name="createAccountTitle">Create An Account</string>
+    <string name="passwordLength">8–20 characters</string>
+    <string name="noSpace">No spaces</string>
+    <string name="lowercase">1 lowercase (a–z)</string>
+    <string name="uppercase">1 uppercase (A–Z)</string>
+    <string name="number">1 number (0–9)</string>
+    <string name="specialChar">1 special character (!@#$%^&amp;*()_+-=)</string>
+    <string name="join">Join</string>
+    <string name="backToLogin">Already have an account? Login</string>
 
     <!-- Life Points Stats Screen -->
     <string name="LPUsed">Life Points Used:&#160;&#160;&#160;%1$d/%2$d</string>
@@ -72,5 +92,34 @@
     <string name="StatTipThree">&#160;and&#160;</string>
     <string name="StatTipFour">&#160;effect how much experience you gain while fighting.</string>
     <string name="StatTipFive">&#160;effect how many coins you earn when fighting.</string>
+
+    <!-- Settings Page -->
+    <string name="settings">Settings</string>
+    <string name="notificationSettings">Notification Settings</string>
+    <string name="selfCareTips">Self Care Tips</string>
+    <string name="termsAndPrivacy">Terms and Privacy Policy</string>
+    <string name="resetLifePoints">Reset Life Points</string>
+    <string name="deleteAccount">Delete Account</string>
+    <string name="logOut">Logout</string>
+    <string name="darkMode">Dark Mode</string>
+    <string name="lightMode">Light Mode</string>
+
+    <!-- Self Care Screen -->
+    <string name="selfCare">Self Care Tips</string>
+    <string name="suggestedReminders">Settings</string>
+    <string name="importanceOfSelfCare">Notification Settings</string>
+    <string name="extraArticles">Self Care Tips</string>
+    <string name="needAdive">Terms and Privacy Policy</string>
+
+    <!-- Terms and Privacy Screen -->
+    <string name="termsAnd">Terms and</string>
+    <string name="privacy">Privacy</string>
+    <string name="termsAndConditions">Terms and Conditions</string>
+    <string name="privacyPolicy">Privacy Policy</string>
+    <string name="extra">Extra about the app</string>
+
+    <!-- Notifications Screen -->
+    <string name="notificonSound">Notification Sound:</string>
+    <string name="whenToNotify">When to Notify:</string>
 
 </resources>

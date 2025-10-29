@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.CircleButton
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.ShadowedIcon
 
@@ -52,7 +54,7 @@ fun TermsAndPrivacyScreen(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "Terms and \nPrivacy",
+                    text = stringResource(R.string.termsAnd)+"\n"+stringResource(R.string.privacy),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -62,15 +64,11 @@ fun TermsAndPrivacyScreen(
                         )
                     ),
                 )
-                Spacer(modifier = Modifier.width(96.dp))
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.back_arrow),
-                    contentDescription = "Bell icon",
-                    tint = AppTheme.colors.SecondaryThree,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .align(Alignment.CenterVertically)
-                        .clickable { navController?.popBackStack() }
+                Spacer(modifier = Modifier.weight(1f))
+                CircleButton(
+                    modifier = Modifier,
+                    onClick = {navController?.popBackStack()},
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
                 )
             }
 
@@ -97,7 +95,7 @@ fun TermsAndPrivacyScreen(
 
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Terms and Conditions",
+                            text = stringResource(R.string.termsAndConditions),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -128,7 +126,7 @@ fun TermsAndPrivacyScreen(
 
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Privacy Policy",
+                            text = stringResource(R.string.privacyPolicy),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -161,7 +159,7 @@ fun TermsAndPrivacyScreen(
 
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Extra About Application Information",
+                            text = stringResource(R.string.extra),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
