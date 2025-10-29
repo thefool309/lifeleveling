@@ -522,6 +522,28 @@ class FirestoreRepository {
 
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
 
+    suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger) : Boolean {
+        val uid: String = getUserId() ?: return false
+        TODO("Not Implemented yet")
+    }
+
+    suspend fun setBadgesUnlocked(newBadgesUnlocked: List<Badge>, logger: ILogger) : Boolean {
+        val uid: String = getUserId() ?: return false
+        TODO("Not Implemented yet")
+    }
+
+    suspend fun setBadges(newBadgesLocked: List<Badge>, newBadgesUnlocked: List<Badge>, logger: ILogger) {
+        setBadgesLocked(newBadgesLocked, logger)
+        setBadgesUnlocked(newBadgesUnlocked, logger)
+    }
+
+    // TODO: add deleteUser() to the users crud
+
+    suspend fun deleteUser(): Boolean  {
+        val uid: String = getUserId() ?: return false
+        TODO("Not Implemented yet")
+    }
+
     /**
      * >^w^<
      */
