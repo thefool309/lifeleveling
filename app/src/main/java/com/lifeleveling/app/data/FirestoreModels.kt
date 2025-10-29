@@ -23,29 +23,28 @@ data class Users(
     val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
     val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
 
-
+    val currHealth: Long = 0,
     ) {
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
     // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
-    var xpToNextLevel: Double = 0.0
+    var xpToNextLevel: Long = 0L
     var maxHealth: Long = 0L
     val baseHealth: Long = 60L
     init {
-        calculateXpToNextLevel(level)
+        calculateXpToNextLevel()
         calculateMaxHealth()
     }
 
-    fun calculateXpToNextLevel(level: Long) {
-        xpToNextLevel = (level / 0.5).pow(5) // TODO: Change to level * 100
+    fun calculateXpToNextLevel() {
+        xpToNextLevel = level * 100L
     }
 
     fun calculateMaxHealth() {
-        val healthStat = stats.maxHealth
+        val healthStat = stats.health
         maxHealth = baseHealth + (healthStat * 5)
     }
 }
-    val lastUpdate: Timestamp? = null,
 
 
 
@@ -73,8 +72,7 @@ data class Stats (
     val defense: Long = 0,
     val intellect: Long = 0,
     val strength: Long = 0,
-    val currentHealth: Long = 0,
-    val maxHealth: Long = 0,
+    val health: Long = 0,
 )
 
 // Badge the user can earn
