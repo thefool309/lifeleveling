@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
-import kotlin.math.pow
 
 data class Users(
     val userId: String = "",
