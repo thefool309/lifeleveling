@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.screens
 
+import android.icu.util.Calendar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -137,8 +138,44 @@ object TestUser {
     }
 
     // =============== Badges ========================
-    var badges by mutableStateOf(
+    var allBadges by mutableStateOf(
         listOf(
+            Badge(
+                3,
+                R.drawable.flame,
+                enumColor.BrandOne,
+                "On Fire!",
+                "Complete your first week streak.",
+                true,
+                Calendar.getInstance().apply {
+                    set(2025, Calendar.OCTOBER, 25,12, 0,0)
+                    set(Calendar.MILLISECOND,0)
+                }.timeInMillis,
+            ),
+            Badge(
+                2,
+                R.drawable.sun_glasses,
+                enumColor.BrandOne,
+                "Looking Good!",
+                "Customize the look of your avatar.",
+                true,
+                Calendar.getInstance().apply {
+                    set(2025, Calendar.OCTOBER, 19,12, 0,0)
+                    set(Calendar.MILLISECOND,0)
+                }.timeInMillis,
+            ),
+            Badge(
+                1,
+                R.drawable.one,
+                enumColor.SecondaryTwo,
+                "Everyone Starts at the Beginning",
+                "You created your account and started your Life Leveling journey!",
+                true,
+                Calendar.getInstance().apply {
+                    set(2025, Calendar.OCTOBER, 18,12, 0,0)
+                    set(Calendar.MILLISECOND,0)
+                }.timeInMillis,
+            ),
             Badge(
                 4,
                 R.drawable.question_mark,
@@ -286,41 +323,17 @@ object TestUser {
         )
     )
 
-    // Completed badges
-    var completedBadges by mutableStateOf(
-        listOf(
-            Badge(
-                1,
-                R.drawable.one,
-                enumColor.SecondaryTwo,
-                "Everyone Starts at the Beginning",
-                "You created your account and started your Life Leveling journey!",
-                true
-            ),
-            Badge(
-                2,
-                R.drawable.sun_glasses,
-                enumColor.BrandOne,
-                "Looking Good!",
-                "Customize the look of your avatar.",
-                true
-            ),
-            Badge(
-                3,
-                R.drawable.flame,
-                enumColor.BrandOne,
-                "On Fire!",
-                "Complete your first week streak.",
-                true
-            ),
-        )
-    )
-
     // Complete a badge by ID
     fun completeBadge(badgeId: Int) {
-        val badge = badges.find { it.id == badgeId } ?: return
-        badges = badges.filter { it.id != badgeId }
-        completedBadges = completedBadges + badge.copy(completed = true)
+        // Find badge
+        val badge = allBadges.find { it.id == badgeId } ?: return
+        // Save badge and update to completed
+        val completedBadge = badge.copy(
+            completed = true,
+            completedOn = System.currentTimeMillis(),
+        )
+        // Delete badge from list and add new completed version to the top
+        allBadges = listOf(completedBadge) + allBadges.filter { it.id != badgeId }
     }
 }
 
@@ -388,4 +401,5 @@ data class Badge (
     val title: String,
     val description: String,
     val completed: Boolean = false,
+    val completedOn: Long? = null,
 )

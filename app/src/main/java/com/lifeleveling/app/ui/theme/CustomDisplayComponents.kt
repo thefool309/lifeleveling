@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,10 +28,14 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.screens.Badge
 import com.lifeleveling.app.ui.screens.TestUser
 import com.lifeleveling.app.ui.screens.resolveEnumColor
+import java.util.Date
+import java.util.Locale
 
 /*
 Reusable components that will appear on multiple screens
@@ -251,19 +257,19 @@ fun EquipmentDisplay(
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BadgeDisplay(
+fun AllBadgesDisplay(
     columns: Int = 5,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    toShow: MutableState<Boolean>,
+    showBadge: MutableState<Badge>
 ) {
-    val allBadges = TestUser.completedBadges + TestUser.badges
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(allBadges) { badge ->
+        items(TestUser.allBadges) { badge ->
             Box (
                 modifier = Modifier
                     .aspectRatio(1f)
@@ -273,11 +279,88 @@ fun BadgeDisplay(
                 CircleButton(
                     modifier = Modifier.fillMaxSize(),
                     imageVector = ImageVector.vectorResource(badge.icon),
-                    onClick = {},
-                    backgroundColor = if (badge.completed == false) AppTheme.colors.FadedGray
+                    onClick = {
+                        showBadge.value = badge
+                        toShow.value = true
+                    },
+                    backgroundColor = if (!badge.completed) AppTheme.colors.FadedGray
                                         else resolveEnumColor(badge.color),
                     elevation = 12.dp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun SingleBadgeDisplay(
+    modifier: Modifier = Modifier,
+    badge: Badge,
+    toShow: MutableState<Boolean>,
+) {
+    CustomDialog(
+        toShow = toShow,
+        modifier = modifier,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                CircleButton(
+                    imageVector = ImageVector.vectorResource(badge.icon),
+                    onClick = { toShow.value = false },
+                    backgroundColor = if (!badge.completed) AppTheme.colors.FadedGray
+                    else resolveEnumColor(badge.color),
+                    elevation = 12.dp,
+                    size = 50.dp
+                )
+                Spacer(Modifier.width(16.dp))
+                Text(
+                    text = badge.title,
+                    color = AppTheme.colors.SecondaryThree,
+                    textAlign = TextAlign.Center,
+                    style = AppTheme.textStyles.HeadingSix.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    )
+                )
+            }
+
+            Text(
+                text = badge.description,
+                color = AppTheme.colors.Gray,
+                style = AppTheme.textStyles.Default,
+                textAlign = TextAlign.Center,
+            )
+
+            if (badge.completed) {
+                val date = badge.completedOn?.let {
+                    java.text.SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                        .format(Date(it))
+                } ?: "Not Completed"
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.badge_completed_on),
+                        color = AppTheme.colors.SecondaryTwo,
+                        style = AppTheme.textStyles.Default
+                    )
+                    Text(
+                        text = date,
+                        color = AppTheme.colors.SecondaryTwo,
+                        style = AppTheme.textStyles.Default
+                    )
+                }
             }
         }
     }

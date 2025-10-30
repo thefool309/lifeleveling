@@ -22,13 +22,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.BadgeDisplay
+import com.lifeleveling.app.ui.theme.AllBadgesDisplay
 import com.lifeleveling.app.ui.theme.BadgesToolTip
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.LevelAndProgress
 import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
 import com.lifeleveling.app.ui.theme.ProgressBar
 import com.lifeleveling.app.ui.theme.ShadowedIcon
+import com.lifeleveling.app.ui.theme.SingleBadgeDisplay
 import com.lifeleveling.app.ui.theme.StreaksToolTip
 
 @Preview
@@ -38,6 +39,8 @@ fun StreaksScreen() {
     val showLevelTip = remember { mutableStateOf(false) }
     val showStreaksTip = remember { mutableStateOf(false) }
     val showBadgesTip = remember { mutableStateOf(false) }
+    val showBadge = remember { mutableStateOf(false) }
+    var badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
 
     // Background with scrolling if needed
     Box(
@@ -327,9 +330,19 @@ fun StreaksScreen() {
                 outerPadding = 0.dp,
                 height = 200.dp
             ) {
-                BadgeDisplay()
+                AllBadgesDisplay(
+                    toShow = showBadge,
+                    showBadge = badgeToDisplay
+                )
             }
         }
+    }
+    // Badge Popup
+    if (showBadge.value) {
+        SingleBadgeDisplay(
+            badge = badgeToDisplay.value,
+            toShow = showBadge,
+        )
     }
 
     // Show Tooltip Popups

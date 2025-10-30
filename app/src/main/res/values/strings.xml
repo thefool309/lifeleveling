@@ -49,6 +49,7 @@
     <string name="streaks_tip_two">Completing streaks will get you extra experience and coins.</string>
     <string name="streaks_tip_three">Weekly streaks are based on your daily reminders. Completing them throughout the week adds to your streak.</string>
     <string name="streaks_tip_four">Monthly streaks are based on tasks that happen less often such as every few days or once a week.</string>
+    <string name="badge_completed_on">Completed On:</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>
