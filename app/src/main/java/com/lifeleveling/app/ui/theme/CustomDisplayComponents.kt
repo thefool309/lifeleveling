@@ -1,13 +1,20 @@
 package com.lifeleveling.app.ui.theme
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,16 +29,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.screens.TestUser
+import com.lifeleveling.app.ui.screens.resolveEnumColor
 
 /*
 Reusable components that will appear on multiple screens
 fun found in this file
 * LevelAndProgress
 * EquipmentDisplay
+* BadgeDisplay
  */
 
 /**
  * Level and Experience Display
+ * @param showLevelTip The bool that controls showing the tooltip window
  */
 @Composable
 fun LevelAndProgress(
@@ -229,6 +239,44 @@ fun EquipmentDisplay(
                     contentDescription = null,
                     tint = AppTheme.colors.Background,
                     modifier = Modifier.size(50.dp),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Displays the players badges
+ * @param columns Number of columns in the grid
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun BadgeDisplay(
+    columns: Int = 5,
+    modifier: Modifier = Modifier
+) {
+    val allBadges = TestUser.completedBadges + TestUser.badges
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns),
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        items(allBadges) { badge ->
+            Box (
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircleButton(
+                    modifier = Modifier.fillMaxSize(),
+                    imageVector = ImageVector.vectorResource(badge.icon),
+                    onClick = {},
+                    backgroundColor = if (badge.completed == false) AppTheme.colors.FadedGray
+                                        else resolveEnumColor(badge.color),
+                    elevation = 12.dp
                 )
             }
         }

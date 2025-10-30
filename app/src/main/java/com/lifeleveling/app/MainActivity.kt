@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +33,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.BuildConfig
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
@@ -45,16 +51,25 @@ import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.navigation.TempSettingsScreen
 import com.lifeleveling.app.navigation.TempStatsScreen
 import com.lifeleveling.app.navigation.TempStreaksScreen
+import com.lifeleveling.app.ui.screens.CreateAccountScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.screens.NotificationScreen
+import com.lifeleveling.app.ui.screens.SelfCareScreen
+import com.lifeleveling.app.ui.screens.SettingScreen
+import com.lifeleveling.app.ui.screens.SignIn
+import com.lifeleveling.app.ui.screens.StatsScreen
+import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
+import com.lifeleveling.app.ui.screens.TestUser
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 
 
 // Temp Check to ensure firebase connection
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
+
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+
+import com.lifeleveling.app.ui.screens.StreaksScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -63,6 +78,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // It is important to do this before any Firebase use
+        if (BuildConfig.DEBUG) {
+            Firebase.firestore.useEmulator("10.0.2.2", 8080)
+            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099)
+        }
+
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
         enableEdgeToEdge(
@@ -83,9 +105,6 @@ class MainActivity : ComponentActivity() {
         ) { result ->
             authVm.handleGoogleResultIntent(result.data)
         }
-
-        // TEMP: force sign out to see SignIn (remove later)
-        authVm.signOut(this)
 
         enableEdgeToEdge()
         setContent {
@@ -137,24 +156,46 @@ class MainActivity : ComponentActivity() {
                     SplashAnimationOverlay()
                 } else {
                     // Show SignIn when not authenticated; show your app when signed in
-                    LifelevelingTheme(darkTheme = isDarkTheme) {
+                    LifelevelingTheme(darkTheme = isDarkThemeState.value) {
                         if (authState.user == null) {
 
-                            // -------- Sign In UI --------
-                            SignIn(
-                                // Auth using email and password
-                                onLogin = { /* TODO: email/password */ },
+                            val preAuthNav = rememberNavController()
+                            NavHost(navController = preAuthNav, startDestination = "signin") {
+                                composable("signin") {
+                                    // -------- Sign In UI --------
+                                    SignIn(
+                                        // Auth using email and password
+                                        onLogin = { /* TODO: email/password */ },
 
-                                // Auth with Google Sign In
-                                onGoogleLogin = {
-                                    authVm.beginGoogleSignIn()
-                                    val intent = authVm.googleClient(this@MainActivity).signInIntent
-                                    googleLauncher.launch(intent)
-                                },
+                                        // Auth with Google Sign In
+                                        onGoogleLogin = {
+                                            authVm.beginGoogleSignIn()
+                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                            googleLauncher.launch(intent)
+                                        },
 
-                                // Create account screen
-                                onCreateAccount = { /* TODO: navigate to sign-up */ }
-                            )
+                                        // Create account screen
+                                        onCreateAccount = {
+                                            preAuthNav.navigate("createaccount"){
+                                                //launchSingleTop = false
+                                            }
+                                        }
+                                    )
+                                }
+                                composable("createaccount") {
+                                    CreateAccountScreen(
+                                        onJoin = {/*TODO: Handle sign-up logic*/},
+                                        onGooleLogin = {
+                                            authVm.beginGoogleSignIn()
+                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+                                            googleLauncher.launch(intent)
+                                        },
+                                        onLog = {
+                                            preAuthNav.navigate("signin") // Back to Sign-In
+                                        }
+                                    )
+                                }
+                            }
                         } else {
 
                             // Main App UI
@@ -163,7 +204,8 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
                                 ) { padding ->
-                                    NavHostContainer(navController = navController, padding = padding)
+                                    NavHostContainer(navController = navController, padding = padding, isDarkThemeState = isDarkThemeState,
+                                        onSignOut = {authVm.signOut(this@MainActivity)})
                                 }
                             }
                         }
@@ -177,7 +219,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavHostContainer(
     navController: NavHostController,
-    padding: PaddingValues
+    onSignOut: () -> Unit,
+    padding: PaddingValues,
+    isDarkThemeState: MutableState<Boolean>,
 ) {
     NavHost(
         navController = navController,
@@ -189,15 +233,40 @@ fun NavHostContainer(
             }
             composable("stats") {
                 StatsScreen()
+//                StatsScreen( TestUser.level,
+//                TestUser.currentExp,
+//                TestUser.expToLevel,
+//                TestUser.LifePointsUsed,
+//                TestUser.UnusedLifePoints,
+//                TestUser.StatStrength,
+//                 TestUser.StatDefense,
+//                TestUser.StatIntelligence,
+//                TestUser.StatAgility,
+//                TestUser.StatHealth)
             }
             composable("home") {
                 HomeScreen()
             }
             composable("streaks") {
-                TempStreaksScreen()
+                StreaksScreen()
             }
             composable("settings") {
-                TempSettingsScreen()
+                SettingScreen(
+                    navController = navController,
+                    isDarkTheme = isDarkThemeState.value,
+                    onThemeChange = { newIsDark ->
+                        isDarkThemeState.value = newIsDark
+                    }
+                )
+            }
+            composable ("notifications"){
+                NotificationScreen(navController = navController)
+            }
+            composable ("selfcare"){
+                SelfCareScreen(navController = navController)
+            }
+            composable ("termsAndPrivacy") {
+                TermsAndPrivacyScreen(navController = navController)
             }
         }
     )

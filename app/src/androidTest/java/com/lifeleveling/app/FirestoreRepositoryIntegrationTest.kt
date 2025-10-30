@@ -57,11 +57,9 @@ class FirestoreRepositoryIntegrationTest {
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
         auth.useEmulator("10.0.2.2", 9099)
+
         // Connect to the Firestore emulator
-
-
-
-
+        firestore.firestoreSettings = firestoreSettings
     }
 
     @After

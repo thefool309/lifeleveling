@@ -1,4 +1,4 @@
-package com.lifeleveling.app
+package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 
 
@@ -39,8 +40,9 @@ import com.lifeleveling.app.ui.theme.AppTheme
 @Composable
 fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},
-    onGoogleLogin: () -> Unit = {println("Google login pressed")},
+    onGooleLogin: () -> Unit = {println("Goole login pressed")},
     onLog: () -> Unit = {println("Login account pressed")},
+
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -62,7 +64,7 @@ fun CreateAccountScreen(
         ){
             //logo
             Image(
-                painter = painterResource(id=R.drawable.ll_life_tree),
+                painter = painterResource(id= R.drawable.ll_life_tree),
                 contentDescription = "logo",
                 modifier = Modifier
                     .padding(24.dp)
@@ -165,7 +167,7 @@ fun CreateAccountScreen(
                         .width(250.dp)
                         .height(50.dp),
 
-                    onClick = onGoogleLogin,
+                    onClick = onGooleLogin,
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
                 ) {         //This below can place and image in the button

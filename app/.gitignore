@@ -1,2 +1,5 @@
 /build
 google-services.json
+
+node_modules/
+*.local
