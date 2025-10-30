@@ -523,12 +523,20 @@ class FirestoreRepository {
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
 
     suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger) : Boolean {
-        val uid: String = getUserId() ?: return false
+        val uid: String? = getUserId()
+        if (uid == null) {
+            logger.e("Auth", "User ID is null. Please login to firebase.")
+            return false
+        }
         TODO("Not Implemented yet")
     }
 
     suspend fun setBadgesUnlocked(newBadgesUnlocked: List<Badge>, logger: ILogger) : Boolean {
-        val uid: String = getUserId() ?: return false
+        val uid: String? = getUserId()
+        if (uid == null) {
+            logger.e("Auth", "User ID is null. Please login to firebase.")
+            return false
+        }
         TODO("Not Implemented yet")
     }
 
@@ -539,8 +547,12 @@ class FirestoreRepository {
 
     // TODO: add deleteUser() to the users crud
 
-    suspend fun deleteUser(): Boolean  {
-        val uid: String = getUserId() ?: return false
+    suspend fun deleteUser(logger: ILogger): Boolean  {
+        val uid: String? = getUserId()
+        if (uid == null) {
+            logger.e("Auth", "User ID is null. Please login to firebase.")
+            return false
+        }
         TODO("Not Implemented yet")
     }
 
