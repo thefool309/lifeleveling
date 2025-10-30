@@ -528,7 +528,16 @@ class FirestoreRepository {
             logger.e("Auth", "User ID is null. Please login to firebase.")
             return false
         }
-        TODO("Not Implemented yet")
+        val docRef = db.collection("users").document(uid)
+        try {
+            docRef.update("badgesLocked", newBadgesLocked).await()
+            updateTimestamp(uid, logger)
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
     }
 
     suspend fun setBadgesUnlocked(newBadgesUnlocked: List<Badge>, logger: ILogger) : Boolean {
@@ -537,7 +546,16 @@ class FirestoreRepository {
             logger.e("Auth", "User ID is null. Please login to firebase.")
             return false
         }
-        TODO("Not Implemented yet")
+        val docRef = db.collection("users").document(uid)
+        try {
+            docRef.update("badgesUnlocked", newBadgesUnlocked).await()
+            updateTimestamp(uid, logger)
+            return true
+        }
+        catch(e: Exception) {
+            logger.e("Firestore", "Error Updating User: ", e)
+            return false
+        }
     }
 
     suspend fun setBadges(newBadgesLocked: List<Badge>, newBadgesUnlocked: List<Badge>, logger: ILogger) {
