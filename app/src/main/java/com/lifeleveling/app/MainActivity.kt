@@ -106,7 +106,6 @@ class MainActivity : ComponentActivity() {
             authVm.handleGoogleResultIntent(result.data)
         }
 
-        enableEdgeToEdge()
         setContent {
             // Setting theme
             val isDarkThemeState = remember { mutableStateOf(isDarkTheme) }

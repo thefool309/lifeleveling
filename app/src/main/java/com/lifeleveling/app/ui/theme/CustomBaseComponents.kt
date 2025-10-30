@@ -374,7 +374,7 @@ fun CustomButton(
         InnerShadow(
             modifier = Modifier.matchParentSize(),
             color = buttonColor,
-            shadowColor = AppTheme.colors.Gray,
+            shadowColor = AppTheme.colors.LightShadow,
             blur = 4.dp,
             offsetX = 1.dp,
             offsetY = 1.dp,
@@ -389,7 +389,7 @@ fun CustomButton(
             blur = 1.5.dp,
             offsetX = (-.5).dp,
             offsetY = (-1).dp,
-            spread = .75.dp,
+            spread = 1.5.dp,
             cornerRadius = (cornerRadius),
         )
         // All over inside
@@ -398,7 +398,7 @@ fun CustomButton(
             color = Color.Transparent,
             shadowColor = AppTheme.colors.DropShadow,
             blur = 2.dp,
-            spread = .75.dp,
+            spread = .5.dp,
             cornerRadius = (cornerRadius),
         )
         // Content
@@ -573,11 +573,11 @@ fun CircleButton(
         InnerShadow(
             modifier = Modifier.matchParentSize(),
             color = backgroundColor,
-            shadowColor = AppTheme.colors.Gray,
+            shadowColor = AppTheme.colors.LightShadow,
             blur = 4.dp,
             offsetX = 1.dp,
             offsetY = 1.dp,
-            spread = 2.dp,
+            spread = 1.5.dp,
             cornerRadius = size / 2,
         )
         // Bottom right
@@ -585,10 +585,10 @@ fun CircleButton(
             modifier = Modifier.matchParentSize(),
             color = Color.Transparent,
             shadowColor = AppTheme.colors.LightShadow,
-            blur = 1.5.dp,
+            blur = 2.dp,
             offsetX = (-.5).dp,
             offsetY = (-1).dp,
-            spread = 1.dp,
+            spread = 1.5.dp,
             cornerRadius = size / 2,
         )
         // All over inside
@@ -596,8 +596,8 @@ fun CircleButton(
             modifier = Modifier.matchParentSize(),
             color = Color.Transparent,
             shadowColor = AppTheme.colors.DropShadow,
-            blur = 2.dp,
-            spread = .5.dp,
+            blur = 2.5.dp,
+            spread = .25.dp,
             cornerRadius = size / 2,
         )
         ShadowedIcon(
@@ -640,7 +640,7 @@ fun ProgressBar(
             blur = 2.dp,
             offsetX = .5.dp,
             offsetY = .5.dp,
-            spread = 3.dp,
+            spread = 2.dp,
             cornerRadius = cornerRadius,
         )
         //Bottom Right Shadow
@@ -672,7 +672,7 @@ fun ProgressBar(
             InnerShadow(
                 modifier = Modifier.matchParentSize(),
                 color = Color.Transparent,
-                shadowColor = AppTheme.colors.Gray,
+                shadowColor = AppTheme.colors.LightShadow,
                 blur = 4.dp,
                 offsetX = 1.dp,
                 offsetY = 1.dp,
@@ -687,7 +687,7 @@ fun ProgressBar(
                 blur = 1.5.dp,
                 offsetX = (-.5).dp,
                 offsetY = (-1).dp,
-                spread = 1.dp,
+                spread = .5.dp,
                 cornerRadius = (cornerRadius - 1.dp),
             )
             // All over inside
@@ -773,7 +773,7 @@ fun SlidingSwitch(
             blur = 2.dp,
             offsetX = .5.dp,
             offsetY = .5.dp,
-            spread = 5.dp,
+            spread = 3.dp,
             cornerRadius = cornerRadius,
         )
         //Bottom Right Shadow
@@ -781,10 +781,10 @@ fun SlidingSwitch(
             modifier = Modifier.matchParentSize(),
             color = Color.Transparent,
             shadowColor = AppTheme.colors.FadedGray,
-            blur = 2.dp,
+            blur = 1.5.dp,
             offsetX = (-.5).dp,
             offsetY = (-1).dp,
-            spread = 1.25.dp,
+            spread = 1.dp,
             cornerRadius = (cornerRadius),
         )
 
@@ -802,7 +802,7 @@ fun SlidingSwitch(
             InnerShadow(
                 modifier = Modifier.matchParentSize(),
                 color = selectedColor,
-                shadowColor = AppTheme.colors.Gray,
+                shadowColor = AppTheme.colors.LightShadow,
                 blur = 4.dp,
                 offsetX = 1.dp,
                 offsetY = 1.dp,
@@ -814,10 +814,10 @@ fun SlidingSwitch(
                 modifier = Modifier.matchParentSize(),
                 color = Color.Transparent,
                 shadowColor = AppTheme.colors.LightShadow,
-                blur = 1.5.dp,
+                blur = 2.dp,
                 offsetX = (-.5).dp,
                 offsetY = (-1).dp,
-                spread = .75.dp,
+                spread = 1.25.dp,
                 cornerRadius = (cornerRadius),
             )
             // All over inside
