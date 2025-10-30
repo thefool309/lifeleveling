@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.lifeleveling.app.R
 
 /*
@@ -46,6 +47,7 @@ ProgressBar  -  The progress bar for different variables
 SlidingSwitch  -  The two option switch toggle
 Text Sample  -  Inside TestScreen is a sample of shadowed text to use
 CustomCheckbox  -  Precolored and laid out checkbox item
+CustomDialog  -  CustomDialog call with saved preferences. Can be adjusted to hold text or buttons
  */
 
 // This screen shows the different effects that are within this file
@@ -893,6 +895,40 @@ fun CustomCheckbox(
                 tint = checkColor,
                 modifier = Modifier.size(size)
             )
+        }
+    }
+}
+
+/**
+ * CustomDialog will pop up a window in the middle of the screen that will dismiss when clicking outside of it
+ * @param toShow The boolean for if the window shows or not.
+ * @param dismissOnInsideClick If the contents is NOT interactive, leave this as true for the window to disappear if clicked on. False will allow buttons to be on the inside.
+ */
+@Composable
+fun CustomDialog(
+    toShow: MutableState<Boolean>,
+    modifier: Modifier = Modifier,
+    dismissOnInsideClick: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    Dialog(
+        onDismissRequest = { toShow.value = false },
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        // This box dims background and handles clicking outside the popup
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.DarkerBackground.copy(alpha = 0.1f))
+                .clickable { toShow.value = false }
+        ) {
+            PopupCard(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clickable(enabled = dismissOnInsideClick) { toShow.value = false },
+            ) {
+                content()
+            }
         }
     }
 }

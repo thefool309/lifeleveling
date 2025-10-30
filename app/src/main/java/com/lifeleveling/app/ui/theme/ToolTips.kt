@@ -1,12 +1,8 @@
 package com.lifeleveling.app.ui.theme
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -21,8 +17,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import kotlin.collections.forEach
 import com.lifeleveling.app.R
 
@@ -70,46 +64,29 @@ fun Tooltip(
     title: Int,
     tips: List<AnnotatedString>
 ) {
-    Dialog(
-        onDismissRequest = { toShow.value = false },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+    CustomDialog(
+        toShow = toShow,
+        modifier = modifier,
     ) {
-        // Making a custom dim
-        Box (
-            modifier = modifier
-                .fillMaxSize()
-                .background(color = AppTheme.colors.DarkerBackground.copy(alpha = 0.1f))
-                .clickable { toShow.value = false },
+        // Content inside card
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Popup Card shading
-            PopupCard(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .clickable { toShow.value = false }
-            ) {
-                // Content inside card
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Title
-                    Text(
-                        stringResource(title),
-                        color = AppTheme.colors.SecondaryThree,
-                        style = AppTheme.textStyles.HeadingSix.copy(
-                            shadow = Shadow(
-                                color = AppTheme.colors.DropShadow,
-                                offset = Offset(3f, 4f),
-                                blurRadius = 6f,
-                            )
-                        )
+            // Title
+            Text(
+                stringResource(title),
+                color = AppTheme.colors.SecondaryThree,
+                style = AppTheme.textStyles.HeadingSix.copy(
+                    shadow = Shadow(
+                        color = AppTheme.colors.DropShadow,
+                        offset = Offset(3f, 4f),
+                        blurRadius = 6f,
                     )
-                    // Content
-                    BulletPoints(tips)
-                }
-            }
+                )
+            )
+            // Tips
+            BulletPoints(tips)
         }
     }
 }
