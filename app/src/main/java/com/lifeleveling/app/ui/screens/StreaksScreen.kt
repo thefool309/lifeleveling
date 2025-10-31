@@ -44,8 +44,8 @@ fun StreaksScreen() {
     val showBadgesTip = remember { mutableStateOf(false) }
     val showBadge = remember { mutableStateOf(false) }
     val showStreakInfo = remember { mutableStateOf(false) }
-    var badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
-    var streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
+    val badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
+    val streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
 
     // Background with scrolling if needed
     Box(
