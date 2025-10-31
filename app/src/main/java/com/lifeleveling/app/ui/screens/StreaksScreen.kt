@@ -435,7 +435,7 @@ fun ShowStreak(
                 CustomButton(
                     onClick = { },
                     backgroundColor = AppTheme.colors.Error75,
-                    width = 120.dp
+//                    width = 120.dp
                 ) {
                     Text(
                         text = stringResource(R.string.delete),
@@ -447,7 +447,7 @@ fun ShowStreak(
                 CustomButton(
                     onClick = { toShow.value = false },
                     backgroundColor = AppTheme.colors.Success75,
-                    width = 120.dp
+//                    width = 120.dp
                 ) {
                     Text(
                         text = stringResource(R.string.close),
