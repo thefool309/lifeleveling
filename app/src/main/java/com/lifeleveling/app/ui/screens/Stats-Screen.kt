@@ -428,7 +428,8 @@ fun StatsScreen(
 fun StatsScreenRoute(
     repo: com.lifeleveling.app.data.FirestoreRepository = com.lifeleveling.app.data.FirestoreRepository(),
     logger: com.lifeleveling.app.util.ILogger = com.lifeleveling.app.util.ILogger.DEFAULT
-) { val scope = androidx.compose.runtime.rememberCoroutineScope()
+) {
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var user by remember { mutableStateOf<com.lifeleveling.app.data.Users?>(null) }
