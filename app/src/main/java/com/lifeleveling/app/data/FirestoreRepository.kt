@@ -68,7 +68,7 @@ class FirestoreRepository {
             level = 1L,
             lifePoints = 4L,        // Adding some life points to demo
             currentXp = 0.0,
-            // xpToNextLevel is derived in Users and we are not storing it
+            // xpToNextLevel is derived in Users, and we are not storing it
             currHealth = 10,
             badgesLocked = emptyList(),
             badgesUnlocked = emptyList(),
@@ -712,4 +712,22 @@ class FirestoreRepository {
         return getUser(uid, logger)
     }
 
+    // Method to set life points mirroring the behavior of existing setCoins and addCoins methods
+    suspend fun setLifePoints(lifePoints: Long, logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        return try {
+            db.collection("users").document(uid)
+                .update("lifePoints", lifePoints)
+                .await()
+            updateTimestamp(uid, logger)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error updating lifePoints", e)
+            false
+        }
+    }
 }
