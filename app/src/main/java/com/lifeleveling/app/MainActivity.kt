@@ -256,7 +256,8 @@ fun NavHostContainer(
                     isDarkTheme = isDarkThemeState.value,
                     onThemeChange = { newIsDark ->
                         isDarkThemeState.value = newIsDark
-                    }
+                    },
+                    onSignOut = onSignOut
                 )
             }
             composable ("notifications"){

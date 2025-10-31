@@ -42,6 +42,7 @@ fun SettingScreen(
     navController: NavController? = null,
     isDarkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit,
+    onSignOut: () -> Unit ={},
 ){
 
     Surface(
@@ -343,20 +344,13 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable {
-
-                                }
-
+                                .clickable { onSignOut() }
                         )
                     }
-
                     Spacer(modifier = Modifier.height(16.dp))
-
                 }
             }
         }
-
-
     }
 }
 
@@ -375,6 +369,6 @@ fun PreviewSettingScreen() {
         isDarkTheme = isDarkTheme,
         onThemeChange = { newIsDark ->
             isDarkTheme = newIsDark // update the state in preview
-        }
+        },
     )
 }
