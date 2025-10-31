@@ -55,7 +55,7 @@ fun StatsScreen(
     userIntel: Int = TestUser.StatIntelligence,
     userAgility: Int = TestUser.StatAgility,
     userHealth: Int = TestUser.StatHealth,
-    onConfirm: () -> Unit = {println("Confirm pressed")},
+    onConfirm: (newStats: com.lifeleveling.app.data.Stats, usedPoints: Int, remainingPoints: Int) -> Unit = { _,_,_ -> println("Confirm pressed") },
     onCancel: () -> Unit = {println("Cancel pressed")},
                 ) {
     val progress = (userExperience.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
@@ -206,16 +206,17 @@ fun StatsScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
+                // Variables were being declared inside of lambda but confirm button is outside of lambda
+                val strength = remember { mutableStateOf(userStrength) }
+                val defense = remember { mutableStateOf(userDefense) }
+                val intelligence = remember { mutableStateOf(userIntel) }
+                val agility = remember { mutableStateOf(userAgility) }
+                val health = remember { mutableStateOf(userHealth) }
+
                 HighlightCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    val strength = remember { mutableStateOf(userStrength) }
-                    val defense = remember { mutableStateOf(userDefense) }
-                    val intelligence = remember { mutableStateOf(userIntel) }
-                    val agility = remember { mutableStateOf(userAgility) }
-                    val health = remember { mutableStateOf(userHealth) }
-                    // create baseStats so user is not able to go lower then what is saved
+                    // create baseStats so user is not able to go lower than what is saved
                     val baseStats = mapOf(
                         "Strength" to userStrength,
                         "Defense" to userDefense,
@@ -361,7 +362,15 @@ fun StatsScreen(
                         modifier = Modifier
                             .size(148.dp),
                         content = { Text("Confirm", style = AppTextStyles.HeadingSix, color = AppTheme.colors.Background) },
-                        onClick = { onConfirm() },
+                        onClick = {
+                            val chosenStats = com.lifeleveling.app.data.Stats(
+                                strength = strength.value.toLong(),
+                                defense = defense.value.toLong(),
+                                intelligence = intelligence.value.toLong(),
+                                agility = agility.value.toLong(),
+                                health = health.value.toLong()
+                            )
+                            onConfirm(chosenStats, usedPoints, remainingPoints) },
                         backgroundColor = AppTheme.colors.SecondaryTwo,
                     )
                 }
@@ -413,4 +422,6 @@ fun StatsScreen(
         }
     }
 }
+
+
 
