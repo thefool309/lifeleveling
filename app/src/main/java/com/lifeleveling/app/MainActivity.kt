@@ -52,6 +52,7 @@ import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreen
+import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
@@ -150,8 +151,8 @@ class MainActivity : ComponentActivity() {
                         if (authState.user == null) {
 
                             val preAuthNav = rememberNavController()
-                            NavHost(navController = preAuthNav, startDestination = "signin") {
-                                composable("signin") {
+                            NavHost(navController = preAuthNav, startDestination = "signIn") {
+                                composable("signIn") {
                                     // -------- Sign In UI --------
                                     SignIn(
                                         // Auth using email and password
@@ -166,13 +167,13 @@ class MainActivity : ComponentActivity() {
 
                                         // Create account screen
                                         onCreateAccount = {
-                                            preAuthNav.navigate("createaccount"){
+                                            preAuthNav.navigate("createAccount"){
                                                 //launchSingleTop = false
                                             }
                                         }
                                     )
                                 }
-                                composable("createaccount") {
+                                composable("createAccount") {
                                     CreateAccountScreen(
                                         onJoin = {/*TODO: Handle sign-up logic*/},
                                         onGooleLogin = {
@@ -181,7 +182,7 @@ class MainActivity : ComponentActivity() {
                                             googleLauncher.launch(intent)
                                         },
                                         onLog = {
-                                            preAuthNav.navigate("signin") // Back to Sign-In
+                                            preAuthNav.navigate("signIn") // Back to Sign-In
                                         }
                                     )
                                 }
@@ -223,6 +224,7 @@ fun NavHostContainer(
             }
             composable("stats") {
                 StatsScreen()
+                StatsScreenRoute()
 //                StatsScreen( TestUser.level,
 //                TestUser.currentExp,
 //                TestUser.expToLevel,
@@ -253,7 +255,7 @@ fun NavHostContainer(
             composable ("notifications"){
                 NotificationScreen(navController = navController)
             }
-            composable ("selfcare"){
+            composable ("selfCare"){
                 SelfCareScreen(navController = navController)
             }
             composable ("termsAndPrivacy") {
