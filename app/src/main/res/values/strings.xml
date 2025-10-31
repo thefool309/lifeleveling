@@ -4,6 +4,12 @@
 
     <string name="app_name">lifeleveling</string>
 
+    <!-- Button labels -->
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
     <string name="exp_display">Exp: %1$d/%2$d</string>
@@ -49,7 +55,9 @@
     <string name="streaks_tip_two">Completing streaks will get you extra experience and coins.</string>
     <string name="streaks_tip_three">Weekly streaks are based on your daily reminders. Completing them throughout the week adds to your streak.</string>
     <string name="streaks_tip_four">Monthly streaks are based on tasks that happen less often such as every few days or once a week.</string>
-    <string name="badge_completed_on">Completed On:</string>
+    <string name="streak_completed">Reminders completed so far:</string>
+    <string name="streak_to_complete">Total available to complete:</string>
+    <string name="streak_daily_count">Times reminder happens in a day:</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>
@@ -57,4 +65,5 @@
     <string name="badges_tip_two">By starting your journey in building better habits, you have earned the badge &quot;Everyone Starts at the Beginning&quot; by creating your account.</string>
     <string name="badges_tip_three">Badges that are colored and brighter have a picture are the ones you have earned. If they are greyed out with a question mark, they are for you to reach for.</string>
     <string name="badges_tip_four">Clicking on a badge will tell you what it is for.</string>
+    <string name="badge_completed_on">Completed On:</string>
 </resources>

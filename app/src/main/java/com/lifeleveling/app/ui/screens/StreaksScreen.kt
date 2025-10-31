@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -24,6 +25,8 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.AllBadgesDisplay
 import com.lifeleveling.app.ui.theme.BadgesToolTip
+import com.lifeleveling.app.ui.theme.CustomButton
+import com.lifeleveling.app.ui.theme.CustomDialog
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.LevelAndProgress
 import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
@@ -40,7 +43,9 @@ fun StreaksScreen() {
     val showStreaksTip = remember { mutableStateOf(false) }
     val showBadgesTip = remember { mutableStateOf(false) }
     val showBadge = remember { mutableStateOf(false) }
+    val showStreakInfo = remember { mutableStateOf(false) }
     var badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
+    var streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
 
     // Background with scrolling if needed
     Box(
@@ -117,12 +122,16 @@ fun StreaksScreen() {
                         contentDescription = null,
                     )
 
-                    // Add in reminders display
+                    // Display of streaks
                     TestUser.weeklyStreaks.forEach { streak ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .wrapContentHeight(),
+                                .wrapContentHeight()
+                                .clickable {
+                                    streakToShow.value = streak
+                                    showStreakInfo.value = true
+                                },
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Row(
@@ -219,7 +228,7 @@ fun StreaksScreen() {
                         contentDescription = null,
                     )
 
-                    // Add in reminders display
+                    // Display of streaks
                     TestUser.monthlyStreaks.forEach { streak ->
                         Column(
                             modifier = Modifier
@@ -354,5 +363,104 @@ fun StreaksScreen() {
     }
     if (showBadgesTip.value) {
         BadgesToolTip(showBadgesTip)
+    }
+
+    // Streak info handling
+    if (showStreakInfo.value) {
+        ShowStreak(
+            toShow = showStreakInfo,
+            passedStreak = streakToShow
+        )
+    }
+}
+
+@Composable
+fun ShowStreak(
+    toShow: MutableState<Boolean>,
+    passedStreak: MutableState<Streak>,
+) {
+    val streak = passedStreak.value
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = false,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            // Display icon and title
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ShadowedIcon(
+                    modifier = Modifier.size(20.dp),
+                    imageVector = ImageVector.vectorResource(streak.reminder.icon),
+                    tint = if (streak.reminder.color == null) Color.Unspecified
+                    else resolveEnumColor(streak.reminder.color),
+                )
+                Text(
+                    text = streak.reminder.name,
+                    style = AppTheme.textStyles.HeadingFour,
+                    color = AppTheme.colors.SecondaryThree
+                )
+            }
+            // Progress bar display
+            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+            ProgressBar(
+                progress = percentageCompleted,
+            )
+            // Extra details
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(
+                    text = stringResource(R.string.streak_completed, streak.numberCompleted),
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+            }
+            Text(
+                text = stringResource(R.string.streak_to_complete, streak.totalAmount),
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.Gray
+            )
+            if (streak.reminder.daily) {
+                Text(
+                    text = stringResource(R.string.streak_daily_count, streak.reminder.timesPerDay),
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+            }
+            // Buttons for deleting or closing window
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                CustomButton(
+                    onClick = { },
+                    backgroundColor = AppTheme.colors.Error75,
+                    width = 120.dp
+                ) {
+                    Text(
+                        text = stringResource(R.string.delete),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+                Spacer(Modifier.width(16.dp))
+                CustomButton(
+                    onClick = { toShow.value = false },
+                    backgroundColor = AppTheme.colors.Success75,
+                    width = 120.dp
+                ) {
+                    Text(
+                        text = stringResource(R.string.close),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+            }
+        }
     }
 }
