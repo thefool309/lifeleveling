@@ -41,6 +41,7 @@ import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.PopupCard
 import com.lifeleveling.app.ui.theme.ProgressBar
 import com.lifeleveling.app.ui.theme.ShadowedIcon
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -423,5 +424,90 @@ fun StatsScreen(
     }
 }
 
+@Composable
+fun StatsScreenRoute(
+    repo: com.lifeleveling.app.data.FirestoreRepository = com.lifeleveling.app.data.FirestoreRepository(),
+    logger: com.lifeleveling.app.util.ILogger = com.lifeleveling.app.util.ILogger.DEFAULT
+) { val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var user by remember { mutableStateOf<com.lifeleveling.app.data.Users?>(null) }
+
+    // Load the current user once
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        isLoading = true
+        error = null
+        user = repo.getCurrentUser(logger)
+        isLoading = false
+        if (user == null) error = "Could not load user profile."
+    }
+
+    when {
+        isLoading -> {
+            androidx.compose.material3.CircularProgressIndicator()
+            return
+        }
+        error != null -> {
+            androidx.compose.material3.Text(error!!)
+            return
+        }
+    }
+
+    val u = user!!
+
+    // Derive display values
+    val level = u.level.toInt()
+    val currentXp = u.currentXp.toInt()
+    // Users calculates xpToNextLevel in init
+    val expToLevel = u.xpToNextLevel.toInt()
+
+    // Base stats and points
+    val baseStats = u.stats
+    val baseUsed = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
+    val unusedLifePoints = u.lifePoints.toInt()
+    val usedLifePoints = baseUsed // how many are already allocated
+
+    StatsScreen(
+        userLevel = level,
+        userExperience = currentXp,
+        maxExperience = expToLevel,
+        usedLifePoints = usedLifePoints,
+        unusedLifePoints = unusedLifePoints + usedLifePoints, // your UI expects "total" on the right side (used / total)
+        userStrength = baseStats.strength.toInt(),
+        userDefense = baseStats.defense.toInt(),
+        userIntel = baseStats.intelligence.toInt(),
+        userAgility = baseStats.agility.toInt(),
+        userHealth = baseStats.health.toInt(),
+        onCancel = {
+            // reload from server to discard changes
+            isLoading = true
+            error = null
+            // simple re-fetch
+            scope.launch {
+                user = repo.getCurrentUser(logger)
+                isLoading = false
+            }
+        },
+        onConfirm = { newStats, usedPoints, remainingPoints ->
+            // Persist chosen stats and life points
+            // remainingPoints is what's left after the user’s edits.
+            // Our stored "lifePoints" is the remaining/unspent pool.
+            val newLifePoints = remainingPoints.toLong()
+
+            scope.launch() {
+                val okStats = repo.setStats(newStats, logger)
+                val okLP   = repo.setLifePoints(newLifePoints, logger)
+                if (okStats && okLP) {
+                    // refresh UI from server so progress bar & counts are consistent
+                    isLoading = true
+                    user = repo.getCurrentUser(logger)
+                    isLoading = false
+                } else {
+                    error = "Failed to save stats."
+                }
+            }
+        }
+    )
+}
 
 
