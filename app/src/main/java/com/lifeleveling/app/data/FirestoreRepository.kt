@@ -57,7 +57,7 @@ class FirestoreRepository {
             stats = Stats(
                 agility = 0L,
                 defense = 0L,
-                intellect = 0L,
+                intelligence = 0L,
                 strength = 0L,
                 health = 0L
             ),
