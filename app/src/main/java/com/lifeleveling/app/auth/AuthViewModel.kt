@@ -14,6 +14,8 @@ import com.google.android.gms.common.api.ApiException
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.ktx.firestore
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
 // UI State
@@ -126,6 +129,29 @@ class AuthViewModel : ViewModel() {
             }
     }
 
+    fun signInWithEmailPassword(email: String, password: String, logger: ILogger) : Boolean {
+        try {
+            auth.signInWithEmailAndPassword(email, password)
+            return true
+        }
+        catch (e: FirebaseAuthInvalidCredentialsException) {
+            logger.e("FB", "signInWithEmailPassword failed due to Invalid Credentials: ", e)
+            return false
+        }
+        catch (e: FirebaseAuthException) {
+            logger.e("FB", "signInWithEmailPassword failed due to FirebaseAuthException: ", e)
+            try {
+                auth.createUserWithEmailAndPassword(email, password)
+                auth.signInWithEmailAndPassword(email, password)
+                return true
+            }
+            catch (e: Exception) {
+                logger.e("FB", "signInWithEmailPassword failed due to unspecified Exception: ", e)
+                return false
+            }
+        }
+    }
+
     // Signs out from Firebase and Google client (if used)
     fun signOut(activity: Activity? = null) {
         _ui.value = _ui.value.copy(isLoading = true, error = null)
@@ -138,4 +164,6 @@ class AuthViewModel : ViewModel() {
             _ui.value = _ui.value.copy(isLoading = false)
         }
     }
+
+
 }
