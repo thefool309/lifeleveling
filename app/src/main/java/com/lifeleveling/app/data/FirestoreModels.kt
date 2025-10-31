@@ -68,7 +68,7 @@ data class Reminders(
 data class Stats (
     val agility: Long = 0,
     val defense: Long = 0,
-    val intellect: Long = 0,
+    val intelligence: Long = 0,
     val strength: Long = 0,
     val health: Long = 0,
 )
