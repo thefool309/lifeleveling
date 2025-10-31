@@ -143,8 +143,6 @@ class FirestoreRepository {
 
     }
 
-
-
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
     // Use at your own peril
@@ -507,11 +505,36 @@ class FirestoreRepository {
             val lastUpdate = data["lastUpdate"] as Timestamp
             val lifePoints = data["lifePoints"] as Long
             val level = data["level"] as Long
-            val currXp = data["currXp"] as Double
+            //val currXp = data["currXp"] as Double
+            val currentXp: Double = run {
+                val raw = data["currentXp"] ?: data["currentXp"] ?: 0.0
+                when (raw) {
+                    is Number -> raw.toDouble()
+                    is String -> raw.toDoubleOrNull() ?: 0.0
+                    else      -> 0.0
+                }
+            }
             val currHealth = data["currHealth"] as Long
             val badgesLocked = data["badgesLocked"] as List<Badge>
             val badgesUnlocked = data["badgesUnlocked"] as List<Badge>
-            result = Users(userId, displayName, email, photoUrl, coinsBalance, stats, streaks, onboardingComplete, createdAt, lastUpdate, level, lifePoints, currXp,currHealth, badgesLocked, badgesUnlocked)
+            result = Users(
+                userId,
+                displayName,
+                email,
+                photoUrl,
+                coinsBalance,
+                stats,
+                streaks,
+                onboardingComplete,
+                createdAt,
+                lastUpdate,
+                level,
+                lifePoints,
+                currentXp,
+                currHealth,
+                badgesLocked,
+                badgesUnlocked
+            )
             // return the data as a Users object.
         }
         catch (e: Exception) {
