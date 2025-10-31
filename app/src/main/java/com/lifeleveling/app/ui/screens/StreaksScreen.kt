@@ -410,16 +410,11 @@ fun ShowStreak(
                 progress = percentageCompleted,
             )
             // Extra details
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Text(
-                    text = stringResource(R.string.streak_completed, streak.numberCompleted),
-                    style = AppTheme.textStyles.Default,
-                    color = AppTheme.colors.Gray
-                )
-            }
+            Text(
+                text = stringResource(R.string.streak_completed, streak.numberCompleted),
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.Gray
+            )
             Text(
                 text = stringResource(R.string.streak_to_complete, streak.totalAmount),
                 style = AppTheme.textStyles.Default,
