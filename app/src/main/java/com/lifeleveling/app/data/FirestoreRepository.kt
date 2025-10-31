@@ -700,4 +700,16 @@ class FirestoreRepository {
     // Fetch a list of reminders
 
     // Realtime stream of reminders (ordered by dueAt)
+
+
+    // A wrapper method to get me the current user
+    suspend fun getCurrentUser(logger: ILogger): Users? {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth", "No user found with uid $uid; Please sign in.")
+            return null
+        }
+        return getUser(uid, logger)
+    }
+
 }
