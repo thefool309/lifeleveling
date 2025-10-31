@@ -37,7 +37,7 @@ class AuthIntegratedTests {
 //    }
 
     @Before
-    fun setup() {
+    fun setup() = runTest {
         val logger = AndroidLogger()
         logger.d("Test setup", "Test setup commencing...")
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -68,10 +68,11 @@ class AuthIntegratedTests {
     }
 
     @Test
-    fun signInPositiveTest() {
+    fun signInPositiveTest() = runTest {
         val model = AuthViewModel()
         val logger = AndroidLogger()
         model.signInWithEmailPassword(testEmail, testPassword, logger)
-        assert(auth.currentUser != null)
+        assert(auth.currentUser?.uid != null)
     }
+
 }

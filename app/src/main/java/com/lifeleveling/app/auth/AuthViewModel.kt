@@ -129,9 +129,9 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun signInWithEmailPassword(email: String, password: String, logger: ILogger) : Boolean {
+    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger) : Boolean {
         try {
-            auth.signInWithEmailAndPassword(email, password)
+            auth.signInWithEmailAndPassword(email, password).await()
             return true
         }
         catch (e: FirebaseAuthInvalidCredentialsException) {
@@ -141,8 +141,8 @@ class AuthViewModel : ViewModel() {
         catch (e: FirebaseAuthException) {
             logger.e("FB", "signInWithEmailPassword failed due to FirebaseAuthException: ", e)
             try {
-                auth.createUserWithEmailAndPassword(email, password)
-                auth.signInWithEmailAndPassword(email, password)
+                auth.createUserWithEmailAndPassword(email, password).await()
+                auth.signInWithEmailAndPassword(email, password).await()
                 return true
             }
             catch (e: Exception) {
