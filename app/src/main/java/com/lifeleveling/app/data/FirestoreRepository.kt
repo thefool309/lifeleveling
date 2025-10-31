@@ -66,8 +66,10 @@ class FirestoreRepository {
             createdAt = null,
             lastUpdate = null,
             level = 1L,
-            lifePoints = 0L,
+            lifePoints = 4L,        // Adding some life points to demo
             currentXp = 0.0,
+            // xpToNextLevel is derived in Users and we are not storing it
+            currHealth = 10,
             badgesLocked = emptyList(),
             badgesUnlocked = emptyList(),
         )
@@ -86,7 +88,7 @@ class FirestoreRepository {
             "level" to model.level,
             "lifePoints" to model.lifePoints,
             "currentXp" to model.currentXp,
-            "xpToNextLevel" to model.xpToNextLevel,
+            "currHealth" to model.currHealth,
             "badgesLocked" to model.badgesLocked,
             "badgesUnlocked" to model.badgesUnlocked,
         )
