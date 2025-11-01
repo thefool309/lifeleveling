@@ -160,6 +160,7 @@ class AuthViewModel : ViewModel() {
     suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger) : Boolean {
         try {
             auth.createUserWithEmailAndPassword(email, password).await()
+            auth.signInWithEmailAndPassword(email, password).await()
             return true
         }
         catch (e: FirebaseAuthInvalidCredentialsException) {
