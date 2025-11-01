@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.firestore.ktx.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -60,6 +62,10 @@ import com.lifeleveling.app.ui.theme.StartLogic
 // Temp Check to ensure firebase connection
 
 import com.lifeleveling.app.ui.screens.StreaksScreen
+import com.lifeleveling.app.util.AndroidLogger
+
+import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
 
@@ -153,9 +159,23 @@ class MainActivity : ComponentActivity() {
                             NavHost(navController = preAuthNav, startDestination = "signin") {
                                 composable("signin") {
                                     // -------- Sign In UI --------
+                                    val email = remember { mutableStateOf("") }
+                                    val password = remember { mutableStateOf("") }
+                                    val logger : AndroidLogger = AndroidLogger()
+                                    val scope = rememberCoroutineScope()
                                     SignIn(
                                         // Auth using email and password
-                                        onLogin = { /* TODO: email/password */ },
+                                        onLogin = {
+                                            scope.launch {
+                                                try {
+                                                    authVm.signInWithEmailPassword(email.value, password.value, logger)
+                                                }
+                                                catch (e: FirebaseAuthInvalidCredentialsException) {
+                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+                                                }
+                                            }
+
+                                        /* email/password auth */ },
 
                                         // Auth with Google Sign In
                                         onGoogleLogin = {
@@ -169,12 +189,27 @@ class MainActivity : ComponentActivity() {
                                             preAuthNav.navigate("createaccount"){
                                                 //launchSingleTop = false
                                             }
-                                        }
+                                        },
+                                        email,
+                                        password
                                     )
                                 }
                                 composable("createaccount") {
+                                    val email = remember { mutableStateOf("") }
+                                    val password = remember {mutableStateOf("")}
+                                    val logger : AndroidLogger = AndroidLogger()
+                                    val scope = rememberCoroutineScope()
                                     CreateAccountScreen(
-                                        onJoin = {/*TODO: Handle sign-up logic*/},
+                                        onJoin = {/*TODO: Handle sign-up logic*/
+                                            scope.launch {
+                                                try {
+                                                    authVm.createUserWithEmailAndPassword(email.value, password.value, logger)
+                                                }
+                                                catch (e: FirebaseAuthInvalidCredentialsException) {
+                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+                                                }
+                                            }
+                                                 },
                                         onGooleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
@@ -182,7 +217,9 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onLog = {
                                             preAuthNav.navigate("signin") // Back to Sign-In
-                                        }
+
+                                        },
+                                        email, password
                                     )
                                 }
                             }

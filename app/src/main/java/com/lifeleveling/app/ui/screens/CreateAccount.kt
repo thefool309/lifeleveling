@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,11 +43,11 @@ fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},
     onGooleLogin: () -> Unit = {println("Goole login pressed")},
     onLog: () -> Unit = {println("Login account pressed")},
-
+    email: MutableState<String>,
+    password: MutableState<String>
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val pwordRules = PasswordRules(password)
+
+    val pwordRules = PasswordRules(password.value)
     val isPasswordValid = pwordRules.all{it.second}
 
     //screen
@@ -98,14 +99,14 @@ fun CreateAccountScreen(
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth(0.9f),
-                        value = email,
-                        onValueChange = {email = it},
+                        value = email.value,
+                        onValueChange = {email.value = it},
                         label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text("Email address", color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
-                            if(email.isEmpty()){
+                            if(email.value.isEmpty()){
                                 Text("Email can not be empty", style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
                             }
                         }
@@ -116,9 +117,9 @@ fun CreateAccountScreen(
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth(0.9f),
-                        value = password,
-                        onValueChange = {password = it
-                           password.isNotEmpty()
+                        value = password.value,
+                        onValueChange = {password.value = it
+                           password.value.isNotEmpty()
                          },
                         label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },

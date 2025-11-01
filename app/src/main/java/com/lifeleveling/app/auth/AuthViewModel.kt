@@ -27,6 +27,11 @@ import kotlinx.coroutines.launch
 
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 
 // UI State
@@ -138,17 +143,40 @@ class AuthViewModel : ViewModel() {
             logger.e("FB", "signInWithEmailPassword failed due to Invalid Credentials: ", e)
             return false
         }
+        catch (e: FirebaseAuthInvalidUserException) {
+            logger.e("FB", "signInWithEmailPassword failed due to Invalid User", e)
+            return false
+        }
         catch (e: FirebaseAuthException) {
-            logger.e("FB", "signInWithEmailPassword failed due to FirebaseAuthException: ", e)
-            try {
-                auth.createUserWithEmailAndPassword(email, password).await()
-                auth.signInWithEmailAndPassword(email, password).await()
-                return true
-            }
-            catch (e: Exception) {
-                logger.e("FB", "signInWithEmailPassword failed due to unspecified Exception: ", e)
-                return false
-            }
+            logger.e("FB", "signInWithEmailPassword failed due to AuthException", e)
+            return false
+        }
+        catch (e: Exception) {
+            logger.e("FB", "signInWithEmailPassword failed due to unspecified Exception", e)
+            return false
+        }
+    }
+
+    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger) : Boolean {
+        try {
+            auth.createUserWithEmailAndPassword(email, password).await()
+            return true
+        }
+        catch (e: FirebaseAuthInvalidCredentialsException) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+            return false
+        }
+        catch(e: FirebaseAuthInvalidUserException) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
+            return false
+        }
+        catch (e: FirebaseAuthException) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
+            return false
+        }
+        catch (e: Exception) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
+            return false
         }
     }
 

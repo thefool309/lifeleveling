@@ -21,6 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,9 +45,11 @@ fun SignIn(
     onLogin: () -> Unit = {println("Login pressed")},
     onGoogleLogin: () -> Unit = {println("Google Login pressed")},
     onCreateAccount: () -> Unit = {println("Create account pressed")},
+    email: MutableState<String>,
+    password: MutableState<String>,
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    //var email by remember { mutableStateOf("") }
+    //var password by remember { mutableStateOf("") }
     //screen
     Box(
       modifier = Modifier
@@ -86,14 +89,14 @@ fun SignIn(
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth(0.9f),
-                        value = email,
-                        onValueChange = {email = it},
+                        value = email.value,
+                        onValueChange = {email.value = it},
                         label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text("Email address", color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
-                            if (email.isEmpty()) {
+                            if (email.value.isEmpty()) {
                                 Text("Email can not be empty", style = AppTheme.textStyles.Small)
                             }
                         }
@@ -103,15 +106,15 @@ fun SignIn(
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth(0.9f),
-                        value = password,
-                        onValueChange = {password = it},
+                        value = password.value,
+                        onValueChange = {password.value = it},
                         label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                        supportingText = {
-                           if (password.isEmpty()) {
+                           if (password.value.isEmpty()) {
                                Text("Password can not be empty", style = AppTheme.textStyles.Small)
                            }
                        }
@@ -124,7 +127,7 @@ fun SignIn(
                             onClick = onLogin,
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.SecondaryTwo),
-                        enabled = email.isNotEmpty() && password.isNotEmpty()
+                        enabled = email.value.isNotEmpty() && password.value.isNotEmpty()
                         ) {
                         Text("Login", color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                     }
