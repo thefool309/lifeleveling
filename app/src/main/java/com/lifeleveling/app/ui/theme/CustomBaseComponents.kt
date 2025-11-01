@@ -370,7 +370,8 @@ fun CustomButton(
         )
 
     Box(
-        modifier = customModifier
+        modifier = customModifier,
+        contentAlignment = Alignment.Center,
     ) {
         // Top left
         InnerShadow(

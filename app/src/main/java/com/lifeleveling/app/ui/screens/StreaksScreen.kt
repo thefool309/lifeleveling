@@ -389,8 +389,9 @@ fun ShowStreak(
         ) {
             // Display icon and title
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.Center,
             ) {
                 ShadowedIcon(
                     modifier = Modifier.size(20.dp),
@@ -398,6 +399,7 @@ fun ShowStreak(
                     tint = if (streak.reminder.color == null) Color.Unspecified
                     else resolveEnumColor(streak.reminder.color),
                 )
+                Spacer(Modifier.width(8.dp))
                 Text(
                     text = streak.reminder.name,
                     style = AppTheme.textStyles.HeadingFour,
@@ -429,13 +431,14 @@ fun ShowStreak(
             }
             // Buttons for deleting or closing window
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 CustomButton(
+                    width = 120.dp,
                     onClick = { },
                     backgroundColor = AppTheme.colors.Error75,
-//                    width = 120.dp
                 ) {
                     Text(
                         text = stringResource(R.string.delete),
@@ -445,9 +448,9 @@ fun ShowStreak(
                 }
                 Spacer(Modifier.width(16.dp))
                 CustomButton(
+                    width = 120.dp,
                     onClick = { toShow.value = false },
                     backgroundColor = AppTheme.colors.Success75,
-//                    width = 120.dp
                 ) {
                     Text(
                         text = stringResource(R.string.close),
