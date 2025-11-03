@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,6 +18,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -25,7 +29,10 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -36,6 +43,8 @@ import java.util.Locale
 
 /**
  * Shows the information of a streak and option to delete it.
+ * @param toShow A boolean controlling if the window shows or not.
+ * @param passedStreak The streak that is being clicked on.
  */
 @Composable
 fun ShowStreak(
@@ -43,92 +52,179 @@ fun ShowStreak(
     passedStreak: MutableState<Streak>,
 ) {
     val streak = passedStreak.value
+    var delete by remember { mutableStateOf(false) }
+
     CustomDialog(
         toShow = toShow,
         dismissOnInsideClick = false,
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // Display icon and title
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
+        if (!delete) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                ShadowedIcon(
-                    modifier = Modifier.size(20.dp),
-                    imageVector = ImageVector.vectorResource(streak.reminder.icon),
-                    tint = if (streak.reminder.color == null) Color.Unspecified
-                    else resolveEnumColor(streak.reminder.color),
+                // Display icon and title
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    ShadowedIcon(
+                        modifier = Modifier.size(30.dp),
+                        imageVector = ImageVector.vectorResource(streak.reminder.icon),
+                        tint = if (streak.reminder.color == null) Color.Unspecified
+                        else resolveEnumColor(streak.reminder.color),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = streak.reminder.name,
+                        style = AppTheme.textStyles.HeadingFour,
+                        color = AppTheme.colors.SecondaryThree
+                    )
+                }
+                // Progress bar display
+                val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+                ProgressBar(
+                    progress = percentageCompleted,
                 )
-                Spacer(Modifier.width(8.dp))
+                // Extra details
                 Text(
-                    text = streak.reminder.name,
-                    style = AppTheme.textStyles.HeadingFour,
-                    color = AppTheme.colors.SecondaryThree
-                )
-            }
-            // Progress bar display
-            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
-            ProgressBar(
-                progress = percentageCompleted,
-            )
-            // Extra details
-            Text(
-                text = stringResource(R.string.streak_completed, streak.numberCompleted),
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
-            Text(
-                text = stringResource(R.string.streak_to_complete, streak.totalAmount),
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
-            if (streak.reminder.daily) {
-                Text(
-                    text = stringResource(R.string.streak_daily_count, streak.reminder.timesPerDay),
+                    text = stringResource(R.string.streak_completed, streak.numberCompleted),
                     style = AppTheme.textStyles.Default,
                     color = AppTheme.colors.Gray
                 )
-            }
-            // Buttons for deleting or closing window
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CustomButton(
-                    width = 120.dp,
-                    onClick = { },
-                    backgroundColor = AppTheme.colors.Error75,
-                ) {
+                Text(
+                    text = stringResource(R.string.streak_to_complete, streak.totalAmount),
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+                if (streak.reminder.daily) {
                     Text(
-                        text = stringResource(R.string.delete),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
+                        text = stringResource(R.string.streak_daily_count, streak.reminder.timesPerDay),
+                        style = AppTheme.textStyles.Default,
+                        color = AppTheme.colors.Gray
                     )
                 }
-                Spacer(Modifier.width(16.dp))
-                CustomButton(
-                    width = 120.dp,
-                    onClick = { toShow.value = false },
-                    backgroundColor = AppTheme.colors.Success75,
+                // Buttons for deleting or closing window
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        text = stringResource(R.string.close),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = { delete = true },
+                        backgroundColor = AppTheme.colors.Error75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                    Spacer(Modifier.width(20.dp))
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = { toShow.value = false },
+                        backgroundColor = AppTheme.colors.Success75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.close),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                }
+            }
+        } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    textAlign = TextAlign.Center,
+                    text = (
+                        buildAnnotatedString {
+                            withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                                append(stringResource(R.string.streak_delete))
+                            }
+                            withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.SecondaryThree, textDecoration = TextDecoration.Underline)) {
+                                append(streak.reminder.name)
+                            }
+                            withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                                append(stringResource(R.string.streak_delete_two))
+                            }
+                        }
+                    ),
+                    style = AppTheme.textStyles.HeadingSix,
+                    color = AppTheme.colors.Gray
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = { delete = false },
+                        backgroundColor = AppTheme.colors.Success75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                    Spacer(Modifier.width(20.dp))
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = {
+                            if (streak.reminder.daily) {
+                                TestUser.removeFromWeeklyStreak(streak.reminder)
+                            } else {
+                                TestUser.removeFromMonthlyStreak(streak.reminder)
+                            }
+                            toShow.value = false
+                        },
+                        backgroundColor = AppTheme.colors.Error75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+fun ConfirmStreakDelete(
+    modifier: Modifier,
+    toShow: MutableState<Boolean>,
+    streak: MutableState<Streak>
+) {
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = false,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.delete),
+            )
+        }
+    }
+}
+
 /**
- * Displays the players badges
- * @param columns Number of columns in the grid
+ * Displays the players badges.
+ * @param columns Number of columns in the grid.
+ * @param toShow A boolean for showing a window with badge information inside it.
+ * @param showBadge A variable to store a badge into when it is clicked, will be used for displaying the information.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -167,6 +263,11 @@ fun AllBadgesDisplay(
     }
 }
 
+/**
+ * Shows the information of a single badge
+ * @param toShow A boolean to determine if the window shows
+ * @param badge The badge item to be displayed
+ */
 @Composable
 fun SingleBadgeDisplay(
     modifier: Modifier = Modifier,

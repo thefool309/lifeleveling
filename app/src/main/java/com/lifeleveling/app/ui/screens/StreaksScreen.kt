@@ -233,7 +233,11 @@ fun StreaksScreen() {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .wrapContentHeight(),
+                                .wrapContentHeight()
+                                .clickable {
+                                    streakToShow.value = streak
+                                    showStreakInfo.value = true
+                                },
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Row(

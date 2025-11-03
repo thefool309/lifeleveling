@@ -1,6 +1,6 @@
 <resources>
     <!-- &#160; is for spaces to not be skipped -->
-    <!-- %1$d is to pass in parameters, change the number for more -->
+    <!-- %1$d is to pass in parameters, change the number for more, use d for ints, f for floats/doubles, s for strings -->
 
     <string name="app_name">lifeleveling</string>
 
@@ -58,6 +58,8 @@
     <string name="streak_completed">Reminders completed so far:&#160;&#160;%1$d</string>
     <string name="streak_to_complete">Total available to complete:&#160;&#160;%1$d</string>
     <string name="streak_daily_count">Times reminder happens in a day:&#160;&#160;%1$d</string>
+    <string name="streak_delete">Are you sure you want to delete your streak for the reminder&#160;</string>
+    <string name="streak_delete_two">\? You will not receive any rewards for your current progress.</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>
