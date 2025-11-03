@@ -200,26 +200,6 @@ fun ShowStreak(
     }
 }
 
-@Composable
-fun ConfirmStreakDelete(
-    modifier: Modifier,
-    toShow: MutableState<Boolean>,
-    streak: MutableState<Streak>
-) {
-    CustomDialog(
-        toShow = toShow,
-        dismissOnInsideClick = false,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.delete),
-            )
-        }
-    }
-}
-
 /**
  * Displays the players badges.
  * @param columns Number of columns in the grid.
@@ -229,8 +209,8 @@ fun ConfirmStreakDelete(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AllBadgesDisplay(
-    columns: Int = 5,
     modifier: Modifier = Modifier,
+    columns: Int = 5,
     toShow: MutableState<Boolean>,
     showBadge: MutableState<Badge>
 ) {
