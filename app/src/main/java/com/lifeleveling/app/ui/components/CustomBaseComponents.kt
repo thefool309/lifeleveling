@@ -1,4 +1,4 @@
-package com.lifeleveling.app.ui.theme
+package com.lifeleveling.app.ui.components
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.InnerShadow
 
 /*
 Components declared in this file

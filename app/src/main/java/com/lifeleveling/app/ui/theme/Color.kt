@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.theme
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 // Dark Mode Colors
@@ -39,3 +40,44 @@ val Success75_Light = Color(0xbf1a4916)
 val Error_Light = Color(0xff921e19)
 val Error75_Light = Color(0xbf921e19)
 val Warning_Light = Color(0xff444118)
+
+enum class enumColor {
+    BrandOne,
+    BrandTwo,
+    SecondaryOne,
+    SecondaryTwo,
+    SecondaryThree,
+    Background,
+    DarkerBackground,
+    PopUpBackground,
+    DropShadow,
+    LightShadow,
+    Gray,
+    FadedGray,
+    Success,
+    Success75,
+    Error,
+    Error75,
+    Warning,
+}
+
+@Composable
+fun resolveEnumColor(color: enumColor): Color = when (color) {
+    enumColor.BrandOne -> AppTheme.colors.BrandOne
+    enumColor.BrandTwo -> AppTheme.colors.BrandTwo
+    enumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
+    enumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
+    enumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
+    enumColor.Background -> AppTheme.colors.Background
+    enumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
+    enumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
+    enumColor.DropShadow -> AppTheme.colors.DropShadow
+    enumColor.LightShadow -> AppTheme.colors.LightShadow
+    enumColor.Gray -> AppTheme.colors.Gray
+    enumColor.FadedGray -> AppTheme.colors.FadedGray
+    enumColor.Success -> AppTheme.colors.Success
+    enumColor.Success75 -> AppTheme.colors.Success75
+    enumColor.Error -> AppTheme.colors.Error
+    enumColor.Error75 -> AppTheme.colors.Error75
+    enumColor.Warning -> AppTheme.colors.Warning
+}

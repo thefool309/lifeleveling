@@ -1,4 +1,4 @@
-package com.lifeleveling.app.ui.theme
+package com.lifeleveling.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlin.collections.forEach
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.theme.AppTheme
 
 
 /**

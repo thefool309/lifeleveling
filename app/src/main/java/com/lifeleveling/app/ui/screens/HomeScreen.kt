@@ -28,15 +28,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.theme.CircleButton
-import com.lifeleveling.app.ui.theme.EquipmentDisplay
-import com.lifeleveling.app.ui.theme.HealthToolTip
-import com.lifeleveling.app.ui.theme.HighlightCard
-import com.lifeleveling.app.ui.theme.LevelAndProgress
-import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
-import com.lifeleveling.app.ui.theme.ProgressBar
-import com.lifeleveling.app.ui.theme.ShadowedIcon
-import com.lifeleveling.app.ui.theme.SlidingSwitch
+import com.lifeleveling.app.ui.components.TestUser
+import com.lifeleveling.app.ui.components.CircleButton
+import com.lifeleveling.app.ui.components.EquipmentDisplay
+import com.lifeleveling.app.ui.components.HealthToolTip
+import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.LevelAndProgress
+import com.lifeleveling.app.ui.components.LifeExperienceToolTip
+import com.lifeleveling.app.ui.components.ProgressBar
+import com.lifeleveling.app.ui.components.ShadowedIcon
+import com.lifeleveling.app.ui.components.SlidingSwitch
 
 @Preview
 @Composable

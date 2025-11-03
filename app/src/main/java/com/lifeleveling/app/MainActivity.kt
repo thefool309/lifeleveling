@@ -2,7 +2,6 @@ package com.lifeleveling.app
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -26,14 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,9 +45,6 @@ import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
-import com.lifeleveling.app.navigation.TempSettingsScreen
-import com.lifeleveling.app.navigation.TempStatsScreen
-import com.lifeleveling.app.navigation.TempStreaksScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
@@ -59,15 +53,11 @@ import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
-import com.lifeleveling.app.ui.screens.TestUser
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 
 
 // Temp Check to ensure firebase connection
-import com.google.firebase.Timestamp
-
-import com.google.firebase.firestore.ktx.firestore
 
 import com.lifeleveling.app.ui.screens.StreaksScreen
 

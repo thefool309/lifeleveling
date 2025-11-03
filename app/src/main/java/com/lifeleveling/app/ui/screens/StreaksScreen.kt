@@ -8,7 +8,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,18 +21,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.AllBadgesDisplay
-import com.lifeleveling.app.ui.theme.BadgesToolTip
-import com.lifeleveling.app.ui.theme.CustomButton
-import com.lifeleveling.app.ui.theme.CustomDialog
-import com.lifeleveling.app.ui.theme.HighlightCard
-import com.lifeleveling.app.ui.theme.LevelAndProgress
-import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
-import com.lifeleveling.app.ui.theme.ProgressBar
-import com.lifeleveling.app.ui.theme.ShadowedIcon
-import com.lifeleveling.app.ui.theme.SingleBadgeDisplay
-import com.lifeleveling.app.ui.theme.StreaksToolTip
+import com.lifeleveling.app.ui.components.AllBadgesDisplay
+import com.lifeleveling.app.ui.components.BadgesToolTip
+import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.LevelAndProgress
+import com.lifeleveling.app.ui.components.LifeExperienceToolTip
+import com.lifeleveling.app.ui.components.ProgressBar
+import com.lifeleveling.app.ui.components.ShadowedIcon
+import com.lifeleveling.app.ui.components.ShowStreak
+import com.lifeleveling.app.ui.components.SingleBadgeDisplay
+import com.lifeleveling.app.ui.components.StreaksToolTip
+import com.lifeleveling.app.ui.theme.resolveEnumColor
 
 @Preview
 @Composable
@@ -371,94 +371,5 @@ fun StreaksScreen() {
             toShow = showStreakInfo,
             passedStreak = streakToShow
         )
-    }
-}
-
-@Composable
-fun ShowStreak(
-    toShow: MutableState<Boolean>,
-    passedStreak: MutableState<Streak>,
-) {
-    val streak = passedStreak.value
-    CustomDialog(
-        toShow = toShow,
-        dismissOnInsideClick = false,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // Display icon and title
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                ShadowedIcon(
-                    modifier = Modifier.size(20.dp),
-                    imageVector = ImageVector.vectorResource(streak.reminder.icon),
-                    tint = if (streak.reminder.color == null) Color.Unspecified
-                    else resolveEnumColor(streak.reminder.color),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = streak.reminder.name,
-                    style = AppTheme.textStyles.HeadingFour,
-                    color = AppTheme.colors.SecondaryThree
-                )
-            }
-            // Progress bar display
-            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
-            ProgressBar(
-                progress = percentageCompleted,
-            )
-            // Extra details
-            Text(
-                text = stringResource(R.string.streak_completed, streak.numberCompleted),
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
-            Text(
-                text = stringResource(R.string.streak_to_complete, streak.totalAmount),
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
-            if (streak.reminder.daily) {
-                Text(
-                    text = stringResource(R.string.streak_daily_count, streak.reminder.timesPerDay),
-                    style = AppTheme.textStyles.Default,
-                    color = AppTheme.colors.Gray
-                )
-            }
-            // Buttons for deleting or closing window
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CustomButton(
-                    width = 120.dp,
-                    onClick = { },
-                    backgroundColor = AppTheme.colors.Error75,
-                ) {
-                    Text(
-                        text = stringResource(R.string.delete),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
-                }
-                Spacer(Modifier.width(16.dp))
-                CustomButton(
-                    width = 120.dp,
-                    onClick = { toShow.value = false },
-                    backgroundColor = AppTheme.colors.Success75,
-                ) {
-                    Text(
-                        text = stringResource(R.string.close),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
-                }
-            }
-        }
     }
 }

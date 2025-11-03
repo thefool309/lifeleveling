@@ -1,13 +1,11 @@
-package com.lifeleveling.app.ui.screens
+package com.lifeleveling.app.ui.components
 
 import android.icu.util.Calendar
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.enumColor
 
 /*
 * This is just a singleton test user for us to hardcode values into for UI testing
@@ -352,47 +350,6 @@ data class Streak (
     val totalAmount: Int,
     var numberCompleted: Int = 0
 )
-
-enum class enumColor {
-    BrandOne,
-    BrandTwo,
-    SecondaryOne,
-    SecondaryTwo,
-    SecondaryThree,
-    Background,
-    DarkerBackground,
-    PopUpBackground,
-    DropShadow,
-    LightShadow,
-    Gray,
-    FadedGray,
-    Success,
-    Success75,
-    Error,
-    Error75,
-    Warning,
-}
-
-@Composable
-fun resolveEnumColor(color: enumColor): Color = when (color) {
-    enumColor.BrandOne -> AppTheme.colors.BrandOne
-    enumColor.BrandTwo -> AppTheme.colors.BrandTwo
-    enumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
-    enumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
-    enumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
-    enumColor.Background -> AppTheme.colors.Background
-    enumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
-    enumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
-    enumColor.DropShadow -> AppTheme.colors.DropShadow
-    enumColor.LightShadow -> AppTheme.colors.LightShadow
-    enumColor.Gray -> AppTheme.colors.Gray
-    enumColor.FadedGray -> AppTheme.colors.FadedGray
-    enumColor.Success -> AppTheme.colors.Success
-    enumColor.Success75 -> AppTheme.colors.Success75
-    enumColor.Error -> AppTheme.colors.Error
-    enumColor.Error75 -> AppTheme.colors.Error75
-    enumColor.Warning -> AppTheme.colors.Warning
-}
 
 data class Badge (
     val id: Int,
