@@ -37,8 +37,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         // It is important to do this before any Firebase use
         if (BuildConfig.DEBUG) {
             Firebase.firestore.useEmulator("10.0.2.2", 8080)
-            FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099)
+            Firebase.auth.useEmulator("10.0.2.2", 9099)
         }
 
 
