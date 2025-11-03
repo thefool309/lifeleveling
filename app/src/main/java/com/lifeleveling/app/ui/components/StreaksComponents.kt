@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -136,6 +137,7 @@ fun ShowStreak(
                 }
             }
         } else {
+            // Screen for confirming delete
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -196,6 +198,40 @@ fun ShowStreak(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AddWeekStreak(
+    modifier: Modifier,
+    toShow: MutableState<Boolean>
+) {
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = false,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            // Title
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.add_week_streak),
+                    style = AppTheme.textStyles.HeadingFour,
+                    color = AppTheme.colors.SecondaryThree
+                )
+                // Separator
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.separator_line),
+                    tint = AppTheme.colors.SecondaryTwo,
+                    contentDescription = null,
+                )
+            }
+
         }
     }
 }

@@ -60,6 +60,18 @@
     <string name="streak_daily_count">Times reminder happens in a day:&#160;&#160;%1$d</string>
     <string name="streak_delete">Are you sure you want to delete your streak for the reminder&#160;</string>
     <string name="streak_delete_two">\? You will not receive any rewards for your current progress.</string>
+    <string name="add_week_streak">Add a Week Streak</string>
+    <string name="add_month_streak">Add a Month Streak</string>
+    <string name="choose_daily">Select a daily:</string>
+    <string name="need_a_new_daily">Need to make a new daily?</string>
+
+    <!-- Repeat optios -->
+    <string name="repeat_options">Repeat options:</string>
+    <string name="indefinitely">Indefinitely</string>
+    <string name="do_not_repeat">Do not repeat</string>
+    <string name="weeks">Weeks</string>
+    <string name="months">Months</string>
+    <string name="years">Years</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>
