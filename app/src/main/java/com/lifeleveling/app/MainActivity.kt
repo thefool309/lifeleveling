@@ -223,7 +223,7 @@ fun NavHostContainer(
                 TempCalendarScreen()
             }
             composable("stats") {
-                StatsScreen()
+                //StatsScreen()
                 StatsScreenRoute()
 //                StatsScreen( TestUser.level,
 //                TestUser.currentExp,

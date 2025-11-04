@@ -469,81 +469,76 @@ class FirestoreRepository {
     }
 
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
-        // get the document snapshot
-        var result: Users?
-        if (uID == null) {
-            logger.e("Auth", "User ID null when trying to retrieve user please ensure you're signed in.")
+        if (uID.isNullOrBlank()) {
+            logger.e("Auth", "User ID null/blank; sign in first.")
             return null
         }
-        if (uID.isEmpty() || uID.isBlank()) {
-            logger.e("Auth", "User ID is empty or blank")
-            return null
-        }
-        var docRef: DocumentReference?
-        try {
-            docRef = db.collection("users").document(uID)
-        }
-        catch(e: Exception) {
-            logger.e("Auth", "Error Getting User: ", e)
-            return null
-        }
-        val docSnapshot = docRef.get().await()
-        // extract the data from the snapshot
-        var data: Map<String, *>?
 
-        try {
-            data = docSnapshot.data
-            val userId = data!!["userId"] as String
-            val displayName = data["displayName"] as String
-            val email = data["email"] as String
-            val photoUrl = data["photoUrl"] as String
-            val coinsBalance = data["coinsBalance"] as Long
-            val stats = data["stats"] as Stats // Changes to stats object made this type checking safer
-            val streaks = data["streaks"] as Long
-            val onboardingComplete = data["onboardingComplete"] as Boolean
-            val createdAt = data["createdAt"] as Timestamp
-            val lastUpdate = data["lastUpdate"] as Timestamp
-            val lifePoints = data["lifePoints"] as Long
-            val level = data["level"] as Long
-            //val currXp = data["currXp"] as Double
-            val currentXp: Double = run {
-                val raw = data["currentXp"] ?: data["currentXp"] ?: 0.0
-                when (raw) {
-                    is Number -> raw.toDouble()
-                    is String -> raw.toDoubleOrNull() ?: 0.0
-                    else      -> 0.0
-                }
+        val docRef = try {
+            db.collection("users").document(uID)
+        } catch (e: Exception) {
+            logger.e("Auth", "Error getting user docRef", e)
+            return null
+        }
+
+        val snap = docRef.get().await()
+        if (!snap.exists()) {
+            logger.e("Firestore", "users/$uID does not exist.")
+            return null
+        }
+
+        val data = snap.data ?: run {
+            logger.e("Firestore", "users/$uID has no data.")
+            return null
+        }
+
+        fun num(key: String): Long =
+            (data[key] as? Number)?.toLong() ?: 0L
+        fun dbl(key: String): Double =
+            when (val raw = data[key]) {
+                is Number -> raw.toDouble()
+                is String -> raw.toDoubleOrNull() ?: 0.0
+                else -> 0.0
             }
-            val currHealth = data["currHealth"] as Long
-            val badgesLocked = data["badgesLocked"] as List<Badge>
-            val badgesUnlocked = data["badgesUnlocked"] as List<Badge>
-            result = Users(
-                userId,
-                displayName,
-                email,
-                photoUrl,
-                coinsBalance,
-                stats,
-                streaks,
-                onboardingComplete,
-                createdAt,
-                lastUpdate,
-                level,
-                lifePoints,
-                currentXp,
-                currHealth,
-                badgesLocked,
-                badgesUnlocked
-            )
-            // return the data as a Users object.
-        }
-        catch (e: Exception) {
-            logger.e("Firestore", "Error Getting User Data: ", e)
-            return null
-        }
+        fun ts(key: String): com.google.firebase.Timestamp? =
+            data[key] as? com.google.firebase.Timestamp
 
-        return result
+        // stats are stored as a nested map
+        val statsMap = data["stats"] as? Map<*, *> ?: emptyMap<String, Any>()
+        val stats = Stats(
+            agility       = (statsMap["agility"] as? Number)?.toLong() ?: 0L,
+            defense       = (statsMap["defense"] as? Number)?.toLong() ?: 0L,
+            intelligence  = (statsMap["intelligence"] as? Number)?.toLong() ?: 0L,
+            strength      = (statsMap["strength"] as? Number)?.toLong() ?: 0L,
+            health        = (statsMap["health"] as? Number)?.toLong() ?: 0L,
+        )
+
+        val user = Users(
+            userId             = data["userId"] as? String ?: uID,
+            displayName        = data["displayName"] as? String ?: "",
+            email              = data["email"] as? String ?: "",
+            photoUrl           = data["photoUrl"] as? String ?: "",
+            coinsBalance       = num("coinsBalance"),
+            stats              = stats,
+            streaks            = num("streaks"),
+            onboardingComplete = data["onboardingComplete"] as? Boolean ?: false,
+            createdAt          = ts("createdAt"),
+            lastUpdate         = ts("lastUpdate"),
+            level              = (data["level"] as? Number)?.toLong() ?: 1L,
+            lifePoints         = num("lifePoints"),
+            // support either "currentXp" (new) or "currXp" (legacy)
+            currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
+            currHealth         = num("currHealth"),
+            badgesLocked       = emptyList(),   // map arrays if/when needed
+            badgesUnlocked     = emptyList(),
+        )
+
+        // derive fields
+        user.calculateXpToNextLevel()
+        user.calculateMaxHealth()
+        return user
     }
+
 
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
 
