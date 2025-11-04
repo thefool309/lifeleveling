@@ -242,3 +242,27 @@ fun BadgesToolTip(toShow: MutableState<Boolean>) {
         tips = badgesTips
     )
 }
+
+@Composable
+fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val levelTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.journey_tips_one))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.journey_tips_two))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.journey_stats_title,
+        tips = levelTips
+    )
+}

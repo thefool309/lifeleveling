@@ -60,6 +60,7 @@ import com.lifeleveling.app.ui.theme.StartLogic
 // Temp Check to ensure firebase connection
 
 import com.lifeleveling.app.ui.screens.StreaksScreen
+import com.lifeleveling.app.ui.screens.UserJourneyScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -222,22 +223,12 @@ fun NavHostContainer(
             }
             composable("stats") {
                 StatsScreen()
-//                StatsScreen( TestUser.level,
-//                TestUser.currentExp,
-//                TestUser.expToLevel,
-//                TestUser.LifePointsUsed,
-//                TestUser.UnusedLifePoints,
-//                TestUser.StatStrength,
-//                 TestUser.StatDefense,
-//                TestUser.StatIntelligence,
-//                TestUser.StatAgility,
-//                TestUser.StatHealth)
             }
             composable("home") {
                 HomeScreen()
             }
             composable("streaks") {
-                StreaksScreen()
+                StreaksScreen(navController = navController)
             }
             composable("settings") {
                 SettingScreen(
@@ -256,6 +247,9 @@ fun NavHostContainer(
             }
             composable ("termsAndPrivacy") {
                 TermsAndPrivacyScreen(navController = navController)
+            }
+            composable ("journey_stats") {
+                UserJourneyScreen(navController = navController)
             }
         }
     )

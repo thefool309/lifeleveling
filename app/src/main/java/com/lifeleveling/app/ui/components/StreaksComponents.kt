@@ -231,11 +231,7 @@ fun AddStreak(
                     color = AppTheme.colors.SecondaryOne
                 )
                 // Separator
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.separator_line),
-                    tint = AppTheme.colors.SecondaryTwo,
-                    contentDescription = null,
-                )
+                SeparatorLine(color = AppTheme.colors.SecondaryTwo)
             }
 
             // Choosing a reminder

@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.AddStreak
 import com.lifeleveling.app.ui.components.TestUser
@@ -30,6 +30,7 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
 import com.lifeleveling.app.ui.components.ProgressBar
+import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowStreak
 import com.lifeleveling.app.ui.components.SingleBadgeDisplay
@@ -38,7 +39,9 @@ import com.lifeleveling.app.ui.theme.resolveEnumColor
 
 @Preview
 @Composable
-fun StreaksScreen() {
+fun StreaksScreen(
+    navController: NavController? = null,
+) {
     // Pop up tips
     val showLevelTip = remember { mutableStateOf(false) }
     val showStreaksTip = remember { mutableStateOf(false) }
@@ -50,13 +53,14 @@ fun StreaksScreen() {
     val addWeekStreak = remember { mutableStateOf(false) }
     val addMonthStreak = remember { mutableStateOf(false) }
 
-    // Background with scrolling if needed
+    // Background
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = AppTheme.colors.Background)
             .padding(16.dp)
     ) {
+        // Inside with scrolling if needed
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -119,11 +123,7 @@ fun StreaksScreen() {
                         ),
                     )
                     // Separator
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
-                        tint = AppTheme.colors.SecondaryTwo,
-                        contentDescription = null,
-                    )
+                    SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
                     // Display of streaks
                     TestUser.weeklyStreaks.forEach { streak ->
@@ -225,11 +225,7 @@ fun StreaksScreen() {
                         ),
                     )
                     // Separator
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
-                        tint = AppTheme.colors.SecondaryTwo,
-                        contentDescription = null,
-                    )
+                    SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
                     // Display of streaks
                     TestUser.monthlyStreaks.forEach { streak ->
@@ -337,6 +333,16 @@ fun StreaksScreen() {
                         .clickable {
                             showBadgesTip.value = !showBadgesTip.value
                         }
+                )
+                Spacer(Modifier.weight(1f))
+                // Navigation to stats screen
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable { navController?.navigate("journey_stats") },
+                    text = stringResource(R.string.my_journey_stats),
+                    color = AppTheme.colors.SecondaryThree,
+                    style = AppTheme.textStyles.DefaultUnderlined,
                 )
             }
 

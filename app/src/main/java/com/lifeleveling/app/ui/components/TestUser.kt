@@ -29,6 +29,37 @@ object TestUser {
     var LifePointsUsed by mutableStateOf(6)
     var UnusedLifePoints by mutableStateOf(12)
 
+    // Data for badges
+    var totalStreaksCompleted by mutableStateOf(2)
+    var weekStreaksCompleted by mutableStateOf(2)
+    var monthStreaksCompleted by mutableStateOf(0)
+    var badgesEarned by mutableStateOf(3)
+    var allExpEver by mutableStateOf(550)
+    var allCoinsEarned by mutableStateOf(805)
+    var coinsSpent by mutableStateOf(504)
+    val profileCreatedDate = Calendar.getInstance().apply {
+        set(2025, Calendar.OCTOBER, 18,12, 0,0)
+        set(Calendar.MILLISECOND,0)
+    }.timeInMillis
+
+    // Getting user's time since creation
+    fun getTimeSinceUserCreated(): String{
+        val now = Calendar.getInstance()
+        val timeDiff = now.timeInMillis - profileCreatedDate
+
+        val days = timeDiff / (1000 * 60 * 60 * 24)
+        val years = days / 365
+        val remainingDays = days % 365
+
+        val yearsSection = if (years > 0) {
+            "$years year" + if(years > 1) "s" else " "
+        } else {
+            ""
+        }
+        val daysSection = "$remainingDays day" + if(remainingDays > 1) "s" else ""
+        return yearsSection + daysSection
+    }
+
     // ================= Reminder  handling =================================
     // All reminders
     private val reminders = mutableListOf (

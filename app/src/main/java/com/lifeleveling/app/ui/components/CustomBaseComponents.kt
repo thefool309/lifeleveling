@@ -59,6 +59,7 @@ CustomCheckbox  -  Precolored and laid out checkbox item
 CustomDialog  -  CustomDialog call with saved preferences. Can be adjusted to hold text or buttons
 DropDownTextMenu  -  Menu for string lists
 DropDownReminderMenu  -  Dropdown designed to show the icon and text of reminder lists
+SeparatorLine  -  Easy call of the custom separator
  */
 
 // This screen shows the different effects that are within this file
@@ -574,6 +575,7 @@ fun CircleButton(
     iconTint: Color = AppTheme.colors.DarkerBackground,  // Icon color
     shadowColor: Color = AppTheme.colors.DropShadow,  // Drop shadow color
     elevation: Dp = 8.dp,  // Button drop shadow adjustment
+    iconSizeModifier: Float = .75f
 ) {
     Box(
         modifier = modifier
@@ -631,7 +633,7 @@ fun CircleButton(
             contentDescription = contentDescription,
             tint = iconTint,
             shadowColor = shadowColor,
-            modifier = Modifier.size(size * .75f)
+            modifier = Modifier.size(size * iconSizeModifier)
         )
     }
 }
@@ -1194,4 +1196,18 @@ fun DropDownReminderMenu(
             }
         }
     }
+}
+
+@Composable
+fun SeparatorLine(
+    modifier: Modifier = Modifier,
+    color: Color = AppTheme.colors.FadedGray
+) {
+    // Separator
+    Icon(
+        modifier = modifier,
+        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
+        tint = color,
+        contentDescription = null,
+    )
 }

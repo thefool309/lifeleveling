@@ -65,6 +65,7 @@
     <string name="add_month_streak">Add a Month Streak</string>
     <string name="choose_reminder">Select a reminder:</string>
     <string name="need_a_new_daily">Need to make a new daily?</string>
+    <string name="my_journey_stats">My Journey Stats</string>
 
     <!-- Repeat optios -->
     <string name="repeat_options">Repeat options:</string>
@@ -81,4 +82,21 @@
     <string name="badges_tip_three">Badges that are colored and brighter have a picture are the ones you have earned. If they are greyed out with a question mark, they are for you to reach for.</string>
     <string name="badges_tip_four">Clicking on a badge will tell you what it is for.</string>
     <string name="badge_completed_on">Completed On:</string>
+
+    <!-- User Journey Stats -->
+    <string name="journey_stats">My Journey</string>
+    <string name="badges_earned">Badges earned:</string>
+    <string name="all_streaks_completed">Total streaks completed:</string>
+    <string name="weekly_streaks_completed">Weekly streaks completed:</string>
+    <string name="monthly_streaks_completed">Monthly streaks completed:</string>
+    <string name="journey_started_on">Journey started on:</string>
+    <string name="total_exp">Total experience earned:</string>
+    <string name="total_coins">Total coines earned:</string>
+    <string name="coins_spent">Coins spent:</string>
+    <string name="journey_stats_title">Your Journey Stats</string>
+    <string name="journey_tips_one">These are the stats of your personal journey.</string>
+    <string name="journey_tips_two">The values have been collected since day one of starting your journey to show your overall progress.</string>
+    <string name="total_earnings">Total Earnings</string>
+    <string name="person_stats">User Information</string>
+    <string name="account_age">Account Age:</string>
 </resources>
