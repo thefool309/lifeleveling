@@ -205,7 +205,6 @@ fun ShowStreak(
 
 @Composable
 fun AddStreak(
-    modifier: Modifier = Modifier,
     toShow: MutableState<Boolean>,
     daily: Boolean = true
 ) {

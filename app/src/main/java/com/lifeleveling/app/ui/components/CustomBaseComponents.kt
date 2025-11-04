@@ -1,6 +1,5 @@
 package com.lifeleveling.app.ui.components
 
-import android.media.Image
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,7 +43,6 @@ import androidx.compose.ui.window.PopupProperties
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.InnerShadow
-import com.lifeleveling.app.ui.theme.enumColor
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 
 /*
