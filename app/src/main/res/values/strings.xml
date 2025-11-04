@@ -9,6 +9,7 @@
     <string name="confirm">Confirm</string>
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
 
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
@@ -62,7 +63,7 @@
     <string name="streak_delete_two">\? You will not receive any rewards for your current progress.</string>
     <string name="add_week_streak">Add a Week Streak</string>
     <string name="add_month_streak">Add a Month Streak</string>
-    <string name="choose_daily">Select a daily:</string>
+    <string name="choose_reminder">Select a reminder:</string>
     <string name="need_a_new_daily">Need to make a new daily?</string>
 
     <!-- Repeat optios -->

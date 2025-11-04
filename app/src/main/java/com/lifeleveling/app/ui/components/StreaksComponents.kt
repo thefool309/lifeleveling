@@ -34,6 +34,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -203,13 +204,19 @@ fun ShowStreak(
 }
 
 @Composable
-fun AddWeekStreak(
-    modifier: Modifier,
-    toShow: MutableState<Boolean>
+fun AddStreak(
+    modifier: Modifier = Modifier,
+    toShow: MutableState<Boolean>,
+    daily: Boolean = true
 ) {
+    var selectedReminderIndex by remember { mutableStateOf(0) }
+    val reminders = (if(daily) TestUser.weeklyReminders else TestUser.monthlyReminders)
+    var selectedRepeatIndex by remember { mutableStateOf(0) }
+
     CustomDialog(
         toShow = toShow,
         dismissOnInsideClick = false,
+        dismissOnOutsideClick = false,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -220,9 +227,9 @@ fun AddWeekStreak(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(R.string.add_week_streak),
+                    text = stringResource(if (daily) R.string.add_week_streak else R.string.add_month_streak),
                     style = AppTheme.textStyles.HeadingFour,
-                    color = AppTheme.colors.SecondaryThree
+                    color = AppTheme.colors.SecondaryOne
                 )
                 // Separator
                 Icon(
@@ -232,6 +239,89 @@ fun AddWeekStreak(
                 )
             }
 
+            // Choosing a reminder
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                Text(
+                    text = stringResource(R.string.choose_reminder),
+                    style = AppTheme.textStyles.HeadingFive,
+                    color = AppTheme.colors.SecondaryThree
+                )
+                DropDownReminderMenu(
+                    options = reminders,
+                    selectedIndex = selectedReminderIndex,
+                    onOptionSelected = { selectedReminderIndex = it },
+                    menuWidth = 300.dp,
+                    textStyle = AppTheme.textStyles.HeadingSix,
+                    iconSize = 25.dp,
+                    arrowSize = 25.dp,
+                    menuOffset = IntOffset(50, 0)
+                )
+                Text(
+                    text = stringResource(R.string.need_a_new_daily),
+                    style = AppTheme.textStyles.DefaultUnderlined,
+                    color = AppTheme.colors.Gray
+                )
+            }
+
+            // Repeat options
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                // Repeat
+                Text(
+                    text = stringResource(R.string.repeat_options),
+                    style = AppTheme.textStyles.HeadingFive,
+                    color = AppTheme.colors.SecondaryThree
+                )
+                DropDownTextMenu(
+                    options = listOf(
+                        stringResource(R.string.weeks),
+                        stringResource(R.string.months),
+                        stringResource(R.string.years),
+                    ),
+                    selectedIndex = selectedRepeatIndex,
+                    onOptionSelected = { selectedRepeatIndex = it },
+                    textStyle = AppTheme.textStyles.HeadingSix,
+                    arrowSize = 25.dp,
+                )
+            }
+
+            // Button controls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                CustomButton(
+                    width = 120.dp,
+                    onClick = { toShow.value = false },
+                    backgroundColor = AppTheme.colors.Error75,
+                ) {
+                    Text(
+                        text = stringResource(R.string.cancel),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+                Spacer(Modifier.width(20.dp))
+                CustomButton(
+                    width = 120.dp,
+                    onClick = {
+                        if(daily) TestUser.addToWeeklyStreak(reminders[selectedReminderIndex])
+                        else TestUser.addToMonthlyStreak(reminders[selectedReminderIndex])
+                        toShow.value = false
+                    },
+                    backgroundColor = AppTheme.colors.Success75,
+                ) {
+                    Text(
+                        text = stringResource(R.string.create),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+            }
         }
     }
 }

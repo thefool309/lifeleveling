@@ -1,11 +1,14 @@
 package com.lifeleveling.app.ui.components
 
+import android.media.Image
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -31,12 +35,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.InnerShadow
+import com.lifeleveling.app.ui.theme.enumColor
+import com.lifeleveling.app.ui.theme.resolveEnumColor
 
 /*
 Components declared in this file
@@ -50,6 +59,8 @@ SlidingSwitch  -  The two option switch toggle
 Text Sample  -  Inside TestScreen is a sample of shadowed text to use
 CustomCheckbox  -  Precolored and laid out checkbox item
 CustomDialog  -  CustomDialog call with saved preferences. Can be adjusted to hold text or buttons
+DropDownTextMenu  -  Menu for string lists
+DropDownReminderMenu  -  Dropdown designed to show the icon and text of reminder lists
  */
 
 // This screen shows the different effects that are within this file
@@ -199,30 +210,42 @@ fun TestScreen() {
                         size = 64.dp,
                     )
                 }
-                //Showing popup example
-                PopupCard {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            "Example Popup",
-                            color = AppTheme.colors.SecondaryThree,
-                            style = AppTheme.textStyles.HeadingFour.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(3f, 4f),
-                                    blurRadius = 6f,
-                                )
-                            )
-                        )
-                        Text(
-                            "Testing popup capabilities and text wrapping. Click me to close.",
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.Default
-                        )
-                    }
-                }
+
+                // dropdown example
+                val options = listOf(
+                    "One", "Two", "Three", "Four", "Five", "Six", "Seven",
+                )
+                var selectedIndex by remember { mutableStateOf(0) }
+                DropDownTextMenu(
+                    options = options,
+                    selectedIndex = selectedIndex,
+                    onOptionSelected = { selectedIndex = it },
+                )
+
+//                //Showing popup example
+//                PopupCard {
+//                    Column(
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                        verticalArrangement = Arrangement.spacedBy(8.dp)
+//                    ) {
+//                        Text(
+//                            "Example Popup",
+//                            color = AppTheme.colors.SecondaryThree,
+//                            style = AppTheme.textStyles.HeadingFour.copy(
+//                                shadow = Shadow(
+//                                    color = AppTheme.colors.DropShadow,
+//                                    offset = Offset(3f, 4f),
+//                                    blurRadius = 6f,
+//                                )
+//                            )
+//                        )
+//                        Text(
+//                            "Testing popup capabilities and text wrapping. Click me to close.",
+//                            color = AppTheme.colors.Gray,
+//                            style = AppTheme.textStyles.Default
+//                        )
+//                    }
+//                }
             }
             //working popup logic
             if (showPopup) {
@@ -906,12 +929,14 @@ fun CustomCheckbox(
  * CustomDialog will pop up a window in the middle of the screen that will dismiss when clicking outside of it
  * @param toShow The boolean for if the window shows or not.
  * @param dismissOnInsideClick If the contents is NOT interactive, leave this as true for the window to disappear if clicked on. False will allow buttons to be on the inside.
+ * @param dismissOnOutsideClick Controls if the window will close if you click outside the box
  */
 @Composable
 fun CustomDialog(
     toShow: MutableState<Boolean>,
     modifier: Modifier = Modifier,
     dismissOnInsideClick: Boolean = true,
+    dismissOnOutsideClick: Boolean = true,
     content: @Composable () -> Unit
 ) {
     Dialog(
@@ -923,7 +948,7 @@ fun CustomDialog(
             modifier = modifier
                 .fillMaxSize()
                 .background(AppTheme.colors.DarkerBackground.copy(alpha = 0.1f))
-                .clickable { toShow.value = false }
+                .clickable(enabled = dismissOnOutsideClick) { toShow.value = false }
         ) {
             PopupCard(
                 modifier = Modifier
@@ -931,6 +956,243 @@ fun CustomDialog(
                     .clickable(enabled = dismissOnInsideClick) { toShow.value = false },
             ) {
                 content()
+            }
+        }
+    }
+}
+
+/**
+ * Creates a dropdown menu for string options
+ * @param options List of strings for options
+ * @param selectedIndex Variable for storing the selected option
+ * @param onOptionSelected What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param menuWidth Sets the width of the menu
+ * @param menuOffset Adjusts where the menu shows up
+ * @param clickBoxColor The main dropdown menu's background color
+ * @param accentBoxColor Menu alternates color for different items, this is the second color it will use
+ * @param textStyle Sets the style of all the text
+ * @param textColor Sets the color of all the text
+ * @param arrowSize Changes the size of the arrow on the dropdown box
+ * @param arrowColor Color of the arrow
+ */
+@Composable
+fun DropDownTextMenu(
+    modifier: Modifier = Modifier,
+    options: List<String>,
+    selectedIndex: Int,
+    onOptionSelected: (Int) -> Unit,
+    menuWidth: Dp = 150.dp,
+    menuOffset: IntOffset = IntOffset(75, 0),
+    menuPadding: Dp = 8.dp,
+    clickBoxColor: Color = AppTheme.colors.DarkerBackground,
+    accentBoxColor: Color = AppTheme.colors.Background,
+    textStyle: TextStyle = AppTheme.textStyles.HeadingSix,
+    textColor: Color = AppTheme.colors.Gray,
+    arrowSize: Dp = 20.dp,
+    arrowColor: Color = AppTheme.colors.Gray,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+    ) {
+        // Clickable
+        HighlightCard(
+            modifier = Modifier
+                .fillMaxWidth(),
+            backgroundColor = clickBoxColor,
+            outerPadding = 0.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .clickable { expanded = !expanded }
+                    .background(clickBoxColor),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val string = options[selectedIndex]
+                Text(
+                    text = string,
+                    style = textStyle,
+                    color = textColor
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                    contentDescription = null,
+                    tint = arrowColor,
+                    modifier = Modifier
+                        .rotate(if (expanded) 90f else 270f)
+                        .size(arrowSize)
+                )
+            }
+        }
+
+        // Dropdown
+        if (expanded) {
+            Popup(
+                offset = menuOffset,
+                onDismissRequest = { expanded = false },
+                properties = PopupProperties(focusable = true),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(menuWidth)
+                        .background(clickBoxColor)
+                        .shadow(8.dp)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.wrapContentWidth()
+                    ) {
+                        itemsIndexed(options) { index, string ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(if(index % 2 == 0) accentBoxColor else clickBoxColor)
+                                    .clickable {
+                                        onOptionSelected(index)
+                                        expanded = false
+                                    }
+                                    .padding(menuPadding),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = string,
+                                    style = textStyle,
+                                    color = textColor
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Creates a dropdown menu for string options
+ * @param options List of triple items consisting of icon, icon color, and string name
+ * @param selectedIndex Variable for storing the selected option
+ * @param onOptionSelected What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param menuWidth Sets the width of the menu
+ * @param menuOffset Adjusts where the menu shows up
+ * @param menuPadding Increase this to spread the menu options out
+ * @param clickBoxColor The main dropdown menu's background color
+ * @param accentBoxColor Menu alternates color for different items, this is the second color it will use
+ * @param textStyle Sets the style of all the text
+ * @param textColor Sets the color of all the text
+ * @param arrowSize Changes the size of the arrow on the dropdown box
+ * @param arrowColor Color of the arrow
+ * @param iconSize Changes the size of the icons for the options
+ */
+@Composable
+fun DropDownReminderMenu(
+    modifier: Modifier = Modifier,
+    options: List<Reminder>,
+    selectedIndex: Int,
+    onOptionSelected: (Int) -> Unit,
+    menuWidth: Dp = 150.dp,
+    menuOffset: IntOffset = IntOffset(75, 0),
+    menuPadding: Dp = 8.dp,
+    clickBoxColor: Color = AppTheme.colors.DarkerBackground,
+    accentBoxColor: Color = AppTheme.colors.Background,
+    textStyle: TextStyle = AppTheme.textStyles.HeadingSix,
+    textColor: Color = AppTheme.colors.Gray,
+    arrowSize: Dp = 20.dp,
+    arrowColor: Color = AppTheme.colors.Gray,
+    iconSize: Dp = 20.dp,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+    ) {
+        // Clickable
+        HighlightCard(
+            modifier = Modifier
+                .fillMaxWidth(),
+            backgroundColor = clickBoxColor,
+            outerPadding = 0.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .clickable { expanded = !expanded }
+                    .background(clickBoxColor),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val item = options[selectedIndex]
+                ShadowedIcon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = ImageVector.vectorResource(item.icon),
+                    tint = if (item.color == null) Color.Unspecified
+                    else resolveEnumColor(item.color),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = item.name,
+                    style = textStyle,
+                    color = textColor
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                    contentDescription = null,
+                    tint = arrowColor,
+                    modifier = Modifier
+                        .rotate(if (expanded) 90f else 270f)
+                        .size(arrowSize)
+                )
+            }
+        }
+
+        // Dropdown
+        if (expanded) {
+            Popup(
+                offset = menuOffset,
+                onDismissRequest = { expanded = false },
+                properties = PopupProperties(focusable = true),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(menuWidth)
+                        .background(clickBoxColor)
+                        .shadow(8.dp)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.wrapContentWidth()
+                    ) {
+                        itemsIndexed(options) { index, reminder ->
+                            val alreadyInStreaks = TestUser.weeklyStreaks.any { it.reminder.id == reminder.id } ||
+                                    TestUser.monthlyStreaks.any { it.reminder.id == reminder.id }
+                            if(!alreadyInStreaks){
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(if (index % 2 == 0) accentBoxColor else clickBoxColor)
+                                        .clickable {
+                                            onOptionSelected(index)
+                                            expanded = false
+                                        }
+                                        .padding(menuPadding),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    ShadowedIcon(
+                                        modifier = Modifier.size(iconSize),
+                                        imageVector = ImageVector.vectorResource(reminder.icon),
+                                        tint = if (reminder.color == null) Color.Unspecified
+                                        else resolveEnumColor(reminder.color),
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = reminder.name,
+                                        style = textStyle,
+                                        color = textColor
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

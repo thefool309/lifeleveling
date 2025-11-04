@@ -21,6 +21,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.AddStreak
 import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.AllBadgesDisplay
@@ -46,6 +47,8 @@ fun StreaksScreen() {
     val showStreakInfo = remember { mutableStateOf(false) }
     val badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
     val streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
+    val addWeekStreak = remember { mutableStateOf(false) }
+    val addMonthStreak = remember { mutableStateOf(false) }
 
     // Background with scrolling if needed
     Box(
@@ -174,7 +177,7 @@ fun StreaksScreen() {
                     Row(
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .clickable {},
+                            .clickable { addWeekStreak.value = true },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
@@ -280,7 +283,7 @@ fun StreaksScreen() {
                     Row(
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .clickable {},
+                            .clickable { addMonthStreak.value = true },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
@@ -355,6 +358,20 @@ fun StreaksScreen() {
         SingleBadgeDisplay(
             badge = badgeToDisplay.value,
             toShow = showBadge,
+        )
+    }
+
+    // Add Streak screen
+    if (addWeekStreak.value) {
+        AddStreak(
+            toShow = addWeekStreak,
+            daily = true
+        )
+    }
+    if (addMonthStreak.value) {
+        AddStreak(
+            toShow = addMonthStreak,
+            daily = false
         )
     }
 
