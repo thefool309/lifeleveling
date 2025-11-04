@@ -161,7 +161,7 @@ fun UserJourneyScreen(
                 )
                 Spacer(Modifier.weight(1f))
                 CircleButton(
-                    onClick = { navController?.popBackStack() },
+                    onClick = { navController.popBackStack() },
                     imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
                     size = 48.dp,
                 )
