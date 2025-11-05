@@ -76,6 +76,10 @@
     <string name="years">Years</string>
     <string name="repeat">Repeat</string>
     <string name="enter_a_number">Enter a number</string>
+    <string name="repeats_indefinitely">Repeats indefinitely</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="repeats_every">Repeats every %1$s for %2$d %3$s</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>

@@ -106,6 +106,23 @@ fun ShowStreak(
                         color = AppTheme.colors.Gray
                     )
                 }
+                if (streak.repeat) {
+                    if (streak.repeatIndefinitely) {
+                        Text(
+                            text = stringResource(R.string.repeats_indefinitely),
+                            style = AppTheme.textStyles.Default,
+                            color = AppTheme.colors.Gray
+                        )
+                    } else {
+                        val streakSection = if (streak.reminder.daily) stringResource(R.string.week) else R.string.month
+                        Text(
+                            text = stringResource(R.string.repeats_every, streakSection, streak.repeatNumber, streak.repeatInterval),
+                            style = AppTheme.textStyles.Default,
+                            color = AppTheme.colors.Gray
+                        )
+                    }
+                }
+
                 // Buttons for deleting or closing window
                 Row(
                     modifier = Modifier.fillMaxWidth(),
