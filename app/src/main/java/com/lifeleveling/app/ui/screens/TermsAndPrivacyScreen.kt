@@ -28,9 +28,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.CircleButton
-import com.lifeleveling.app.ui.theme.HighlightCard
-import com.lifeleveling.app.ui.theme.ShadowedIcon
+import com.lifeleveling.app.ui.components.CircleButton
+import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.ShadowedIcon
 
 @Preview
 @Composable

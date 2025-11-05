@@ -37,14 +37,17 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.CustomButton
-import com.lifeleveling.app.ui.theme.HighlightCard
-import com.lifeleveling.app.ui.theme.LevelAndProgress
-import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
-import com.lifeleveling.app.ui.theme.ShadowedIcon
-import com.lifeleveling.app.ui.theme.StatsToolTip
+import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.PopupCard
+import com.lifeleveling.app.ui.components.ProgressBar
+import com.lifeleveling.app.ui.components.ShadowedIcon
+import com.lifeleveling.app.ui.components.StatsToolTip
+import com.lifeleveling.app.ui.components.LevelAndProgress
+import com.lifeleveling.app.ui.components.LifeExperienceToolTip
 import kotlinx.coroutines.launch
 
 @Preview

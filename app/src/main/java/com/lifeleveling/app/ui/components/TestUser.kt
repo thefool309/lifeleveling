@@ -1,12 +1,11 @@
-package com.lifeleveling.app.ui.screens
+package com.lifeleveling.app.ui.components
 
-import androidx.compose.runtime.Composable
+import android.icu.util.Calendar
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.enumColor
 
 /*
 * This is just a singleton test user for us to hardcode values into for UI testing
@@ -29,6 +28,37 @@ object TestUser {
     var StatHealth by mutableStateOf(3)
     var LifePointsUsed by mutableStateOf(6)
     var UnusedLifePoints by mutableStateOf(12)
+
+    // Data for badges
+    var totalStreaksCompleted by mutableStateOf(2)
+    var weekStreaksCompleted by mutableStateOf(2)
+    var monthStreaksCompleted by mutableStateOf(0)
+    var badgesEarned by mutableStateOf(3)
+    var allExpEver by mutableStateOf(550)
+    var allCoinsEarned by mutableStateOf(805)
+    var coinsSpent by mutableStateOf(504)
+    val profileCreatedDate = Calendar.getInstance().apply {
+        set(2025, Calendar.OCTOBER, 18,12, 0,0)
+        set(Calendar.MILLISECOND,0)
+    }.timeInMillis
+
+    // Getting user's time since creation
+    fun getTimeSinceUserCreated(): String{
+        val now = Calendar.getInstance()
+        val timeDiff = now.timeInMillis - profileCreatedDate
+
+        val days = timeDiff / (1000 * 60 * 60 * 24)
+        val years = days / 365
+        val remainingDays = days % 365
+
+        val yearsSection = if (years > 0) {
+            "$years year" + if(years > 1) "s" else " "
+        } else {
+            ""
+        }
+        val daysSection = "$remainingDays day" + if(remainingDays > 1) "s" else ""
+        return yearsSection + daysSection
+    }
 
     // ================= Reminder  handling =================================
     // All reminders
@@ -137,8 +167,44 @@ object TestUser {
     }
 
     // =============== Badges ========================
-    var badges by mutableStateOf(
+    var allBadges by mutableStateOf(
         listOf(
+            Badge(
+                3,
+                R.drawable.flame,
+                enumColor.BrandOne,
+                "On Fire!",
+                "Complete your first week streak.",
+                true,
+                Calendar.getInstance().apply {
+                    set(2025, Calendar.OCTOBER, 25,12, 0,0)
+                    set(Calendar.MILLISECOND,0)
+                }.timeInMillis,
+            ),
+            Badge(
+                2,
+                R.drawable.sun_glasses,
+                enumColor.BrandOne,
+                "Looking Good!",
+                "Customize the look of your avatar.",
+                true,
+                Calendar.getInstance().apply {
+                    set(2025, Calendar.OCTOBER, 19,12, 0,0)
+                    set(Calendar.MILLISECOND,0)
+                }.timeInMillis,
+            ),
+            Badge(
+                1,
+                R.drawable.one,
+                enumColor.SecondaryTwo,
+                "Everyone Starts at the Beginning",
+                "You created your account and started your Life Leveling journey!",
+                true,
+                Calendar.getInstance().apply {
+                    set(2025, Calendar.OCTOBER, 18,12, 0,0)
+                    set(Calendar.MILLISECOND,0)
+                }.timeInMillis,
+            ),
             Badge(
                 4,
                 R.drawable.question_mark,
@@ -286,41 +352,17 @@ object TestUser {
         )
     )
 
-    // Completed badges
-    var completedBadges by mutableStateOf(
-        listOf(
-            Badge(
-                1,
-                R.drawable.one,
-                enumColor.SecondaryTwo,
-                "Everyone Starts at the Beginning",
-                "You created your account and started your Life Leveling journey!",
-                true
-            ),
-            Badge(
-                2,
-                R.drawable.sun_glasses,
-                enumColor.BrandOne,
-                "Looking Good!",
-                "Customize the look of your avatar.",
-                true
-            ),
-            Badge(
-                3,
-                R.drawable.flame,
-                enumColor.BrandOne,
-                "On Fire!",
-                "Complete your first week streak.",
-                true
-            ),
-        )
-    )
-
     // Complete a badge by ID
     fun completeBadge(badgeId: Int) {
-        val badge = badges.find { it.id == badgeId } ?: return
-        badges = badges.filter { it.id != badgeId }
-        completedBadges = completedBadges + badge.copy(completed = true)
+        // Find badge
+        val badge = allBadges.find { it.id == badgeId } ?: return
+        // Save badge and update to completed
+        val completedBadge = badge.copy(
+            completed = true,
+            completedOn = System.currentTimeMillis(),
+        )
+        // Delete badge from list and add new completed version to the top
+        allBadges = listOf(completedBadge) + allBadges.filter { it.id != badgeId }
     }
 }
 
@@ -340,47 +382,6 @@ data class Streak (
     var numberCompleted: Int = 0
 )
 
-enum class enumColor {
-    BrandOne,
-    BrandTwo,
-    SecondaryOne,
-    SecondaryTwo,
-    SecondaryThree,
-    Background,
-    DarkerBackground,
-    PopUpBackground,
-    DropShadow,
-    LightShadow,
-    Gray,
-    FadedGray,
-    Success,
-    Success75,
-    Error,
-    Error75,
-    Warning,
-}
-
-@Composable
-fun resolveEnumColor(color: enumColor): Color = when (color) {
-    enumColor.BrandOne -> AppTheme.colors.BrandOne
-    enumColor.BrandTwo -> AppTheme.colors.BrandTwo
-    enumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
-    enumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
-    enumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
-    enumColor.Background -> AppTheme.colors.Background
-    enumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
-    enumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
-    enumColor.DropShadow -> AppTheme.colors.DropShadow
-    enumColor.LightShadow -> AppTheme.colors.LightShadow
-    enumColor.Gray -> AppTheme.colors.Gray
-    enumColor.FadedGray -> AppTheme.colors.FadedGray
-    enumColor.Success -> AppTheme.colors.Success
-    enumColor.Success75 -> AppTheme.colors.Success75
-    enumColor.Error -> AppTheme.colors.Error
-    enumColor.Error75 -> AppTheme.colors.Error75
-    enumColor.Warning -> AppTheme.colors.Warning
-}
-
 data class Badge (
     val id: Int,
     val icon: Int,
@@ -388,4 +389,5 @@ data class Badge (
     val title: String,
     val description: String,
     val completed: Boolean = false,
+    val completedOn: Long? = null,
 )

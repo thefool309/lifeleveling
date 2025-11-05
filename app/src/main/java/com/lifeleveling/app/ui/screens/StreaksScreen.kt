@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -20,32 +19,48 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.AddStreak
+import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.BadgeDisplay
-import com.lifeleveling.app.ui.theme.BadgesToolTip
-import com.lifeleveling.app.ui.theme.HighlightCard
-import com.lifeleveling.app.ui.theme.LevelAndProgress
-import com.lifeleveling.app.ui.theme.LifeExperienceToolTip
-import com.lifeleveling.app.ui.theme.ProgressBar
-import com.lifeleveling.app.ui.theme.ShadowedIcon
-import com.lifeleveling.app.ui.theme.StreaksToolTip
+import com.lifeleveling.app.ui.components.AllBadgesDisplay
+import com.lifeleveling.app.ui.components.BadgesToolTip
+import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.LevelAndProgress
+import com.lifeleveling.app.ui.components.LifeExperienceToolTip
+import com.lifeleveling.app.ui.components.ProgressBar
+import com.lifeleveling.app.ui.components.SeparatorLine
+import com.lifeleveling.app.ui.components.ShadowedIcon
+import com.lifeleveling.app.ui.components.ShowStreak
+import com.lifeleveling.app.ui.components.SingleBadgeDisplay
+import com.lifeleveling.app.ui.components.StreaksToolTip
+import com.lifeleveling.app.ui.theme.resolveEnumColor
 
 @Preview
 @Composable
-fun StreaksScreen() {
+fun StreaksScreen(
+    navController: NavController? = null,
+) {
     // Pop up tips
     val showLevelTip = remember { mutableStateOf(false) }
     val showStreaksTip = remember { mutableStateOf(false) }
     val showBadgesTip = remember { mutableStateOf(false) }
+    val showBadge = remember { mutableStateOf(false) }
+    val showStreakInfo = remember { mutableStateOf(false) }
+    val badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
+    val streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
+    val addWeekStreak = remember { mutableStateOf(false) }
+    val addMonthStreak = remember { mutableStateOf(false) }
 
-    // Background with scrolling if needed
+    // Background
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = AppTheme.colors.Background)
             .padding(16.dp)
     ) {
+        // Inside with scrolling if needed
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -108,18 +123,18 @@ fun StreaksScreen() {
                         ),
                     )
                     // Separator
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
-                        tint = AppTheme.colors.SecondaryTwo,
-                        contentDescription = null,
-                    )
+                    SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
-                    // Add in reminders display
+                    // Display of streaks
                     TestUser.weeklyStreaks.forEach { streak ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .wrapContentHeight(),
+                                .wrapContentHeight()
+                                .clickable {
+                                    streakToShow.value = streak
+                                    showStreakInfo.value = true
+                                },
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Row(
@@ -162,7 +177,7 @@ fun StreaksScreen() {
                     Row(
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .clickable {},
+                            .clickable { addWeekStreak.value = true },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
@@ -210,18 +225,18 @@ fun StreaksScreen() {
                         ),
                     )
                     // Separator
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.separator_line),
-                        tint = AppTheme.colors.SecondaryTwo,
-                        contentDescription = null,
-                    )
+                    SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
-                    // Add in reminders display
+                    // Display of streaks
                     TestUser.monthlyStreaks.forEach { streak ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .wrapContentHeight(),
+                                .wrapContentHeight()
+                                .clickable {
+                                    streakToShow.value = streak
+                                    showStreakInfo.value = true
+                                },
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Row(
@@ -264,7 +279,7 @@ fun StreaksScreen() {
                     Row(
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .clickable {},
+                            .clickable { addMonthStreak.value = true },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
@@ -319,6 +334,16 @@ fun StreaksScreen() {
                             showBadgesTip.value = !showBadgesTip.value
                         }
                 )
+                Spacer(Modifier.weight(1f))
+                // Navigation to stats screen
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable { navController?.navigate("journey_stats") },
+                    text = stringResource(R.string.my_journey_stats),
+                    color = AppTheme.colors.SecondaryThree,
+                    style = AppTheme.textStyles.DefaultUnderlined,
+                )
             }
 
             // Badges Display
@@ -327,9 +352,33 @@ fun StreaksScreen() {
                 outerPadding = 0.dp,
                 height = 200.dp
             ) {
-                BadgeDisplay()
+                AllBadgesDisplay(
+                    toShow = showBadge,
+                    showBadge = badgeToDisplay
+                )
             }
         }
+    }
+    // Badge Popup
+    if (showBadge.value) {
+        SingleBadgeDisplay(
+            badge = badgeToDisplay.value,
+            toShow = showBadge,
+        )
+    }
+
+    // Add Streak screen
+    if (addWeekStreak.value) {
+        AddStreak(
+            toShow = addWeekStreak,
+            daily = true
+        )
+    }
+    if (addMonthStreak.value) {
+        AddStreak(
+            toShow = addMonthStreak,
+            daily = false
+        )
     }
 
     // Show Tooltip Popups
@@ -341,5 +390,13 @@ fun StreaksScreen() {
     }
     if (showBadgesTip.value) {
         BadgesToolTip(showBadgesTip)
+    }
+
+    // Streak info handling
+    if (showStreakInfo.value) {
+        ShowStreak(
+            toShow = showStreakInfo,
+            passedStreak = streakToShow
+        )
     }
 }

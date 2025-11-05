@@ -1,15 +1,22 @@
 <resources>
     <!-- &#160; is for spaces to not be skipped -->
-    <!-- %1$d is to pass in parameters, change the number for more -->
+    <!-- %1$d is to pass in parameters, change the number for more, use d for ints, f for floats/doubles, s for strings -->
 
     <string name="app_name">lifeleveling</string>
     <string name="useGoogle">Login using Google</string>
 
+    <!-- Button labels -->
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
     <string name="exp_display">Exp: %1$d/%2$d</string>
-    <string name="coins">Coins:/u00A0/u00A0/u00A0%1$d</string>
-    <string name="health_display">Health:/u00A0/u00A0%1$d/%2$d</string>
+    <string name="coins">Coins:&#160;&#160;&#160;%1$d</string>
+    <string name="health_display">Health:&#160;&#160;%1$d/%2$d</string>
 
     <!-- For equipment display -->
     <string name="helmet">Helmet</string>
@@ -76,6 +83,24 @@
     <string name="streaks_tip_two">Completing streaks will get you extra experience and coins.</string>
     <string name="streaks_tip_three">Weekly streaks are based on your daily reminders. Completing them throughout the week adds to your streak.</string>
     <string name="streaks_tip_four">Monthly streaks are based on tasks that happen less often such as every few days or once a week.</string>
+    <string name="streak_completed">Reminders completed so far:&#160;&#160;%1$d</string>
+    <string name="streak_to_complete">Total available to complete:&#160;&#160;%1$d</string>
+    <string name="streak_daily_count">Times reminder happens in a day:&#160;&#160;%1$d</string>
+    <string name="streak_delete">Are you sure you want to delete your streak for the reminder&#160;</string>
+    <string name="streak_delete_two">\? You will not receive any rewards for your current progress.</string>
+    <string name="add_week_streak">Add a Week Streak</string>
+    <string name="add_month_streak">Add a Month Streak</string>
+    <string name="choose_reminder">Select a reminder:</string>
+    <string name="need_a_new_daily">Need to make a new daily?</string>
+    <string name="my_journey_stats">My Journey Stats</string>
+
+    <!-- Repeat optios -->
+    <string name="repeat_options">Repeat options:</string>
+    <string name="indefinitely">Indefinitely</string>
+    <string name="do_not_repeat">Do not repeat</string>
+    <string name="weeks">Weeks</string>
+    <string name="months">Months</string>
+    <string name="years">Years</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>
@@ -83,6 +108,24 @@
     <string name="badges_tip_two">By starting your journey in building better habits, you have earned the badge &quot;Everyone Starts at the Beginning&quot; by creating your account.</string>
     <string name="badges_tip_three">Badges that are colored and brighter have a picture are the ones you have earned. If they are greyed out with a question mark, they are for you to reach for.</string>
     <string name="badges_tip_four">Clicking on a badge will tell you what it is for.</string>
+    <string name="badge_completed_on">Completed On:</string>
+
+    <!-- User Journey Stats -->
+    <string name="journey_stats">My Journey</string>
+    <string name="badges_earned">Badges earned:</string>
+    <string name="all_streaks_completed">Total streaks completed:</string>
+    <string name="weekly_streaks_completed">Weekly streaks completed:</string>
+    <string name="monthly_streaks_completed">Monthly streaks completed:</string>
+    <string name="journey_started_on">Journey started on:</string>
+    <string name="total_exp">Total experience earned:</string>
+    <string name="total_coins">Total coines earned:</string>
+    <string name="coins_spent">Coins spent:</string>
+    <string name="journey_stats_title">Your Journey Stats</string>
+    <string name="journey_tips_one">These are the stats of your personal journey.</string>
+    <string name="journey_tips_two">The values have been collected since day one of starting your journey to show your overall progress.</string>
+    <string name="total_earnings">Total Earnings</string>
+    <string name="person_stats">User Information</string>
+    <string name="account_age">Account Age:</string>
 
     <!-- Stats tips -->
     <string name="stats">Stats</string>

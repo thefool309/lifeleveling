@@ -1,4 +1,4 @@
-package com.lifeleveling.app.ui.theme
+package com.lifeleveling.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +25,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlin.collections.forEach
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.theme.AppTheme
 
 
 /**
@@ -70,46 +71,29 @@ fun Tooltip(
     title: Int,
     tips: List<AnnotatedString>
 ) {
-    Dialog(
-        onDismissRequest = { toShow.value = false },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+    CustomDialog(
+        toShow = toShow,
+        modifier = modifier,
     ) {
-        // Making a custom dim
-        Box (
-            modifier = modifier
-                .fillMaxSize()
-                .background(color = AppTheme.colors.DarkerBackground.copy(alpha = 0.1f))
-                .clickable { toShow.value = false },
+        // Content inside card
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Popup Card shading
-            PopupCard(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .clickable { toShow.value = false }
-            ) {
-                // Content inside card
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Title
-                    Text(
-                        stringResource(title),
-                        color = AppTheme.colors.SecondaryThree,
-                        style = AppTheme.textStyles.HeadingSix.copy(
-                            shadow = Shadow(
-                                color = AppTheme.colors.DropShadow,
-                                offset = Offset(3f, 4f),
-                                blurRadius = 6f,
-                            )
-                        )
+            // Title
+            Text(
+                stringResource(title),
+                color = AppTheme.colors.SecondaryThree,
+                style = AppTheme.textStyles.HeadingSix.copy(
+                    shadow = Shadow(
+                        color = AppTheme.colors.DropShadow,
+                        offset = Offset(3f, 4f),
+                        blurRadius = 6f,
                     )
-                    // Content
-                    BulletPoints(tips)
-                }
-            }
+                )
+            )
+            // Tips
+            BulletPoints(tips)
         }
     }
 }
@@ -325,5 +309,29 @@ fun StatsToolTip(toShow: MutableState<Boolean>) {
         toShow = toShow,
         title = R.string.stats,
         tips = StatTips
+    )
+}
+
+@Composable
+fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val levelTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.journey_tips_one))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.journey_tips_two))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.journey_stats_title,
+        tips = levelTips
     )
 }
