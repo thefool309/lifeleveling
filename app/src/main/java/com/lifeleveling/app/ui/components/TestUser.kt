@@ -112,14 +112,14 @@ object TestUser {
     // Streaks handling
     var weeklyStreaks by mutableStateOf(
         listOf(
-            reminderToStreak(reminders.first { it.id == 1 }, numberCompleted = 5),
-            reminderToStreak(reminders.first { it.id == 6 }, numberCompleted = 4),
+            reminderToStreak(reminders.first { it.id == 1 }, numberCompleted = 5, repeat = true, repeatIndefinitely = true),
+            reminderToStreak(reminders.first { it.id == 6 }, numberCompleted = 4, repeat = true, repeatNumber = 4, repeatInterval = "Weeks"),
         )
     )
     var monthlyStreaks by mutableStateOf(
         listOf(
             reminderToStreak(reminders.first { it.id == 2 }, numberCompleted = 2),
-            reminderToStreak(reminders.first { it.id == 3 }, numberCompleted = 12),
+            reminderToStreak(reminders.first { it.id == 3 }, numberCompleted = 12, repeat = true, repeatIndefinitely = true),
         )
     )
 
@@ -133,6 +133,30 @@ object TestUser {
     fun addToMonthlyStreak(reminder: Reminder) {
         if (reminderMap.containsKey(reminder.id) && monthlyStreaks.none { it.reminder.id == reminder.id }) {
             monthlyStreaks = monthlyStreaks + reminderToStreak(reminder)
+        }
+    }
+    fun addStreak(
+        reminder: Reminder,
+        repeat: Boolean = false,
+        repeatIndefinitely: Boolean = false,
+        repeatNumber: Int = 0,
+        repeatInterval: String = "",
+    ) {
+        val streak = reminderToStreak(
+            reminder,
+            repeat = repeat,
+            repeatIndefinitely = repeatIndefinitely,
+            repeatNumber = repeatNumber,
+            repeatInterval = repeatInterval,
+        )
+        if (reminder.daily) {
+            if(reminderMap.containsKey(reminder.id) && weeklyStreaks.none { it.reminder.id == reminder.id }) {
+                weeklyStreaks = weeklyStreaks + streak
+            }
+        } else {
+            if(reminderMap.containsKey(reminder.id) && monthlyStreaks.none { it.reminder.id == reminder.id }) {
+                monthlyStreaks = monthlyStreaks + streak
+            }
         }
     }
 
@@ -152,14 +176,26 @@ object TestUser {
 
     private fun reminderToStreak(
         reminder: Reminder,
-        numberCompleted: Int = 0
+        numberCompleted: Int = 0,
+        repeat: Boolean = false,
+        repeatIndefinitely: Boolean = false,
+        repeatNumber: Int = 0,
+        repeatInterval: String = "",
     ): Streak {
         val total = if (reminder.daily) {
             reminder.timesPerDay * 7
         } else {
             reminder.timesPerMonth
         }
-        return Streak(reminder = reminder, totalAmount = total, numberCompleted = numberCompleted)
+        return Streak(
+            reminder = reminder,
+            totalAmount = total,
+            numberCompleted = numberCompleted,
+            repeat = repeat,
+            repeatIndefinitely = repeatIndefinitely,
+            repeatNumber = repeatNumber,
+            repeatInterval = repeatInterval,
+        )
     }
 
     fun incrementStreak(streak: Streak) {
@@ -379,7 +415,11 @@ data class Reminder (
 data class Streak (
     val reminder: Reminder,
     val totalAmount: Int,
-    var numberCompleted: Int = 0
+    var numberCompleted: Int = 0,
+    var repeat: Boolean = false,
+    var repeatIndefinitely: Boolean = false,
+    var repeatNumber: Int = 0,
+    var repeatInterval: String = "",
 )
 
 data class Badge (

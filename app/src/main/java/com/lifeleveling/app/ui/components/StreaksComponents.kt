@@ -1,6 +1,7 @@
 package com.lifeleveling.app.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -223,6 +224,15 @@ fun AddStreak(
         }
     }
     var selectedRepeatIndex by remember { mutableStateOf(0) }
+    var repeatNumber by remember { mutableStateOf(0) }
+    var repeatInput by remember { mutableStateOf("") }
+    var indefinitely by remember { mutableStateOf(false) }
+    var doNotRepeat by remember { mutableStateOf(false) }
+    val repeatIntervalOptions = listOf(
+        stringResource(R.string.weeks),
+        stringResource(R.string.months),
+        stringResource(R.string.years),
+    )
 
     CustomDialog(
         toShow = toShow,
@@ -266,7 +276,8 @@ fun AddStreak(
                     menuOffset = IntOffset(50, 0)
                 )
                 Text(
-                    text = stringResource(R.string.need_a_new_daily),
+                    modifier = Modifier.clickable {},
+                    text = stringResource(R.string.need_a_new_reminder),
                     style = AppTheme.textStyles.DefaultUnderlined,
                     color = AppTheme.colors.Gray
                 )
@@ -275,24 +286,92 @@ fun AddStreak(
             // Repeat options
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-            ){
+            ) {
                 // Repeat
                 Text(
                     text = stringResource(R.string.repeat_options),
                     style = AppTheme.textStyles.HeadingFive,
                     color = AppTheme.colors.SecondaryThree
                 )
-                DropDownTextMenu(
-                    options = listOf(
-                        stringResource(R.string.weeks),
-                        stringResource(R.string.months),
-                        stringResource(R.string.years),
-                    ),
-                    selectedIndex = selectedRepeatIndex,
-                    onOptionSelected = { selectedRepeatIndex = it },
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    arrowSize = 25.dp,
-                )
+                // Choosing options
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    // Enter number
+                    CustomTextField(
+                        modifier = Modifier.weight(1f),
+                        value = repeatInput,
+                        onValueChange = { newText ->
+                            repeatInput = newText
+                            repeatNumber = newText.toIntOrNull() ?: 0
+                        },
+                        inputFilter = { it.all { char -> char.isDigit() } },
+                        textStyle = AppTheme.textStyles.HeadingSix,
+                        emptyStringDisplay = "Number",
+                    )
+                    // Time interval menu
+                    DropDownTextMenu(
+                        modifier = Modifier.weight(1f),
+                        options = repeatIntervalOptions,
+                        selectedIndex = selectedRepeatIndex,
+                        onOptionSelected = { selectedRepeatIndex = it },
+                        textStyle = AppTheme.textStyles.HeadingSix,
+                        arrowSize = 25.dp,
+                        menuOffset = IntOffset(25, 10)
+                    )
+                }
+
+                // Checkboxes
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        CustomCheckbox(
+                            checked = indefinitely,
+                            onCheckedChange = {
+                                indefinitely = it
+                                doNotRepeat = false
+                            },
+                        )
+                        Text(
+                            text = stringResource(R.string.indefinitely),
+                            style = AppTheme.textStyles.Default,
+                            color = AppTheme.colors.Gray
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            CustomCheckbox(
+                                checked = doNotRepeat,
+                                onCheckedChange = {
+                                    doNotRepeat = it
+                                    indefinitely = false
+                                },
+                            )
+                            Text(
+                                text = stringResource(R.string.do_not_repeat),
+                                style = AppTheme.textStyles.Default,
+                                color = AppTheme.colors.Gray
+                            )
+                        }
+                    }
+                }
             }
 
             // Button controls
@@ -316,8 +395,13 @@ fun AddStreak(
                 CustomButton(
                     width = 120.dp,
                     onClick = {
-                        if(daily) TestUser.addToWeeklyStreak(reminders[selectedReminderIndex])
-                        else TestUser.addToMonthlyStreak(reminders[selectedReminderIndex])
+                        TestUser.addStreak(
+                            reminder = reminders[selectedReminderIndex],
+                            repeat = !doNotRepeat,
+                            repeatIndefinitely = indefinitely,
+                            repeatNumber = repeatNumber,
+                            repeatInterval = repeatIntervalOptions[selectedRepeatIndex],
+                        )
                         toShow.value = false
                     },
                     backgroundColor = AppTheme.colors.Success75,

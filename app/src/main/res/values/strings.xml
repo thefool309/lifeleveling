@@ -64,7 +64,7 @@
     <string name="add_week_streak">Add a Week Streak</string>
     <string name="add_month_streak">Add a Month Streak</string>
     <string name="choose_reminder">Select a reminder:</string>
-    <string name="need_a_new_daily">Need to make a new daily?</string>
+    <string name="need_a_new_reminder">Need to make a new reminder?</string>
     <string name="my_journey_stats">My Journey Stats</string>
 
     <!-- Repeat optios -->
@@ -74,6 +74,8 @@
     <string name="weeks">Weeks</string>
     <string name="months">Months</string>
     <string name="years">Years</string>
+    <string name="repeat">Repeat</string>
+    <string name="enter_a_number">Enter a number</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>

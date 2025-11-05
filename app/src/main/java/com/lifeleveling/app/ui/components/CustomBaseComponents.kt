@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -215,11 +216,26 @@ fun TestScreen() {
                     "One", "Two", "Three", "Four", "Five", "Six", "Seven",
                 )
                 var selectedIndex by remember { mutableStateOf(0) }
-                DropDownTextMenu(
-                    options = options,
-                    selectedIndex = selectedIndex,
-                    onOptionSelected = { selectedIndex = it },
-                )
+                Box(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                ){
+                    DropDownTextMenu(
+                        options = options,
+                        selectedIndex = selectedIndex,
+                        onOptionSelected = { selectedIndex = it },
+                    )
+                }
+
+                // Testing Text Fields
+                Box(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                ){
+                    var text by remember { mutableStateOf("") }
+                    CustomTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                    )
+                }
 
 //                //Showing popup example
 //                PopupCard {
@@ -982,7 +998,7 @@ fun DropDownTextMenu(
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
     menuWidth: Dp = 150.dp,
-    menuOffset: IntOffset = IntOffset(75, 0),
+    menuOffset: IntOffset = IntOffset(75, 10),
     menuPadding: Dp = 8.dp,
     clickBoxColor: Color = AppTheme.colors.DarkerBackground,
     accentBoxColor: Color = AppTheme.colors.Background,
@@ -1093,7 +1109,7 @@ fun DropDownReminderMenu(
     selectedIndex: Int,
     onOptionSelected: (Int) -> Unit,
     menuWidth: Dp = 150.dp,
-    menuOffset: IntOffset = IntOffset(75, 0),
+    menuOffset: IntOffset = IntOffset(75, 10),
     menuPadding: Dp = 8.dp,
     clickBoxColor: Color = AppTheme.colors.DarkerBackground,
     accentBoxColor: Color = AppTheme.colors.Background,
@@ -1215,4 +1231,70 @@ fun SeparatorLine(
         tint = color,
         contentDescription = null,
     )
+}
+
+/**
+ * Text Field object with design aspects applied
+ * @param value A mutable string to store what is entered in
+ * @param onValueChange What to do with the input. Suggested to us { value = it }
+ * @param singleLIne If it only accepts a single line of writing
+ * @param textStyle Style of all the text
+ * @param textColor Color of the written text
+ * @param innerPadding The padding between the outer box and editable inner box
+ * @param cursorColor Color of the cursor
+ * @param emptyStringColor Color of the text displayed if the box is empty
+ * @param emptyStringDisplay Text to display if the box is empty
+ * @param inputFilter Allows the use of filters on what can be entered. Examples: { it.all { char -> char.isDigit() } } is only numbers. .isLetter() is only letters. .isWhitespace() allows spaces
+ */
+@Composable
+fun CustomTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    singleLIne: Boolean = true,
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    textColor: Color = AppTheme.colors.Gray,
+    innerPadding: Dp = 16.dp,
+    cursorColor: Color = AppTheme.colors.FadedGray,
+    emptyStringColor: Color = AppTheme.colors.FadedGray,
+    emptyStringDisplay: String = "Enter Text...",
+    inputFilter: ((String) -> Boolean)? = null
+) {
+    Box(
+        modifier = modifier,
+    ){
+        HighlightCard(
+            outerPadding = 0.dp,
+            innerPadding = innerPadding,
+        ) {
+            BasicTextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = value,
+                onValueChange = { newValue ->
+                    if (inputFilter == null || inputFilter(newValue)) {
+                        onValueChange(newValue)
+                    }
+                },
+                singleLine = singleLIne,
+                textStyle = textStyle.copy(color = textColor),
+                cursorBrush = SolidColor(cursorColor),
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = emptyStringDisplay,
+                                style = textStyle.copy(color = emptyStringColor),
+                            )
+                        }
+                        innerTextField()
+                    }
+                }
+            )
+        }
+    }
 }
