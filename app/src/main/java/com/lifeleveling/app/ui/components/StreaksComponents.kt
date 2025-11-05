@@ -202,6 +202,11 @@ fun ShowStreak(
     }
 }
 
+/**
+ * Add a streak to streak containers and UI
+ * @param toShow Boolean needed to show screen because it is a dialog
+ * @param daily Determines if it shows daily reminders or monthly reminders
+ */
 @Composable
 fun AddStreak(
     toShow: MutableState<Boolean>,
