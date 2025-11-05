@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.CircleButton
-import com.lifeleveling.app.ui.theme.CustomButton
-import com.lifeleveling.app.ui.theme.HighlightCard
+import com.lifeleveling.app.ui.components.CircleButton
+import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.HighlightCard
 import kotlin.text.isEmpty
 
 

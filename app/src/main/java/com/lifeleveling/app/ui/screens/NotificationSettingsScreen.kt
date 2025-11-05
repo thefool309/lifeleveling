@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.CircleButton
-import com.lifeleveling.app.ui.theme.CustomCheckbox
+import com.lifeleveling.app.ui.components.CircleButton
+import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ShadowedIcon
 
