@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -244,7 +245,7 @@ fun AddStreak(
     var repeatNumber by remember { mutableStateOf(0) }
     var repeatInput by remember { mutableStateOf("") }
     var indefinitely by remember { mutableStateOf(false) }
-    var doNotRepeat by remember { mutableStateOf(false) }
+    var doNotRepeat by remember { mutableStateOf(true) }
     val repeatIntervalOptions = listOf(
         stringResource(R.string.weeks),
         stringResource(R.string.months),
@@ -256,149 +257,31 @@ fun AddStreak(
         dismissOnInsideClick = false,
         dismissOnOutsideClick = false,
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Title
+        if (reminders.isEmpty()) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(if (daily) R.string.add_week_streak else R.string.add_month_streak),
-                    style = AppTheme.textStyles.HeadingFour,
-                    color = AppTheme.colors.SecondaryOne
-                )
-                // Separator
-                SeparatorLine(color = AppTheme.colors.SecondaryTwo)
-            }
-
-            // Choosing a reminder
-            Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
+                val empty = if (daily) {
+                    if (TestUser.weeklyReminders.isEmpty()) true else false
+                } else {
+                    if (TestUser.monthlyReminders.isEmpty()) true else false
+                }
                 Text(
-                    text = stringResource(R.string.choose_reminder),
+                    text = if (empty) stringResource(R.string.no_reminders_for_streaks)
+                        else stringResource(R.string.all_reminders_already_streaks),
                     style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                DropDownReminderMenu(
-                    options = reminders,
-                    selectedIndex = selectedReminderIndex,
-                    onOptionSelected = { selectedReminderIndex = it },
-                    menuWidth = 300.dp,
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    iconSize = 25.dp,
-                    arrowSize = 25.dp,
-                    menuOffset = IntOffset(50, 0)
+                    color = AppTheme.colors.SecondaryOne,
+                    textAlign = TextAlign.Center,
                 )
                 Text(
-                    modifier = Modifier.clickable {},
-                    text = stringResource(R.string.need_a_new_reminder),
+                    text = stringResource(R.string.make_a_new_reminder),
                     style = AppTheme.textStyles.DefaultUnderlined,
-                    color = AppTheme.colors.Gray
+                    color = AppTheme.colors.Gray,
+                    textAlign = TextAlign.Center,
                 )
-            }
-
-            // Repeat options
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                // Repeat
-                Text(
-                    text = stringResource(R.string.repeat_options),
-                    style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                // Choosing options
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    // Enter number
-                    CustomTextField(
-                        modifier = Modifier.weight(1f),
-                        value = repeatInput,
-                        onValueChange = { newText ->
-                            repeatInput = newText
-                            repeatNumber = newText.toIntOrNull() ?: 0
-                        },
-                        inputFilter = { it.all { char -> char.isDigit() } },
-                        textStyle = AppTheme.textStyles.HeadingSix,
-                        emptyStringDisplay = "Number",
-                    )
-                    // Time interval menu
-                    DropDownTextMenu(
-                        modifier = Modifier.weight(1f),
-                        options = repeatIntervalOptions,
-                        selectedIndex = selectedRepeatIndex,
-                        onOptionSelected = { selectedRepeatIndex = it },
-                        textStyle = AppTheme.textStyles.HeadingSix,
-                        arrowSize = 25.dp,
-                        menuOffset = IntOffset(25, 10)
-                    )
-                }
-
-                // Checkboxes
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        CustomCheckbox(
-                            checked = indefinitely,
-                            onCheckedChange = {
-                                indefinitely = it
-                                doNotRepeat = false
-                            },
-                        )
-                        Text(
-                            text = stringResource(R.string.indefinitely),
-                            style = AppTheme.textStyles.Default,
-                            color = AppTheme.colors.Gray
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            CustomCheckbox(
-                                checked = doNotRepeat,
-                                onCheckedChange = {
-                                    doNotRepeat = it
-                                    indefinitely = false
-                                },
-                            )
-                            Text(
-                                text = stringResource(R.string.do_not_repeat),
-                                style = AppTheme.textStyles.Default,
-                                color = AppTheme.colors.Gray
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Button controls
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
+                Spacer(Modifier.height(8.dp))
                 CustomButton(
-                    width = 120.dp,
                     onClick = { toShow.value = false },
                     backgroundColor = AppTheme.colors.Error75,
                 ) {
@@ -408,26 +291,196 @@ fun AddStreak(
                         color = AppTheme.colors.Background
                     )
                 }
-                Spacer(Modifier.width(20.dp))
-                CustomButton(
-                    width = 120.dp,
-                    onClick = {
-                        TestUser.addStreak(
-                            reminder = reminders[selectedReminderIndex],
-                            repeat = !doNotRepeat,
-                            repeatIndefinitely = indefinitely,
-                            repeatNumber = repeatNumber,
-                            repeatInterval = repeatIntervalOptions[selectedRepeatIndex],
-                        )
-                        toShow.value = false
-                    },
-                    backgroundColor = AppTheme.colors.Success75,
+            }
+        } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // Title
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = stringResource(R.string.create),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
+                        text = stringResource(if (daily) R.string.add_week_streak else R.string.add_month_streak),
+                        style = AppTheme.textStyles.HeadingFour,
+                        color = AppTheme.colors.SecondaryOne
                     )
+                    // Separator
+                    SeparatorLine(color = AppTheme.colors.SecondaryTwo)
+                }
+
+                // Choosing a reminder
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.choose_reminder),
+                        style = AppTheme.textStyles.HeadingFive,
+                        color = AppTheme.colors.SecondaryThree
+                    )
+                    DropDownReminderMenu(
+                        options = reminders,
+                        selectedIndex = selectedReminderIndex,
+                        onOptionSelected = { selectedReminderIndex = it },
+                        menuWidth = 300.dp,
+                        textStyle = AppTheme.textStyles.HeadingSix,
+                        iconSize = 25.dp,
+                        arrowSize = 25.dp,
+                        menuOffset = IntOffset(50, 0)
+                    )
+                    Text(
+                        modifier = Modifier.clickable {},
+                        text = stringResource(R.string.need_a_new_reminder),
+                        style = AppTheme.textStyles.DefaultUnderlined,
+                        color = AppTheme.colors.Gray
+                    )
+                }
+
+                // Repeat options
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    // Repeat
+                    Text(
+                        text = stringResource(R.string.repeat_options),
+                        style = AppTheme.textStyles.HeadingFive,
+                        color = AppTheme.colors.SecondaryThree
+                    )
+                    // Choosing options
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        // Enter number
+                        CustomTextField(
+                            modifier = Modifier.weight(1f),
+                            value = repeatInput,
+                            onValueChange = { newText ->
+                                repeatInput = newText
+                                repeatNumber = newText.toIntOrNull() ?: 0
+                                if (newText.isNotEmpty()) {
+                                    doNotRepeat = false
+                                    indefinitely = false
+                                }
+                            },
+                            inputFilter = { it.all { char -> char.isDigit() } },
+                            textStyle = AppTheme.textStyles.HeadingSix,
+                            emptyStringDisplay = "Number",
+                        )
+                        // Time interval menu
+                        DropDownTextMenu(
+                            modifier = Modifier.weight(1f),
+                            options = repeatIntervalOptions,
+                            selectedIndex = selectedRepeatIndex,
+                            onOptionSelected = { selectedRepeatIndex = it },
+                            textStyle = AppTheme.textStyles.HeadingSix,
+                            arrowSize = 25.dp,
+                            menuOffset = IntOffset(25, 10)
+                        )
+                    }
+
+                    // Checkboxes
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        // Indefinitely repeat
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            CustomCheckbox(
+                                checked = indefinitely,
+                                onCheckedChange = {
+                                    indefinitely = it
+                                    doNotRepeat = false
+                                    if (it) {
+                                        repeatInput = ""
+                                        repeatNumber = 0
+                                    }
+                                },
+                            )
+                            Text(
+                                text = stringResource(R.string.indefinitely),
+                                style = AppTheme.textStyles.Default,
+                                color = AppTheme.colors.Gray
+                            )
+                        }
+                        // Do not repeat
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                CustomCheckbox(
+                                    checked = doNotRepeat,
+                                    onCheckedChange = {
+                                        doNotRepeat = it
+                                        indefinitely = false
+                                        if (it) {
+                                            repeatInput = ""
+                                            repeatNumber = 0
+                                        }
+                                    },
+                                )
+                                Text(
+                                    text = stringResource(R.string.do_not_repeat),
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Button controls
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = { toShow.value = false },
+                        backgroundColor = AppTheme.colors.Error75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                    Spacer(Modifier.width(20.dp))
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = {
+                            if (repeatNumber == 0 || repeatInput == "0" || repeatInput == "" && indefinitely == false) doNotRepeat = true
+                            TestUser.addStreak(
+                                reminder = reminders[selectedReminderIndex],
+                                repeat = !doNotRepeat,
+                                repeatIndefinitely = indefinitely,
+                                repeatNumber = repeatNumber,
+                                repeatInterval = repeatIntervalOptions[selectedRepeatIndex],
+                            )
+                            toShow.value = false
+                        },
+                        backgroundColor = AppTheme.colors.Success75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.create),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
                 }
             }
         }

@@ -66,6 +66,9 @@
     <string name="choose_reminder">Select a reminder:</string>
     <string name="need_a_new_reminder">Need to make a new reminder?</string>
     <string name="my_journey_stats">My Journey Stats</string>
+    <string name="all_reminders_already_streaks">All reminders are already streaks.</string>
+    <string name="no_reminders_for_streaks">You do not have any reminders to turn into streaks.</string>
+    <string name="make_a_new_reminder">Do you want to make a new reminder?</string>
 
     <!-- Repeat optios -->
     <string name="repeat_options">Repeat options:</string>
