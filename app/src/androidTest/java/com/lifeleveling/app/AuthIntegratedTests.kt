@@ -68,11 +68,18 @@ class AuthIntegratedTests {
     }
 
     @Test
+    fun createUserPositiveTest() = runTest {
+        val model = AuthViewModel()
+        val logger = AndroidLogger()
+        model.createUserWithEmailAndPassword(testEmail, testPassword, logger)
+        assert(auth.currentUser != null)
+    }
+
+    @Test
     fun signInPositiveTest() = runTest {
         val model = AuthViewModel()
         val logger = AndroidLogger()
         model.signInWithEmailPassword(testEmail, testPassword, logger)
-        assert(auth.currentUser?.uid != null)
+        assert(auth.currentUser != null)
     }
-
 }

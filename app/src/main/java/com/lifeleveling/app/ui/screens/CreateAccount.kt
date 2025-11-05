@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,12 +38,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.CircleButton
 import com.lifeleveling.app.ui.theme.CustomButton
 import com.lifeleveling.app.ui.theme.HighlightCard
-
-
+import kotlin.text.isEmpty
 
 
 @Preview(showBackground = true)
@@ -51,10 +52,11 @@ fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},
     onGoogleLogin: () -> Unit = {println("Google login pressed")},
     onLog: () -> Unit = {println("Login account pressed")},
+    email: MutableState<String>,
+    password: MutableState<String>
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val pwordRules = PasswordRules(password)
+
+    val pwordRules = PasswordRules(password.value)
     val isPasswordValid = pwordRules.all{it.second}
 
     //screen
@@ -110,14 +112,14 @@ fun CreateAccountScreen(
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth(0.9f),
-                        value = email,
-                        onValueChange = {email = it},
+                        value = email.value,
+                        onValueChange = {email.value = it},
                         //label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
-                            if(email.isEmpty()){
+                            if(email.value.isEmpty()){
                                 Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
                             }
                         }
@@ -130,9 +132,9 @@ fun CreateAccountScreen(
                         modifier = Modifier
 
                             .fillMaxWidth(0.9f),
-                        value = password,
-                        onValueChange = {password = it
-                            password.isNotEmpty()
+                        value = password.value,
+                        onValueChange = {password.value = it
+                            password.value.isNotEmpty()
                         },
 
                         //label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
