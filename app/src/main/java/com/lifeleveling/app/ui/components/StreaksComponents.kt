@@ -208,7 +208,15 @@ fun AddStreak(
     daily: Boolean = true
 ) {
     var selectedReminderIndex by remember { mutableStateOf(0) }
-    val reminders = (if(daily) TestUser.weeklyReminders else TestUser.monthlyReminders)
+    val reminders =  if (daily) {
+        TestUser.weeklyReminders.filter { reminder ->
+            reminder.id !in TestUser.weeklyStreaks.map { it.reminder.id }
+        }
+    } else {
+        TestUser.monthlyReminders.filter { reminder ->
+            reminder.id !in TestUser.monthlyStreaks.map { it.reminder.id }
+        }
+    }
     var selectedRepeatIndex by remember { mutableStateOf(0) }
 
     CustomDialog(

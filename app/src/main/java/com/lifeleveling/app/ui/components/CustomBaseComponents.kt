@@ -1037,8 +1037,9 @@ fun DropDownTextMenu(
                 Box(
                     modifier = Modifier
                         .width(menuWidth)
+                        .shadow(8.dp, shape = RoundedCornerShape(5.dp))
+                        .border(2.dp, AppTheme.colors.DropShadow, shape = RoundedCornerShape(5.dp))
                         .background(clickBoxColor)
-                        .shadow(8.dp)
                 ) {
                     LazyColumn(
                         modifier = Modifier.wrapContentWidth()
@@ -1155,8 +1156,9 @@ fun DropDownReminderMenu(
                 Box(
                     modifier = Modifier
                         .width(menuWidth)
+                        .shadow(8.dp, shape = RoundedCornerShape(5.dp))
+                        .border(2.dp, AppTheme.colors.DropShadow, shape = RoundedCornerShape(5.dp))
                         .background(clickBoxColor)
-                        .shadow(8.dp)
                 ) {
                     LazyColumn(
                         modifier = Modifier.wrapContentWidth()
@@ -1198,6 +1200,9 @@ fun DropDownReminderMenu(
     }
 }
 
+/**
+ * A thin line with a dot at either end for separating UI sections
+ */
 @Composable
 fun SeparatorLine(
     modifier: Modifier = Modifier,
