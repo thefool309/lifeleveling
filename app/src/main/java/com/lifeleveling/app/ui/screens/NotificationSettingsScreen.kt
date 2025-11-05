@@ -27,12 +27,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.CircleButton
+import com.lifeleveling.app.ui.theme.CustomCheckbox
 import com.lifeleveling.app.ui.theme.HighlightCard
 import com.lifeleveling.app.ui.theme.ShadowedIcon
 
@@ -67,15 +70,11 @@ fun NotificationScreen(
                         )
                     ),
                 )
-                Spacer(modifier = Modifier.width(52.dp))
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.back_arrow),
-                    contentDescription = "Bell icon",
-                    tint = AppTheme.colors.SecondaryThree,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .align(Alignment.CenterVertically)
-                        .clickable { navController?.popBackStack() }
+                Spacer(modifier = Modifier.weight(1f))
+                CircleButton(
+                    modifier = Modifier,
+                    onClick = {navController?.popBackStack()},
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
                 )
             }
 
@@ -93,7 +92,7 @@ fun NotificationScreen(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "Notification Sound:",
+                        text = stringResource(R.string.notificonSound),
                         color = AppTheme.colors.Gray,
                         style = AppTheme.textStyles.HeadingSix.copy(
                             shadow = Shadow(
@@ -105,27 +104,28 @@ fun NotificationScreen(
                     )
 
                     Row(){
-                        //checkbox for vibrate only
-//                        Checkbox(
-//                            checked = TODO(),
-//                            onCheckedChange = TODO(),
-//                            modifier = TODO(),
-//                            enabled = TODO(),
-//                            colors = TODO(),
-//                            interactionSource = TODO()
-//                        )
-//                        //checkbox for no sound and dont vibrate
-//                        Checkbox(
-//                            checked = TODO(),
-//                            onCheckedChange = TODO(),
-//                            modifier = TODO(),
-//                            enabled = TODO(),
-//                            colors = TODO(),
-//                            interactionSource = TODO()
-//                        )
+                        CustomCheckbox(
+                            modifier = TODO(),
+                            checked = TODO(),
+                            onCheckedChange = TODO(),
+                            size = TODO(),
+                            cornerRadius = TODO(),
+                            mainColor = TODO(),
+                            checkColor = TODO()
+                        )
+                        //checkbox for no sound and dont vibrate
+                        CustomCheckbox(
+                        modifier = TODO(),
+                        checked = TODO(),
+                        onCheckedChange = TODO(),
+                        size = TODO(),
+                        cornerRadius = TODO(),
+                        mainColor = TODO(),
+                        checkColor = TODO()
+                    )
                     }
                     Text(
-                        text = "When to Notify:",
+                        text = stringResource(R.string.whenToNotify),
                         color = AppTheme.colors.Gray,
                         style = AppTheme.textStyles.HeadingSix.copy(
                             shadow = Shadow(
@@ -136,41 +136,45 @@ fun NotificationScreen(
                         ),
                     )
                     //checkbox for reminder times
-//                    Checkbox(
-//                        checked = TODO(),
-//                        onCheckedChange = TODO(),
-//                        modifier = TODO(),
-//                        enabled = TODO(),
-//                        colors = TODO(),
-//                        interactionSource = TODO()
-//                    )
-//                    //checkbox for at time
-//                    Checkbox(
-//                        checked = TODO(),
-//                        onCheckedChange = TODO(),
-//                        modifier = TODO(),
-//                        enabled = TODO(),
-//                        colors = TODO(),
-//                        interactionSource = TODO()
-//                    )
-//                    // checkbox for when character levels up
-//                    Checkbox(
-//                        checked = TODO(),
-//                        onCheckedChange = TODO(),
-//                        modifier = TODO(),
-//                        enabled = TODO(),
-//                        colors = TODO(),
-//                        interactionSource = TODO()
-//                    )
-//                    //checkbox for when health runs out
-//                    Checkbox(
-//                        checked = TODO(),
-//                        onCheckedChange = TODO(),
-//                        modifier = TODO(),
-//                        enabled = TODO(),
-//                        colors = TODO(),
-//                        interactionSource = TODO()
-//                    )
+                    CustomCheckbox(
+                        modifier = TODO(),
+                        checked = TODO(),
+                        onCheckedChange = TODO(),
+                        size = TODO(),
+                        cornerRadius = TODO(),
+                        mainColor = TODO(),
+                        checkColor = TODO()
+                    )
+                    //checkbox for at time
+                     CustomCheckbox(
+                        modifier = TODO(),
+                        checked = TODO(),
+                        onCheckedChange = TODO(),
+                        size = TODO(),
+                        cornerRadius = TODO(),
+                        mainColor = TODO(),
+                        checkColor = TODO()
+                    )
+                    // checkbox for when character levels up
+                     CustomCheckbox(
+                        modifier = TODO(),
+                        checked = TODO(),
+                        onCheckedChange = TODO(),
+                        size = TODO(),
+                        cornerRadius = TODO(),
+                        mainColor = TODO(),
+                        checkColor = TODO()
+                    )
+                    //checkbox for when health runs out
+                     CustomCheckbox(
+                        modifier = TODO(),
+                        checked = TODO(),
+                        onCheckedChange = TODO(),
+                        size = TODO(),
+                        cornerRadius = TODO(),
+                        mainColor = TODO(),
+                        checkColor = TODO()
+                    )
 
 
 

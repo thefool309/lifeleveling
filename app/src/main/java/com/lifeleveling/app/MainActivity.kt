@@ -176,7 +176,7 @@ class MainActivity : ComponentActivity() {
                                 composable("createAccount") {
                                     CreateAccountScreen(
                                         onJoin = {/*TODO: Handle sign-up logic*/},
-                                        onGooleLogin = {
+                                        onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)

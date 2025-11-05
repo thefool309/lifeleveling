@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
 
 
 @Composable
@@ -55,7 +56,7 @@ fun SettingScreen(
             .padding(16.dp)
         ){
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings),
                 color = AppTheme.colors.SecondaryOne,
                 style = AppTheme.textStyles.HeadingThree.copy(
                     shadow = Shadow(
@@ -87,7 +88,7 @@ fun SettingScreen(
                     ){
 
                         SlidingSwitch(
-                            options = listOf("Dark Mode", "Light Mode"),
+                            options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
                             selectedIndex = if (isDarkTheme) 0 else 1,
                             onOptionSelected = { index ->
                                 val newIsDark = index == 0
@@ -129,7 +130,7 @@ fun SettingScreen(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Notification Settings",
+                            text = stringResource(R.string.notificationSettings),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -169,7 +170,7 @@ fun SettingScreen(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Self Care Tips",
+                            text = stringResource(R.string.selfCareTips),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -210,7 +211,7 @@ fun SettingScreen(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Terms and Privacy Policy",
+                            text = stringResource(R.string.termsAndPrivacy),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -251,7 +252,7 @@ fun SettingScreen(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Reset Life Points",
+                            text = stringResource(R.string.resetLifePoints),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -292,7 +293,7 @@ fun SettingScreen(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Delete Account",
+                            text = stringResource(R.string.deleteAccount),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -333,7 +334,7 @@ fun SettingScreen(
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Text(
-                            text = "Logout",
+                            text = stringResource(R.string.logOut),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(

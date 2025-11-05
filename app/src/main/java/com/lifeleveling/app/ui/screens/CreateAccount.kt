@@ -1,4 +1,4 @@
-package com.lifeleveling.app.ui.screens
+package com.lifeleveling.app
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,13 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,24 +28,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.CircleButton
+import com.lifeleveling.app.ui.theme.CustomButton
+import com.lifeleveling.app.ui.theme.HighlightCard
+
+
 
 
 @Preview(showBackground = true)
 @Composable
 fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},
-    onGooleLogin: () -> Unit = {println("Goole login pressed")},
+    onGoogleLogin: () -> Unit = {println("Google login pressed")},
     onLog: () -> Unit = {println("Login account pressed")},
-
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -59,12 +67,13 @@ fun CreateAccountScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
 
         ){
             //logo
             Image(
-                painter = painterResource(id= R.drawable.ll_life_tree),
+                painter = painterResource(id=R.drawable.ll_life_tree),
                 contentDescription = "logo",
                 modifier = Modifier
                     .padding(24.dp)
@@ -73,26 +82,29 @@ fun CreateAccountScreen(
             )
             Box(
                 modifier = Modifier
-                .fillMaxWidth(),
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
 
             ){
-                Text("Create An Account", color = AppTheme.colors.BrandOne,style = AppTheme.textStyles.HeadingTwo, fontSize = 56.sp, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.createAccountTitle), color = AppTheme.colors.BrandOne,style = AppTheme.textStyles.HeadingThree, textAlign = TextAlign.Center)
             }
 
             //inner box holding text fields
-            Box( modifier = Modifier
+            HighlightCard( modifier = Modifier
                 .height(350.dp)
                 .width(300.dp)
                 .background(color = AppTheme.colors.DarkerBackground),
-                contentAlignment = Alignment.Center
+                outerPadding = 0.dp,
+                //innerPadding = 0.dp,
+
             ){
                 //column keeping box items centered
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.SpaceEvenly
+
                 ) {
                     //email
                     OutlinedTextField(
@@ -100,28 +112,31 @@ fun CreateAccountScreen(
                             .fillMaxWidth(0.9f),
                         value = email,
                         onValueChange = {email = it},
-                        label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text("Email address", color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
+                        //label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        placeholder = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
                             if(email.isEmpty()){
-                                Text("Email can not be empty", style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
+                                Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
                             }
                         }
 
                     )
                     //Spacer(modifier = Modifier.size(8.dp))
                     //password
+
                     OutlinedTextField(
                         modifier = Modifier
+
                             .fillMaxWidth(0.9f),
                         value = password,
                         onValueChange = {password = it
-                           password.isNotEmpty()
-                         },
-                        label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                            password.isNotEmpty()
+                        },
+
+                        //label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
+                        placeholder = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -138,21 +153,20 @@ fun CreateAccountScreen(
                                     )
                                 }
                             }
+                        },
+
+                        )
+
+                    Spacer(modifier = Modifier.size(6.dp))
+                    CustomButton(
+                        modifier = Modifier,
+                        // .width(120.dp),
+                        onClick = onJoin,
+                        enabled = isPasswordValid,
+                        content = {
+                            Text(stringResource(R.string.join), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                         }
                     )
-
-                    //Spacer(modifier = Modifier.size(16.dp))
-                    //login button
-                    Button(
-                        modifier = Modifier
-                            .width(120.dp),
-                        onClick = onJoin,
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.SecondaryTwo),
-                        enabled = isPasswordValid
-                    ) {
-                        Text("Join", color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
-                    }
                 }
             }
             Column(
@@ -167,7 +181,7 @@ fun CreateAccountScreen(
                         .width(250.dp)
                         .height(50.dp),
 
-                    onClick = onGooleLogin,
+                    onClick = onGoogleLogin,
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
                 ) {         //This below can place and image in the button
@@ -187,7 +201,7 @@ fun CreateAccountScreen(
                         )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        "Login using Google",
+                        stringResource(R.string.useGoogle),
                         color = AppTheme.colors.DropShadow,
                         style = AppTheme.textStyles.HeadingSix,
                         fontSize = 16.sp,
@@ -198,11 +212,11 @@ fun CreateAccountScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 //create an account nav link
                 Text(
-                    text = "Already have an account? Login",
+                    text = stringResource(R.string.backToLogin),
                     color = AppTheme.colors.SecondaryThree,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
-                    style = AppTheme.textStyles.Default,
+                    style = AppTheme.textStyles.DefaultUnderlined,
                     modifier = Modifier.clickable { onLog() }
                 )
             }
@@ -210,13 +224,14 @@ fun CreateAccountScreen(
     }
 }
 
+@Composable
 fun PasswordRules(pWord: String): List<Pair<String, Boolean>> {
     return listOf(
-        "8–20 characters" to (pWord.length in 8..20),
-        "No spaces" to pWord.none { it.isWhitespace() },
-        "1 lowercase (a–z)" to pWord.any { it.isLowerCase() },
-        "1 uppercase (A–Z)" to pWord.any { it.isUpperCase() },
-        "1 number (0–9)" to pWord.any { it.isDigit() },
-        "1 special character (!@#\$%^&*()_+-=)" to pWord.any { it in "!@#\$%^&*()_+-=" }
+        stringResource(R.string.passwordLength) to (pWord.length in 8..20),
+        stringResource(R.string.noSpace) to pWord.none { it.isWhitespace() },
+        stringResource(R.string.lowercase) to pWord.any { it.isLowerCase() },
+        stringResource(R.string.uppercase) to pWord.any { it.isUpperCase() },
+        stringResource(R.string.number) to pWord.any { it.isDigit() },
+        stringResource(R.string.specialChar) to pWord.any { it in "!@#\$%^&*()_+-=" }
     )
 }
