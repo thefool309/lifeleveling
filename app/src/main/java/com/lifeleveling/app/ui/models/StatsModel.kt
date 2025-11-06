@@ -8,7 +8,7 @@ data class StatsUi(
     val unusedLifePoints: Int,              // total pool shown on the right of "used/total"
     val strength: Int,
     val defense: Int,
-    val intellect: Int,
+    val intelligence: Int,
     val agility: Int,
     val health: Int
 )
@@ -16,7 +16,7 @@ data class StatsUi(
 data class EditedStats(
     val strength: Int,
     val defense: Int,
-    val intellect: Int,
+    val intelligence: Int,
     val agility: Int,
     val health: Int,
     val usedPoints: Int,
