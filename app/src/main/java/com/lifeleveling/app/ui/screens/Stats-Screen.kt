@@ -351,7 +351,7 @@ fun StatsScreenRoute(
             return
         }
         error != null -> {
-            androidx.compose.material3.Text(error!!)
+            Text(error!!)
             return
         }
     }
@@ -382,7 +382,6 @@ fun StatsScreenRoute(
         uiState = uiState,
         onCancel = {
             isLoading = true
-            error = null
             scope.launch {
                 user = repo.getCurrentUser(logger)
                 isLoading = false
@@ -412,10 +411,7 @@ fun StatsScreenRoute(
             }
         }
     )
-
 }
-
-
 
 data class StatItem(
     val icon: Int,
