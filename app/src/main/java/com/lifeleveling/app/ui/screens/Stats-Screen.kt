@@ -151,11 +151,11 @@ fun StatsScreen(
                 ) {
                     // create baseStats so user is not able to go lower than what is saved
                     val baseStats = mapOf(
-                        "Strength" to strength.value,
-                        "Defense" to defense.value,
-                        "Intelligence" to intelligence.value,
-                        "Agility" to agility.value,
-                        "Health" to health.value,
+                        "Strength" to uiState.strength,                                         // When using the TestUser.kt, strength.value is how you were calling it
+                        "Defense" to uiState.defense,
+                        "Intelligence" to uiState.intelligence,
+                        "Agility" to uiState.agility,
+                        "Health" to uiState.health,
                     )
                         //create a list of triples that contain the icon, label, and stat level
                     val statItems = listOf(
