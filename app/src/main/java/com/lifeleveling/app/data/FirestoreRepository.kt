@@ -375,9 +375,9 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")  // and waste a ton of time
             .document(userId)
-        try {
+        return try {
             val data = docRef.get().await()
-            val onboarding = data["onboarding"] as Boolean
+            val onboarding = data["onboardingComplete"] as Boolean
             if(onboarding) {
                 docRef.update("onboardingComplete", false).await()
             }
@@ -385,13 +385,14 @@ class FirestoreRepository {
                 docRef.update("onboardingComplete", true).await()
             }
             updateTimestamp(userId, logger)
-            return true
+            true
         }
         catch (e: Exception) {
             logger.e("FireStore", "Error Updating User: ", e)
-            return false
+            false
         }
     }
+
     // an overload to pass in a specific value
     suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
