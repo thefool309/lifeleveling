@@ -434,7 +434,7 @@ class FirestoreRepository {
         }
     }
 
-    suspend fun addXp(xp: Double, logger: ILogger) : Users? /*returns the updated User or null if it fails*/ {
+    suspend fun addXp(xp: Double, logger: ILogger) : Users? {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e("Auth","ID is null. Please login to firebase.")
@@ -442,29 +442,35 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")
             .document(userId)
-        try {
+        return try {
             val data = docRef.get().await()
-            var newXp = data["currXp"] as Double
-            newXp += xp
-            docRef.update("xp", newXp).await()
-            var user = getUser(userId, logger)
-            if(user == null) {
+
+            // read either "currentXp" (new) or "currXp" (legacy)
+            val current = when (val raw = data["currentXp"] ?: data["currXp"]) {
+                is Number -> raw.toDouble()
+                is String -> raw.toDoubleOrNull() ?: 0.0
+                else -> 0.0
+            }
+            val newXp = current + xp
+            // write back to "currentXp" (canonical)
+            docRef.update("currentXp", newXp).await()
+
+            var user = getUser(userId, logger) ?: run {
                 logger.e("Auth", "Error Updating User: Please make sure you're logged in")
                 return null
             }
-            if(newXp > user.xpToNextLevel) {
-                incrementLevel(logger)
-                user = getUser(userId, logger)
-                if(user == null) {
-                    return null
+
+            if (newXp >= user.xpToNextLevel.toDouble()) {
+                if (!incrementLevel(logger)) {
+                    logger.e("Auth", "Level increment failed")
                 }
+                user = getUser(userId, logger) ?: return null
                 user.calculateXpToNextLevel()
             }
-            return user
-        }
-        catch(e: Exception) {
+            user
+        } catch (e: Exception) {
             logger.e("Firestore", "Error Updating User: ", e)
-            return null
+            null
         }
     }
 
