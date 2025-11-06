@@ -1,6 +1,5 @@
 package com.lifeleveling.app.ui.screens
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.TestUser
@@ -42,35 +40,26 @@ import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.PopupCard
-import com.lifeleveling.app.ui.components.ProgressBar
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.StatsToolTip
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
+import com.lifeleveling.app.ui.models.StatsUi
+import com.lifeleveling.app.ui.models.EditedStats
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
 fun StatsScreen(
-    userLevel: Int = TestUser.level,
-    userExperience: Int = TestUser.currentExp,
-    maxExperience: Int = TestUser.expToLevel,
-    usedLifePoints: Int = TestUser.LifePointsUsed,
-    unusedLifePoints: Int = TestUser.UnusedLifePoints,
-    userStrength: Int = TestUser.StatStrength,
-    userDefense: Int = TestUser.StatDefense,
-    userIntel: Int = TestUser.StatIntelligence,
-    userAgility: Int = TestUser.StatAgility,
-    userHealth: Int = TestUser.StatHealth,
-    onConfirm: (newStats: com.lifeleveling.app.data.Stats, usedPoints: Int, remainingPoints: Int) -> Unit = { _,_,_ -> println("Confirm pressed") },
+    uiState: StatsUi,
     onCancel: () -> Unit = {println("Cancel pressed")},
+    onConfirm: () -> Unit = { println("Confirm pressed") },
+    onCommit: (EditedStats) -> Unit = {}
                 ) {
-    val progress = (userExperience.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
+    val progress = (uiState.currentXp.toFloat() / uiState.xpToNext.toFloat()).coerceIn(0f,1f)
     var showHelpDialog = remember { mutableStateOf(false) }
     var showStatsDialog = remember { mutableStateOf(false) }
-    var usedPoints by remember { mutableStateOf(usedLifePoints) }
-    var remainingPoints by remember { mutableStateOf(unusedLifePoints - usedLifePoints) }
+    var usedPoints by remember { mutableStateOf(uiState.usedLifePoints) }
+    var remainingPoints by remember { mutableStateOf(uiState.unusedLifePoints - uiState.usedLifePoints) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -122,7 +111,7 @@ fun StatsScreen(
 
                     }
                     Text(
-                        text = stringResource(R.string.LPUsed,  TestUser.LifePointsUsed,TestUser.UnusedLifePoints),
+                        text = stringResource(R.string.LPUsed, usedPoints,uiState.unusedLifePoints),
                         color = AppTheme.colors.Gray,
                         style = AppTheme.textStyles.Default.copy(
                             shadow = Shadow(
@@ -151,11 +140,11 @@ fun StatsScreen(
 
 
                 // Variables were being declared inside of lambda but confirm button is outside of lambda
-                val strength = remember { mutableStateOf(userStrength) }
-                val defense = remember { mutableStateOf(userDefense) }
-                val intelligence = remember { mutableStateOf(userIntel) }
-                val agility = remember { mutableStateOf(userAgility) }
-                val health = remember { mutableStateOf(userHealth) }
+                val strength = remember { mutableStateOf(uiState.strength) }
+                val defense = remember { mutableStateOf(uiState.defense) }
+                val intelligence = remember { mutableStateOf(uiState.intelligence) }
+                val agility = remember { mutableStateOf(uiState.agility) }
+                val health = remember { mutableStateOf(uiState.health) }
 
                 HighlightCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -163,11 +152,11 @@ fun StatsScreen(
                 ) {
                     // create baseStats so user is not able to go lower than what is saved
                     val baseStats = mapOf(
-                        "Strength" to userStrength,
-                        "Defense" to userDefense,
-                        "Intelligence" to userIntel,
-                        "Agility" to userAgility,
-                        "Health" to userHealth
+                        "Strength" to strength.value,
+                        "Defense" to defense.value,
+                        "Intelligence" to intelligence.value,
+                        "Agility" to agility.value,
+                        "Health" to health.value,
                     )
                         //create a list of triples that contain the icon, label, and stat level
                     val statItems = listOf(
@@ -230,6 +219,9 @@ fun StatsScreen(
                                                         statValue.value -= 1
                                                         usedPoints -= 1
                                                         remainingPoints += 1
+
+                                                        // Adding a guard line
+                                                        remainingPoints = (uiState.unusedLifePoints - usedPoints).coerceAtLeast(0)
                                                     }
                                                 }
                                             )
@@ -266,6 +258,9 @@ fun StatsScreen(
                                                         statValue.value += 1
                                                         usedPoints += 1
                                                         remainingPoints -= 1
+
+                                                        // Adding a guard line
+                                                        remainingPoints = (uiState.unusedLifePoints - usedPoints).coerceAtLeast(0)
                                                     }
                                                 }
                                             )
@@ -303,14 +298,20 @@ fun StatsScreen(
                     CustomButton(
                        width = 122.dp,
                         content = { Text(stringResource(R.string.Confrim), style = AppTextStyles.HeadingSix, color = AppTheme.colors.Background) },
-                        onClick = {  val chosenStats = com.lifeleveling.app.data.Stats(
-                            strength = strength.value.toLong(),
-                            defense = defense.value.toLong(),
-                            intelligence = intelligence.value.toLong(),
-                            agility = agility.value.toLong(),
-                            health = health.value.toLong()
-                        )
-                            onConfirm(chosenStats, usedPoints, remainingPoints) },
+                        onClick = {
+                            onCommit(
+                                EditedStats(
+                                    strength = strength.value,
+                                    defense = defense.value,
+                                    intelligence = intelligence,
+                                    agility = agility.value,
+                                    health = health.value,
+                                    usedPoints = usedPoints,
+                                    remainingPoints = remainingPoints
+                                )
+                            )
+                            onConfirm()
+                        },
                         backgroundColor = AppTheme.colors.SecondaryTwo,
                     )
                 }
