@@ -50,12 +50,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun StatsScreen(
-    uiState: StatsUi,
+    uiState: StatsUi,                                   // Building off an actual model vs building parameters on the stop.
     onCancel: () -> Unit = {println("Cancel pressed")},
     onConfirm: () -> Unit = { println("Confirm pressed") },
     onCommit: (EditedStats) -> Unit = {}
                 ) {
-    val progress = (uiState.currentXp.toFloat() / uiState.xpToNext.toFloat()).coerceIn(0f,1f)
+    val progress = (uiState.currentXp.toFloat() / uiState.xpToNextLevel.toFloat()).coerceIn(0f,1f)
     var showHelpDialog = remember { mutableStateOf(false) }
     var showStatsDialog = remember { mutableStateOf(false) }
     var usedPoints by remember { mutableStateOf(uiState.usedLifePoints) }
@@ -140,7 +140,7 @@ fun StatsScreen(
 
 
                 // Variables were being declared inside of lambda but confirm button is outside of lambda
-                val strength = remember { mutableStateOf(uiState.strength) }
+                val strength = remember { mutableStateOf(uiState.strength) }                // When using the TestUser.kt TestUser.UserStrength is how you were calling that variable.
                 val defense = remember { mutableStateOf(uiState.defense) }
                 val intelligence = remember { mutableStateOf(uiState.intelligence) }
                 val agility = remember { mutableStateOf(uiState.agility) }
@@ -220,7 +220,7 @@ fun StatsScreen(
                                                         usedPoints -= 1
                                                         remainingPoints += 1
 
-                                                        // Adding a guard line
+                                                        // Adding a guard line (trying to prevent +2 / -2 increment glitch)
                                                         remainingPoints = (uiState.unusedLifePoints - usedPoints).coerceAtLeast(0)
                                                     }
                                                 }
@@ -259,7 +259,7 @@ fun StatsScreen(
                                                         usedPoints += 1
                                                         remainingPoints -= 1
 
-                                                        // Adding a guard line
+                                                        // Adding a guard line (trying to prevent +2 / -2 increment glitch)
                                                         remainingPoints = (uiState.unusedLifePoints - usedPoints).coerceAtLeast(0)
                                                     }
                                                 }
@@ -301,9 +301,9 @@ fun StatsScreen(
                         onClick = {
                             onCommit(
                                 EditedStats(
-                                    strength = strength.value,
+                                    strength = strength.value,                      // When using the TestUser.kt file, you were calling the variable by
                                     defense = defense.value,
-                                    intelligence = intelligence,
+                                    intelligence = intelligence.value,
                                     agility = agility.value,
                                     health = health.value,
                                     usedPoints = usedPoints,
@@ -359,50 +359,51 @@ fun StatsScreenRoute(
 
     val u = user!!
 
-    // Derive display values
-    val level = u.level.toInt()
-    val currentXp = u.currentXp.toInt()
-    // Users calculates xpToNextLevel in init
-    val expToLevel = u.xpToNextLevel.toInt()
-
     // Base stats and points
     val baseStats = u.stats
     val baseUsed = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
-    val unusedLifePoints = u.lifePoints.toInt()
-    val usedLifePoints = baseUsed // how many are already allocated
+    val lifePool = u.lifePoints.toInt()
+
+    val uiState = StatsUi(
+        level = u.level.toInt(),
+        currentXp = u.currentXp.toInt(),
+        xpToNextLevel = u.xpToNextLevel.toInt(),
+        usedLifePoints = baseUsed,
+
+        // UI shows "used / total", total = used + remaining pool
+        unusedLifePoints = baseUsed + lifePool,
+        strength = baseStats.strength.toInt(),
+        defense = baseStats.defense.toInt(),
+        intelligence = baseStats.intelligence.toInt(),
+        agility = baseStats.agility.toInt(),
+        health = baseStats.health.toInt()
+    )
 
     StatsScreen(
-        userLevel = level,
-        userExperience = currentXp,
-        maxExperience = expToLevel,
-        usedLifePoints = usedLifePoints,
-        unusedLifePoints = unusedLifePoints + usedLifePoints, // your UI expects "total" on the right side (used / total)
-        userStrength = baseStats.strength.toInt(),
-        userDefense = baseStats.defense.toInt(),
-        userIntel = baseStats.intelligence.toInt(),
-        userAgility = baseStats.agility.toInt(),
-        userHealth = baseStats.health.toInt(),
+        uiState = uiState,
         onCancel = {
-            // reload from server to discard changes
             isLoading = true
             error = null
-            // simple re-fetch
             scope.launch {
                 user = repo.getCurrentUser(logger)
                 isLoading = false
             }
         },
-        onConfirm = { newStats, usedPoints, remainingPoints ->
-            // Persist chosen stats and life points
-            // remainingPoints is what's left after the user’s edits.
-            // Our stored "lifePoints" is the remaining/unspent pool.
-            val newLifePoints = remainingPoints.toLong()
+        onConfirm = { /* optional: snackbar or navigate back */ },
+        onCommit = { edited ->
+            val newStats = com.lifeleveling.app.data.Stats(
+                strength     = edited.strength.toLong(),
+                defense      = edited.defense.toLong(),
+                intelligence = edited.intelligence.toLong(),
+                agility      = edited.agility.toLong(),
+                health       = edited.health.toLong()
+            )
+            val newLifePoints = edited.remainingPoints.toLong() // remaining pool is what's stored
 
-            scope.launch() {
+            scope.launch {
                 val okStats = repo.setStats(newStats, logger)
-                val okLP   = repo.setLifePoints(newLifePoints, logger)
+                val okLP    = repo.setLifePoints(newLifePoints, logger)
                 if (okStats && okLP) {
-                    // refresh UI from server so progress bar & counts are consistent
                     isLoading = true
                     user = repo.getCurrentUser(logger)
                     isLoading = false
@@ -412,6 +413,7 @@ fun StatsScreenRoute(
             }
         }
     )
+
 }
 
 
