@@ -420,13 +420,13 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")
             .document(userId)
-        try {
+        return try {
             val data = docRef.get().await()
-            var newLevel = data["level"] as Int
-            newLevel = ++newLevel
-            docRef.update("level", newLevel).await()
+            val curr = (data["level"] as? Number)?.toLong() ?: 1L
+            val next = curr + 1L
+            docRef.update("level", next).await()
             updateTimestamp(userId, logger)
-            return true
+            true
         }
         catch(e: Exception) {
             logger.e("Firestore", "Error Updating User: ", e)
