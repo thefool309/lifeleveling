@@ -94,11 +94,12 @@ class FirestoreRepository {
         )
 
         if (firstTime) {
-            data["createdAt"] = FieldValue.serverTimestamp()
+            // first creation: write the full payload
+            docRef.set(data, SetOptions.merge()).await()
+        } else {
+            // existing user: only bump lastUpdate (do NOT overwrite stats/lifePoints)
+            docRef.set(mapOf("lastUpdate" to FieldValue.serverTimestamp()), SetOptions.merge()).await()
         }
-
-        // merge = idempotent; won’t blow away future fields
-        docRef.set(data, SetOptions.merge()).await()
 
         Log.d("FB", "users/$uid created=$firstTime")
         return firstTime
