@@ -18,14 +18,19 @@ class FirestoreRepository {
     private val db = Firebase.firestore
     private val auth = Firebase.auth
 
-    /**
-     * Velma wuz here :3
-     */
     // Helper functions
+    private fun isGoogleMailbox(email: String): Boolean {
+        // block common Google-hosted mailboxes for email/pw path
+        return email.endsWith("@gmail.com", ignoreCase = true) ||
+                email.endsWith("@googlemail.com", ignoreCase = true)
+    }
+
+    // By Velma
     private fun getUserId() : String? {
         return auth.currentUser?.uid
     }
 
+    // By Velma
     private fun updateTimestamp(userId: String, logger: ILogger) {
         try {
             db.collection("users")
@@ -36,9 +41,6 @@ class FirestoreRepository {
             logger.e("Firestore", "Error Updating Timestamp", e)
         }
     }
-    /**
-     * >^w^<
-     */
 
     suspend fun ensureUserCreated(user: FirebaseUser): Boolean {
         val uid = user.uid
