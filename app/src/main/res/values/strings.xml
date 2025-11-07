@@ -108,4 +108,6 @@
     <string name="total_earnings">Total Earnings</string>
     <string name="person_stats">User Information</string>
     <string name="account_age">Account Age:</string>
+    <string name="no_remiders">No reminders yet.</string>
+    <string name="most_completed_reminder">Most completed reminder:</string>
 </resources>

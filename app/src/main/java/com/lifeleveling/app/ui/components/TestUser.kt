@@ -41,6 +41,7 @@ object TestUser {
         set(2025, Calendar.OCTOBER, 18,12, 0,0)
         set(Calendar.MILLISECOND,0)
     }.timeInMillis
+    var mostCompletedReminder = Pair<String,Long>("", 0)
 
     // Getting user's time since creation
     fun getTimeSinceUserCreated(): String{
@@ -63,16 +64,16 @@ object TestUser {
     // ================= Reminder  handling =================================
     // All reminders
     private val reminders = mutableListOf (
-        Reminder(1, "Drink Water", R.drawable.water_drop, null, true, 3, 0),
-        Reminder(2, "Laundry", R.drawable.shirt, enumColor.BrandTwo, false, 0, 4),
-        Reminder(3, "Shower", R.drawable.shower_bath, null, false, 0, 15),
-        Reminder(4, "Read", R.drawable.person_reading, enumColor.SecondaryTwo, false, 0, 8),
-        Reminder(5, "Run", R.drawable.person_running_color, null, false, 0, 4),
-        Reminder(6, "Make my bed", R.drawable.bed_color, null, true, 1, 0),
-        Reminder(7, "Brush teeth", R.drawable.toothbrush, null, true, 2, 0),
-        Reminder(8, "Wash Hair", R.drawable.shower_bath, null, false, 0, 9),
-        Reminder(9, "Feed the dog", R.drawable.grass, null, true, 2, 0),
-        Reminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0),
+        Reminder(1, "Drink Water", R.drawable.water_drop, null, true, 3, 0, 20),
+        Reminder(2, "Laundry", R.drawable.shirt, enumColor.BrandTwo, false, 0, 4, 2),
+        Reminder(3, "Shower", R.drawable.shower_bath, null, false, 0, 15, 3),
+        Reminder(4, "Read", R.drawable.person_reading, enumColor.SecondaryTwo, false, 0, 8, 1),
+        Reminder(5, "Run", R.drawable.person_running_color, null, false, 0, 4, 1),
+        Reminder(6, "Make my bed", R.drawable.bed_color, null, true, 1, 0, 6),
+        Reminder(7, "Brush teeth", R.drawable.toothbrush, null, true, 2, 0, 12),
+        Reminder(8, "Wash Hair", R.drawable.shower_bath, null, false, 0, 9, 5),
+        Reminder(9, "Feed the dog", R.drawable.grass, null, true, 2, 0, 13),
+        Reminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0, 9),
     )
 
     private var nextId = (reminders.maxOfOrNull { it.id } ?: 0) + 1
@@ -87,7 +88,7 @@ object TestUser {
     // Functions on reminders
     // Add a reminder
     fun addReminder(name: String, icon: Int, color: enumColor?, daily: Boolean, timesPerDay: Int, timesPerMonth: Int) {
-        val newReminder = Reminder(nextId++, name, icon, color, daily, timesPerDay, timesPerMonth)
+        val newReminder = Reminder(nextId++, name, icon, color, daily, timesPerDay, timesPerMonth, 0)
         reminders.add(newReminder)
         updateLists()
     }
@@ -107,6 +108,14 @@ object TestUser {
     private fun updateLists() {
         weeklyReminders = reminders.filter { it.daily }
         monthlyReminders = reminders.filter { !it.daily }
+    }
+
+    // Checking for most completed reminder
+    fun updateTopReminder() {
+        val top = reminders.maxByOrNull { it.completedTally } ?: return
+        if (top.completedTally > mostCompletedReminder.second) {
+            mostCompletedReminder = Pair(top.name, top.completedTally)
+        }
     }
 
     // Streaks handling
@@ -410,6 +419,7 @@ data class Reminder (
     val daily: Boolean,
     val timesPerDay: Int,
     val timesPerMonth: Int,
+    val completedTally: Long
 )
 
 data class Streak (
