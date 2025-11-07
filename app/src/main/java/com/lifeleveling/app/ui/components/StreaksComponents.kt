@@ -245,12 +245,13 @@ fun AddStreak(
     var repeatNumber by remember { mutableStateOf(0) }
     var repeatInput by remember { mutableStateOf("") }
     var indefinitely by remember { mutableStateOf(false) }
-    var doNotRepeat by remember { mutableStateOf(true) }
+    var repeat by remember { mutableStateOf(true) }
     val repeatIntervalOptions = listOf(
         stringResource(R.string.weeks),
         stringResource(R.string.months),
         stringResource(R.string.years),
     )
+    var doNotRepeat by remember { mutableStateOf(false) }
 
     CustomDialog(
         toShow = toShow,
@@ -361,8 +362,9 @@ fun AddStreak(
                                 repeatInput = newText
                                 repeatNumber = newText.toIntOrNull() ?: 0
                                 if (newText.isNotEmpty()) {
-                                    doNotRepeat = false
+                                    repeat = true
                                     indefinitely = false
+                                    doNotRepeat = false
                                 }
                             },
                             inputFilter = { it.all { char -> char.isDigit() } },
@@ -397,6 +399,7 @@ fun AddStreak(
                                 checked = indefinitely,
                                 onCheckedChange = {
                                     indefinitely = it
+                                    repeat = it
                                     doNotRepeat = false
                                     if (it) {
                                         repeatInput = ""
@@ -425,6 +428,7 @@ fun AddStreak(
                                     checked = doNotRepeat,
                                     onCheckedChange = {
                                         doNotRepeat = it
+                                        repeat = !it
                                         indefinitely = false
                                         if (it) {
                                             repeatInput = ""
@@ -463,10 +467,11 @@ fun AddStreak(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            if (repeatNumber == 0 || repeatInput == "0" || repeatInput == "" && indefinitely == false) doNotRepeat = true
+                            repeat = !(repeatNumber == 0 || repeatInput == "0" && !indefinitely)
+                            if (indefinitely) repeat = true
                             TestUser.addStreak(
                                 reminder = reminders[selectedReminderIndex],
-                                repeat = !doNotRepeat,
+                                repeat = repeat,
                                 repeatIndefinitely = indefinitely,
                                 repeatNumber = repeatNumber,
                                 repeatInterval = repeatIntervalOptions[selectedRepeatIndex],
