@@ -39,7 +39,7 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.PopupCard
 
 
-@Preview(showBackground = true)
+// @Preview(showBackground = true)
 @Composable
 fun SignIn(
     onLogin: () -> Unit = {println("Login pressed")},
