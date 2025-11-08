@@ -1,6 +1,5 @@
 package com.lifeleveling.app
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -30,14 +28,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.PopupCard
 
+// Helper Function to block gmail/googlemail on the email/password path
+private fun isGoogleMailboxUi(email: String): Boolean =
+    email.endsWith("@gmail.com", ignoreCase = true) ||
+            email.endsWith("@googlemail.com", ignoreCase = true)
 
 // @Preview(showBackground = true)
 @Composable
@@ -48,8 +48,9 @@ fun SignIn(
     email: MutableState<String>,
     password: MutableState<String>,
 ) {
-    //var email by remember { mutableStateOf("") }
-    //var password by remember { mutableStateOf("") }
+
+    val isGmail = isGoogleMailboxUi(email.value)
+
     //screen
     Box(
         modifier = Modifier
@@ -97,8 +98,14 @@ fun SignIn(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingText = {
-                            if (email.value.isEmpty()) {
-                                Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small)
+                            when {
+                                email.value.isEmpty() ->
+                                    Text(stringResource(R.string.emailNotEmpty),
+                                        style = AppTheme.textStyles.Small)
+
+                                isGmail ->
+                                    Text("Use 'Sign in with Google' for Gmail addresses.",
+                                        style = AppTheme.textStyles.Small)
                             }
                         }
                     )
@@ -126,7 +133,7 @@ fun SignIn(
                         modifier = Modifier
                             .width(120.dp),
                         onClick = onLogin,
-                        enabled = email.value.isNotEmpty() && password.value.isNotEmpty()
+                        enabled = !isGmail && email.value.isNotEmpty() && password.value.isNotEmpty()
                     ) {
                         Text(stringResource(R.string.login), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
                     }
