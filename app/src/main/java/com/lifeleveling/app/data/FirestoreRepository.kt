@@ -19,10 +19,12 @@ class FirestoreRepository {
     private val auth = Firebase.auth
 
     // Helper functions
+    // By Velma
     private fun getUserId() : String? {
         return auth.currentUser?.uid
     }
 
+    // By Velma
     private fun updateTimestamp(userId: String, logger: ILogger) {
         try {
             db.collection("users")
@@ -98,9 +100,8 @@ class FirestoreRepository {
         Log.d("FB", "users/$uid created=$firstTime")
         return firstTime
     }
-    /**
-     * :3c Velma wuz here >^.^<
-     */
+
+    // By Velma
     // Function to create user and store in firebase
     // returns null on failure. We use a suspend function because
     // FirebaseFirestore is async
@@ -138,6 +139,7 @@ class FirestoreRepository {
 
     }
 
+    // By Velma
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
     // Use at your own peril
@@ -161,8 +163,8 @@ class FirestoreRepository {
         return result
     }
 
+    // By Velma
     // User information
-
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -187,6 +189,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -211,6 +214,7 @@ class FirestoreRepository {
 
     }
 
+    // By Velma
     suspend fun editPhotoUrl(url: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -234,6 +238,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun incrementStreaks( logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
@@ -256,8 +261,8 @@ class FirestoreRepository {
         }
     }
 
-      //functions for modifying stats below
-
+    // By Velma
+    // functions for modifying stats below
     suspend fun setStats(stats: Stats, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
@@ -278,6 +283,7 @@ class FirestoreRepository {
 
     }
 
+    // By Velma
     suspend fun setCurrHealth(health: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -298,6 +304,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun setCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -317,6 +324,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun addCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -339,6 +347,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun subtractCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -361,6 +370,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     // A toggler for setOnboardingComplete
     suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -388,6 +398,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     // an overload to pass in a specific value
     suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -408,6 +419,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun incrementLevel(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -430,6 +442,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun addXp(xp: Double, logger: ILogger) : Users? {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -541,9 +554,7 @@ class FirestoreRepository {
         return user
     }
 
-
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
-
     suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger) : Boolean {
         val uid: String? = getUserId()
         if (uid == null) {
@@ -562,6 +573,7 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun setBadgesUnlocked(newBadgesUnlocked: List<Badge>, logger: ILogger) : Boolean {
         val uid: String? = getUserId()
         if (uid == null) {
@@ -580,13 +592,13 @@ class FirestoreRepository {
         }
     }
 
+    // By Velma
     suspend fun setBadges(newBadgesLocked: List<Badge>, newBadgesUnlocked: List<Badge>, logger: ILogger) {
         setBadgesLocked(newBadgesLocked, logger)
         setBadgesUnlocked(newBadgesUnlocked, logger)
     }
 
-    // TODO: add deleteUser() to the users crud
-
+    // TODO: deleteUser
     suspend fun deleteUser(logger: ILogger): Boolean  {
         val uid: String? = getUserId()
         if (uid == null) {
@@ -595,10 +607,6 @@ class FirestoreRepository {
         }
         TODO("Not Implemented yet")
     }
-
-    /**
-     * >^w^<
-     */
 
     private fun remindersCol(uid: String) =
         //Firebase.firestore.collection("users").document(uid).collection("reminders")
