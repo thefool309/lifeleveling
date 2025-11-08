@@ -46,7 +46,7 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import kotlin.text.isEmpty
 
 
-@Preview(showBackground = true)
+
 @Composable
 fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},

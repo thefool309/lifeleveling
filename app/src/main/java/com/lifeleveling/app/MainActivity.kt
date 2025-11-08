@@ -49,6 +49,8 @@ import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
+import com.lifeleveling.app.ui.screens.CalendarScreen
+
 
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
@@ -258,7 +260,7 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable("calendar") {
-                TempCalendarScreen()
+                CalendarScreen()
             }
             composable("stats") {
                 StatsScreenRoute()
