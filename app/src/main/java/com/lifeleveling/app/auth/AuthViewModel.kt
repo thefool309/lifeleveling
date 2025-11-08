@@ -198,13 +198,13 @@ class AuthViewModel : ViewModel() {
         logger: ILogger
     ): Boolean {
         try {
-            // 1) Block gmail signups here
+            // Block gmail signups here
             if (isGoogleMailbox(email)) {
                 _ui.value = _ui.value.copy(error = "Please use 'Sign in with Google' for @gmail.com addresses.")
                 return false
             }
 
-            // 2) Create the Firebase user
+            // Create the Firebase user
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user
 
@@ -213,7 +213,13 @@ class AuthViewModel : ViewModel() {
                 return false
             }
 
-            // 3) Send verification link and sign out until verified
+            try{
+                repo.ensureUserCreated(user)
+            } catch (e: Exception) {
+                logger.e("FB", "createUserWithEmailPassword: failed", e)
+            }
+
+            // Send verification link and sign out until verified
             user.sendEmailVerification().await()
 
             // Immediately sign out to enforce the gate
