@@ -27,11 +27,7 @@ import kotlinx.coroutines.launch
 
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
-import kotlinx.coroutines.Dispatchers
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 
 // UI State
@@ -73,6 +69,12 @@ class AuthViewModel : ViewModel() {
     // Sets loading state while user selects account
     fun beginGoogleSignIn() {
         _ui.value = _ui.value.copy(isLoading = true, error = null)
+    }
+
+    private fun isGoogleMailbox(email: String): Boolean {
+        // block common Google-hosted mailboxes for email/pw path
+        return email.endsWith("@gmail.com", ignoreCase = true) ||
+                email.endsWith("@googlemail.com", ignoreCase = true)
     }
 
     // Handles Google Sign-In. Called from MainActivity.kt once Google returns result intent
@@ -157,26 +159,49 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger) : Boolean {
+    suspend fun createUserWithEmailAndPassword(
+        email: String,
+        password: String,
+        logger: ILogger
+    ): Boolean {
         try {
-            auth.createUserWithEmailAndPassword(email, password).await()
-            auth.signInWithEmailAndPassword(email, password).await()
+            // 1) Block gmail signups here
+            if (isGoogleMailbox(email)) {
+                _ui.value = _ui.value.copy(error = "Please use 'Sign in with Google' for @gmail.com addresses.")
+                return false
+            }
+
+            // 2) Create the Firebase user
+            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val user = result.user
+
+            if (user == null) {
+                _ui.value = _ui.value.copy(error = "Account creation failed. Try again.")
+                return false
+            }
+
+            // 3) Send verification link and sign out until verified
+            user.sendEmailVerification().await()
+
+            // Immediately sign out to enforce the gate
+            auth.signOut()
+
+            _ui.value = _ui.value.copy(
+                isLoading = false,
+                error = "Verification email sent to $email. Please verify, then log in."
+            )
             return true
-        }
-        catch (e: FirebaseAuthInvalidCredentialsException) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            logger.e("FB", "createUserWithEmailAndPassword: invalid credentials", e)
+            _ui.value = _ui.value.copy(error = "Invalid email or password format.")
             return false
-        }
-        catch(e: FirebaseAuthInvalidUserException) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
+        } catch (e: FirebaseAuthException) {
+            logger.e("FB", "createUserWithEmailAndPassword: auth error", e)
+            _ui.value = _ui.value.copy(error = e.message)
             return false
-        }
-        catch (e: FirebaseAuthException) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
-            return false
-        }
-        catch (e: Exception) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
+        } catch (e: Exception) {
+            logger.e("FB", "createUserWithEmailAndPassword: unknown error", e)
+            _ui.value = _ui.value.copy(error = "Unexpected error. Try again.")
             return false
         }
     }
