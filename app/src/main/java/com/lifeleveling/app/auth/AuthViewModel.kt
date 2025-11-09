@@ -4,14 +4,11 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import com.lifeleveling.app.R
-
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -24,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -136,111 +132,49 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    suspend fun signInWithEmailPassword(
-        email: String,
-        password: String,
-        logger: ILogger
-    ): Boolean {
+    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger) : Boolean {
         try {
-            // If they try gmail here, push them to Google
-            if (isGoogleMailbox(email)) {
-                _ui.value = _ui.value.copy(error = "Use 'Sign in with Google' for @gmail.com addresses.")
-                return false
-            }
-
-            // Attempt sign-in
             auth.signInWithEmailAndPassword(email, password).await()
-            val user = auth.currentUser
-
-            if (user == null) {
-                _ui.value = _ui.value.copy(error = "Sign-in failed. Try again.")
-                return false
-            }
-
-            // Enforce email verification
-            if (!user.isEmailVerified) {
-                auth.signOut()
-                _ui.value = _ui.value.copy(error = "Please verify your email before logging in.")
-                return false
-            }
-
-            // Ensure user doc exists to mirrors Google flow
-            try {
-                repo.ensureUserCreated(user)
-            } catch (e: Exception) {
-                logger.e("FB", "ensureUserCreated failed", e)
-            }
-
-            _ui.value = _ui.value.copy(isLoading = false, error = null)
             return true
-        } catch (e: FirebaseAuthInvalidCredentialsException) {
-            logger.e("FB", "signInWithEmailPassword: invalid credentials", e)
-            _ui.value = _ui.value.copy(error = "Email or password is incorrect.")
+        }
+        catch (e: FirebaseAuthInvalidCredentialsException) {
+            logger.e("FB", "signInWithEmailPassword failed due to Invalid Credentials: ", e)
             return false
-        } catch (e: FirebaseAuthInvalidUserException) {
-            logger.e("FB", "signInWithEmailPassword: invalid user", e)
-            _ui.value = _ui.value.copy(error = "No account found for this email.")
+        }
+        catch (e: FirebaseAuthInvalidUserException) {
+            logger.e("FB", "signInWithEmailPassword failed due to Invalid User", e)
             return false
-        } catch (e: FirebaseAuthException) {
-            logger.e("FB", "signInWithEmailPassword: auth error", e)
-            _ui.value = _ui.value.copy(error = e.message)
+        }
+        catch (e: FirebaseAuthException) {
+            logger.e("FB", "signInWithEmailPassword failed due to AuthException", e)
             return false
-        } catch (e: Exception) {
-            logger.e("FB", "signInWithEmailPassword: unknown error", e)
-            _ui.value = _ui.value.copy(error = "Unexpected error. Try again.")
+        }
+        catch (e: Exception) {
+            logger.e("FB", "signInWithEmailPassword failed due to unspecified Exception", e)
             return false
         }
     }
 
-    suspend fun createUserWithEmailAndPassword(
-        email: String,
-        password: String,
-        logger: ILogger
-    ): Boolean {
+    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger) : Boolean {
         try {
-            // Block gmail signups here
-            if (isGoogleMailbox(email)) {
-                _ui.value = _ui.value.copy(error = "Please use 'Sign in with Google' for @gmail.com addresses.")
-                return false
-            }
-
-            // Create the Firebase user
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
-            val user = result.user
-
-            if (user == null) {
-                _ui.value = _ui.value.copy(error = "Account creation failed. Try again.")
-                return false
-            }
-
-            try{
-                repo.ensureUserCreated(user)
-            } catch (e: Exception) {
-                logger.e("FB", "createUserWithEmailPassword: failed", e)
-            }
-
-            // Send verification link and sign out until verified
-            user.sendEmailVerification().await()
-
-            // Immediately sign out to enforce the gate
-            auth.signOut()
-
-            _ui.value = _ui.value.copy(
-                isLoading = false,
-                error = "Verification email sent to $email. Please verify, then log in."
-            )
+            auth.createUserWithEmailAndPassword(email, password).await()
+            auth.signInWithEmailAndPassword(email, password).await()
             return true
-        } catch (e: FirebaseAuthInvalidCredentialsException) {
-            logger.e("FB", "createUserWithEmailAndPassword: invalid credentials", e)
-            _ui.value = _ui.value.copy(error = "Invalid email or password format.")
+        }
+        catch (e: FirebaseAuthInvalidCredentialsException) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
             return false
-        } catch (e: FirebaseAuthException) {
-            logger.e("FB", "createUserWithEmailAndPassword: auth error", e)
-            _ui.value = _ui.value.copy(error = e.message)
+        }
+        catch(e: FirebaseAuthInvalidUserException) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
             return false
-        } catch (e: Exception) {
-            logger.e("FB", "createUserWithEmailAndPassword: unknown error", e)
-            _ui.value = _ui.value.copy(error = "Unexpected error. Try again.")
+        }
+        catch (e: FirebaseAuthException) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
+            return false
+        }
+        catch (e: Exception) {
+            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
             return false
         }
     }
