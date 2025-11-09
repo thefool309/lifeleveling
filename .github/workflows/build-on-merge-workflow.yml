@@ -29,3 +29,28 @@ jobs:
             ~/.gradle/wrapper
           # example gradle-ubuntu-latest-5a3c9f8d2e
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Install Android SDK Command-Line Tools
+        run: |
+          filepath="$HOME/Android/cmdline-tools"
+          mkdir -p "$filepath"
+          curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip sdk.zip -d "$filepath"
+          mv "$filepath/cmdline-tools" "$filepath/latest"
+
+      - name: Add Android SDK to PATH
+        run: |
+          echo "$HOME/Android/platform-tools" >> $GITHUB_PATH
+          echo "$HOME/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      - name: List APK
+        run: find app/build/outputs/apk/release -type f -name "*.apk"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release-apk
+          path: app/build/outputs/apk/release/*.apk
