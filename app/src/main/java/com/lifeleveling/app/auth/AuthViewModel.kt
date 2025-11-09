@@ -72,7 +72,7 @@ class AuthViewModel : ViewModel() {
                 logger.w("FB", "ensureUserCreated failed: ${e.message}")
             }
         }
-        Firebase.firestore.collection("healthchecks")
+        Firebase.firestore.collection("authLogs")
             .add(
                 mapOf(
                     "ts" to com.google.firebase.Timestamp.now(),
@@ -83,7 +83,7 @@ class AuthViewModel : ViewModel() {
                     "name" to (user.displayName ?: "")
                 )
             )
-            .addOnFailureListener { e -> logger.w("FB", "Healthcheck write failed: ${e.message}") }
+            .addOnFailureListener { e -> logger.w("FB", "Auth Log write failed: ${e.message}") }
 
         _ui.value = _ui.value.copy(isLoading = false, error = null)
     }
@@ -126,7 +126,7 @@ class AuthViewModel : ViewModel() {
                 }
 
                 // Writes healthcheck log to Firestore for monitoring
-                Firebase.firestore.collection("healthchecks")
+                Firebase.firestore.collection("authLogs")
                     .add(mapOf(
                         "ts" to Timestamp.now(),
                         "source" to "android",
@@ -135,8 +135,8 @@ class AuthViewModel : ViewModel() {
                         "email" to user?.email,
                         "name" to (user?.displayName ?: "")
                     ))
-                    .addOnSuccessListener { doc -> Log.d("FB", "Healthcheck doc: ${doc.id}") }
-                    .addOnFailureListener { e -> Log.e("FB", "Healthcheck write failed", e) }
+                    .addOnSuccessListener { doc -> Log.d("FB", "Auth Log doc: ${doc.id}") }
+                    .addOnFailureListener { e -> Log.e("FB", "Auth Log write failed", e) }
 
                 // Reset loading and error state
                 _ui.value = _ui.value.copy(isLoading = false, error = null)
