@@ -67,10 +67,28 @@ class AuthViewModel : ViewModel() {
         _ui.value = _ui.value.copy(isLoading = true, error = null)
     }
 
-    private fun isGoogleMailbox(email: String): Boolean {
-        // block common Google-hosted mailboxes for email/pw path
-        return email.endsWith("@gmail.com", ignoreCase = true) ||
-                email.endsWith("@googlemail.com", ignoreCase = true)
+    // Small helper to mirror your Google flow
+    private fun postLoginBookkeeping(provider: String, logger: ILogger) {
+        val user = auth.currentUser ?: return
+        viewModelScope.launch {
+            try { repo.ensureUserCreated(user) } catch (e: Exception) {
+                logger.w("FB", "ensureUserCreated failed: ${e.message}")
+            }
+        }
+        Firebase.firestore.collection("healthchecks")
+            .add(
+                mapOf(
+                    "ts" to com.google.firebase.Timestamp.now(),
+                    "source" to "android",
+                    "provider" to provider,
+                    "uid" to user.uid,
+                    "email" to user.email,
+                    "name" to (user.displayName ?: "")
+                )
+            )
+            .addOnFailureListener { e -> logger.w("FB", "Healthcheck write failed: ${e.message}") }
+
+        _ui.value = _ui.value.copy(isLoading = false, error = null)
     }
 
     // Handles Google Sign-In. Called from MainActivity.kt once Google returns result intent
