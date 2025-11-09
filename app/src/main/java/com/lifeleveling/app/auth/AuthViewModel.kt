@@ -79,7 +79,7 @@ class AuthViewModel : ViewModel() {
             .add(
                 mapOf(
                     "ts" to com.google.firebase.Timestamp.now(),
-                    "source" to "android",
+                    "source" to "emailPasswordLogin",
                     "provider" to provider,
                     "uid" to user.uid,
                     "email" to user.email,
