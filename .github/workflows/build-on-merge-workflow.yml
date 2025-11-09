@@ -1,0 +1,22 @@
+name: build-on-merge-workflow.yml
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
