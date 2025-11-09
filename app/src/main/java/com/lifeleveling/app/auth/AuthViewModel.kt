@@ -173,27 +173,36 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger) : Boolean {
-        try {
-            auth.createUserWithEmailAndPassword(email, password).await()
-            auth.signInWithEmailAndPassword(email, password).await()
-            return true
-        }
-        catch (e: FirebaseAuthInvalidCredentialsException) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
-            return false
-        }
-        catch(e: FirebaseAuthInvalidUserException) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
-            return false
-        }
-        catch (e: FirebaseAuthException) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
-            return false
-        }
-        catch (e: Exception) {
-            logger.e("FB", "createUserWithEmailAndPassword failed due to AuthException", e)
-            return false
+    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
+    {
+        viewModelScope.launch {
+            _ui.value = _ui.value.copy(isLoading = true, error = null)
+            try {
+                auth.createUserWithEmailAndPassword(email.trim(), password).await()
+                auth.signInWithEmailAndPassword(email.trim(), password).await()
+                postLoginBookkeeping(provider = "password", logger = logger)
+                _ui.value = _ui.value.copy(isLoading = false, error = null)
+            } catch (e: com.google.firebase.auth.FirebaseAuthUserCollisionException) {
+
+                // Email already in use.
+                val methods = auth.fetchSignInMethodsForEmail(email.trim()).await().signInMethods.orEmpty()
+                val msg = if ("google.com" in methods && "password" !in methods) {
+                    "This email is registered with Google. Use 'Login using Google'."
+                } else {
+                    "Email already in use. Try signing in."
+                }
+                logger.w("FB", msg)
+                _ui.value = _ui.value.copy(isLoading = false, error = msg)
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                logger.e("FB", "Invalid email/password", e)
+                _ui.value = _ui.value.copy(isLoading = false, error = "Invalid email or password format.")
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Auth exception", e)
+                _ui.value = _ui.value.copy(isLoading = false, error = "Could not create account.")
+            } catch (e: Exception) {
+                logger.e("FB", "Unexpected sign-up error", e)
+                _ui.value = _ui.value.copy(isLoading = false, error = "Sign-up failed.")
+            }
         }
     }
 
