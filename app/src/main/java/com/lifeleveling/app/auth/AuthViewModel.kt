@@ -150,26 +150,37 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger) : Boolean {
-        try {
-            auth.signInWithEmailAndPassword(email, password).await()
-            return true
-        }
-        catch (e: FirebaseAuthInvalidCredentialsException) {
-            logger.e("FB", "signInWithEmailPassword failed due to Invalid Credentials: ", e)
-            return false
-        }
-        catch (e: FirebaseAuthInvalidUserException) {
-            logger.e("FB", "signInWithEmailPassword failed due to Invalid User", e)
-            return false
-        }
-        catch (e: FirebaseAuthException) {
-            logger.e("FB", "signInWithEmailPassword failed due to AuthException", e)
-            return false
-        }
-        catch (e: Exception) {
-            logger.e("FB", "signInWithEmailPassword failed due to unspecified Exception", e)
-            return false
+    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
+    {
+        viewModelScope.launch {
+            _ui.value = _ui.value.copy(isLoading = true, error = null)
+            try {
+                // If this email is Google-only, this call will fail with InvalidCredentials.
+                auth.signInWithEmailAndPassword(email.trim(), password).await()
+                postLoginBookkeeping(provider = "password", logger = logger)
+                _ui.value = _ui.value.copy(isLoading = false, error = null)
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+                // No account exists with this email
+                logger.w("FB", "No user for ${email.trim()}")
+                _ui.value = _ui.value.copy(isLoading = false, error = "No account found for this email.")
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                // Wrong password or email malformed, or Google-only account
+                logger.e("FB", "Invalid credentials", e)
+                // Tells user if the email is federated-only
+                val methods = auth.fetchSignInMethodsForEmail(email.trim()).await().signInMethods.orEmpty()
+                val msg = if ("google.com" in methods && "password" !in methods) {
+                    "This email is registered with Google. Use 'Login using Google'."
+                } else {
+                    "Invalid email or password."
+                }
+                _ui.value = _ui.value.copy(isLoading = false, error = msg)
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Auth exception", e)
+                _ui.value = _ui.value.copy(isLoading = false, error = "Authentication error.")
+            } catch (e: Exception) {
+                logger.e("FB", "Unexpected sign-in error", e)
+                _ui.value = _ui.value.copy(isLoading = false, error = "Sign-in failed.")
+            }
         }
     }
 
