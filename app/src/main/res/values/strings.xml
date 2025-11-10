@@ -146,6 +146,7 @@
     <string name="logOut">Logout</string>
     <string name="darkMode">Dark Mode</string>
     <string name="lightMode">Light Mode</string>
+    <string name="about_life_leveling">About Life Leveling</string>
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>
