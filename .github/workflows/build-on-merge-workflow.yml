@@ -60,5 +60,5 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: latest-build-apk
+          name: latest-build
           path: app/build/outputs/apk/release/*.apk

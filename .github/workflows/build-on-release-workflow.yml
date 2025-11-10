@@ -18,16 +18,20 @@ jobs:
           workflow: build-on-merge-workflow.yml
           workflow_conclusion: success
           branch: main
-          name: latest-build-apk
+          name: latest-build
+          path: ./artifacts # will create the path if it doesn't exist
+
+      - name: Sanity Check
+        run: ls ./artifacts # list for sanity
 
       - name: Rename APK
-        run: mv app/build/outputs/apk/release/app-release.apk app-${{ github.event.release.tag_name }}.apk
+        run: mv ./artifacts/latest-build.apk ./app-${{ github.event.release.tag_name }}.apk
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
-          name: app-release-${{ github.base_ref }}
-          files: app/build/outputs/apk/release/*.apk
+          name: app-release-${{ github.event.release.tag_name }}
+          files: ./*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
