@@ -43,10 +43,11 @@ jobs:
         run: |
           echo "$HOME/Android/platform-tools" >> $GITHUB_PATH
           echo "$HOME/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-      - name: Install Android Platform Tools
-        run: |
-          yes | sdkmanager --sdk_root=$HOME/Android "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+      # more dynamic way to setup android sdk and build tools >^w^<
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 13114758
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
