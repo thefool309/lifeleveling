@@ -1,4 +1,4 @@
-name: build-on-merge-workflow.yml
+name: Build on Push to Main
 on:
   push:
     branches:
@@ -43,6 +43,10 @@ jobs:
           echo "$HOME/Android/platform-tools" >> $GITHUB_PATH
           echo "$HOME/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
+      - name: Install Android Platform Tools
+        run: |
+          yes | sdkmanager --sdk_root=$HOME/Android "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
@@ -52,5 +56,5 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: app-release-apk
+          name: latest-release-apk
           path: app/build/outputs/apk/release/*.apk

@@ -1,0 +1,32 @@
+name: Attach APK to release
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+    steps:
+      - name: Download artifact from last successful run on main
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: build-on-merge-workflow.yml
+          workflow_conclusion: success
+          branch: main
+          name: latest-release-apk
+
+      - name: Rename APK
+        run: mv app/build/outputs/apk/release/app-release.apk app-${{ github.event.release.tag_name }}.apk
+
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          name: app-release-${{ github.base_ref }}
+          files: app/build/outputs/apk/release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
