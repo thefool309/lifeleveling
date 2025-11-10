@@ -42,7 +42,7 @@ For now Installation will be handled via an .apk file that will be bundled with 
 
 ## Contributing
 
-Forks are welcome, pull requests will not be accepted until February 2026. For any major changes please open an issue and discuss what you would like to change. Please make sure to update tests as appropriate.
+Forks are welcome, pull requests will not be accepted until February 2026. For any major changes please open an issue and discuss what you would like to change. Please make sure to update tests as appropriate. We have not settled on a testing philosophy yet, but when we do we will report it here, with a link to more detailed contribution guidelines.
 
 ## Contributors
 
@@ -52,7 +52,7 @@ Forks are welcome, pull requests will not be accepted until February 2026. For a
 
 ### [Stephen](https://github.com/sgcfsu1993)
 
-### [Velma](https://github.com/thefool309)
+### [Vincent](https://github.com/thefool309)
 
 ## Project Status
 Project is still in the MVP/core feature development stage.
