@@ -1,8 +1,11 @@
 name: weekly-contributor-summary-workflow.yml
 on:
   schedule:
-    - cron: "0 14 * * 1" # every monday at 1400 utc
-  workflow_dispatch: # allow manual runs
+    # every monday at 1400 utc
+    - cron: "0 14 * * 1"
+  # allows manual dispatch
+  workflow_dispatch:
+
 
 jobs:
   contributor_summary:
@@ -21,7 +24,7 @@ jobs:
           commit_count=$(git rev-list --count --since="$since" HEAD)
           echo "Found $commit_count commits."
 
-  # --- Create Markdown Summary ---
+          
           start_date=$(date -d "7 days ago" '+%b %d')
           end_date=$(date '+%b %d')
           echo "### Weekly Project Activity ($start_date -> $end_date)" > summary.md
