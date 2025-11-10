@@ -5,7 +5,7 @@ on:
     - cron: "0 14 * * 1"
   # allows manual dispatch
   workflow_dispatch:
-
+  pull_request:
 
 jobs:
   contributor_summary:
