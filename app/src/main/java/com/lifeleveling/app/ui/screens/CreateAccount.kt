@@ -38,15 +38,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.screens.SettingScreen
 import kotlin.text.isEmpty
 
 
-@Preview(showBackground = true)
+
 @Composable
 fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},
@@ -68,19 +70,14 @@ fun CreateAccountScreen(
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
             //logo
             Image(
                 painter = painterResource(id=R.drawable.ll_life_tree),
                 contentDescription = "logo",
                 modifier = Modifier
-                    .padding(24.dp)
-                    .width(148.dp)
-                    .height(148.dp)
+                    .size(148.dp)
             )
             Box(
                 modifier = Modifier
@@ -235,5 +232,18 @@ fun PasswordRules(pWord: String): List<Pair<String, Boolean>> {
         stringResource(R.string.uppercase) to pWord.any { it.isUpperCase() },
         stringResource(R.string.number) to pWord.any { it.isDigit() },
         stringResource(R.string.specialChar) to pWord.any { it in "!@#\$%^&*()_+-=" }
+    )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCreateAccount() {
+    var email = remember { mutableStateOf("") }
+    var password = remember { mutableStateOf("") }
+
+    CreateAccountScreen(
+        email = email,
+        password = password
     )
 }

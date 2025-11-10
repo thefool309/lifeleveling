@@ -110,7 +110,6 @@ fun SettingScreen(
                     ){
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.bell),
-                            contentDescription = "Bell icon",
                             tint = AppTheme.colors.BrandTwo,
                             modifier = Modifier
                                 .size(40.dp)
@@ -142,7 +141,6 @@ fun SettingScreen(
                     ){
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.heart),
-                            contentDescription = "Heart",
                             tint = AppTheme.colors.SecondaryThree,
                             modifier = Modifier
                                 .size(40.dp)
@@ -173,7 +171,6 @@ fun SettingScreen(
                     ){
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.reset_arrows),
-                            contentDescription = "Arrows in a circle",
                             tint = AppTheme.colors.SecondaryOne,
                             modifier = Modifier
                                 .size(40.dp)
@@ -204,7 +201,6 @@ fun SettingScreen(
                     ){
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.document),
-                            contentDescription = "Document icon",
                             tint = AppTheme.colors.SecondaryTwo,
                             modifier = Modifier
                                 .size(40.dp)
@@ -236,7 +232,6 @@ fun SettingScreen(
 
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.trash_solid_full),
-                            contentDescription = "trash can icon",
                             tint = AppTheme.colors.Error,
                             modifier = Modifier
                                 .size(40.dp)
@@ -267,7 +262,6 @@ fun SettingScreen(
 
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.logout),
-                            contentDescription = "arrow pointing out of a door",
                             tint = AppTheme.colors.Error,
                             modifier = Modifier
                                 .size(40.dp)
