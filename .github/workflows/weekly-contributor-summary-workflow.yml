@@ -1,4 +1,4 @@
-name: weekly-contributor-summary-workflow.yml
+name: Weekly Contribution Summary
 on:
   schedule:
     # every monday at 1400 utc
