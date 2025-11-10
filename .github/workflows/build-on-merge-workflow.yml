@@ -34,8 +34,6 @@ jobs:
       # more dynamic way to setup android sdk and build tools >^w^<
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 13114758
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
