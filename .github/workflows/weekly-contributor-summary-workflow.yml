@@ -18,26 +18,28 @@ jobs:
           since=$(date -d "7 days ago" --utc +%Y-%m-%dT%H:%M:%SZ)
           echo "Collecting commits since $since..."
   
-  
           commit_count=$(git rev-list --count --since="$since" HEAD)
           echo "Found $commit_count commits."
 
-        # --- Create Markdown Summary ---
+  # --- Create Markdown Summary ---
           start_date=$(date -d "7 days ago" '+%b %d')
           end_date=$(date '+%b %d')
           echo "### Weekly Project Activity ($start_date -> $end_date)" > summary.md
           echo "" >> summary.md
   
           if [ "$commit_count" -gt 0 ]; then
-          echo "- **Total commits this week:** $commit_count" >> summary.md
-          echo "" >> summary.md
-          echo "Keep up the great work, everyone!" >> summary.md
+          {
+            echo "- **Total commits this week:** $commit_count"
+            echo ""
+            echo "Keep up the great work, everyone!"
+          } >> summary.md
           else
-          echo "Nothing committed this week T.T" >> summary.md
+            echo "Nothing committed this week T.T" >> summary.md
           fi
-  
-          echo "" >> summary.md
-          echo "Generated on $(date -u)" >> summary.md
+          {
+            echo ""
+            echo "Generated on $(date -u)"
+          } >> summary.md
 
       - name: Display Summary
         run: cat summary.md

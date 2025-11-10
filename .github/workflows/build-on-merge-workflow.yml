@@ -1,4 +1,4 @@
-name: Build on Push to Main
+name: Android CI
 on:
   push:
     branches:
@@ -57,5 +57,5 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: latest-release-apk
+          name: latest-build-apk
           path: app/build/outputs/apk/release/*.apk

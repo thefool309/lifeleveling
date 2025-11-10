@@ -18,7 +18,7 @@ jobs:
           workflow: build-on-merge-workflow.yml
           workflow_conclusion: success
           branch: main
-          name: latest-release-apk
+          name: latest-build-apk
 
       - name: Rename APK
         run: mv app/build/outputs/apk/release/app-release.apk app-${{ github.event.release.tag_name }}.apk
