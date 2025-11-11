@@ -1,0 +1,38 @@
+name: Attach APK to release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+    steps:
+      - name: Download artifact from last successful run on main
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: build-on-merge-workflow.yml
+          workflow_conclusion: success
+          branch: main
+          name: latest-build
+          path: ./artifacts # will create the path if it doesn't exist
+
+      - name: Sanity Check
+        run: ls ./artifacts # list for sanity
+
+      - name: Rename APK
+        run: mv ./artifacts/latest-build.apk ./app-${{ github.event.release.tag_name }}.apk
+
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          name: app-release-${{ github.event.release.tag_name }}
+          files: ./*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
