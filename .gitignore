@@ -54,3 +54,6 @@ firebase.json
 
 node_modules/
 *.local
+
+*.jks
+*.keystore
