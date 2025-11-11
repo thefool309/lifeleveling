@@ -2,7 +2,7 @@ name: Weekly Contribution Summary
 on:
   push:
     branches:
-      - '**'
+      - 'main'
   schedule:
     # every monday at 1400 utc
     - cron: "0 14 * * 1"
