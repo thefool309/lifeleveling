@@ -1,6 +1,5 @@
 package com.lifeleveling.app.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,32 +7,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,13 +38,10 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.daysOfWeek
-import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.minusMonths
-import com.kizitonwose.calendar.core.now
 import com.kizitonwose.calendar.core.plusMonths
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -65,7 +55,13 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable
 fun CalendarScreen() {
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = Modifier
+        .fillMaxSize()
+        .background(color = AppTheme.colors.Background)
+        .padding(16.dp),
+
+    ) {
+
         val currentMonth = remember { YearMonth.now() }
         val startMonth = remember { currentMonth.minusMonths(100) }
         val endMonth = remember { currentMonth.plusMonths(100) }
@@ -90,24 +86,49 @@ fun CalendarScreen() {
                  verticalArrangement = Arrangement.spacedBy(16.dp),
                  horizontalAlignment = Alignment.CenterHorizontally
              ) {
-                 SlidingSwitch(
-                     modifier = Modifier
-                      ,
-                     options = listOf("Month", "Day"),
-                     selectedIndex = if (isMonthView.value) 0 else 1,
-                     onOptionSelected = { index -> isMonthView.value = (index == 0) },
-                     horizontalPadding = 12.dp,
-                     verticalPadding = 8.dp,
-                     backgroundColor = AppTheme.colors.DarkerBackground,
-                     selectedColor = AppTheme.colors.BrandOne,
-                     unselectedColor = AppTheme.colors.Gray,
-                     cornerRadius = 32.dp,
-                     textStyle = AppTheme.textStyles.Default,
-                     insetAmount = 4.dp,
-                     extraWidth = 64.dp,
-                 )
+                 Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+
+                 ){
+                     SlidingSwitch(
+                         modifier = Modifier
+                             .align(Alignment.Center),
+                         options = listOf("Month", "Day"),
+                         selectedIndex = if (isMonthView.value) 0 else 1,
+                         onOptionSelected = { index -> isMonthView.value = (index == 0) },
+                         horizontalPadding = 12.dp,
+                         verticalPadding = 8.dp,
+                         backgroundColor = AppTheme.colors.DarkerBackground,
+                         selectedColor = AppTheme.colors.BrandOne,
+                         unselectedColor = AppTheme.colors.Gray,
+                         cornerRadius = 32.dp,
+                         textStyle = AppTheme.textStyles.HeadingFour,
+                         insetAmount = 4.dp,
+                         extraWidth = 64.dp,
+                     )
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.info),
+                        contentDescription = null,
+                        tint = AppTheme.colors.FadedGray,
+                        modifier = Modifier
+
+                            .align(Alignment.TopEnd)
+                            .size(28.dp)
+                            .clickable {
+                                // Todo add info i click action
+                            },
+
+                    )
+                 }
+
                  HighlightCard(
-                     innerPadding = 0.dp
+                     modifier = Modifier,
+                         //.weight(1f),
+                     innerPadding = 0.dp,
+                     outerPadding = 0.dp,
+                     //height = ((screenHeight/4)*3)
+
                  ){
                      Column(
                          modifier = Modifier
@@ -115,7 +136,7 @@ fun CalendarScreen() {
                          if (isMonthView.value){
                              HorizontalCalendar(
                                  modifier = Modifier
-                                     .background(color = AppTheme.colors.DarkerBackground),
+                                     .background(color = Color.Transparent),
                                  state = state,
                                  dayContent = { Day(it) },
                                  monthHeader = {
@@ -123,7 +144,7 @@ fun CalendarScreen() {
                                      Column(
                                          modifier = Modifier
                                              .fillMaxWidth()
-                                             .background(AppTheme.colors.DarkerBackground)
+                                             .background(Color.Transparent)
                                      ){
                                          val monthName = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
                                          val year = month.yearMonth.year
@@ -190,43 +211,77 @@ fun CalendarScreen() {
                              }
                          }
                      }
-
-
                  }
-                 Row(
+                 Column(
                      modifier = Modifier
-                         .padding(horizontal = 16.dp)
-                         .align(Alignment.Start)
-                         .clickable {
-                             // Todo add way to add reminders
-                         },
-                     verticalAlignment = Alignment.CenterVertically,
-                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                         .fillMaxWidth(),
+                     verticalArrangement = Arrangement.spacedBy(24.dp),
+
                  ){
-                     ShadowedIcon(
-                         imageVector = ImageVector.vectorResource(R.drawable.plus),
-                         contentDescription = null,
-                         tint = AppTheme.colors.SecondaryThree,
+                     Row(
                          modifier = Modifier
-                             .size(24.dp)
+                             .align(Alignment.Start)
+                             .clickable {
+                                 // Todo add way to add reminders
+                             },
+                         verticalAlignment = Alignment.CenterVertically,
+                         horizontalArrangement = Arrangement.spacedBy(8.dp),
+                     ){
+                         ShadowedIcon(
+                             imageVector = ImageVector.vectorResource(R.drawable.plus),
+                             contentDescription = null,
+                             tint = AppTheme.colors.SecondaryThree,
+                             modifier = Modifier
+                                 .size(24.dp)
 
 
-                     )
+                         )
 
-                     Text(
-                         text = "Add Reminder",
-                         color = AppTheme.colors.SecondaryThree,
-                         style = AppTheme.textStyles.DefaultUnderlined.copy(
-                             shadow = Shadow(
-                                 color = AppTheme.colors.DropShadow,
-                                 offset = Offset(3f, 4f),
-                                 blurRadius = 6f,
-                             )
-                         ),
-                     )
+                         Text(
+                             text = "Add Reminder",
+                             color = AppTheme.colors.SecondaryThree,
+                             style = AppTheme.textStyles.DefaultUnderlined.copy(
+                                 shadow = Shadow(
+                                     color = AppTheme.colors.DropShadow,
+                                     offset = Offset(3f, 4f),
+                                     blurRadius = 6f,
+                                 )
+                             ),
+                         )
+                     }
+
+                     Row(
+                         modifier = Modifier
+                             .align(Alignment.Start)
+                             .clickable {
+                                 // Todo add all reminder list click > might be handled in Days list cause how they are created
+                             },
+                         verticalAlignment = Alignment.CenterVertically,
+                         horizontalArrangement = Arrangement.spacedBy(8.dp),
+                     ){
+                         ShadowedIcon(
+                             imageVector = ImageVector.vectorResource(R.drawable.bars_solid_full),
+                             contentDescription = null,
+                             tint = AppTheme.colors.SecondaryThree,
+                             modifier = Modifier
+                                 .size(24.dp)
+
+
+                         )
+
+                         Text(
+                             text = "My Reminders",
+                             color = AppTheme.colors.SecondaryThree,
+                             style = AppTheme.textStyles.DefaultUnderlined.copy(
+                                 shadow = Shadow(
+                                     color = AppTheme.colors.DropShadow,
+                                     offset = Offset(3f, 4f),
+                                     blurRadius = 6f,
+                                 )
+                             ),
+                         )
+                     }
                  }
-
-
              }
          }
     }
@@ -244,7 +299,7 @@ fun Day(day: CalendarDay) {
             .fillMaxWidth()
             .height(70.dp)
             .clickable {
-                // Todo add click to add events to days
+                // Todo add click to add events to days > might be handled in Add reminders
             },
         contentAlignment = Alignment.TopCenter,
     ) {
@@ -260,12 +315,12 @@ fun Day(day: CalendarDay) {
 
 @Composable
 fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
-    val backgroundColor = AppTheme.colors.Background
+    //val backgroundColor = AppTheme.colors.Background
     val topLine = AppTheme.colors.SecondaryTwo
     val grayLine = AppTheme.colors.Gray
     Row(modifier = Modifier
         .fillMaxWidth()
-        .background(color = AppTheme.colors.Background)
+        .background(color = Color.Transparent)
         .drawBehind {
             val strokeWidth = 2.dp.toPx()
             // Top border
