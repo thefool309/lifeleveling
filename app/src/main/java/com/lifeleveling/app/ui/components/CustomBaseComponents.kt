@@ -589,6 +589,7 @@ fun CircleButton(
             )
             .clip(CircleShape)
             .background(Color.White)
+            .border(1.dp, AppTheme.colors.FadedGray, CircleShape)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(
@@ -606,7 +607,7 @@ fun CircleButton(
             blur = 4.dp,
             offsetX = 1.dp,
             offsetY = 1.dp,
-            spread = 1.5.dp,
+            spread = 1.dp,
             cornerRadius = size / 2,
         )
         // Bottom right
@@ -617,7 +618,7 @@ fun CircleButton(
             blur = 2.dp,
             offsetX = (-.5).dp,
             offsetY = (-1).dp,
-            spread = 1.5.dp,
+            spread = 1.dp,
             cornerRadius = size / 2,
         )
         // All over inside
