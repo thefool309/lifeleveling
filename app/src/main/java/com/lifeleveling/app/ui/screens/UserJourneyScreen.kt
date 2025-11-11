@@ -51,6 +51,9 @@ fun UserJourneyScreen(
             .format(Date(it))
     } ?: "Not Completed"
     val timeSinceCreated = TestUser.getTimeSinceUserCreated()
+    TestUser.updateTopReminder()
+    val mostCompletedReminder = if (TestUser.mostCompletedReminder.first == "") stringResource(R.string.no_remiders)
+                        else "${TestUser.mostCompletedReminder.first} ${TestUser.mostCompletedReminder.second.toString()}"
 
     // Statistics to display
     val statistics = listOf(
@@ -115,6 +118,10 @@ fun UserJourneyScreen(
                 JourneyItem(
                     R.string.account_age,
                     timeSinceCreated
+                ),
+                JourneyItem(
+                    R.string.most_completed_reminder,
+                    value = mostCompletedReminder
                 )
             )
         ),
