@@ -2,7 +2,7 @@ name: Weekly Contribution Summary
 on:
   push:
     branches:
-      - 'main'
+      - '**'
   schedule:
     # every monday at 1400 utc
     - cron: "0 14 * * 1"
@@ -28,6 +28,9 @@ jobs:
           commit_count=$(git rev-list --count --since="$since" HEAD)
           echo "Found $commit_count commits."
 
+          # Count insertions and deletions
+          read insertions deletions <<< $(git log --since="$since" --pretty=tformat: --numstat | \
+          awk '{ins+=$1; del+=$2} END {print ins, del}')
           
           start_date=$(date -d "7 days ago" '+%b %d')
           end_date=$(date '+%b %d')
@@ -37,6 +40,8 @@ jobs:
           if [ "$commit_count" -gt 0 ]; then
           {
             echo "- **Total commits this week:** $commit_count"
+            echo "**Insertions:** $insertions"
+            echo "**Deletions:** $deletions"
             echo ""
             echo "Keep up the great work, everyone!"
           } >> summary.md
