@@ -1,0 +1,5 @@
+# Contributing
+
+Forks are welcome, pull requests will not be accepted until at least february 2026, and once we can work out how an outside contributor could test the application. You could always fork it and modify it to use your own firebase project if you wish to create something built on top of it. For any major changes please open an issue and discuss what you would like to change. Please make sure to update tests as appropriate. We have settled on a hybrid testing philosophy, something between the waterfall and agile methods. We may write some tests as we go, but we are not aiming for a high code coverage initially. We will have a phase later where we conduct more rigorous tests and attempt to fine tune our testing process and the application's error handling.
+
+Please follow kotlin naming and code conventions. I myself am not immune to these mistakes, so if you see any of us make a mistake with kotlin naming conventions please call it out in an issue. We are all learning and some things are different if you're coming from a language using different naming conventions.
