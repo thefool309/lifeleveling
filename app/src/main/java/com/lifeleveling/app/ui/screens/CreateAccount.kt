@@ -63,7 +63,7 @@ fun CreateAccountScreen(
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ){
             //logo
             Image(
@@ -79,11 +79,7 @@ fun CreateAccountScreen(
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-//                .height(350.dp)
-//                .width(300.dp)
-//                .background(color = AppTheme.colors.DarkerBackground),
                 outerPadding = 0.dp,
-                //innerPadding = 0.dp,
             ){
                 //column keeping box items centered
                 Column(
@@ -98,7 +94,6 @@ fun CreateAccountScreen(
                             .fillMaxWidth(),
                         value = email.value,
                         onValueChange = {email.value = it},
-                        //label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -109,19 +104,14 @@ fun CreateAccountScreen(
                         }
 
                     )
-                    //Spacer(modifier = Modifier.size(8.dp))
                     //password
-
                     OutlinedTextField(
                         modifier = Modifier
-
-                            .fillMaxWidth(0.9f),
+                            .fillMaxWidth(),
                         value = password.value,
                         onValueChange = {password.value = it
                             password.value.isNotEmpty()
                         },
-
-                        //label = { Text("Password", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
                         placeholder = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
@@ -140,10 +130,7 @@ fun CreateAccountScreen(
                                 }
                             }
                         },
-
-                        )
-
-                    Spacer(modifier = Modifier.size(6.dp))
+                    )
                     CustomButton(
                         modifier = Modifier,
                         // .width(120.dp),
@@ -155,57 +142,45 @@ fun CreateAccountScreen(
                     )
                 }
             }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp)
-            ) {
-
-                Button(
+            Button(
                     modifier = Modifier
                         .width(250.dp)
                         .height(50.dp),
-
-                    onClick = onGoogleLogin,
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
-                ) {         //This below can place and image in the button
+            onClick = onGoogleLogin,
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.Gray)
+            ) {         //This below can place and image in the button
 //                        Image(
 //                            painter = painterResource(id = R.drawable.gmail_color),
 //                            contentDescription = "Google Image",
 //                            modifier = Modifier
 //                                .size(48.dp)
 //                        )
-                    //button text
-                    Text(
-                        "G",
-                        color = AppTheme.colors.DropShadow,
-                        style = AppTheme.textStyles.HeadingThree,
-                        fontSize = 28.sp,
-
-                        )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        stringResource(R.string.useGoogle),
-                        color = AppTheme.colors.DropShadow,
-                        style = AppTheme.textStyles.HeadingSix,
-                        fontSize = 16.sp,
-
-                        )
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-                //create an account nav link
-                Text(
-                    text = stringResource(R.string.backToLogin),
-                    color = AppTheme.colors.SecondaryThree,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    style = AppTheme.textStyles.DefaultUnderlined,
-                    modifier = Modifier.clickable { onLog() }
+            //button text
+            Text(
+                "G",
+                color = AppTheme.colors.DropShadow,
+                style = AppTheme.textStyles.HeadingThree,
+                fontSize = 28.sp,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                stringResource(R.string.useGoogle),
+                color = AppTheme.colors.DropShadow,
+                style = AppTheme.textStyles.HeadingSix,
+                fontSize = 16.sp,
                 )
-            }
+        }
+
+            //create an account nav link
+            Text(
+                text = stringResource(R.string.backToLogin),
+                color = AppTheme.colors.SecondaryThree,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                style = AppTheme.textStyles.DefaultUnderlined,
+                modifier = Modifier.clickable { onLog() }
+            )
         }
     }
 }
