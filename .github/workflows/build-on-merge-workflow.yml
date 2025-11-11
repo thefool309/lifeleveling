@@ -32,7 +32,7 @@ jobs:
           # example gradle-ubuntu-latest-5a3c9f8d2e
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-      # more dynamic way to setup android sdk and build tools >^w^<
+      # more dynamic way to set up android sdk and build tools >^w^<
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
