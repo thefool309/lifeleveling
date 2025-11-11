@@ -121,7 +121,7 @@ fun CreateAccountScreen(
                                         color = AppTheme.colors.Error)
 
                                 isGmail ->
-                                    Text("Use 'Sign in with Google' for Gmail addresses.",
+                                    Text("Use 'Login using Google' for Gmail addresses.",
                                         style = AppTheme.textStyles.Small,
                                         color = AppTheme.colors.Error)
                             }
