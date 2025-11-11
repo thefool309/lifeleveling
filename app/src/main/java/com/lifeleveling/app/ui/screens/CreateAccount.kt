@@ -57,7 +57,8 @@ fun CreateAccountScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = AppTheme.colors.Background),
+            .background(color = AppTheme.colors.Background)
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ){
         Column(
@@ -69,38 +70,32 @@ fun CreateAccountScreen(
                 painter = painterResource(id=R.drawable.ll_life_tree),
                 contentDescription = "logo",
                 modifier = Modifier
-                    .size(148.dp)
+                    .size(140.dp)
             )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
 
-            ){
-                Text(stringResource(R.string.createAccountTitle), color = AppTheme.colors.BrandOne,style = AppTheme.textStyles.HeadingThree, textAlign = TextAlign.Center)
-            }
+            Text(stringResource(R.string.createAccountTitle), color = AppTheme.colors.BrandOne,style = AppTheme.textStyles.HeadingThree, textAlign = TextAlign.Center)
 
             //inner box holding text fields
-            HighlightCard( modifier = Modifier
-                .height(350.dp)
-                .width(300.dp)
-                .background(color = AppTheme.colors.DarkerBackground),
+            HighlightCard(
+                modifier = Modifier
+                    .fillMaxWidth(),
+//                .height(350.dp)
+//                .width(300.dp)
+//                .background(color = AppTheme.colors.DarkerBackground),
                 outerPadding = 0.dp,
                 //innerPadding = 0.dp,
-
             ){
                 //column keeping box items centered
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
-
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     //email
                     OutlinedTextField(
                         modifier = Modifier
-                            .fillMaxWidth(0.9f),
+                            .fillMaxWidth(),
                         value = email.value,
                         onValueChange = {email.value = it},
                         //label = { Text("Email", color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },

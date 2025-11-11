@@ -1,6 +1,7 @@
 package com.lifeleveling.app.ui.components
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -604,8 +606,9 @@ fun CircleButton(
                 spotColor = shadowColor,
             )
             .clip(CircleShape)
-            .background(Color.White)
-            .border(1.dp, AppTheme.colors.FadedGray, CircleShape)
+//            .background(Color.White)
+            .background(backgroundColor)
+//            .border(1.dp, AppTheme.colors.FadedGray, CircleShape)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(
@@ -615,37 +618,44 @@ fun CircleButton(
             ) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        // Top left
-        InnerShadow(
-            modifier = Modifier.matchParentSize(),
-            color = backgroundColor,
-            shadowColor = AppTheme.colors.LightShadow,
-            blur = 4.dp,
-            offsetX = 1.dp,
-            offsetY = 1.dp,
-            spread = 1.dp,
-            cornerRadius = size / 2,
+        Image(
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(size),
+            painter = painterResource(R.drawable.button_highlight_dark),
+            contentDescription = null,
         )
-        // Bottom right
-        InnerShadow(
-            modifier = Modifier.matchParentSize(),
-            color = Color.Transparent,
-            shadowColor = AppTheme.colors.LightShadow,
-            blur = 2.dp,
-            offsetX = (-.5).dp,
-            offsetY = (-1).dp,
-            spread = 1.dp,
-            cornerRadius = size / 2,
-        )
-        // All over inside
-        InnerShadow(
-            modifier = Modifier.matchParentSize(),
-            color = Color.Transparent,
-            shadowColor = AppTheme.colors.DropShadow,
-            blur = 2.5.dp,
-            spread = .25.dp,
-            cornerRadius = size / 2,
-        )
+//        // Top left
+//        InnerShadow(
+//            modifier = Modifier.matchParentSize(),
+//            color = backgroundColor,
+//            shadowColor = AppTheme.colors.LightShadow,
+//            blur = 4.dp,
+//            offsetX = 1.dp,
+//            offsetY = 1.dp,
+//            spread = 1.dp,
+//            cornerRadius = size / 2,
+//        )
+//        // Bottom right
+//        InnerShadow(
+//            modifier = Modifier.matchParentSize(),
+//            color = Color.Transparent,
+//            shadowColor = AppTheme.colors.LightShadow,
+//            blur = 2.dp,
+//            offsetX = (-.5).dp,
+//            offsetY = (-1).dp,
+//            spread = 1.dp,
+//            cornerRadius = size / 2,
+//        )
+//        // All over inside
+//        InnerShadow(
+//            modifier = Modifier.matchParentSize(),
+//            color = Color.Transparent,
+//            shadowColor = AppTheme.colors.DropShadow,
+//            blur = 2.5.dp,
+//            spread = .25.dp,
+//            cornerRadius = size / 2,
+//        )
         ShadowedIcon(
             imageVector = imageVector,
             contentDescription = contentDescription,
