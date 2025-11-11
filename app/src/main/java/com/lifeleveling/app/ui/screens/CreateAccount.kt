@@ -231,8 +231,8 @@ fun PasswordRules(pWord: String): List<Pair<String, Boolean>> {
 @Preview(showBackground = true)
 @Composable
 fun PreviewCreateAccount() {
-    var email = remember { mutableStateOf("") }
-    var password = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
 
     CreateAccountScreen(
         email = email,
