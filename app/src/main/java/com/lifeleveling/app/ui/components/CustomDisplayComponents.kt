@@ -37,7 +37,10 @@ fun found in this file
 @Composable
 fun LevelAndProgress(
     modifier: Modifier = Modifier,// add a weight for how much of the page or a size
-    showLevelTip: MutableState<Boolean>
+    showLevelTip: MutableState<Boolean>,
+    level: Int,
+    xpToNextLevel: Int,
+    currentXp: Int
 ) {
     Column (
         modifier = modifier
@@ -52,7 +55,7 @@ fun LevelAndProgress(
         ) {
             // Level Display
             Text(
-                text = stringResource(R.string.level, TestUser.level),
+                text = stringResource(R.string.level, level),
                 color = AppTheme.colors.SecondaryOne,
                 style = AppTheme.textStyles.HeadingThree.copy(
                     shadow = Shadow(
@@ -77,12 +80,12 @@ fun LevelAndProgress(
 
         // Progress Bar
         ProgressBar(
-            progress = TestUser.currentExp.toFloat() / TestUser.expToLevel
+            progress = currentXp.toFloat() / xpToNextLevel
         )
 
         // Experience Display
         Text(
-            text = stringResource(R.string.exp_display, TestUser.currentExp, TestUser.expToLevel),
+            text = stringResource(R.string.exp_display, currentXp, xpToNextLevel),
             color = AppTheme.colors.Gray,
             style = AppTheme.textStyles.Default,
             modifier = Modifier.align(Alignment.End)
