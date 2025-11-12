@@ -60,9 +60,9 @@ fun HomeScreen() {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Box of Level and Exp
-            LevelAndProgress(
+            /*LevelAndProgress(
                 showLevelTip = showLevelTip
-            )
+            )*/
 
             // Middle section
             Box(
