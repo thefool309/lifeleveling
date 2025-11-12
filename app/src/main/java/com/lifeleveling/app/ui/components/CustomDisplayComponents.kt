@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.models.StatsUi
 import com.lifeleveling.app.ui.theme.AppTheme
 
 /*
@@ -38,9 +39,7 @@ fun found in this file
 fun LevelAndProgress(
     modifier: Modifier = Modifier,// add a weight for how much of the page or a size
     showLevelTip: MutableState<Boolean>,
-    level: Int,
-    xpToNextLevel: Int,
-    currentXp: Int
+    statsUi: StatsUi
 ) {
     Column (
         modifier = modifier
@@ -55,7 +54,7 @@ fun LevelAndProgress(
         ) {
             // Level Display
             Text(
-                text = stringResource(R.string.level, level),
+                text = stringResource(R.string.level, statsUi.level),
                 color = AppTheme.colors.SecondaryOne,
                 style = AppTheme.textStyles.HeadingThree.copy(
                     shadow = Shadow(
@@ -80,12 +79,12 @@ fun LevelAndProgress(
 
         // Progress Bar
         ProgressBar(
-            progress = currentXp.toFloat() / xpToNextLevel
+            progress = statsUi.currentXp.toFloat() / statsUi.xpToNextLevel
         )
 
         // Experience Display
         Text(
-            text = stringResource(R.string.exp_display, currentXp, xpToNextLevel),
+            text = stringResource(R.string.exp_display, statsUi.currentXp, statsUi.xpToNextLevel),
             color = AppTheme.colors.Gray,
             style = AppTheme.textStyles.Default,
             modifier = Modifier.align(Alignment.End)
