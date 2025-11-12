@@ -110,9 +110,7 @@ fun StatsScreen(
                 LevelAndProgress(
                     modifier = Modifier,
                     showLevelTip = showHelpDialog,
-                    level = uiState.level,
-                    currentXp = uiState.currentXp,
-                    xpToNextLevel = uiState.xpToNextLevel
+                    statsUi = uiState
                 )
 
                 // Header + counters
