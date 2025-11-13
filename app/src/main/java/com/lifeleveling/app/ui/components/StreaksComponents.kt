@@ -252,6 +252,8 @@ fun AddStreak(
         stringResource(R.string.years),
     )
     var doNotRepeat by remember { mutableStateOf(false) }
+    val timeIntervalMenu = remember { mutableStateOf(false) }
+    val reminderMenu = remember { mutableStateOf(false) }
 
     CustomDialog(
         toShow = toShow,
@@ -323,12 +325,12 @@ fun AddStreak(
                     DropDownReminderMenu(
                         options = reminders,
                         selectedIndex = selectedReminderIndex,
-                        onOptionSelected = { selectedReminderIndex = it },
-                        menuWidth = 300.dp,
+                        onSelectedIndex = { selectedReminderIndex = it },
                         textStyle = AppTheme.textStyles.HeadingSix,
                         iconSize = 25.dp,
                         arrowSize = 25.dp,
-                        menuOffset = IntOffset(50, 0)
+                        expanded = reminderMenu,
+                        backgroundMainColor = AppTheme.colors.DarkerBackground,
                     )
                     Text(
                         modifier = Modifier.clickable {},
@@ -376,10 +378,11 @@ fun AddStreak(
                             modifier = Modifier.weight(1f),
                             options = repeatIntervalOptions,
                             selectedIndex = selectedRepeatIndex,
-                            onOptionSelected = { selectedRepeatIndex = it },
+                            onSelectedChange = { selectedRepeatIndex = it },
                             textStyle = AppTheme.textStyles.HeadingSix,
                             arrowSize = 25.dp,
-                            menuOffset = IntOffset(25, 10)
+                            expanded = timeIntervalMenu,
+                            backgroundMainColor = AppTheme.colors.DarkerBackground,
                         )
                     }
 

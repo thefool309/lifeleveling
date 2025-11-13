@@ -67,6 +67,7 @@ SeparatorLine  -  Easy call of the custom separator
 
 // This screen shows the different effects that are within this file
 @Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestScreen() {
     val configuration = LocalConfiguration.current
@@ -219,13 +220,15 @@ fun TestScreen() {
                     "One", "Two", "Three", "Four", "Five", "Six", "Seven",
                 )
                 var selectedIndex by remember { mutableStateOf(0) }
+                var expanded = remember { mutableStateOf(false) }
                 Box(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 ){
                     DropDownTextMenu(
                         options = options,
                         selectedIndex = selectedIndex,
-                        onOptionSelected = { selectedIndex = it },
+                        onSelectedChange = { selectedIndex = it },
+                        expanded = expanded,
                     )
                 }
 
@@ -959,106 +962,104 @@ fun CustomDialog(
 /**
  * Creates a dropdown menu for string options
  * @param options List of strings for options
- * @param selectedIndex Variable for storing the selected option
- * @param onOptionSelected What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
- * @param menuWidth Sets the width of the menu
- * @param menuOffset Adjusts where the menu shows up
- * @param clickBoxColor The main dropdown menu's background color
- * @param accentBoxColor Menu alternates color for different items, this is the second color it will use
- * @param textStyle Sets the style of all the text
- * @param textColor Sets the color of all the text
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
  * @param arrowSize Changes the size of the arrow on the dropdown box
- * @param arrowColor Color of the arrow
+ * @param textStyle Sets the style of all the text
+ * @param textColor Sets the color of all the text and the arrow
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @param selectedText A highlight to the text of the currently selected option
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDownTextMenu(
     modifier: Modifier = Modifier,
     options: List<String>,
     selectedIndex: Int,
-    onOptionSelected: (Int) -> Unit,
-    menuWidth: Dp = 150.dp,
-    menuOffset: IntOffset = IntOffset(75, 10),
-    menuPadding: Dp = 8.dp,
-    clickBoxColor: Color = AppTheme.colors.DarkerBackground,
-    accentBoxColor: Color = AppTheme.colors.Background,
-    textStyle: TextStyle = AppTheme.textStyles.HeadingSix,
-    textColor: Color = AppTheme.colors.Gray,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
     arrowSize: Dp = 20.dp,
-    arrowColor: Color = AppTheme.colors.Gray,
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    textColor: Color = AppTheme.colors.Gray,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    selectedText: Color = AppTheme.colors.Gray,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(
         modifier = modifier
     ) {
-        // Clickable
-        HighlightCard(
-            modifier = Modifier
-                .fillMaxWidth(),
-            backgroundColor = clickBoxColor,
-            outerPadding = 0.dp
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
         ) {
-            Row(
+            OutlinedTextField(
                 modifier = Modifier
-                    .clickable { expanded = !expanded }
-                    .background(clickBoxColor),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val string = options[selectedIndex]
-                Text(
-                    text = string,
-                    style = textStyle,
-                    color = textColor
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                value = options.getOrNull(selectedIndex) ?: "",
+                onValueChange = { },
+                readOnly = readOnly,
+                trailingIcon = {
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                textStyle = textStyle,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    disabledBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
-                    contentDescription = null,
-                    tint = arrowColor,
-                    modifier = Modifier
-                        .rotate(if (expanded) 90f else 270f)
-                        .size(arrowSize)
-                )
-            }
-        }
-
-        // Dropdown
-        if (expanded) {
-            Popup(
-                offset = menuOffset,
-                onDismissRequest = { expanded = false },
-                properties = PopupProperties(focusable = true),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(menuWidth)
-                        .shadow(8.dp, shape = RoundedCornerShape(5.dp))
-                        .border(2.dp, AppTheme.colors.DropShadow, shape = RoundedCornerShape(5.dp))
-                        .background(clickBoxColor)
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.wrapContentWidth()
-                    ) {
-                        itemsIndexed(options) { index, string ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(if(index % 2 == 0) accentBoxColor else clickBoxColor)
-                                    .clickable {
-                                        onOptionSelected(index)
-                                        expanded = false
-                                    }
-                                    .padding(menuPadding),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = string,
-                                    style = textStyle,
-                                    color = textColor
-                                )
-                            }
-                        }
-                    }
+                options.forEachIndexed { index, option ->
+                    val isSelected = index == selectedIndex
+                    val isEven = index % 2 == 0
+                    val backgroundColor =
+                        if (isSelected) selectedBackground
+                        else if (isEven) backgroundMainColor
+                        else accentColor
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = option,
+                                color = if (index == selectedIndex) selectedText else textColor,
+                                style = textStyle
+                            )
+                        },
+                        onClick = {
+                            onSelectedChange(index)
+                            expanded.value = false
+                        },
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
@@ -1081,113 +1082,116 @@ fun DropDownTextMenu(
  * @param arrowColor Color of the arrow
  * @param iconSize Changes the size of the icons for the options
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDownReminderMenu(
     modifier: Modifier = Modifier,
     options: List<Reminder>,
     selectedIndex: Int,
-    onOptionSelected: (Int) -> Unit,
-    menuWidth: Dp = 150.dp,
-    menuOffset: IntOffset = IntOffset(75, 10),
-    menuPadding: Dp = 8.dp,
-    clickBoxColor: Color = AppTheme.colors.DarkerBackground,
-    accentBoxColor: Color = AppTheme.colors.Background,
-    textStyle: TextStyle = AppTheme.textStyles.HeadingSix,
-    textColor: Color = AppTheme.colors.Gray,
+    onSelectedIndex: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
     arrowSize: Dp = 20.dp,
-    arrowColor: Color = AppTheme.colors.Gray,
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    textColor: Color = AppTheme.colors.Gray,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    selectedText: Color = AppTheme.colors.Gray,
     iconSize: Dp = 20.dp,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(
         modifier = modifier
     ) {
-        // Clickable
-        HighlightCard(
-            modifier = Modifier
-                .fillMaxWidth(),
-            backgroundColor = clickBoxColor,
-            outerPadding = 0.dp
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
         ) {
-            Row(
+            OutlinedTextField(
                 modifier = Modifier
-                    .clickable { expanded = !expanded }
-                    .background(clickBoxColor),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val item = options[selectedIndex]
-                ShadowedIcon(
-                    modifier = Modifier.size(iconSize),
-                    imageVector = ImageVector.vectorResource(item.icon),
-                    tint = if (item.color == null) Color.Unspecified
-                    else resolveEnumColor(item.color),
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                value = options.getOrNull(selectedIndex)?.name ?: "",
+                onValueChange = { },
+                readOnly = readOnly,
+                leadingIcon = {
+                    val item = options[selectedIndex]
+                    ShadowedIcon(
+                        modifier = Modifier.size(iconSize),
+                        imageVector = ImageVector.vectorResource(item.icon),
+                        tint = item.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
+                    )
+                },
+                trailingIcon = {
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                textStyle = textStyle,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = item.name,
-                    style = textStyle,
-                    color = textColor
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
-                    contentDescription = null,
-                    tint = arrowColor,
-                    modifier = Modifier
-                        .rotate(if (expanded) 90f else 270f)
-                        .size(arrowSize)
-                )
-            }
-        }
+            )
 
-        // Dropdown
-        if (expanded) {
-            Popup(
-                offset = menuOffset,
-                onDismissRequest = { expanded = false },
-                properties = PopupProperties(focusable = true),
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(menuWidth)
-                        .shadow(8.dp, shape = RoundedCornerShape(5.dp))
-                        .border(2.dp, AppTheme.colors.DropShadow, shape = RoundedCornerShape(5.dp))
-                        .background(clickBoxColor)
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.wrapContentWidth()
-                    ) {
-                        itemsIndexed(options) { index, reminder ->
-                            val alreadyInStreaks = TestUser.weeklyStreaks.any { it.reminder.id == reminder.id } ||
-                                    TestUser.monthlyStreaks.any { it.reminder.id == reminder.id }
-                            if(!alreadyInStreaks){
+                options.forEachIndexed { index, reminder ->
+                    val alreadyInStreaks = TestUser.weeklyStreaks.any { it.reminder.id == reminder.id } ||
+                            TestUser.weeklyStreaks.any { it.reminder.id == reminder.id }
+
+                    if (!alreadyInStreaks) {
+                        val isSelected = index == selectedIndex
+                        val isEven = index % 2 == 0
+
+                        val backgroundColor =
+                            if (isSelected) selectedBackground
+                            else if (isEven) backgroundMainColor
+                            else accentColor
+
+                        DropdownMenuItem(
+                            text = {
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(if (index % 2 == 0) accentBoxColor else clickBoxColor)
-                                        .clickable {
-                                            onOptionSelected(index)
-                                            expanded = false
-                                        }
-                                        .padding(menuPadding),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     ShadowedIcon(
                                         modifier = Modifier.size(iconSize),
                                         imageVector = ImageVector.vectorResource(reminder.icon),
-                                        tint = if (reminder.color == null) Color.Unspecified
-                                        else resolveEnumColor(reminder.color),
+                                        tint = reminder.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(Modifier.width(8.dp))
                                     Text(
                                         text = reminder.name,
                                         style = textStyle,
-                                        color = textColor
+                                        color = if (isSelected) selectedText else textColor,
                                     )
                                 }
-                            }
-                        }
+                            },
+                            onClick = {
+                                onSelectedIndex(index)
+                                expanded.value = false
+                            },
+                            modifier = Modifier
+                                .background(backgroundColor)
+                                .fillMaxWidth()
+                        )
                     }
                 }
             }
