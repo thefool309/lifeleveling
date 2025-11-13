@@ -47,6 +47,7 @@ Thumbs.db
 /.idea/deviceManager.xml
 google-services.json
 
+# firebase emulator files
 .firebaserc
 firebase.json
 *.log
