@@ -326,7 +326,6 @@ fun AddStreak(
                         selectedIndex = selectedReminderIndex,
                         onSelectedChange = { selectedReminderIndex = it },
                         textStyle = AppTheme.textStyles.HeadingSix,
-                        iconSize = 25.dp,
                         arrowSize = 25.dp,
                         expanded = reminderMenu,
                         backgroundMainColor = AppTheme.colors.DarkerBackground,
