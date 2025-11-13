@@ -265,9 +265,9 @@ fun AddStreak(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
                 val empty = if (daily) {
-                    if (TestUser.weeklyReminders.isEmpty()) true else false
+                    TestUser.weeklyReminders.isEmpty()
                 } else {
-                    if (TestUser.monthlyReminders.isEmpty()) true else false
+                    TestUser.monthlyReminders.isEmpty()
                 }
                 Text(
                     text = if (empty) stringResource(R.string.no_reminders_for_streaks)
@@ -369,7 +369,7 @@ fun AddStreak(
                             },
                             inputFilter = { it.all { char -> char.isDigit() } },
                             textStyle = AppTheme.textStyles.HeadingSix,
-                            emptyStringDisplay = "Number",
+                            emptyStringDisplay = "#",
                         )
                         // Time interval menu
                         DropDownTextMenu(

@@ -9,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -1214,64 +1213,58 @@ fun SeparatorLine(
  * Text Field object with design aspects applied
  * @param value A mutable string to store what is entered in
  * @param onValueChange What to do with the input. Suggested to us { value = it }
- * @param singleLIne If it only accepts a single line of writing
+ * @param singleLine If it only accepts a single line of writing
  * @param textStyle Style of all the text
  * @param textColor Color of the written text
- * @param innerPadding The padding between the outer box and editable inner box
  * @param cursorColor Color of the cursor
  * @param emptyStringColor Color of the text displayed if the box is empty
  * @param emptyStringDisplay Text to display if the box is empty
  * @param inputFilter Allows the use of filters on what can be entered. Examples: { it.all { char -> char.isDigit() } } is only numbers. .isLetter() is only letters. .isWhitespace() allows spaces
+ * @param backgroundColor Color of the text box inside the outline
+ * @param outlineColor Color of the outline of the box
  */
 @Composable
 fun CustomTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    singleLIne: Boolean = true,
+    singleLine: Boolean = true,
     textStyle: TextStyle = AppTheme.textStyles.Default,
     textColor: Color = AppTheme.colors.Gray,
-    innerPadding: Dp = 16.dp,
     cursorColor: Color = AppTheme.colors.FadedGray,
     emptyStringColor: Color = AppTheme.colors.FadedGray,
     emptyStringDisplay: String = "Enter Text...",
-    inputFilter: ((String) -> Boolean)? = null
+    inputFilter: ((String) -> Boolean)? = null,
+    backgroundColor: Color = AppTheme.colors.Background,
+    outlineColor: Color = AppTheme.colors.FadedGray,
 ) {
-    Box(
-        modifier = modifier,
-    ){
-        HighlightCard(
-            outerPadding = 0.dp,
-            innerPadding = innerPadding,
-        ) {
-            BasicTextField(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                value = value,
-                onValueChange = { newValue ->
-                    if (inputFilter == null || inputFilter(newValue)) {
-                        onValueChange(newValue)
-                    }
-                },
-                singleLine = singleLIne,
-                textStyle = textStyle.copy(color = textColor),
-                cursorBrush = SolidColor(cursorColor),
-                decorationBox = { innerTextField ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        if (value.isEmpty()) {
-                            Text(
-                                text = emptyStringDisplay,
-                                style = textStyle.copy(color = emptyStringColor),
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
+    OutlinedTextField(
+        modifier = modifier
+            .fillMaxWidth(),
+        value = value,
+        onValueChange = {input ->
+            if (inputFilter == null || inputFilter(input)) {
+                onValueChange(input)
+            }
+        },
+        singleLine = singleLine,
+        textStyle = textStyle.copy(color = textColor),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = backgroundColor,
+            unfocusedContainerColor = backgroundColor,
+            focusedBorderColor = outlineColor,
+            unfocusedBorderColor = outlineColor,
+            cursorColor = cursorColor,
+            disabledBorderColor = outlineColor,
+            focusedTextColor = textColor,
+            unfocusedTextColor = textColor,
+        ),
+        placeholder = {
+            Text(
+                text = emptyStringDisplay,
+                color = emptyStringColor,
+                style = textStyle,
             )
         }
-    }
+    )
 }
