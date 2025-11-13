@@ -149,10 +149,10 @@
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>
-    <string name="suggestedReminders">Settings</string>
-    <string name="importanceOfSelfCare">Notification Settings</string>
-    <string name="extraArticles">Self Care Tips</string>
-    <string name="needAdive">Terms and Privacy Policy</string>
+    <string name="suggestedReminders">Suggested Reminders</string>
+    <string name="importanceOfSelfCare">Importance of Self Care</string>
+    <string name="extraArticles">Extra Articles</string>
+    <string name="needAdive">Need advice or to know how to do something new? </string>
 
     <!-- Terms and Privacy Screen -->
     <string name="termsAnd">Terms and</string>
