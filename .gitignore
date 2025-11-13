@@ -44,7 +44,6 @@ Thumbs.db
 /captures
 .externalNativeBuild
 .cxx
-local.properties
 /.idea/deviceManager.xml
 google-services.json
 
