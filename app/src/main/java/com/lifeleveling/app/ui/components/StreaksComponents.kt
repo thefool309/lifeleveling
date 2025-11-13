@@ -35,7 +35,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -325,7 +324,7 @@ fun AddStreak(
                     DropDownReminderMenu(
                         options = reminders,
                         selectedIndex = selectedReminderIndex,
-                        onSelectedIndex = { selectedReminderIndex = it },
+                        onSelectedChange = { selectedReminderIndex = it },
                         textStyle = AppTheme.textStyles.HeadingSix,
                         iconSize = 25.dp,
                         arrowSize = 25.dp,

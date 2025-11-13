@@ -7,8 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -37,12 +35,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.InnerShadow
@@ -220,7 +215,7 @@ fun TestScreen() {
                     "One", "Two", "Three", "Four", "Five", "Six", "Seven",
                 )
                 var selectedIndex by remember { mutableStateOf(0) }
-                var expanded = remember { mutableStateOf(false) }
+                val expanded = remember { mutableStateOf(false) }
                 Box(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 ){
@@ -1002,7 +997,7 @@ fun DropDownTextMenu(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
                     .fillMaxWidth(),
                 value = options.getOrNull(selectedIndex) ?: "",
                 onValueChange = { },
@@ -1068,19 +1063,19 @@ fun DropDownTextMenu(
 
 /**
  * Creates a dropdown menu for string options
- * @param options List of triple items consisting of icon, icon color, and string name
- * @param selectedIndex Variable for storing the selected option
- * @param onOptionSelected What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
- * @param menuWidth Sets the width of the menu
- * @param menuOffset Adjusts where the menu shows up
- * @param menuPadding Increase this to spread the menu options out
- * @param clickBoxColor The main dropdown menu's background color
- * @param accentBoxColor Menu alternates color for different items, this is the second color it will use
- * @param textStyle Sets the style of all the text
- * @param textColor Sets the color of all the text
+ * @param options List of reminders for options
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
  * @param arrowSize Changes the size of the arrow on the dropdown box
- * @param arrowColor Color of the arrow
- * @param iconSize Changes the size of the icons for the options
+ * @param textStyle Sets the style of all the text
+ * @param textColor Sets the color of all the text and the arrow
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @param selectedText A highlight to the text of the currently selected option,
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1088,7 +1083,7 @@ fun DropDownReminderMenu(
     modifier: Modifier = Modifier,
     options: List<Reminder>,
     selectedIndex: Int,
-    onSelectedIndex: (Int) -> Unit,
+    onSelectedChange: (Int) -> Unit,
     expanded: MutableState<Boolean>,
     readOnly: Boolean = true,
     arrowSize: Dp = 20.dp,
@@ -1099,7 +1094,6 @@ fun DropDownReminderMenu(
     outlineColor: Color = AppTheme.colors.FadedGray,
     selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
     selectedText: Color = AppTheme.colors.Gray,
-    iconSize: Dp = 20.dp,
 ) {
     Box(
         modifier = modifier
@@ -1110,7 +1104,7 @@ fun DropDownReminderMenu(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
                     .fillMaxWidth(),
                 value = options.getOrNull(selectedIndex)?.name ?: "",
                 onValueChange = { },
@@ -1118,7 +1112,7 @@ fun DropDownReminderMenu(
                 leadingIcon = {
                     val item = options[selectedIndex]
                     ShadowedIcon(
-                        modifier = Modifier.size(iconSize),
+                        modifier = Modifier.size(arrowSize),
                         imageVector = ImageVector.vectorResource(item.icon),
                         tint = item.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
                     )
@@ -1172,7 +1166,7 @@ fun DropDownReminderMenu(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     ShadowedIcon(
-                                        modifier = Modifier.size(iconSize),
+                                        modifier = Modifier.size(arrowSize),
                                         imageVector = ImageVector.vectorResource(reminder.icon),
                                         tint = reminder.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
                                     )
@@ -1185,7 +1179,7 @@ fun DropDownReminderMenu(
                                 }
                             },
                             onClick = {
-                                onSelectedIndex(index)
+                                onSelectedChange(index)
                                 expanded.value = false
                             },
                             modifier = Modifier
