@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,9 +30,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -41,12 +46,19 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.minusMonths
 import com.kizitonwose.calendar.core.plusMonths
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.CustomDialog
+import com.lifeleveling.app.ui.components.DropDownReminderMenu
+import com.lifeleveling.app.ui.components.DropDownTextMenu
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
+import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
 import kotlinx.datetime.DayOfWeek
 import java.time.LocalDate
+import java.time.MonthDay
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.time.ExperimentalTime
@@ -61,7 +73,8 @@ fun CalendarScreen() {
         .padding(16.dp),
 
     ) {
-
+        val showMonths = remember { mutableStateOf(false) }
+        val showDays = remember { mutableStateOf(false) }
         val currentMonth = remember { YearMonth.now() }
         val startMonth = remember { currentMonth.minusMonths(100) }
         val endMonth = remember { currentMonth.plusMonths(100) }
@@ -154,7 +167,10 @@ fun CalendarScreen() {
                                              color = AppTheme.colors.Gray,
                                              modifier = Modifier
                                                  .fillMaxWidth()
-                                                 .padding(vertical = 8.dp),
+                                                 .padding(vertical = 8.dp)
+                                                 .clickable {
+                                                    showMonths.value = true
+                                                 },
                                              textAlign = TextAlign.Center
                                          )
                                          DaysOfWeekTitle(daysOfWeek = daysOfWeek)
@@ -165,48 +181,59 @@ fun CalendarScreen() {
                              var today by remember {mutableStateOf(LocalDate.now())}
                              val dayName = today.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
                              val monthName = today.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                             Box(
-                                 modifier = Modifier
-                                     .fillMaxWidth()
-                                     .background(AppTheme.colors.DarkerBackground)
-                                     .border(0.5.dp, AppTheme.colors.Gray),
-                                 contentAlignment = Alignment.Center
-                             ) {
-                                 Row(
-                                     verticalAlignment = Alignment.CenterVertically,
-                                     horizontalArrangement = Arrangement.Center,
+                             HighlightCard(
+                                 modifier = Modifier,
+                                 //.weight(1f),
+                                 innerPadding = 0.dp,
+                                 outerPadding = 0.dp,
+                                 //height = ((screenHeight/4)*3)
+
+                             ){
+                                 Column(
+
                                  ){
-                                     ShadowedIcon(
-                                         imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
-                                         contentDescription = null,
-                                         tint = AppTheme.colors.BrandTwo,
-                                         modifier = Modifier
-                                             .size(28.dp)
-                                             .clickable { today = today.minusDays(1) },
-                                     )
-                                     Column(modifier = Modifier.padding(24.dp),
-                                         horizontalAlignment = Alignment.CenterHorizontally){
-                                         Text(
-                                             text = "Today",
-                                             style = AppTheme.textStyles.Default,
-                                             color = AppTheme.colors.Gray,
-                                             textAlign = TextAlign.Center
+                                     Row(
+                                         verticalAlignment = Alignment.CenterVertically,
+                                         horizontalArrangement = Arrangement.Center,
+                                     ){
+                                         ShadowedIcon(
+                                             imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                                             contentDescription = null,
+                                             tint = AppTheme.colors.BrandTwo,
+                                             modifier = Modifier
+                                                 .size(28.dp)
+                                                 .clickable { today = today.minusDays(1) },
                                          )
-                                         Text(
-                                             text = "$dayName, $monthName ${today.dayOfMonth}",
-                                             style = AppTheme.textStyles.HeadingSix,
-                                             color = AppTheme.colors.BrandOne,
-                                             textAlign = TextAlign.Center
+                                         Column(modifier = Modifier
+                                             .padding(24.dp)
+                                             .clickable { showDays.value = true },
+                                             horizontalAlignment = Alignment.CenterHorizontally
+                                         ){
+                                             Text(
+                                                 text = "Today",
+                                                 style = AppTheme.textStyles.Default,
+                                                 color = AppTheme.colors.Gray,
+                                                 textAlign = TextAlign.Center
+                                             )
+                                             Text(
+                                                 text = "$dayName, $monthName ${today.dayOfMonth}",
+                                                 style = AppTheme.textStyles.HeadingSix,
+                                                 color = AppTheme.colors.BrandOne,
+                                                 textAlign = TextAlign.Center
+                                             )
+                                         }
+                                         ShadowedIcon(
+                                             imageVector = ImageVector.vectorResource(R.drawable.right_arrow),
+                                             contentDescription = null,
+                                             tint = AppTheme.colors.BrandTwo,
+                                             modifier = Modifier
+                                                 .size(28.dp)
+                                                 .clickable { today = today.plusDays(1) }
                                          )
                                      }
-                                     ShadowedIcon(
-                                         imageVector = ImageVector.vectorResource(R.drawable.right_arrow),
-                                         contentDescription = null,
-                                         tint = AppTheme.colors.BrandTwo,
-                                         modifier = Modifier
-                                             .size(28.dp)
-                                             .clickable { today = today.plusDays(1) }
-                                     )
+
+                                     // Todo add in display of daily reminders
+
                                  }
                              }
                          }
@@ -284,7 +311,20 @@ fun CalendarScreen() {
                  }
              }
          }
+
+        if (showMonths.value) {
+            MonthDisply(
+                toShow = showMonths,
+            )
+        }
+
+        if (showDays.value) {
+            DayDisplay(
+                toShowDay = showDays,
+            )
+        }
     }
+
 }
 
 @Composable
@@ -311,6 +351,7 @@ fun Day(day: CalendarDay) {
             }
         )
     }
+
 }
 
 @Composable
@@ -368,3 +409,226 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
 }
 
 private fun DayOfWeek.getDisplayName(short: Any, default: Any) {}
+
+@Composable
+fun MonthDisply(
+    toShow: MutableState<Boolean>
+){
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = false,
+        dismissOnOutsideClick = false,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            // Title
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+//                Text(
+//                    text = stringResource(if (daily) R.string.add_week_streak else R.string.add_month_streak),
+//                    style = AppTheme.textStyles.HeadingFour,
+//                    color = AppTheme.colors.SecondaryOne
+//                )
+                // Separator
+                SeparatorLine(color = AppTheme.colors.SecondaryTwo)
+            }
+
+            // Choosing a reminder
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                Text(
+                    text = "Place Holder",
+                    style = AppTheme.textStyles.HeadingFive,
+                    color = AppTheme.colors.SecondaryThree
+                )
+//                DropDownReminderMenu(
+//                    options = reminders,
+//                    selectedIndex = selectedReminderIndex,
+//                    onOptionSelected = { selectedReminderIndex = it },
+//                    menuWidth = 300.dp,
+//                    textStyle = AppTheme.textStyles.HeadingSix,
+//                    iconSize = 25.dp,
+//                    arrowSize = 25.dp,
+//                    menuOffset = IntOffset(50, 0)
+//                )
+                Text(
+                    text = "Place Holder2",
+                    style = AppTheme.textStyles.DefaultUnderlined,
+                    color = AppTheme.colors.Gray
+                )
+            }
+
+            // Repeat options
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                // Repeat
+                Text(
+                    text = "Place Holder3",
+                    style = AppTheme.textStyles.HeadingFive,
+                    color = AppTheme.colors.SecondaryThree
+                )
+//                DropDownTextMenu(
+//                    options = listOf(
+//                        stringResource(R.string.weeks),
+//                        stringResource(R.string.months),
+//                        stringResource(R.string.years),
+//                    ),
+//                    selectedIndex = selectedRepeatIndex,
+//                    onOptionSelected = { selectedRepeatIndex = it },
+//                    textStyle = AppTheme.textStyles.HeadingSix,
+//                    arrowSize = 25.dp,
+//                )
+            }
+
+            // Button controls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                CustomButton(
+                    width = 120.dp,
+                    onClick = { toShow.value = false },
+                    backgroundColor = AppTheme.colors.Error75,
+                ) {
+                    Text(
+                        text = stringResource(R.string.cancel),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+                Spacer(Modifier.width(20.dp))
+                CustomButton(
+                    width = 120.dp,
+                    onClick = {
+
+                    },
+                    backgroundColor = AppTheme.colors.Success75,
+                ) {
+                    Text(
+                        text = stringResource(R.string.create),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DayDisplay(
+    toShowDay: MutableState<Boolean>
+){
+    CustomDialog(
+        toShow = toShowDay,
+        dismissOnInsideClick = false,
+        dismissOnOutsideClick = false,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            // Title
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+//                Text(
+//                    text = stringResource(if (daily) R.string.add_week_streak else R.string.add_month_streak),
+//                    style = AppTheme.textStyles.HeadingFour,
+//                    color = AppTheme.colors.SecondaryOne
+//                )
+                // Separator
+                SeparatorLine(color = AppTheme.colors.SecondaryTwo)
+            }
+
+            // Choosing a reminder
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                Text(
+                    text = "Place Holder",
+                    style = AppTheme.textStyles.HeadingFive,
+                    color = AppTheme.colors.SecondaryThree
+                )
+//                DropDownReminderMenu(
+//                    options = reminders,
+//                    selectedIndex = selectedReminderIndex,
+//                    onOptionSelected = { selectedReminderIndex = it },
+//                    menuWidth = 300.dp,
+//                    textStyle = AppTheme.textStyles.HeadingSix,
+//                    iconSize = 25.dp,
+//                    arrowSize = 25.dp,
+//                    menuOffset = IntOffset(50, 0)
+//                )
+                Text(
+                    text = "Place Holder2",
+                    style = AppTheme.textStyles.DefaultUnderlined,
+                    color = AppTheme.colors.Gray
+                )
+            }
+
+            // Repeat options
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                // Repeat
+                Text(
+                    text = "Place Holder3",
+                    style = AppTheme.textStyles.HeadingFive,
+                    color = AppTheme.colors.SecondaryThree
+                )
+//                DropDownTextMenu(
+//                    options = listOf(
+//                        stringResource(R.string.weeks),
+//                        stringResource(R.string.months),
+//                        stringResource(R.string.years),
+//                    ),
+//                    selectedIndex = selectedRepeatIndex,
+//                    onOptionSelected = { selectedRepeatIndex = it },
+//                    textStyle = AppTheme.textStyles.HeadingSix,
+//                    arrowSize = 25.dp,
+//                )
+            }
+
+            // Button controls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                CustomButton(
+                    width = 120.dp,
+                    onClick = { toShowDay.value = false },
+                    backgroundColor = AppTheme.colors.Error75,
+                ) {
+                    Text(
+                        text = stringResource(R.string.cancel),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+                Spacer(Modifier.width(20.dp))
+                CustomButton(
+                    width = 120.dp,
+                    onClick = {
+
+                    },
+                    backgroundColor = AppTheme.colors.Success75,
+                ) {
+                    Text(
+                        text = stringResource(R.string.create),
+                        style = AppTheme.textStyles.HeadingSix,
+                        color = AppTheme.colors.Background
+                    )
+                }
+            }
+        }
+    }
+}
+
