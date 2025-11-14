@@ -227,4 +227,33 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun deleteAccount(logger: ILogger) {
+        viewModelScope.launch {
+            _ui.value = _ui.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val ok = repo.deleteUser(logger)
+                if (!ok) {
+                    _ui.value = _ui.value.copy(
+                        isLoading = false,
+                        error = "Failed to delete account. Please try again."
+                    )
+                } else {
+                    // AuthStateListener will see user == null once delete succeeds
+                    _ui.value = _ui.value.copy(
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                logger.e("Auth", "deleteAccount failed", e)
+                _ui.value = _ui.value.copy(
+                    isLoading = false,
+                    error = "Failed to delete account. Please try again."
+                )
+            }
+        }
+    }
 }
