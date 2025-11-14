@@ -154,7 +154,20 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Firebase Sign-In with Google Credential ensures user exists in Firestore and logs event
+    /**
+     * Completes Firebase sign-in using a Google ID token.
+     *
+     * Flow:
+     * 1. Exchange the Google ID token for Firebase credentials.
+     * 2. On success, make sure the user has a Firestore document.
+     * 3. Log an auth event to `authLogs` for monitoring.
+     * 4. Clear loading/error state so the UI can move on.
+     *
+     * If anything fails, we log the exception and show a simple error message to the user.
+     *
+     * @param idToken The Google ID token returned from the Google sign-in flow.
+     * @author fdesouza1992
+     */
     private fun firebaseAuthWithGoogle(idToken: String) {
         val cred = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(cred)
