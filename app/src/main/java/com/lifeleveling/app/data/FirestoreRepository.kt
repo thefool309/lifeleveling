@@ -611,7 +611,7 @@ class FirestoreRepository {
      * 3. Delete the user document from the 'users' collection in Firestore Database
      * 4. Delete the Firebase Auth user account.
      *
-     * If any of the steps fail, method will log the problem and return false so the caller knows the delete didn't fully complete
+     * If any of the steps fail, method will log the problem and return false so the caller knows delete didn't fully complete
      *
      * @param logger Used to log errors and warnings during the delete process
      * @return 'true' If we made it through the delete steps without a major failure, 'false' otherwise.
