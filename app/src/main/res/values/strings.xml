@@ -146,6 +146,8 @@
     <string name="logOut">Logout</string>
     <string name="darkMode">Dark Mode</string>
     <string name="lightMode">Light Mode</string>
+    <string name="deleteAccountQuestion">Delete Account?</string>
+    <string name="deleteDialogBoxWarning">This will permanently delete your account and all saved data. This action cannot be undone.</string>
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>
