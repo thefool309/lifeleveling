@@ -60,7 +60,15 @@ class AuthViewModel : ViewModel() {
     init { auth.addAuthStateListener(listener) }
     override fun onCleared() { auth.removeAuthStateListener(listener) }
 
-    // Google Sign-In Client Config
+    /**
+     * Builds and returns a GoogleSignInClient configured for our app.
+     *
+     * This is used by the Activity to launch the Google account picker flow.
+     *
+     * @param activity The Activity needed to grab resources and build the client.
+     * @return A configured GoogleSignInClient ready to start sign-in.
+     * @author fdesouza1992
+     */
     fun googleClient(activity: Activity): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             // .requestIdToken(activity.getString(com.lifeleveling.app.R.string.default_web_client_id))
