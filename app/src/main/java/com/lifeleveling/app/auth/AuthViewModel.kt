@@ -78,12 +78,31 @@ class AuthViewModel : ViewModel() {
         return GoogleSignIn.getClient(activity, gso)
     }
 
-    // Sets loading state while user selects account
+    /**
+     * Marks the UI as “loading” when the user starts the Google sign-in flow.
+     *
+     * This is usually called right before we launch the Google sign-in intent, so the UI can show a spinner or disable buttons.
+     * @author fdesouza1992
+     */
     fun beginGoogleSignIn() {
         _ui.value = _ui.value.copy(isLoading = true, error = null)
     }
 
-    // Small helper to mirror your Google flow
+    /**
+     * Runs the “after login” work once a user has successfully signed in.
+     *
+     * Flow:
+     * 1. Grab the current Firebase user.
+     * 2. In the background, make sure they have a user document in Firestore.
+     * 3. Log an auth event to `authLogs` for basic monitoring.
+     * 4. Clear out loading and error state in the UI.
+     *
+     * If the Firestore work fails, we log a warning but don’t block sign-in.
+     *
+     * @param provider The auth provider string (e.g., "password" or "google").
+     * @param logger   For logging any issues while doing post-login work.
+     * @author fdesouza1992
+     */
     private fun postLoginBookkeeping(provider: String, logger: ILogger) {
         val user = auth.currentUser ?: return
         viewModelScope.launch {
