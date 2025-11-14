@@ -3,6 +3,7 @@ package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
+import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.CustomDialog
 
 
 @Composable
@@ -46,6 +49,8 @@ fun SettingScreen(
     onSignOut: () -> Unit ={},
     onDeleteAccount: () -> Unit = {},
 ){
+
+    val showDeleteDialog = remember {mutableStateOf(false)}
 
     Surface(
         modifier = Modifier
@@ -305,7 +310,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { onDeleteAccount() }
+                                .clickable { showDeleteDialog.value = true }
 
                         )
                     }
@@ -351,6 +356,73 @@ fun SettingScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
+    }
+
+    if (showDeleteDialog.value) {
+        CustomDialog(
+            toShow = showDeleteDialog,
+            dismissOnInsideClick = false,     // keep dialog open while interacting with buttons
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Delete Account?",
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    )
+                )
+                Text(
+                    text = "This will permanently delete your account and all saved data. " +
+                            "This action cannot be undone.",
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Cancel button
+                    CustomButton(
+                        onClick = { showDeleteDialog.value = false },
+                        modifier = Modifier.weight(1f),
+                        backgroundColor = AppTheme.colors.FadedGray
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+
+                    // Confirm delete
+                    CustomButton(
+                        onClick = {
+                            showDeleteDialog.value = false
+                            onDeleteAccount()
+                        },
+                        modifier = Modifier.weight(1f),
+                        backgroundColor = AppTheme.colors.SecondaryThree
+                    ) {
+                        Text(
+                            text = "Delete",
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
                 }
             }
         }
