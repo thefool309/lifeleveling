@@ -13,7 +13,16 @@ import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
 
-
+/**
+ * A library of CRUD functions for our Firestore Cloud Database.
+ * This is instantiated as an object, then the functions are called from the object.
+ * This is for access to private member variables(properties),
+ * to simplify the use of `Firebase.firestore` and `Firebase.auth`.
+ * @author Felipe
+ * @author thefool309
+ * @property db a shortened alias for `Firebase.firestore`
+ * @property auth a shortened alias for `Firebase.auth`
+ */
 class FirestoreRepository {
     private val db = Firebase.firestore
     private val auth = Firebase.auth
@@ -103,12 +112,18 @@ class FirestoreRepository {
         Log.d("FB", "users/$uid created=$firstTime")
         return firstTime
     }
+
     /**
-     * :3c Velma wuz here >^.^<
+     * This function creates a user data store in the Firestore Cloud Storage section of the project.
+     * It takes a map of userData, with the key being the name of the field to be filled,
+     * and an ILogger, which is an interface defined in this project to make the code more detachable.
+     * We use a suspend function because FirebaseFirestore is async
+     * @param userData a map of userData, with the key being the name of the field to be filled
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Users?
+     * @see ILogger
      */
-    // Function to create user and store in firebase
-    // returns null on failure. We use a suspend function because
-    // FirebaseFirestore is async
     suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
         val currentUser = auth.currentUser
 
@@ -146,6 +161,16 @@ class FirestoreRepository {
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
     // Use at your own peril
+    /**
+     * This Function is now defunct and deprecated in favor of the more specific functions for updating specific fields.
+     * If you really feel you want to use this function, use it with caution, because storing the wrong data type,
+     * can actually cause a cascading failure in the getUser function, causing fields to be blank in the user object
+     * @param userData a map of userData, with the key being the name of the field to be filled
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editUser(userData: Map<String, Any>, logger: ILogger) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
         // if the user is not authenticated then authenticate before calling this function
@@ -167,7 +192,16 @@ class FirestoreRepository {
     }
 
     // User information
-
+    /**
+     * This function is designed for specifically updating the users displayName.
+     * The displayName field is synonomous with a "username."
+     * This will take the new userName string and replace the value of the "displayName" field.
+     * @param userName A string representing the new display name for the user
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -191,7 +225,14 @@ class FirestoreRepository {
             return false
         }
     }
-
+    /**
+     * A function for editing the Users "email" field.
+     * This will take the new email and update the field in Firestore Cloud storage.
+     * @param email A string containing the updated email.
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     */
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
