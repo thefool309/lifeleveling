@@ -208,6 +208,23 @@ class AuthViewModel : ViewModel() {
             }
     }
 
+    /**
+     * Signs a user in using email and password and updates the UI state.
+     *
+     * Flow:
+     * 1. Mark the UI as loading.
+     * 2. Call Firebase `signInWithEmailAndPassword`.
+     * 3. Run post-login work (create user doc, log event, etc.).
+     * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc).
+     *
+     * Note: even though this function is marked `suspend`, it uses viewModelScope.launch` so it never blocks the caller.
+     *
+     * @param email  The user’s email address.
+     * @param password The user’s password.
+     * @param logger Used to log warnings and errors during sign-in.
+     *
+     * @author thefool309, fdesouza1992
+     */
     suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
