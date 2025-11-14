@@ -41,7 +41,17 @@ fun found in this file
 
 /**
  * Level and Experience Display
+ *
+ * It will load the current user from Firestore, build a [StatsUi], and then show the level / XP bar using that snapshot.
+ * While it is loading, a small progress indicator is shown.
+ *
  * @param showLevelTip The bool that controls showing the tooltip window
+ * @param statsUi Optional stats model so when null, stats are fetched from Firestore
+ * @param repo Used to load the current user when [statsUi] is null.
+ * @param logger Used for reporting any errors while loading stats from Firestore.
+ *
+ * @author Elyseia, fdesouza1992
+ *
  */
 @Composable
 fun LevelAndProgress(
@@ -156,6 +166,8 @@ fun LevelAndProgress(
 /**
  * Display of the equipment boxes
  * @param modifier Recommended passed in variables are .align(Alignment.TopStart).zIndex(1f)
+ *
+ * @author Elyseia
  */
 @Composable
 fun EquipmentDisplay(
