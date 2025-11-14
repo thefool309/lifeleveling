@@ -259,6 +259,23 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Creates a new Firebase user with email and password, then signs them in.
+     *
+     * Flow:
+     * 1. Mark the UI as loading.
+     * 2. Call `createUserWithEmailAndPassword`.
+     * 3. Immediately sign the user in with the same credentials.
+     * 4. Run the shared post-login work (create user doc, log, etc.).
+     * 5. Handle common error cases (email already used, bad format, etc.) with user-friendly messages.
+     *
+     * As with signIn, this is marked `suspend` but internally uses `viewModelScope.launch` so it won’t block the caller.
+     *
+     * @param email  The email for the new account.
+     * @param password The password for the new account.
+     * @param logger Used to log any issues during sign-up.
+     * @author thefool309, fdesouza1992
+     */
     suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
