@@ -60,6 +60,7 @@ import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
+import com.lifeleveling.app.util.ILogger
 
 class MainActivity : ComponentActivity() {
 
@@ -154,7 +155,7 @@ class MainActivity : ComponentActivity() {
                                     // -------- Sign In UI --------
                                     val email = remember { mutableStateOf("") }
                                     val password = remember { mutableStateOf("") }
-                                    val logger : AndroidLogger = AndroidLogger()
+                                    val logger : ILogger = AndroidLogger()
                                     val scope = rememberCoroutineScope()
                                     SignIn(
                                         // Auth using email and password
@@ -190,7 +191,7 @@ class MainActivity : ComponentActivity() {
                                 composable("createAccount") {
                                     val email = remember { mutableStateOf("") }
                                     val password = remember {mutableStateOf("")}
-                                    val logger : AndroidLogger = AndroidLogger()
+                                    val logger : ILogger = AndroidLogger()
                                     val scope = rememberCoroutineScope()
                                     CreateAccountScreen(
                                         onJoin = {/*TODO: Handle sign-up logic*/
@@ -224,8 +225,15 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
                                 ) { padding ->
-                                    NavHostContainer(navController = navController, padding = padding, isDarkThemeState = isDarkThemeState,
-                                        onSignOut = {authVm.signOut(this@MainActivity)})
+                                    NavHostContainer(
+                                        navController = navController,
+                                        padding = padding,
+                                        isDarkThemeState = isDarkThemeState,
+                                        onSignOut = {authVm.signOut(this@MainActivity)},
+                                        onDeleteAccount = {
+                                            val logger = AndroidLogger()
+                                            authVm.deleteAccount(logger)}
+                                    )
                                 }
                             }
                         }
@@ -240,6 +248,7 @@ class MainActivity : ComponentActivity() {
 fun NavHostContainer(
     navController: NavHostController,
     onSignOut: () -> Unit,
+    onDeleteAccount: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
 ) {
@@ -267,7 +276,8 @@ fun NavHostContainer(
                     onThemeChange = { newIsDark ->
                         isDarkThemeState.value = newIsDark
                     },
-                    onSignOut = onSignOut
+                    onSignOut = onSignOut,
+                    onDeleteAccount = onDeleteAccount
                 )
             }
             composable ("notifications"){
