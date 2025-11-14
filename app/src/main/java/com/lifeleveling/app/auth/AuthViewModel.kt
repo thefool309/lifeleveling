@@ -333,6 +333,18 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * A full account delete for the currently signed-in user.
+     *
+     * Flow:
+     * 1. Mark the UI as loading and clear any old error.
+     * 2. Call into the FirestoreRepository to delete the user and their data.
+     * 3. If the repo call returns false or throws an error, a simple “try again” message is displayed.
+     * 4. On success, the AuthStateListener will notice that the user is now null and the rest of the app can react to that.
+     *
+     * @param logger Used to log any errors that happen during the delete process.
+     * @author fdesouza1992
+     */
     fun deleteAccount(logger: ILogger) {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(
