@@ -44,6 +44,7 @@ fun SettingScreen(
     isDarkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit,
     onSignOut: () -> Unit ={},
+    onDeleteAccount: () -> Unit = {},
 ){
 
     Surface(
@@ -304,6 +305,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
+                                .clickable { onDeleteAccount() }
 
                         )
                     }
@@ -371,5 +373,7 @@ fun PreviewSettingScreen() {
         onThemeChange = { newIsDark ->
             isDarkTheme = newIsDark // update the state in preview
         },
+        onSignOut = {},
+        onDeleteAccount = {}
     )
 }
