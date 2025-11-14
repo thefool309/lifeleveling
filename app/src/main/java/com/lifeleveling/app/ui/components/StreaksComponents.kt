@@ -369,7 +369,7 @@ fun AddStreak(
                             },
                             inputFilter = { it.all { char -> char.isDigit() } },
                             textStyle = AppTheme.textStyles.HeadingSix,
-                            emptyStringDisplay = "#",
+                            placeholderText = "#",
                         )
                         // Time interval menu
                         DropDownTextMenu(

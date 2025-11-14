@@ -12,6 +12,9 @@
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
 
+    <!-- Filler words for annotated strings -->
+    <string name="and">and</string>
+
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
     <string name="exp_display">Exp: %1$d/%2$d</string>
@@ -56,6 +59,9 @@
     <string name="specialChar">1 special character (!@#$%^&amp;*()_+-=)</string>
     <string name="join">Join</string>
     <string name="backToLogin">Already have an account? Login</string>
+    <string name="accept">Accept</string>
+    <string name="username">Username</string>
+    <string name="usernameNotEmpty">Username can not be empty</string>
 
     <!-- Life Points Stats Screen -->
     <string name="LPUsed">Life Points Used:&#160;&#160;&#160;%1$d/%2$d</string>

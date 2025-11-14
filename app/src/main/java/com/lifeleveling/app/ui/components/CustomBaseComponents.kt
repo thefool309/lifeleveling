@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -31,6 +32,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -57,6 +60,7 @@ CustomDialog  -  CustomDialog call with saved preferences. Can be adjusted to ho
 DropDownTextMenu  -  Menu for string lists
 DropDownReminderMenu  -  Dropdown designed to show the icon and text of reminder lists
 SeparatorLine  -  Easy call of the custom separator
+CustomTextField  -  A basic outline textField just will all the specifics already saved to make them uniform
  */
 
 // This screen shows the different effects that are within this file
@@ -997,7 +1001,8 @@ fun DropDownTextMenu(
             OutlinedTextField(
                 modifier = Modifier
                     .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
                 value = options.getOrNull(selectedIndex) ?: "",
                 onValueChange = { },
                 readOnly = readOnly,
@@ -1104,7 +1109,8 @@ fun DropDownReminderMenu(
             OutlinedTextField(
                 modifier = Modifier
                     .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
                 value = options.getOrNull(selectedIndex)?.name ?: "",
                 onValueChange = { },
                 readOnly = readOnly,
@@ -1217,8 +1223,8 @@ fun SeparatorLine(
  * @param textStyle Style of all the text
  * @param textColor Color of the written text
  * @param cursorColor Color of the cursor
- * @param emptyStringColor Color of the text displayed if the box is empty
- * @param emptyStringDisplay Text to display if the box is empty
+ * @param placeholderTextColor Color of the text displayed if the box is empty
+ * @param placeholderText Text to display if the box is empty
  * @param inputFilter Allows the use of filters on what can be entered. Examples: { it.all { char -> char.isDigit() } } is only numbers. .isLetter() is only letters. .isWhitespace() allows spaces
  * @param backgroundColor Color of the text box inside the outline
  * @param outlineColor Color of the outline of the box
@@ -1232,14 +1238,18 @@ fun CustomTextField(
     textStyle: TextStyle = AppTheme.textStyles.Default,
     textColor: Color = AppTheme.colors.Gray,
     cursorColor: Color = AppTheme.colors.FadedGray,
-    emptyStringColor: Color = AppTheme.colors.FadedGray,
-    emptyStringDisplay: String = "Enter Text...",
+    placeholderTextColor: Color = AppTheme.colors.FadedGray,
+    placeholderText: String = "Enter Text...",
     inputFilter: ((String) -> Boolean)? = null,
     backgroundColor: Color = AppTheme.colors.Background,
     outlineColor: Color = AppTheme.colors.FadedGray,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    supportingUnit: (@Composable () -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     OutlinedTextField(
         modifier = modifier
+            .widthIn(max = 450.dp)
             .fillMaxWidth(),
         value = value,
         onValueChange = {input ->
@@ -1261,10 +1271,13 @@ fun CustomTextField(
         ),
         placeholder = {
             Text(
-                text = emptyStringDisplay,
-                color = emptyStringColor,
+                text = placeholderText,
+                color = placeholderTextColor,
                 style = textStyle,
             )
-        }
+        },
+        keyboardOptions = keyboardOptions,
+        supportingText = { supportingUnit?.invoke() },
+        visualTransformation = visualTransformation,
     )
 }

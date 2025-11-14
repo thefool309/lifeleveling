@@ -49,6 +49,7 @@ import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
+import com.lifeleveling.app.ui.screens.CreateAccountScreen
 
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
@@ -205,13 +206,20 @@ class MainActivity : ComponentActivity() {
                                         onJoin = {/*TODO: Handle sign-up logic*/
                                             scope.launch {
                                                 try {
-                                                    authVm.createUserWithEmailAndPassword(email.value, password.value, logger)
-                                                }
-                                                catch (e: FirebaseAuthInvalidCredentialsException) {
-                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+                                                    authVm.createUserWithEmailAndPassword(
+                                                        email.value,
+                                                        password.value,
+                                                        logger
+                                                    )
+                                                } catch (e: FirebaseAuthInvalidCredentialsException) {
+                                                    logger.e(
+                                                        "FB",
+                                                        "createUserWithEmailAndPassword failed due to Invalid Credentials: ",
+                                                        e
+                                                    )
                                                 }
                                             }
-                                                 },
+                                        },
                                         onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
