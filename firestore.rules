@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User profile doc and all user subcollections
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // All nested subcollections (reminders, progress, streaks, categories)
+      match /{collection=**}/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Optional healthchecks (lock down when done)
+    match /authLogs/{docId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}
