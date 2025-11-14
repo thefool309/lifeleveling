@@ -126,7 +126,17 @@ class AuthViewModel : ViewModel() {
         _ui.value = _ui.value.copy(isLoading = false, error = null)
     }
 
-    // Handles Google Sign-In. Called from MainActivity.kt once Google returns result intent
+    /**
+     * Handles the Google sign-in result Intent returned to the Activity.
+     *
+     * Flow:
+     * 1. Try to pull the Google account and ID token out of the intent.
+     * 2. If the token is there, pass it down to Firebase to finish sign-in.
+     * 3. If anything fails, log it and update the UI with an error message.
+     *
+     * @param data The Intent returned from the Google sign-in Activity result.
+     * @author fdesouza1992
+     */
     fun handleGoogleResultIntent(data: android.content.Intent?) {
         viewModelScope.launch {
             try {
