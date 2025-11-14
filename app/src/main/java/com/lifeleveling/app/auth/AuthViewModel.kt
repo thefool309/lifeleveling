@@ -23,14 +23,25 @@ import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
-// UI State
+/**
+ * Simple container for what the auth screen needs to know:
+ * - who the current user is (if any)
+ * - whether we're busy doing an auth call
+ * - any error message to show
+ *
+ * @author fdesouza1992
+ * **/
 data class AuthUiState(
     val user: FirebaseUser? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
-// Handles Firebase and Google Sign-in authentication logic
+/**
+ * ViewModel that owns all of our Firebase/Google sign-in logic and exposes a simple UI state (AuthUiState) that screens can observe.
+ *
+ * @author fdesouza1992
+ * **/
 class AuthViewModel : ViewModel() {
     // Firebase auth and Firestore repository instance
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
