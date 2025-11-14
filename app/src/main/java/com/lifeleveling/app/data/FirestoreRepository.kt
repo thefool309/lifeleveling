@@ -232,6 +232,7 @@ class FirestoreRepository {
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309
      * @return Boolean
+     * @see ILogger
      */
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -257,6 +258,14 @@ class FirestoreRepository {
 
     }
 
+    /**
+     * A function for editing the value stored as the URL for the users photo they choose to represent themselves.
+     * @param url A string representing the URL of the user's photo they choose to represent themselves
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editPhotoUrl(url: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
