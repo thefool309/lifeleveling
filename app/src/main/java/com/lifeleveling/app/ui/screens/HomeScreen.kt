@@ -38,8 +38,9 @@ import com.lifeleveling.app.ui.components.LifeExperienceToolTip
 import com.lifeleveling.app.ui.components.ProgressBar
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
+import com.lifeleveling.app.ui.models.StatsUi
 
-@Preview
+//@Preview
 @Composable
 fun HomeScreen() {
     val showLevelTip = remember { mutableStateOf(false) }
@@ -60,9 +61,9 @@ fun HomeScreen() {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Box of Level and Exp
-            /*LevelAndProgress(
+            LevelAndProgress(
                 showLevelTip = showLevelTip
-            )*/
+            )
 
             // Middle section
             Box(
