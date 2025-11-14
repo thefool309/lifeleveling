@@ -682,7 +682,23 @@ class FirestoreRepository {
         //Firebase.firestore.collection("users").document(uid).collection("reminders")
         db.collection("users").document(uid).collection("reminders")
 
-    // Creates a new reminder for the current user.
+    /**
+     * Creates or updates a reminder for the currently signed-in user.
+     *
+     * Current Flow:  (May need to be updated as we progress)
+     * 1. Check that we have a logged-in user; if not, log it and return null.
+     * 2. Builds the reminder payload, letting Firestore handle server timestamps.
+     * 3. If `reminders.reminderId` is blank, a new doc with an auto ID is created, otherwise writes to that specific document.
+     * 4. Ensures the `reminderId` field inside the document matches the doc ID to facilitate with mapping later.
+     *
+     * On success, we log the created reminder and return its document ID.
+     * On failure, we log the error and return null so the caller can handle it.
+     *
+     * @param reminders The reminder data we want to store.
+     * @param logger Used to log success or failures during the write.
+     * @return The Firestore document ID for this reminder, or `null` if something went wrong.
+     * @author fdesouza1992
+     * **/
     suspend fun createReminder(
         reminders: Reminders,
         logger: ILogger
