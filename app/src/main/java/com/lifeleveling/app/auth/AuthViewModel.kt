@@ -215,7 +215,7 @@ class AuthViewModel : ViewModel() {
      * 1. Mark the UI as loading.
      * 2. Call Firebase `signInWithEmailAndPassword`.
      * 3. Run post-login work (create user doc, log event, etc.).
-     * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc).
+     * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc.).
      *
      * Note: even though this function is marked `suspend`, it uses viewModelScope.launch` so it never blocks the caller.
      *
@@ -309,7 +309,18 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Signs out from Firebase and Google client (if used)
+    /**
+     * Signs the current user out of Firebase and (optionally) Google.
+     *
+     * Flow:
+     * 1. Mark the UI as loading.
+     * 2. Call Firebase `signOut()`.
+     * 3. If an Activity is passed in, also sign out of the Google client.
+     * 4. Once the Google sign-out finishes, the loading flag clears so the UI can update.
+     *
+     * @param activity Used to sign out from the Google client *Optional*.
+     * @author fdesouza1992
+     */
     fun signOut(activity: Activity? = null) {
         _ui.value = _ui.value.copy(isLoading = true, error = null)
         auth.signOut()
