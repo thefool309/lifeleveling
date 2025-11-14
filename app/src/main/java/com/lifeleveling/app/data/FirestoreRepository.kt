@@ -602,15 +602,59 @@ class FirestoreRepository {
         setBadgesUnlocked(newBadgesUnlocked, logger)
     }
 
-    // TODO: deleteUser
-    suspend fun deleteUser(logger: ILogger): Boolean  {
+    // By Felipe
+    suspend fun deleteUser(logger: ILogger): Boolean {
         val uid: String? = getUserId()
         if (uid == null) {
             logger.e("Auth", "User ID is null. Please login to firebase.")
             return false
         }
-        TODO("Not Implemented yet")
+
+        return try {
+            // Delete subcollections (Just reminders for now)
+            try {
+                val remindersSnap = remindersCol(uid).get().await()
+                if (!remindersSnap.isEmpty) {
+                    val batch = db.batch()
+                    for (doc in remindersSnap.documents) {
+                        batch.delete(doc.reference)
+                    }
+                    batch.commit().await()
+                }
+            } catch (e: Exception) {
+                // Log but continue so we at least try to delete the user document & auth user
+                logger.e("Firestore", "Failed to delete reminders for user $uid", e)
+            }
+
+            // Delete user document in Firestore
+            try {
+                db.collection("users").document(uid).delete().await()
+            } catch (e: Exception) {
+                logger.e("Firestore", "Failed to delete user document for $uid", e)
+                return false
+            }
+
+            // Delete Firebase Auth user
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                try {
+                    currentUser.delete().await()
+                } catch (e: Exception) {
+                    // Firestore doc is already gone.
+                    logger.e("Auth", "Failed to delete Firebase Auth user for $uid", e)
+                    return false
+                }
+            } else {
+                logger.w("Auth", "No Firebase Auth user found for $uid during deleteUser.")
+            }
+
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "deleteUser failed for $uid", e)
+            false
+        }
     }
+
 
     private fun remindersCol(uid: String) =
         //Firebase.firestore.collection("users").document(uid).collection("reminders")
