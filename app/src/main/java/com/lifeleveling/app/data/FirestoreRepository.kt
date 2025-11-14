@@ -669,7 +669,15 @@ class FirestoreRepository {
         }
     }
 
-
+    /**
+     * Helper to get this user's 'reminders' collection in Firestore.
+     *
+     * We use this to keep the path logic in one place" 'users/{uid}/reminders'.
+     *
+     * @param uid The user's unique Firestore/Firebase Auth ID.
+     * @return A reference to that user's 'reminders' collection.
+     * @author fdesouza1992
+     * **/
     private fun remindersCol(uid: String) =
         //Firebase.firestore.collection("users").document(uid).collection("reminders")
         db.collection("users").document(uid).collection("reminders")
