@@ -602,7 +602,21 @@ class FirestoreRepository {
         setBadgesUnlocked(newBadgesUnlocked, logger)
     }
 
-    // By Felipe
+    /**
+     * Tries to fully delete the currently signed-in user and their data.
+     *
+     * Method Flow:
+     * 1. Grabs the current user ID. If we don't have one, it will log it and stop.
+     * 2. Delete any existing subcollections and logs errors but keeps going
+     * 3. Delete the user document from the 'users' collection in Firestore Database
+     * 4. Delete the Firebase Auth user account.
+     *
+     * If any of the steps fail, method will log the problem and return false so the caller knows the delete didn't fully complete
+     *
+     * @param logger Used to log errors and warnings during the delete process
+     * @return 'true' If we made it through the delete steps without a major failure, 'false' otherwise.
+     * @author fdesouza1992
+     * **/
     suspend fun deleteUser(logger: ILogger): Boolean {
         val uid: String? = getUserId()
         if (uid == null) {
