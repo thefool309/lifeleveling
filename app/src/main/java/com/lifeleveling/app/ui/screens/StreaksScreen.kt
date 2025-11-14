@@ -68,9 +68,9 @@ fun StreaksScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Level and exp
-            /*LevelAndProgress(
+            LevelAndProgress(
                 showLevelTip = showLevelTip
-            )*/
+            )
             // Streaks title
             Row(
                 modifier = Modifier
