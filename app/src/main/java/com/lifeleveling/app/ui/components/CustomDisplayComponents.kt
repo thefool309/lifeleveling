@@ -30,6 +30,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.ui.models.StatsUi
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 
 /*
@@ -59,7 +60,7 @@ fun LevelAndProgress(
     showLevelTip: MutableState<Boolean>,
     statsUi: StatsUi? = null,
     repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = ILogger.DEFAULT
+    logger: ILogger = AndroidLogger(),
 ) {
 
     var isLoading by remember { mutableStateOf(statsUi == null) }
