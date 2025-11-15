@@ -56,6 +56,7 @@ import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
+import com.lifeleveling.app.ui.screens.SignIn
 
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
@@ -173,13 +174,17 @@ class MainActivity : ComponentActivity() {
                                             scope.launch {
                                                 try {
                                                     authVm.signInWithEmailPassword(email.value, password.value, logger)
-                                                }
-                                                catch (e: FirebaseAuthInvalidCredentialsException) {
-                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+                                                } catch (e: FirebaseAuthInvalidCredentialsException) {
+                                                    logger.e(
+                                                        "FB",
+                                                        "createUserWithEmailAndPassword failed due to Invalid Credentials: ",
+                                                        e
+                                                    )
                                                 }
                                             }
 
-                                        /* email/password auth */ },
+                                            /* email/password auth */
+                                        },
 
                                         // Auth with Google Sign In
                                         onGoogleLogin = {
@@ -190,7 +195,7 @@ class MainActivity : ComponentActivity() {
 
                                         // Create account screen
                                         onCreateAccount = {
-                                            preAuthNav.navigate("createAccount"){
+                                            preAuthNav.navigate("createAccount") {
                                                 //launchSingleTop = false
                                             }
                                         },
