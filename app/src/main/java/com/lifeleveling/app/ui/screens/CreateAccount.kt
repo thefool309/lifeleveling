@@ -190,8 +190,6 @@ fun CreateAccountScreen(
                     }
                     // Join
                     CustomButton(
-                        modifier = Modifier,
-                        // .width(120.dp),
                         onClick = onJoin,
                         enabled = isPasswordValid && termsCheck.value && email.value != "",
                         content = {
@@ -218,23 +216,20 @@ fun CreateAccountScreen(
                 Text(
                     "G",
                     color = AppTheme.colors.DropShadow,
-                    style = AppTheme.textStyles.HeadingThree,
-                    fontSize = 28.sp,
+                    style = AppTheme.textStyles.HeadingFive,
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     stringResource(R.string.useGoogle),
                     color = AppTheme.colors.DropShadow,
-                    style = AppTheme.textStyles.HeadingSix,
-                    fontSize = 16.sp,
-                    )
+                    style = AppTheme.textStyles.Default,
+                )
             }
 
             //create an account nav link
             Text(
                 text = stringResource(R.string.backToLogin),
                 color = AppTheme.colors.SecondaryThree,
-                fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
                 modifier = Modifier.clickable { onLog() }

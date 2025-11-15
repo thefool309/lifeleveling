@@ -48,6 +48,7 @@
     <string name="emailNotEmpty">Email can not be empty</string>
     <string name="passwordNotEmpty">Password can not be empty</string>
     <string name="createAccount">Create an Account</string>
+    <string name="forgotten_password">Forgot your password?</string>
 
     <!-- Create Account Screen -->
     <string name="createAccountTitle">Create An Account</string>
