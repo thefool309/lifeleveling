@@ -34,6 +34,13 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.HighlightCard
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import com.lifeleveling.app.auth.AuthUiState
+import com.lifeleveling.app.ui.components.CustomDialog
+import androidx.compose.foundation.layout.Row
+
+
 // Helper Function to block gmail/googlemail on the email/password path
 private fun isGoogleMailboxUi(email: String): Boolean =
     email.endsWith("@gmail.com", ignoreCase = true) ||
@@ -47,6 +54,8 @@ fun SignIn(
     onCreateAccount: () -> Unit = {println("Create account pressed")},
     email: MutableState<String>,
     password: MutableState<String>,
+    authState: AuthUiState,
+    onDismissError: () -> Unit = {}
 ) {
 
     val isGmail = isGoogleMailboxUi(email.value)
