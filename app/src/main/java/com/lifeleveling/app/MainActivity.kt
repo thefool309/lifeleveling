@@ -185,7 +185,9 @@ class MainActivity : ComponentActivity() {
                                             }
                                         },
                                         email,
-                                        password
+                                        password,
+                                        authState = authState,
+                                        onDismissError = {authVm.clearError()}
                                     )
                                 }
                                 composable("createAccount") {
