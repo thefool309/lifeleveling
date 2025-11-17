@@ -60,6 +60,14 @@ fun SignIn(
 
     val isGmail = isGoogleMailboxUi(email.value)
 
+    // Controls the visibility of the sign-in error dialog
+    val showErrorDialog = remember { mutableStateOf(false) }
+
+    // If an error occurs, the dialog box will open
+    if (authState.error != null && !showErrorDialog.value) {
+        showErrorDialog.value = true
+    }
+
     //screen
     Box(
         modifier = Modifier
