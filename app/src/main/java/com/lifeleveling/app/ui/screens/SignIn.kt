@@ -209,6 +209,55 @@ fun SignIn(
             }
         }
     }
+
+    // Auth Error Dialog Box
+    if (showErrorDialog.value && authState.error != null) {
+        CustomDialog(
+            toShow = showErrorDialog,
+            dismissOnInsideClick = false,
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Sign-in error",
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour
+                )
+
+                Text(
+                    text = authState.error,
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default,
+                    textAlign = TextAlign.Center
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    CustomButton(
+                        onClick = {
+                            // Close dialog locally and tell the ViewModel
+                            showErrorDialog.value = false
+                            onDismissError()
+                        },
+                        width = 120.dp,
+                    ) {
+                        Text(
+                            text = "OK",
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 
