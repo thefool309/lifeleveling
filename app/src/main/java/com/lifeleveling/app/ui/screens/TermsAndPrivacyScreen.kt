@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +30,6 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.ShadowedIcon
 
 @Preview
 @Composable
@@ -82,18 +80,12 @@ fun TermsAndPrivacyScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-
-
-                    Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         modifier = Modifier
-
                     ) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.termsAndConditions),
                             color = AppTheme.colors.Gray,
@@ -109,17 +101,8 @@ fun TermsAndPrivacyScreen(
 
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
 
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
 
-                    Spacer(modifier = Modifier.height(16.dp))
 
                     Row(modifier = Modifier) {
 

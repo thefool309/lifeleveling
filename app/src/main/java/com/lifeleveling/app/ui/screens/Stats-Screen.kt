@@ -1,6 +1,5 @@
 package com.lifeleveling.app.ui.screens
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,8 +41,6 @@ import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.PopupCard
-import com.lifeleveling.app.ui.components.ProgressBar
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.StatsToolTip
 import com.lifeleveling.app.ui.components.LevelAndProgress
@@ -67,8 +64,8 @@ fun StatsScreen(
     onCancel: () -> Unit = {println("Cancel pressed")},
                 ) {
     val progress = (userExperience.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
-    var showHelpDialog = remember { mutableStateOf(false) }
-    var showStatsDialog = remember { mutableStateOf(false) }
+    val showHelpDialog = remember { mutableStateOf(false) }
+    val showStatsDialog = remember { mutableStateOf(false) }
     var usedPoints by remember { mutableStateOf(usedLifePoints) }
     var remainingPoints by remember { mutableStateOf(unusedLifePoints - usedLifePoints) }
 
