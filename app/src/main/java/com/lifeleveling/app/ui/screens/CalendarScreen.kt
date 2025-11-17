@@ -223,17 +223,33 @@ fun CalendarScreen() {
                                                 .align(Alignment.Center),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Text(
-                                                text = "$dayName, $monthName ${dayInfo.dayOfMonth}",
-                                                style = AppTheme.textStyles.HeadingSix,
-                                                color = AppTheme.colors.BrandOne,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier
-                                                    .clickable {
-                                                        showDays.value = true
-                                                    }
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ){
+                                                Text(
+                                                    text = "$dayName",
+                                                    style = AppTheme.textStyles.HeadingSix,
+                                                    color = AppTheme.colors.BrandOne,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier
+                                                        .clickable {
+                                                            showDays.value = true
+                                                        }
 
-                                            )
+                                                )
+                                                Text(
+                                                    text = "$monthName ${dayInfo.dayOfMonth}, ${dayInfo.year}",
+                                                    style = AppTheme.textStyles.HeadingSix,
+                                                    color = AppTheme.colors.BrandOne,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier
+                                                        .clickable {
+                                                            showDays.value = true
+                                                        }
+
+                                                )
+                                            }
+
                                         }
                                         ShadowedIcon(
                                             imageVector = ImageVector.vectorResource(R.drawable.right_arrow),
