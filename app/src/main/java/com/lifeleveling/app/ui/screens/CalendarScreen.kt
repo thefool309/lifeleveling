@@ -7,59 +7,40 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.kizitonwose.calendar.core.CalendarDay
-import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.daysOfWeek
-import com.kizitonwose.calendar.core.lengthOfMonth
 import com.kizitonwose.calendar.core.minusMonths
 import com.kizitonwose.calendar.core.plusMonths
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.components.CustomButton
-import com.lifeleveling.app.ui.components.CustomDialog
-import com.lifeleveling.app.ui.components.DropDownTextMenu
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.SeparatorLine
+import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
 import com.lifeleveling.app.ui.theme.AppTheme
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.Month
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -70,22 +51,24 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable
 fun CalendarScreen() {
-    Surface(modifier = Modifier
-        .fillMaxSize()
-        .background(color = AppTheme.colors.Background)
-        .padding(16.dp),
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = AppTheme.colors.Background)
+            .padding(16.dp),
 
         ) {
         val configuration = LocalConfiguration.current
         val screenHeight = configuration.screenHeightDp.dp
         val showMonths = remember { mutableStateOf(false) }
         val showDays = remember { mutableStateOf(false) }
-        val currentMonth = remember { YearMonth.now() }
-        val startMonth = remember { currentMonth.minusMonths(100) }
-        val endMonth = remember { currentMonth.plusMonths(100) }
-        val daysOfWeek = remember{daysOfWeek()}
+        val currentMonth = YearMonth.now()
+        val startMonth = currentMonth.minusMonths(24)
+        val endMonth = currentMonth.plusMonths(60)
+        val daysOfWeek = remember { daysOfWeek() }
         val isMonthView = remember { mutableStateOf(true) }
-        val jumpedDay = remember{mutableStateOf<LocalDate?>(null)}
+        val jumpedDay = remember { mutableStateOf(LocalDate.now()) }
+        val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
 
         val state = rememberCalendarState(
             startMonth = startMonth,
@@ -94,16 +77,24 @@ fun CalendarScreen() {
             firstDayOfWeek = daysOfWeek.first(),
             outDateStyle = OutDateStyle.EndOfGrid
         )
+        LaunchedEffect(jumpedMonth.value) {
+            jumpedMonth.value?.let { date ->
+                val myYearMonth = YearMonth(date.year, date.month.ordinal + 1)
+                state.scrollToMonth(myYearMonth)
+                jumpedMonth.value = null
+            }
+        }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = AppTheme.colors.Background),
             contentAlignment = Alignment.Center
-        ){
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 32.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -112,7 +103,7 @@ fun CalendarScreen() {
                         .fillMaxWidth(),
 
 
-                    ){
+                    ) {
                     SlidingSwitch(
                         modifier = Modifier
                             .align(Alignment.Center),
@@ -146,13 +137,14 @@ fun CalendarScreen() {
 
                 HighlightCard(
                     modifier = Modifier,
-                    height = (screenHeight/5)*3,
+                    //    .wrapContentHeight() <- only makes as tall as children? maybe could use, @Todo speak to cass about this
+                    height = (screenHeight / 5) * 3,
                     innerPadding = 0.dp,
                     outerPadding = 0.dp,
-                ){
+                ) {
                     Column(
                         modifier = Modifier
-                    ){
+                    ) {
                         if (!isMonthView.value) {
                             HorizontalCalendar(
                                 modifier = Modifier
@@ -160,14 +152,18 @@ fun CalendarScreen() {
                                 state = state,
                                 dayContent = { Day(it) },
                                 monthHeader = {
-                                        month ->
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .background(Color.Transparent)
-                                    ){
-                                        val monthName = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                                        val year = month.yearMonth.year
+                                    ) {
+                                        val visibleYearMonth = jumpedMonth.value?.let {
+                                            YearMonth(it.year, it.monthValue)
+                                        } ?: state.firstVisibleMonth.yearMonth
+                                        val monthName =
+                                            visibleYearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                                        val year = visibleYearMonth.year
+
                                         Text(
                                             text = "$monthName $year",
                                             style = AppTheme.textStyles.HeadingFour,
@@ -175,68 +171,60 @@ fun CalendarScreen() {
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp)
-                                                .clickable {
-                                                    showMonths.value = true
-                                                },
+                                                .clickable { showMonths.value = true },
                                             textAlign = TextAlign.Center
                                         )
                                         DaysOfWeekTitle(daysOfWeek = daysOfWeek)
                                     }
                                 },
                             )
-                        }else{
-                            var shownDay by remember(jumpedDay.value) {
-                                mutableStateOf(jumpedDay.value ?: LocalDate.now())
-                            }
-                            val dayName = shownDay.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                            val monthName = shownDay.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                        } else {
+                            val dayInfo = jumpedDay.value ?: LocalDate.now()
+                            val dayName = dayInfo.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                            val monthName = dayInfo.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
                             val currentDay = LocalDate.now()
-                            val isToday = shownDay == currentDay
-
+                            val isToday = dayInfo == currentDay
 
                             HighlightCard(
                                 modifier = Modifier,
-                                //.weight(1f),
                                 innerPadding = 0.dp,
                                 outerPadding = 0.dp,
-                                //height = ((screenHeight/4)*3)
-
-                            ){
+                            ) {
                                 Column(
 
-                                ){
+                                ) {
                                     Box(
-                                        //ContentAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(all = 16.dp)
-                                    ){
+                                    ) {
                                         ShadowedIcon(
                                             imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
                                             contentDescription = null,
                                             tint = AppTheme.colors.BrandTwo,
                                             modifier = Modifier
                                                 .size(28.dp)
-                                                .clickable { shownDay = shownDay.minusDays(1) }
+                                                .clickable { jumpedDay.value = jumpedDay.value.minusDays(1) }
                                                 .align(Alignment.CenterStart),
                                         )
                                         Box(
                                             modifier = Modifier
                                                 .then(
-                                                    when{
+                                                    when {
                                                         isToday -> Modifier.border(
                                                             width = 1.dp,
                                                             color = AppTheme.colors.SecondaryThree
                                                         )
+
                                                         else -> Modifier
                                                     }
                                                 )
                                                 .padding(8.dp)
                                                 .align(Alignment.Center),
                                             contentAlignment = Alignment.Center
-                                        ){
+                                        ) {
                                             Text(
-                                                text = "$dayName, $monthName ${shownDay.dayOfMonth}",
+                                                text = "$dayName, $monthName ${dayInfo.dayOfMonth}",
                                                 style = AppTheme.textStyles.HeadingSix,
                                                 color = AppTheme.colors.BrandOne,
                                                 textAlign = TextAlign.Center,
@@ -253,7 +241,7 @@ fun CalendarScreen() {
                                             tint = AppTheme.colors.BrandTwo,
                                             modifier = Modifier
                                                 .size(28.dp)
-                                                .clickable { shownDay = shownDay.plusDays(1) }
+                                                .clickable { jumpedDay.value = jumpedDay.value.plusDays(1) }
                                                 .align(Alignment.CenterEnd),
                                         )
                                     }
@@ -270,7 +258,7 @@ fun CalendarScreen() {
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(24.dp),
 
-                    ){
+                    ) {
                     Row(
                         modifier = Modifier
                             .align(Alignment.Start)
@@ -279,7 +267,7 @@ fun CalendarScreen() {
                             },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(R.drawable.plus),
                             contentDescription = null,
@@ -311,7 +299,7 @@ fun CalendarScreen() {
                             },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(R.drawable.bars_solid_full),
                             contentDescription = null,
@@ -341,367 +329,23 @@ fun CalendarScreen() {
         if (showMonths.value) {
             MonthJump(
                 toShow = showMonths,
+                startMonth = startMonth,
+                endMonth = endMonth,
+                onJumpToMonth = { selectedMonth ->
+                    jumpedMonth.value = selectedMonth
+                }
             )
         }
 
         if (showDays.value) {
             DayJump(
                 toShowDay = showDays,
-                onJumpToDay = {selectedDate ->
+                startMonth = startMonth,
+                endMonth = endMonth,
+                onJumpToDay = { selectedDate ->
                     jumpedDay.value = selectedDate
                 }
             )
         }
-    }
-
-}
-
-@Composable
-fun Day(day: CalendarDay) {
-    val isOutDate = day.position != DayPosition.MonthDate
-    Box(
-        modifier = Modifier
-            .border(
-                color = AppTheme.colors.Gray, shape = RectangleShape,
-                width = 0.2.dp
-            )
-            .fillMaxWidth()
-            .height(70.dp)
-            .clickable {
-                // Todo add click to add events to days > might be handled in Add reminders
-            },
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Text(text = day.date.dayOfMonth.toString(),
-            color = if(isOutDate){
-                AppTheme.colors.FadedGray
-            }else {
-                AppTheme.colors.Gray
-            }
-        )
-    }
-
-}
-
-@Composable
-fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
-    //val backgroundColor = AppTheme.colors.Background
-    val topLine = AppTheme.colors.SecondaryTwo
-    val grayLine = AppTheme.colors.Gray
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .background(color = Color.Transparent)
-        .drawBehind {
-            val strokeWidth = 2.dp.toPx()
-            // Top border
-            drawLine(
-                color = topLine,
-                start = Offset(0f, 0f),
-                end = Offset(size.width, 0f),
-                strokeWidth = strokeWidth
-            )
-            val thinStroke = 1.dp.toPx()
-            // Bottom border
-            drawLine(
-                color = grayLine,
-                start = Offset(0f, size.height),
-                end = Offset(size.width, size.height),
-                strokeWidth = thinStroke
-            )
-            // Right border
-            drawLine(
-                color = grayLine,
-                start = Offset(0f, 0f),
-                end = Offset(0f, size.height),
-                strokeWidth = thinStroke
-            )
-            // Left border
-            drawLine(
-                color = grayLine,
-                start = Offset(size.width, 0f),
-                end = Offset(size.width, size.height),
-                strokeWidth = thinStroke
-            )
-        }
-    ) {
-        for (dayOfWeek in daysOfWeek) {
-            Text(
-                text = dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.getDefault()).toString(),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 8.dp),
-                textAlign = TextAlign.Center,
-                color = AppTheme.colors.Gray
-            )
-        }
-    }
-}
-
-private fun DayOfWeek.getDisplayName(short: Any, default: Any) {}
-
-@Composable
-fun MonthJump(
-    toShow: MutableState<Boolean>
-){
-    val startMonth = YearMonth(2023, 1)
-    val endMonth = YearMonth(2100, 12)
-    val monthList = (1..12).map {
-            monthNumber -> Month(monthNumber).name.lowercase().replaceFirstChar{it.titlecase()}
-    }
-    val yearList = (startMonth.year.. endMonth.year).toList()
-    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-    var selectedMonth by remember{mutableStateOf(0)}
-    var selectedYear by remember{mutableStateOf(yearList.indexOf(currentYear).coerceAtLeast(0))}
-    val monthExpanded = remember { mutableStateOf(false) }
-    val yearExpanded = remember { mutableStateOf(false) }
-    CustomDialog(
-        toShow = toShow,
-        dismissOnInsideClick = false,
-        dismissOnOutsideClick = false,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Title
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = "Jump to",
-                    style = AppTheme.textStyles.HeadingFour,
-                    color = AppTheme.colors.SecondaryOne
-                )
-                // Separator
-                SeparatorLine(color = AppTheme.colors.SecondaryTwo)
-            }
-
-            // Choosing a reminder
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ){
-                Text(
-                    text = "Place Holder",
-                    style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                DropDownTextMenu(
-                    options = monthList,
-                    selectedIndex = selectedMonth,
-                    onSelectedChange = { selectedMonth = it },
-                    expanded = monthExpanded,
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    arrowSize = 25.dp
-                )
-            }
-
-            // Repeat options
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ){
-                // Repeat
-                Text(
-                    text = "Select Year",
-                    style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                DropDownTextMenu(
-                    options = yearList.map { it.toString() },
-                    selectedIndex = selectedYear,
-                    onSelectedChange = { selectedYear = it },
-                    expanded = yearExpanded,
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    arrowSize = 25.dp
-                )
-            }
-
-            // Button controls
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CustomButton(
-                    width = 120.dp,
-                    onClick = { toShow.value = false },
-                    backgroundColor = AppTheme.colors.Error75,
-                ) {
-                    Text(
-                        text = stringResource(R.string.cancel),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
-                }
-                Spacer(Modifier.width(20.dp))
-                CustomButton(
-                    width = 120.dp,
-                    onClick = {
-
-                    },
-                    backgroundColor = AppTheme.colors.Success75,
-                ) {
-                    Text(
-                        text = "Jump to",
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun DayJump(
-    toShowDay: MutableState<Boolean>,
-    onJumpToDay: (LocalDate) -> Unit
-){
-    val startMonth = YearMonth(2023, 1)
-    val endMonth = YearMonth(2100, 12)
-    val monthList = (1..12).map {
-            monthNumber -> Month(monthNumber).name.lowercase().replaceFirstChar{it.titlecase()}
-    }
-    val yearList = (startMonth.year.. endMonth.year).toList()
-    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-    var selectedDay by remember{mutableStateOf(0)}
-    var selectedMonth by remember{mutableStateOf(0)}
-    var selectedYear by remember{mutableStateOf(yearList.indexOf(currentYear).coerceAtLeast(0))}
-    val dayExpanded = remember { mutableStateOf(false) }
-    val monthExpanded = remember { mutableStateOf(false) }
-    val yearExpanded = remember { mutableStateOf(false) }
-    val actualYear = yearList[selectedYear]
-    val actualMonth = selectedMonth + 1
-    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()
-    val dayList = (1..daysInMonth).map { day ->
-        val date = LocalDate.of(actualYear, actualMonth, day)
-        val dayName = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        "${SuffixForDays(day)} , $dayName "
-    }
-
-    CustomDialog(
-        toShow = toShowDay,
-        dismissOnInsideClick = false,
-        dismissOnOutsideClick = false,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Title
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = "Jump to Day",
-                    style = AppTheme.textStyles.HeadingFour,
-                    color = AppTheme.colors.SecondaryOne
-                )
-                // Separator
-                SeparatorLine(color = AppTheme.colors.SecondaryTwo)
-            }
-            // Choosing year
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ){
-                // Repeat
-                Text(
-                    text = "Select Year",
-                    style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                DropDownTextMenu(
-                    options = yearList.map { it.toString() },
-                    selectedIndex = selectedYear,
-                    onSelectedChange = { selectedYear = it },
-                    expanded = yearExpanded,
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    arrowSize = 25.dp
-                )
-            }
-            // Choosing a month
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ){
-                Text(
-                    text = "Select Month",
-                    style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                DropDownTextMenu(
-                    options = monthList,
-                    selectedIndex = selectedMonth,
-                    onSelectedChange = { selectedMonth = it },
-                    expanded = monthExpanded,
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    arrowSize = 25.dp
-                )
-            }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ){
-                Text(
-                    text = "Select Day",
-                    style = AppTheme.textStyles.HeadingFive,
-                    color = AppTheme.colors.SecondaryThree
-                )
-                DropDownTextMenu(
-                    options = dayList,
-                    selectedIndex = selectedDay,
-                    onSelectedChange = { selectedDay = it },
-                    expanded = dayExpanded,
-                    textStyle = AppTheme.textStyles.HeadingSix,
-                    arrowSize = 25.dp
-                )
-            }
-
-            // Button controls
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CustomButton(
-                    width = 120.dp,
-                    onClick = { toShowDay.value = false },
-                    backgroundColor = AppTheme.colors.Error75,
-                ) {
-                    Text(
-                        text = stringResource(R.string.cancel),
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
-                }
-                Spacer(Modifier.width(20.dp))
-                CustomButton(
-                    width = 120.dp,
-                    onClick = {
-                        val date = LocalDate.of(
-                            actualYear,
-                            actualMonth,
-                            selectedDay+1,
-                        )
-                        onJumpToDay(date)
-                        toShowDay.value = false
-                    },
-                    backgroundColor = AppTheme.colors.Success75,
-                ) {
-                    Text(
-                        text = "Jump to",
-                        style = AppTheme.textStyles.HeadingSix,
-                        color = AppTheme.colors.Background
-                    )
-                }
-            }
-        }
-    }
-}
-
-fun SuffixForDays(day: Int): String {
-    return when {
-        day in 11..13 -> "$day" + "th"
-        day %10 == 1 -> "$day" + "st"
-        day % 10 == 2 -> "$day" + "nd"
-        day % 10 == 3 -> "$day" + "rd"
-        else -> "$day" + "th"
     }
 }
