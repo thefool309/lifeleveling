@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
@@ -505,13 +506,15 @@ fun AllBadgesDisplay(
     modifier: Modifier = Modifier,
     columns: Int = 5,
     toShow: MutableState<Boolean>,
-    showBadge: MutableState<Badge>
+    showBadge: MutableState<Badge>,
+    scrollState: LazyGridState,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
+        state = scrollState,
     ) {
         items(TestUser.allBadges) { badge ->
             Box(

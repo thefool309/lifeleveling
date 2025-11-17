@@ -246,7 +246,7 @@ fun StatsScreen(
                                         Text(
                                             text = statValue.value.toString(),
                                             color = AppTheme.colors.SecondaryOne,
-                                            style = AppTheme.textStyles.HeadingFour,
+                                            style = AppTheme.textStyles.HeadingFive,
                                             modifier = Modifier.align(Alignment.Center)
                                         )
                                     }

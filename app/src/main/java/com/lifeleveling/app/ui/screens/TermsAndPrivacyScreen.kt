@@ -2,6 +2,7 @@ package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,12 +47,11 @@ fun TermsAndPrivacyScreen(
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ){
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
                     text = stringResource(R.string.termsAnd)+"\n"+stringResource(R.string.privacy),
@@ -63,21 +63,21 @@ fun TermsAndPrivacyScreen(
                             blurRadius = 6f,
                         )
                     ),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 CircleButton(
                     modifier = Modifier,
                     onClick = {navController?.popBackStack()},
-                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
+                    size = 48.dp
                 )
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-
                 outerPadding = 0.dp
             ) {
                 Column(

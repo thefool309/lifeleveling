@@ -184,4 +184,7 @@
     <string name="notificonSound">Notification Sound:</string>
     <string name="whenToNotify">When to Notify:</string>
 
+    <!-- Calendar -->
+    <string name="my_reminders">My Reminders</string>
+
 </resources>

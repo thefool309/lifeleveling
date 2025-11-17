@@ -130,7 +130,6 @@ fun HomeScreen() {
                     // Coins display
                     Box(
                         modifier = Modifier
-//                            .fillMaxWidth(),
                     ){
                         HighlightCard(
                             modifier = Modifier

@@ -2,6 +2,7 @@ package com.lifeleveling.app.ui.screens
 
 import android.media.RingtoneManager
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,7 +54,8 @@ fun NotificationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
             Row(
                 modifier = Modifier
@@ -78,14 +80,10 @@ fun NotificationScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
                 outerPadding = 0.dp
-
-
             ) {
                 Column(
                     modifier = Modifier

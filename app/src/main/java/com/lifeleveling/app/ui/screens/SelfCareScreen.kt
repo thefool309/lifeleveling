@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,13 +34,15 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.CircleButton
+import com.lifeleveling.app.ui.components.SeparatorLine
 
 @Preview
 @Composable
 fun SelfCareScreen(
     navController: NavController? = null,
 ){
-val context = LocalContext.current
+    val context = LocalContext.current
+
     Surface(
         modifier = Modifier
             .fillMaxSize(),
@@ -47,7 +50,8 @@ val context = LocalContext.current
     ){
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ){
             Row(
                 modifier = Modifier
@@ -69,32 +73,24 @@ val context = LocalContext.current
                 CircleButton(
                     modifier = Modifier,
                     onClick = {navController?.popBackStack()},
-                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
+                    size = 48.dp
                 )
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
                 outerPadding = 0.dp
-
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-
-
-                    Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         modifier = Modifier
-
                     ) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.suggestedReminders),
                             color = AppTheme.colors.Gray,
@@ -110,22 +106,10 @@ val context = LocalContext.current
 
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
 
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SeparatorLine()
 
                     Row(modifier = Modifier) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.importanceOfSelfCare),
                             color = AppTheme.colors.Gray,
@@ -138,27 +122,12 @@ val context = LocalContext.current
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SeparatorLine()
 
                     Row(modifier = Modifier) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.extraArticles),
                             color = AppTheme.colors.Gray,
@@ -175,23 +144,9 @@ val context = LocalContext.current
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SeparatorLine()
 
                     Row(modifier = Modifier) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.needAdive),
                             color = AppTheme.colors.Gray,
@@ -208,12 +163,8 @@ val context = LocalContext.current
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.healthline.com/wellness"))
                                     context.startActivity(intent)
                                 },
-
-                            )
+                        )
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                 }
             }
         }

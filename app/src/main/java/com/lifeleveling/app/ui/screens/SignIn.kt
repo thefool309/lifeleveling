@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -57,14 +59,15 @@ fun SignIn(
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.Center,
         ){
             //logo
             Image(
                 painter = painterResource(id= R.drawable.ll_circle_logo_dots),
                 contentDescription = "logo",
                 modifier = Modifier
-                    .size(300.dp)
+                    .width(300.dp)
+                    .aspectRatio(1f)
             )
 
             //inner box holding text fields
@@ -125,13 +128,15 @@ fun SignIn(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-            modifier = Modifier
-                .width(250.dp)
-                .height(50.dp),
-            onClick = onGoogleLogin,
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(50.dp),
+                onClick = onGoogleLogin,
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
             ) {         //This below can place and image in the button
 //                        Image(
 //                            painter = painterResource(id = R.drawable.gmail_color),
@@ -139,19 +144,21 @@ fun SignIn(
 //                            modifier = Modifier
 //                                .size(48.dp)
 //                        )
-            //button text
-            Text(
-                "G",
-                color = AppTheme.colors.DropShadow,
-                style = AppTheme.textStyles.HeadingFive
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                stringResource(R.string.useGoogle),
-                color = AppTheme.colors.DropShadow,
-                style = AppTheme.textStyles.Default,
+                //button text
+                Text(
+                    "G",
+                    color = AppTheme.colors.DropShadow,
+                    style = AppTheme.textStyles.HeadingFive
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    stringResource(R.string.useGoogle),
+                    color = AppTheme.colors.DropShadow,
+                    style = AppTheme.textStyles.Default,
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Forgotten password
             Text(
@@ -162,6 +169,8 @@ fun SignIn(
                 modifier = Modifier.clickable { /* Forgotten password logic here */ }
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             //create an account nav link
             Text(
                 text = stringResource(R.string.createAccount),
@@ -170,6 +179,9 @@ fun SignIn(
                 style = AppTheme.textStyles.DefaultUnderlined,
                 modifier = Modifier.clickable { onCreateAccount() }
             )
+
+            // Extra spacer to make up for image blank space
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }

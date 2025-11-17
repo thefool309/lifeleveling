@@ -2,11 +2,13 @@ package com.lifeleveling.app.ui.components
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -60,6 +62,7 @@ DropDownTextMenu  -  Menu for string lists
 DropDownReminderMenu  -  Dropdown designed to show the icon and text of reminder lists
 SeparatorLine  -  Easy call of the custom separator
 CustomTextField  -  A basic outline textField just will all the specifics already saved to make them uniform
+ScrollFadeEdges  -  Applies a dark shading at the top and bottom if the screen or element can be scrolled in that direction
  */
 
 // This screen shows the different effects that are within this file
@@ -589,7 +592,7 @@ fun CircleButton(
     onClick: () -> Unit,
     imageVector: ImageVector,  // Icon
     contentDescription: String? = null,
-    size: Dp = 64.dp, // Button Size, icon will scale with it
+    size: Dp = 48.dp, // Button Size, icon will scale with it
     backgroundColor: Color = AppTheme.colors.SecondaryOne, // Button color
     iconTint: Color = AppTheme.colors.DarkerBackground,  // Icon color
     shadowColor: Color = AppTheme.colors.DropShadow,  // Drop shadow color
@@ -1279,4 +1282,124 @@ fun CustomTextField(
         supportingText = { supportingUnit?.invoke() },
         visualTransformation = visualTransformation,
     )
+}
+
+/**
+ * Adds a dark gradient at the top or bottom of a scrollable column if it can be scrolled up or down.
+ * Needs to be placed inside the box that contains the column, after the column.
+ * @param scrollState Pass in a scrollState variable that derives from the column
+ * @param topFadeHeight Controls the size of the top faded bit
+ * @param bottomFadeHeight Controls the size of the bottom faded section
+ * @param fadeColor The color in the gradient
+ */
+@Composable
+fun ScrollFadeEdges(
+    scrollState: ScrollState,
+    topFadeHeight: Dp = 28.dp,
+    bottomFadeHeight: Dp = 28.dp,
+    fadeColor: Color = AppTheme.colors.DropShadow.copy(alpha = .5f)
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        // Top Fade if scrollable
+        if (scrollState.value > 0) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(topFadeHeight)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                fadeColor,
+                                Color.Transparent,
+                            )
+                        )
+                    )
+                    .align(Alignment.TopCenter)
+            )
+        }
+
+        // Bottom fade if scrollable
+        val maxScroll = scrollState.maxValue
+        if (scrollState.value < maxScroll) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(bottomFadeHeight)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                fadeColor,
+                            )
+                        )
+                    )
+                    .align(Alignment.BottomCenter)
+            )
+        }
+    }
+}
+
+/**
+ * Adds a dark gradient at the top or bottom of a scrollable LAZY column if it can be scrolled up or down.
+ * Needs to be placed inside the box that contains the column, after the column.
+ * @param gridState Pass in a scrollState variable that derives from the lazy column
+ * @param topFadeHeight Controls the size of the top faded bit
+ * @param bottomFadeHeight Controls the size of the bottom faded section
+ * @param fadeColor The color in the gradient
+ */
+@Composable
+fun LazyColumnFadeEdges(
+    gridState: LazyGridState,
+    topFadeHeight: Dp = 24.dp,
+    bottomFadeHeight: Dp = 24.dp,
+    fadeColor: Color = AppTheme.colors.DropShadow.copy(alpha = .5f)
+) {
+    val canScrollUp = gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0
+    val layoutInfo = gridState.layoutInfo
+    val visible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+    val total = layoutInfo.totalItemsCount
+    val canScrollDown = visible < total - 1
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // Top Fade if scrollable
+        if (canScrollUp) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(topFadeHeight)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                fadeColor,
+                                Color.Transparent,
+                            )
+                        )
+                    )
+                    .align(Alignment.TopCenter)
+            )
+        }
+
+        // Bottom fade if scrollable
+        if (canScrollDown) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(bottomFadeHeight)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                fadeColor,
+                            )
+                        )
+                    )
+                    .align(Alignment.BottomCenter)
+            )
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.lifeleveling.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -27,9 +28,11 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.AllBadgesDisplay
 import com.lifeleveling.app.ui.components.BadgesToolTip
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.LazyColumnFadeEdges
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
 import com.lifeleveling.app.ui.components.ProgressBar
+import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowStreak
@@ -52,6 +55,7 @@ fun StreaksScreen(
     val streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
     val addWeekStreak = remember { mutableStateOf(false) }
     val addMonthStreak = remember { mutableStateOf(false) }
+    val gridState = rememberLazyGridState()
 
     // Background
     Box(
@@ -335,7 +339,7 @@ fun StreaksScreen(
                         }
                 )
                 Spacer(Modifier.weight(1f))
-                // Navigation to stats screen
+                // Navigation to user journey screen
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
@@ -354,7 +358,12 @@ fun StreaksScreen(
             ) {
                 AllBadgesDisplay(
                     toShow = showBadge,
-                    showBadge = badgeToDisplay
+                    showBadge = badgeToDisplay,
+                    scrollState = gridState
+                )
+
+                LazyColumnFadeEdges(
+                    gridState = gridState
                 )
             }
         }
