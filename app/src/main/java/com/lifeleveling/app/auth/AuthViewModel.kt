@@ -51,6 +51,18 @@ class AuthViewModel : ViewModel() {
     private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
     val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
 
+    /**
+     * Clears any current auth error message from the UI state.
+     *
+     * Call this after the user dismisses an error dialog so we don't keep re-showing the same message.
+     *
+     * @author fdesouza1992
+     */
+    fun clearError() {
+        _ui.value = _ui.value.copy(error = null)
+    }
+
+
     // Listener to monitor Firebase authentication state changes
     private val listener = FirebaseAuth.AuthStateListener { fb ->
         _ui.value = _ui.value.copy(user = fb.currentUser, isLoading = false, error = null)
