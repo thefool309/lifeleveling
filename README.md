@@ -40,9 +40,9 @@ Our goal is to equip our users with a powerful solution that not only helps them
 ## Installation
 For now Installation will be handled via an .apk file that will be bundled with github releases. As the app progresses we will add detailed installation instructions. If possible in the future we are considering publishing the app for free on the google play store. 
 
-## Contributing
+## [Contributing](./.github/CONTRIBUTING.md)
 
-Forks are welcome, pull requests will not be accepted until February 2026. For any major changes please open an issue and discuss what you would like to change. Please make sure to update tests as appropriate.
+### [Contribution guidelines are here](./.github/CONTRIBUTING.md)
 
 ## Contributors
 
@@ -52,7 +52,7 @@ Forks are welcome, pull requests will not be accepted until February 2026. For a
 
 ### [Stephen](https://github.com/sgcfsu1993)
 
-### [Velma](https://github.com/thefool309)
+### [Vincent](https://github.com/thefool309)
 
 ## Project Status
 Project is still in the MVP/core feature development stage.

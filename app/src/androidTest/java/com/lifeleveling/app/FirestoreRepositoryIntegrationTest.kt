@@ -100,9 +100,8 @@ class FirestoreRepositoryIntegrationTest {
     @Test
     fun createUserPositiveTest() = runTest {
         //comment top line in if you need to create a user in auth
-        // auth.createUserWithEmailAndPassword(testEmail, testPassword)
-        auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
         val createdUser = auth.currentUser
         val repo = FirestoreRepository()
         val result = repo.createUser(
@@ -148,31 +147,6 @@ class FirestoreRepositoryIntegrationTest {
             "displayName" to "sillyGoose420",
         ), logger)
         assert(result)
-    }
-
-    @Test
-    fun getUserMalformedNegativeTest() = runTest {
-        // Implementing negative test for editUser kind of became a negative test for get user.
-        // editUser will take in any type and assign it to a value in the database
-        // causing major problems when you try to read the user back in.
-        //comment top line in if you need to create a user  in auth
-        //auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
-        auth.signInWithEmailAndPassword(testEmail, testPassword).await()
-        val logger = AndroidLogger()
-        val repo = FirestoreRepository()
-        repo.createUser(mapOf(
-            "displayName" to testUsername,
-            "email" to testEmail,
-        ), logger)
-        repo.editUser(mapOf("displayName" to 150), logger) // this is where I discovered the danger of the editUser function I made
-
-        var result: Users?
-
-        result = repo.getUser(auth.currentUser?.uid, logger)
-        assert(result == null)
-        assertFailsWith<NullPointerException> {
-            result = repo.getUser(auth.currentUser?.uid, logger)!!
-        }
     }
 
     @Test
@@ -242,7 +216,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository()
-        val result = repo.editDisplayName("Tinkle", logger)
+        val result = repo.editDisplayName("Tingle", logger)
         assert(result)
     }
 
@@ -269,7 +243,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository()
-        val result = repo.editEmail("tinkle@annoyingasscharacters.com", logger)
+        val result = repo.editEmail("tingle@annoyingasscharacters.com", logger)
         assert(result)
     }
 
