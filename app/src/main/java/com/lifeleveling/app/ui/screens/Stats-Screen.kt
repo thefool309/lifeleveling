@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -177,9 +176,8 @@ fun StatsScreen(
                     //create column
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // for each item in the list create a row
                         // track index of list so divider line is not place after last
@@ -189,18 +187,18 @@ fun StatsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 //icons on the left and the text
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                ) {
                                     ShadowedIcon(
                                         imageVector = ImageVector.vectorResource(iconRes),
                                         tint = color,
-                                        modifier = Modifier.size(38.dp),
-
+                                        modifier = Modifier.size(36.dp),
                                     )
-
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = stringResource(labelRes),
@@ -210,14 +208,20 @@ fun StatsScreen(
                                 }
 
                                 // stat controls on the right
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(start = 16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
                                     // minus button
                                     Image(
                                         painter = painterResource(id = R.drawable.minus),
                                         contentDescription = "Decrease $labelRes",
                                         colorFilter = ColorFilter.tint(AppTheme.colors.FadedGray),
                                         modifier = Modifier
-                                            .size(42.dp)
+                                            .size(28.dp)
                                             .clickable(
                                                 indication = null,
                                                 interactionSource = remember { MutableInteractionSource() },
@@ -230,20 +234,18 @@ fun StatsScreen(
                                                     }
                                                 }
                                             )
-                                            .padding(horizontal = 8.dp)
                                     )
 
                                     // stat value
                                     Box(
                                         modifier = Modifier
-                                            .width(40.dp)
-                                            .height(48.dp),
+                                            .weight(1f),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = statValue.value.toString(),
                                             color = AppTheme.colors.SecondaryOne,
-                                            style = AppTheme.textStyles.HeadingFive,
+                                            style = AppTheme.textStyles.HeadingSix,
                                             modifier = Modifier.align(Alignment.Center)
                                         )
                                     }
@@ -254,7 +256,7 @@ fun StatsScreen(
                                         contentDescription = "Increase $labelRes",
                                         colorFilter = ColorFilter.tint(AppTheme.colors.SecondaryTwo),
                                         modifier = Modifier
-                                            .size(42.dp)
+                                            .size(28.dp)
                                             .clickable(
                                                 indication = null,
                                                 interactionSource = remember { MutableInteractionSource() },
@@ -266,7 +268,6 @@ fun StatsScreen(
                                                     }
                                                 }
                                             )
-                                            .padding(horizontal = 8.dp)
                                     )
                                 }
                             }
