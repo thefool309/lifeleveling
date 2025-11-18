@@ -57,7 +57,7 @@ fun CreateAccountScreen(
     email: MutableState<String>,
     password: MutableState<String>,
 ) {
-    val isGmail = com.lifeleveling.app.isGoogleMailboxUi(email.value)
+    val isGmail = isGoogleMailboxUi(email.value)
     val pwordRules = PasswordRules(password.value)
     val isPasswordValid = pwordRules.all{it.second}
     val termsCheck = remember { mutableStateOf(false) }
@@ -168,7 +168,7 @@ fun CreateAccountScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         supportingUnit = {
                             Column {
-                                passwordRules.forEach { rule ->
+                                pwordRules.forEach { rule: Pair<String, Boolean> ->
                                     Text(text = rule.first,
                                         color = if(rule.second){
                                             AppTheme.colors.SecondaryTwo

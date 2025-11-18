@@ -262,15 +262,16 @@ fun SignIn(
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignIn() {
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-
-    SignIn(
-        email = email,
-        password = password,
-    )
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewSignIn() {
+//    val email = remember { mutableStateOf("") }
+//    val password = remember { mutableStateOf("") }
+//
+//    SignIn(
+//        email = email,
+//        password = password,
+//        authState =
+//    )
+//}
