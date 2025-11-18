@@ -672,7 +672,7 @@ class FirestoreRepository {
     /**
      * Helper to get this user's 'reminders' collection in Firestore.
      *
-     * We use this to keep the path logic in one place" 'users/{uid}/reminders'.
+     * We use this to keep the path logic in one place 'users/{uid}/reminders'.
      *
      * @param uid The user's unique Firestore/Firebase Auth ID.
      * @return A reference to that user's 'reminders' collection.
@@ -695,7 +695,7 @@ class FirestoreRepository {
      * On failure, we log the error and return null so the caller can handle it.
      *
      * @param reminders The reminder data we want to store.
-     * @param logger Used to log success or failures during the write.
+     * @param logger Used to log success or failures during write.
      * @return The Firestore document ID for this reminder, or `null` if something went wrong.
      * @author fdesouza1992
      * **/
