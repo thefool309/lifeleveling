@@ -1,15 +1,15 @@
 package com.lifeleveling.app.ui.components
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -28,18 +28,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.InnerShadow
@@ -60,10 +59,12 @@ CustomDialog  -  CustomDialog call with saved preferences. Can be adjusted to ho
 DropDownTextMenu  -  Menu for string lists
 DropDownReminderMenu  -  Dropdown designed to show the icon and text of reminder lists
 SeparatorLine  -  Easy call of the custom separator
+CustomTextField  -  A basic outline textField just will all the specifics already saved to make them uniform
  */
 
 // This screen shows the different effects that are within this file
 @Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestScreen() {
     val configuration = LocalConfiguration.current
@@ -216,11 +217,28 @@ fun TestScreen() {
                     "One", "Two", "Three", "Four", "Five", "Six", "Seven",
                 )
                 var selectedIndex by remember { mutableStateOf(0) }
-                DropDownTextMenu(
-                    options = options,
-                    selectedIndex = selectedIndex,
-                    onOptionSelected = { selectedIndex = it },
-                )
+                val expanded = remember { mutableStateOf(false) }
+                Box(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                ){
+                    DropDownTextMenu(
+                        options = options,
+                        selectedIndex = selectedIndex,
+                        onSelectedChange = { selectedIndex = it },
+                        expanded = expanded,
+                    )
+                }
+
+                // Testing Text Fields
+                Box(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                ){
+                    var text by remember { mutableStateOf("") }
+                    CustomTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                    )
+                }
 
 //                //Showing popup example
 //                PopupCard {
@@ -575,7 +593,7 @@ fun CircleButton(
     backgroundColor: Color = AppTheme.colors.SecondaryOne, // Button color
     iconTint: Color = AppTheme.colors.DarkerBackground,  // Icon color
     shadowColor: Color = AppTheme.colors.DropShadow,  // Drop shadow color
-    elevation: Dp = 8.dp,  // Button drop shadow adjustment
+    elevation: Dp = 16.dp,  // Button drop shadow adjustment
     iconSizeModifier: Float = .75f
 ) {
     Box(
@@ -588,7 +606,7 @@ fun CircleButton(
                 spotColor = shadowColor,
             )
             .clip(CircleShape)
-            .background(Color.White)
+            .background(backgroundColor)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(
@@ -598,36 +616,12 @@ fun CircleButton(
             ) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        // Top left
-        InnerShadow(
-            modifier = Modifier.matchParentSize(),
-            color = backgroundColor,
-            shadowColor = AppTheme.colors.LightShadow,
-            blur = 4.dp,
-            offsetX = 1.dp,
-            offsetY = 1.dp,
-            spread = 1.5.dp,
-            cornerRadius = size / 2,
-        )
-        // Bottom right
-        InnerShadow(
-            modifier = Modifier.matchParentSize(),
-            color = Color.Transparent,
-            shadowColor = AppTheme.colors.LightShadow,
-            blur = 2.dp,
-            offsetX = (-.5).dp,
-            offsetY = (-1).dp,
-            spread = 1.5.dp,
-            cornerRadius = size / 2,
-        )
-        // All over inside
-        InnerShadow(
-            modifier = Modifier.matchParentSize(),
-            color = Color.Transparent,
-            shadowColor = AppTheme.colors.DropShadow,
-            blur = 2.5.dp,
-            spread = .25.dp,
-            cornerRadius = size / 2,
+        Image(
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(size),
+            painter = painterResource(R.drawable.circle_button_innerlight),
+            contentDescription = null,
         )
         ShadowedIcon(
             imageVector = imageVector,
@@ -965,105 +959,105 @@ fun CustomDialog(
 /**
  * Creates a dropdown menu for string options
  * @param options List of strings for options
- * @param selectedIndex Variable for storing the selected option
- * @param onOptionSelected What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
- * @param menuWidth Sets the width of the menu
- * @param menuOffset Adjusts where the menu shows up
- * @param clickBoxColor The main dropdown menu's background color
- * @param accentBoxColor Menu alternates color for different items, this is the second color it will use
- * @param textStyle Sets the style of all the text
- * @param textColor Sets the color of all the text
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
  * @param arrowSize Changes the size of the arrow on the dropdown box
- * @param arrowColor Color of the arrow
+ * @param textStyle Sets the style of all the text
+ * @param textColor Sets the color of all the text and the arrow
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @param selectedText A highlight to the text of the currently selected option
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDownTextMenu(
     modifier: Modifier = Modifier,
     options: List<String>,
     selectedIndex: Int,
-    onOptionSelected: (Int) -> Unit,
-    menuWidth: Dp = 150.dp,
-    menuOffset: IntOffset = IntOffset(75, 0),
-    menuPadding: Dp = 8.dp,
-    clickBoxColor: Color = AppTheme.colors.DarkerBackground,
-    accentBoxColor: Color = AppTheme.colors.Background,
-    textStyle: TextStyle = AppTheme.textStyles.HeadingSix,
-    textColor: Color = AppTheme.colors.Gray,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
     arrowSize: Dp = 20.dp,
-    arrowColor: Color = AppTheme.colors.Gray,
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    textColor: Color = AppTheme.colors.Gray,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    selectedText: Color = AppTheme.colors.Gray,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(
         modifier = modifier
     ) {
-        // Clickable
-        HighlightCard(
-            modifier = Modifier
-                .fillMaxWidth(),
-            backgroundColor = clickBoxColor,
-            outerPadding = 0.dp
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
         ) {
-            Row(
+            OutlinedTextField(
                 modifier = Modifier
-                    .clickable { expanded = !expanded }
-                    .background(clickBoxColor),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val string = options[selectedIndex]
-                Text(
-                    text = string,
-                    style = textStyle,
-                    color = textColor
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
+                value = options.getOrNull(selectedIndex) ?: "",
+                onValueChange = { },
+                readOnly = readOnly,
+                trailingIcon = {
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                textStyle = textStyle,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    disabledBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
-                    contentDescription = null,
-                    tint = arrowColor,
-                    modifier = Modifier
-                        .rotate(if (expanded) 90f else 270f)
-                        .size(arrowSize)
-                )
-            }
-        }
-
-        // Dropdown
-        if (expanded) {
-            Popup(
-                offset = menuOffset,
-                onDismissRequest = { expanded = false },
-                properties = PopupProperties(focusable = true),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(menuWidth)
-                        .background(clickBoxColor)
-                        .shadow(8.dp)
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.wrapContentWidth()
-                    ) {
-                        itemsIndexed(options) { index, string ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(if(index % 2 == 0) accentBoxColor else clickBoxColor)
-                                    .clickable {
-                                        onOptionSelected(index)
-                                        expanded = false
-                                    }
-                                    .padding(menuPadding),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = string,
-                                    style = textStyle,
-                                    color = textColor
-                                )
-                            }
-                        }
-                    }
+                options.forEachIndexed { index, option ->
+                    val isSelected = index == selectedIndex
+                    val isEven = index % 2 == 0
+                    val backgroundColor =
+                        if (isSelected) selectedBackground
+                        else if (isEven) backgroundMainColor
+                        else accentColor
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = option,
+                                color = if (index == selectedIndex) selectedText else textColor,
+                                style = textStyle
+                            )
+                        },
+                        onClick = {
+                            onSelectedChange(index)
+                            expanded.value = false
+                        },
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .fillMaxWidth()
+                    )
                 }
             }
         }
@@ -1072,126 +1066,130 @@ fun DropDownTextMenu(
 
 /**
  * Creates a dropdown menu for string options
- * @param options List of triple items consisting of icon, icon color, and string name
- * @param selectedIndex Variable for storing the selected option
- * @param onOptionSelected What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
- * @param menuWidth Sets the width of the menu
- * @param menuOffset Adjusts where the menu shows up
- * @param menuPadding Increase this to spread the menu options out
- * @param clickBoxColor The main dropdown menu's background color
- * @param accentBoxColor Menu alternates color for different items, this is the second color it will use
- * @param textStyle Sets the style of all the text
- * @param textColor Sets the color of all the text
+ * @param options List of reminders for options
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
  * @param arrowSize Changes the size of the arrow on the dropdown box
- * @param arrowColor Color of the arrow
- * @param iconSize Changes the size of the icons for the options
+ * @param textStyle Sets the style of all the text
+ * @param textColor Sets the color of all the text and the arrow
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @param selectedText A highlight to the text of the currently selected option,
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDownReminderMenu(
     modifier: Modifier = Modifier,
     options: List<Reminder>,
     selectedIndex: Int,
-    onOptionSelected: (Int) -> Unit,
-    menuWidth: Dp = 150.dp,
-    menuOffset: IntOffset = IntOffset(75, 0),
-    menuPadding: Dp = 8.dp,
-    clickBoxColor: Color = AppTheme.colors.DarkerBackground,
-    accentBoxColor: Color = AppTheme.colors.Background,
-    textStyle: TextStyle = AppTheme.textStyles.HeadingSix,
-    textColor: Color = AppTheme.colors.Gray,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
     arrowSize: Dp = 20.dp,
-    arrowColor: Color = AppTheme.colors.Gray,
-    iconSize: Dp = 20.dp,
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    textColor: Color = AppTheme.colors.Gray,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    selectedText: Color = AppTheme.colors.Gray,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(
         modifier = modifier
     ) {
-        // Clickable
-        HighlightCard(
-            modifier = Modifier
-                .fillMaxWidth(),
-            backgroundColor = clickBoxColor,
-            outerPadding = 0.dp
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
         ) {
-            Row(
+            OutlinedTextField(
                 modifier = Modifier
-                    .clickable { expanded = !expanded }
-                    .background(clickBoxColor),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val item = options[selectedIndex]
-                ShadowedIcon(
-                    modifier = Modifier.size(iconSize),
-                    imageVector = ImageVector.vectorResource(item.icon),
-                    tint = if (item.color == null) Color.Unspecified
-                    else resolveEnumColor(item.color),
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
+                value = options.getOrNull(selectedIndex)?.name ?: "",
+                onValueChange = { },
+                readOnly = readOnly,
+                leadingIcon = {
+                    val item = options[selectedIndex]
+                    ShadowedIcon(
+                        modifier = Modifier.size(arrowSize),
+                        imageVector = ImageVector.vectorResource(item.icon),
+                        tint = item.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
+                    )
+                },
+                trailingIcon = {
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                textStyle = textStyle,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = item.name,
-                    style = textStyle,
-                    color = textColor
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
-                    contentDescription = null,
-                    tint = arrowColor,
-                    modifier = Modifier
-                        .rotate(if (expanded) 90f else 270f)
-                        .size(arrowSize)
-                )
-            }
-        }
+            )
 
-        // Dropdown
-        if (expanded) {
-            Popup(
-                offset = menuOffset,
-                onDismissRequest = { expanded = false },
-                properties = PopupProperties(focusable = true),
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(menuWidth)
-                        .background(clickBoxColor)
-                        .shadow(8.dp)
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.wrapContentWidth()
-                    ) {
-                        itemsIndexed(options) { index, reminder ->
-                            val alreadyInStreaks = TestUser.weeklyStreaks.any { it.reminder.id == reminder.id } ||
-                                    TestUser.monthlyStreaks.any { it.reminder.id == reminder.id }
-                            if(!alreadyInStreaks){
+                options.forEachIndexed { index, reminder ->
+                    val alreadyInStreaks = TestUser.weeklyStreaks.any { it.reminder.id == reminder.id } ||
+                            TestUser.weeklyStreaks.any { it.reminder.id == reminder.id }
+
+                    if (!alreadyInStreaks) {
+                        val isSelected = index == selectedIndex
+                        val isEven = index % 2 == 0
+
+                        val backgroundColor =
+                            if (isSelected) selectedBackground
+                            else if (isEven) backgroundMainColor
+                            else accentColor
+
+                        DropdownMenuItem(
+                            text = {
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(if (index % 2 == 0) accentBoxColor else clickBoxColor)
-                                        .clickable {
-                                            onOptionSelected(index)
-                                            expanded = false
-                                        }
-                                        .padding(menuPadding),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     ShadowedIcon(
-                                        modifier = Modifier.size(iconSize),
+                                        modifier = Modifier.size(arrowSize),
                                         imageVector = ImageVector.vectorResource(reminder.icon),
-                                        tint = if (reminder.color == null) Color.Unspecified
-                                        else resolveEnumColor(reminder.color),
+                                        tint = reminder.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(Modifier.width(8.dp))
                                     Text(
                                         text = reminder.name,
                                         style = textStyle,
-                                        color = textColor
+                                        color = if (isSelected) selectedText else textColor,
                                     )
                                 }
-                            }
-                        }
+                            },
+                            onClick = {
+                                onSelectedChange(index)
+                                expanded.value = false
+                            },
+                            modifier = Modifier
+                                .background(backgroundColor)
+                                .fillMaxWidth()
+                        )
                     }
                 }
             }
@@ -1199,6 +1197,9 @@ fun DropDownReminderMenu(
     }
 }
 
+/**
+ * A thin line with a dot at either end for separating UI sections
+ */
 @Composable
 fun SeparatorLine(
     modifier: Modifier = Modifier,
@@ -1210,5 +1211,72 @@ fun SeparatorLine(
         imageVector = ImageVector.vectorResource(R.drawable.separator_line),
         tint = color,
         contentDescription = null,
+    )
+}
+
+/**
+ * Text Field object with design aspects applied
+ * @param value A mutable string to store what is entered in
+ * @param onValueChange What to do with the input. Suggested to us { value = it }
+ * @param singleLine If it only accepts a single line of writing
+ * @param textStyle Style of all the text
+ * @param textColor Color of the written text
+ * @param cursorColor Color of the cursor
+ * @param placeholderTextColor Color of the text displayed if the box is empty
+ * @param placeholderText Text to display if the box is empty
+ * @param inputFilter Allows the use of filters on what can be entered. Examples: { it.all { char -> char.isDigit() } } is only numbers. .isLetter() is only letters. .isWhitespace() allows spaces
+ * @param backgroundColor Color of the text box inside the outline
+ * @param outlineColor Color of the outline of the box
+ */
+@Composable
+fun CustomTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    singleLine: Boolean = true,
+    textStyle: TextStyle = AppTheme.textStyles.Default,
+    textColor: Color = AppTheme.colors.Gray,
+    cursorColor: Color = AppTheme.colors.FadedGray,
+    placeholderTextColor: Color = AppTheme.colors.FadedGray,
+    placeholderText: String = "Enter Text...",
+    inputFilter: ((String) -> Boolean)? = null,
+    backgroundColor: Color = AppTheme.colors.Background,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    supportingUnit: (@Composable () -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+) {
+    OutlinedTextField(
+        modifier = modifier
+            .widthIn(max = 450.dp)
+            .fillMaxWidth(),
+        value = value,
+        onValueChange = {input ->
+            if (inputFilter == null || inputFilter(input)) {
+                onValueChange(input)
+            }
+        },
+        singleLine = singleLine,
+        textStyle = textStyle.copy(color = textColor),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = backgroundColor,
+            unfocusedContainerColor = backgroundColor,
+            focusedBorderColor = outlineColor,
+            unfocusedBorderColor = outlineColor,
+            cursorColor = cursorColor,
+            disabledBorderColor = outlineColor,
+            focusedTextColor = textColor,
+            unfocusedTextColor = textColor,
+        ),
+        placeholder = {
+            Text(
+                text = placeholderText,
+                color = placeholderTextColor,
+                style = textStyle,
+            )
+        },
+        keyboardOptions = keyboardOptions,
+        supportingText = { supportingUnit?.invoke() },
+        visualTransformation = visualTransformation,
     )
 }

@@ -12,6 +12,9 @@
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
 
+    <!-- Filler words for annotated strings -->
+    <string name="and">and</string>
+
     <!-- For level and exp display -->
     <string name="level">Level %1$d</string>
     <string name="exp_display">Exp: %1$d/%2$d</string>
@@ -45,6 +48,7 @@
     <string name="emailNotEmpty">Email can not be empty</string>
     <string name="passwordNotEmpty">Password can not be empty</string>
     <string name="createAccount">Create an Account</string>
+    <string name="forgotten_password">Forgot your password?</string>
 
     <!-- Create Account Screen -->
     <string name="createAccountTitle">Create An Account</string>
@@ -56,6 +60,9 @@
     <string name="specialChar">1 special character (!@#$%^&amp;*()_+-=)</string>
     <string name="join">Join</string>
     <string name="backToLogin">Already have an account? Login</string>
+    <string name="accept">Accept</string>
+    <string name="username">Username</string>
+    <string name="usernameNotEmpty">Username can not be empty</string>
 
     <!-- Life Points Stats Screen -->
     <string name="LPUsed">Life Points Used:&#160;&#160;&#160;%1$d/%2$d</string>
@@ -91,8 +98,11 @@
     <string name="add_week_streak">Add a Week Streak</string>
     <string name="add_month_streak">Add a Month Streak</string>
     <string name="choose_reminder">Select a reminder:</string>
-    <string name="need_a_new_daily">Need to make a new daily?</string>
+    <string name="need_a_new_reminder">Need to make a new reminder?</string>
     <string name="my_journey_stats">My Journey Stats</string>
+    <string name="all_reminders_already_streaks">All reminders are already streaks.</string>
+    <string name="no_reminders_for_streaks">You do not have any reminders to turn into streaks.</string>
+    <string name="make_a_new_reminder">Do you want to make a new reminder?</string>
 
     <!-- Repeat optios -->
     <string name="repeat_options">Repeat options:</string>
@@ -101,6 +111,12 @@
     <string name="weeks">Weeks</string>
     <string name="months">Months</string>
     <string name="years">Years</string>
+    <string name="repeat">Repeat</string>
+    <string name="enter_a_number">Enter a number</string>
+    <string name="repeats_indefinitely">Repeats indefinitely</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="repeats_every">Repeats every %1$s for %2$d %3$s</string>
 
     <!-- Badges -->
     <string name="badges">Badges</string>
@@ -126,6 +142,8 @@
     <string name="total_earnings">Total Earnings</string>
     <string name="person_stats">User Information</string>
     <string name="account_age">Account Age:</string>
+    <string name="no_remiders">No reminders yet.</string>
+    <string name="most_completed_reminder">Most completed reminder:</string>
 
     <!-- Stats tips -->
     <string name="stats">Stats</string>
@@ -148,13 +166,14 @@
     <string name="lightMode">Light Mode</string>
     <string name="deleteAccountQuestion">Delete Account?</string>
     <string name="deleteDialogBoxWarning">This will permanently delete your account and all saved data. This action cannot be undone.</string>
+    <string name="about_life_leveling">About Life Leveling</string>
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>
-    <string name="suggestedReminders">Settings</string>
-    <string name="importanceOfSelfCare">Notification Settings</string>
-    <string name="extraArticles">Self Care Tips</string>
-    <string name="needAdive">Terms and Privacy Policy</string>
+    <string name="suggestedReminders">Suggested Reminders</string>
+    <string name="importanceOfSelfCare">Importance of Self Care</string>
+    <string name="extraArticles">Extra Articles</string>
+    <string name="needAdive">Need advice or to know how to do something new? </string>
 
     <!-- Terms and Privacy Screen -->
     <string name="termsAnd">Terms and</string>

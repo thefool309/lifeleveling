@@ -1,4 +1,4 @@
-package com.lifeleveling.app
+package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,10 +17,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -29,9 +30,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
 
 import androidx.compose.runtime.remember
@@ -72,49 +74,44 @@ fun SignIn(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = AppTheme.colors.Background),
+            .background(color = AppTheme.colors.Background)
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ){
             //logo
             Image(
-                painter = painterResource(id=R.drawable.ll_circle_logo_dots),
+                painter = painterResource(id= R.drawable.ll_circle_logo_dots),
                 contentDescription = "logo",
                 modifier = Modifier
-                    .width(300.dp)
-                    .height(300.dp)
+                    .size(300.dp)
             )
 
             //inner box holding text fields
-            HighlightCard( modifier = Modifier
-                .height(350.dp)
-                .width(300.dp)
-                .background(color = AppTheme.colors.DarkerBackground),
-
+            HighlightCard(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 outerPadding = 0.dp
             ){
                 //column keeping box items centered
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     //email
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f),
+                    CustomTextField(
                         value = email.value,
                         onValueChange = {email.value = it},
-                        //label = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text(stringResource(R.string.email), color = AppTheme.colors.Gray, style = AppTheme.textStyles.HeadingFive) },
-                        singleLine = true,
+                        placeholderText = stringResource(R.string.email),
+                        placeholderTextColor = AppTheme.colors.Gray,
+                        textStyle = AppTheme.textStyles.HeadingSix,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        supportingText = {
+                        supportingUnit = {
                             when {
                                 email.value.isEmpty() ->
                                     Text(stringResource(R.string.emailNotEmpty),
@@ -124,89 +121,84 @@ fun SignIn(
                                     Text("Use 'Login using Google' for Gmail addresses.",
                                         style = AppTheme.textStyles.Small)
                             }
-                        }
+                        },
+                        backgroundColor = AppTheme.colors.DarkerBackground
                     )
-                    Spacer(modifier = Modifier.size(16.dp))
                     //password
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f),
+                    CustomTextField(
                         value = password.value,
                         onValueChange = {password.value = it},
-                        //label = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        placeholder = { Text(stringResource(R.string.password), color = AppTheme.colors.Gray,style = AppTheme.textStyles.HeadingFive) },
-                        singleLine = true,
+                        placeholderText = stringResource(R.string.password),
+                        placeholderTextColor = AppTheme.colors.Gray,
+                        textStyle = AppTheme.textStyles.HeadingSix,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        supportingText = {
+                        supportingUnit = {
                             if (password.value.isEmpty()) {
-                                Text(stringResource(R.string.passwordNotEmpty), style = AppTheme.textStyles.Small)
+                                Text(
+                                    stringResource(R.string.passwordNotEmpty),
+                                    style = AppTheme.textStyles.Small,
+                                    color = AppTheme.colors.Error
+                                )
                             }
-                        }
+                        },
+                        backgroundColor = AppTheme.colors.DarkerBackground
                     )
-                    Spacer(modifier = Modifier.size(16.dp))
                     //login button
                     CustomButton(
-                        modifier = Modifier
-                            .width(120.dp),
                         onClick = onLogin,
                         enabled = !isGmail && email.value.isNotEmpty() && password.value.isNotEmpty()
                     ) {
-                        Text(stringResource(R.string.login), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix, fontSize = 16.sp)
+                        Text(stringResource(R.string.login), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix)
                     }
                 }
             }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp)
-            ) {
 
-                Button(
-                    modifier = Modifier
-                        .width(250.dp)
-                        .height(50.dp),
-
-                    onClick = onGoogleLogin,
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
-                ) {         //This below can place and image in the button
+            Button(
+            modifier = Modifier
+                .width(250.dp)
+                .height(50.dp),
+            onClick = onGoogleLogin,
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
+            ) {         //This below can place and image in the button
 //                        Image(
 //                            painter = painterResource(id = R.drawable.gmail_color),
 //                            contentDescription = "Google Image",
 //                            modifier = Modifier
 //                                .size(48.dp)
 //                        )
-                    //button text
-                    Text(
-                        "G",
-                        color = AppTheme.colors.DropShadow,
-                        style = AppTheme.textStyles.HeadingThree,
-                        fontSize = 28.sp,
-
-                        )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        stringResource(R.string.useGoogle),
-                        color = AppTheme.colors.DropShadow,
-                        style = AppTheme.textStyles.HeadingSix,
-                        fontSize = 16.sp,
-
-                        )
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-                //create an account nav link
-                Text(
-                    text = stringResource(R.string.createAccount),
-                    color = AppTheme.colors.SecondaryThree,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    style = AppTheme.textStyles.DefaultUnderlined,
-                    modifier = Modifier.clickable { onCreateAccount() }
+            //button text
+            Text(
+                "G",
+                color = AppTheme.colors.DropShadow,
+                style = AppTheme.textStyles.HeadingFive
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                stringResource(R.string.useGoogle),
+                color = AppTheme.colors.DropShadow,
+                style = AppTheme.textStyles.Default,
                 )
             }
+
+            // Forgotten password
+            Text(
+                text = stringResource(R.string.forgotten_password),
+                color = AppTheme.colors.Gray,
+                textAlign = TextAlign.Center,
+                style = AppTheme.textStyles.DefaultUnderlined,
+                modifier = Modifier.clickable { /* Forgotten password logic here */ }
+            )
+
+            //create an account nav link
+            Text(
+                text = stringResource(R.string.createAccount),
+                color = AppTheme.colors.SecondaryThree,
+                textAlign = TextAlign.Center,
+                style = AppTheme.textStyles.DefaultUnderlined,
+                modifier = Modifier.clickable { onCreateAccount() }
+            )
         }
     }
 
@@ -261,3 +253,14 @@ fun SignIn(
 }
 
 
+@Preview(showBackground = true)
+@Composable
+fun PreviewSignIn() {
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+
+    SignIn(
+        email = email,
+        password = password,
+    )
+}

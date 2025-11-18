@@ -1,7 +1,6 @@
 package com.lifeleveling.app.ui.screens
 
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +35,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
+import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomDialog
 
@@ -79,21 +78,18 @@ fun SettingScreen(
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-
                 outerPadding = 0.dp
             ){
                 Column(modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ){
-                    Spacer(modifier = Modifier.height(8.dp))
                     Box(
                         modifier = Modifier
-                            .scale(1.2f)
                             .fillMaxWidth(),
-
                         contentAlignment = Alignment.Center
                     ){
-
+                        Spacer(modifier = Modifier.height(8.dp))
                         SlidingSwitch(
                             options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
                             selectedIndex = if (isDarkTheme) 0 else 1,
@@ -102,40 +98,30 @@ fun SettingScreen(
                                 onThemeChange(newIsDark)
                             },
                             horizontalPadding = 12.dp,
-                            verticalPadding = 8.dp,
                             backgroundColor = AppTheme.colors.DarkerBackground,
                             selectedColor = AppTheme.colors.BrandOne,
                             unselectedColor = AppTheme.colors.Gray,
                             cornerRadius = 32.dp,
-                            textStyle = AppTheme.textStyles.Default,
-                            insetAmount = 4.dp,
-                            extraWidth = 64.dp,
+                            textStyle = AppTheme.textStyles.HeadingSix,
+                            extraWidth = 52.dp,
 
                         )
-
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
 
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier){
+                    SeparatorLine()
 
+                    // Notification Settings
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.bell),
-                            contentDescription = "Bell icon",
-                            tint = AppTheme.colors.SecondaryThree,
+                            tint = AppTheme.colors.BrandTwo,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(40.dp)
                                 .align(Alignment.CenterVertically)
 
                         )
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.notificationSettings),
                             color = AppTheme.colors.Gray,
@@ -152,30 +138,21 @@ fun SettingScreen(
 
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
 
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
+                    SeparatorLine()
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(modifier = Modifier){
-
+                    // Self Care Tips
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.heart),
-                            contentDescription = "Bell icon",
                             tint = AppTheme.colors.SecondaryThree,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(40.dp)
                                 .align(Alignment.CenterVertically)
 
                         )
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.selfCareTips),
                             color = AppTheme.colors.Gray,
@@ -192,72 +169,20 @@ fun SettingScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SeparatorLine()
 
-                    Box(
-                        modifier = Modifier
-
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(modifier = Modifier){
-
+                    // Reset Life Points
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
                         ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.document),
-                            contentDescription = "Bell icon",
-                            tint = AppTheme.colors.SecondaryThree,
+                            imageVector = ImageVector.vectorResource(id = R.drawable.reset_arrows),
+                            tint = AppTheme.colors.SecondaryOne,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(40.dp)
                                 .align(Alignment.CenterVertically)
 
                         )
-                        Spacer(modifier = Modifier.size(16.dp))
-                        Text(
-                            text = stringResource(R.string.termsAndPrivacy),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(3f, 4f),
-                                    blurRadius = 6f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("termsAndPrivacy") }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(modifier = Modifier){
-
-                        ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.back_arrow),
-                            contentDescription = "Bell icon",
-                            tint = AppTheme.colors.SecondaryThree,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .align(Alignment.CenterVertically)
-
-                        )
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.resetLifePoints),
                             color = AppTheme.colors.Gray,
@@ -274,31 +199,50 @@ fun SettingScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SeparatorLine()
 
-                    Box(
-                        modifier = Modifier
-
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(modifier = Modifier){
-
+                    // Terms and Privacy Policy
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
                         ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.trash_solid_full),
-                            contentDescription = "Bell icon",
-                            tint = AppTheme.colors.SecondaryThree,
+                            imageVector = ImageVector.vectorResource(id = R.drawable.document),
+                            tint = AppTheme.colors.SecondaryTwo,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(40.dp)
                                 .align(Alignment.CenterVertically)
 
                         )
-                        Spacer(modifier = Modifier.size(16.dp))
+                        Text(
+                            text = stringResource(R.string.about_life_leveling),
+                            color = AppTheme.colors.Gray,
+                            style = AppTheme.textStyles.HeadingSix.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable { navController?.navigate("termsAndPrivacy") }
+                        )
+                    }
+
+                    SeparatorLine()
+
+                    // Delete Account
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
+
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.trash_solid_full),
+                            tint = AppTheme.colors.Error,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
+                        )
                         Text(
                             text = stringResource(R.string.deleteAccount),
                             color = AppTheme.colors.Gray,
@@ -316,31 +260,22 @@ fun SettingScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
+                    SeparatorLine()
 
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(modifier = Modifier){
+                    // Logout
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
 
                         ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.minus),
-                            contentDescription = "Bell icon",
-                            tint = AppTheme.colors.SecondaryThree,
+                            imageVector = ImageVector.vectorResource(id = R.drawable.logout),
+                            tint = AppTheme.colors.Error,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(40.dp)
                                 .align(Alignment.CenterVertically)
 
 
                         )
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.logOut),
                             color = AppTheme.colors.Gray,
@@ -356,7 +291,6 @@ fun SettingScreen(
                                 .clickable { onSignOut() }
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
