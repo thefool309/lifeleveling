@@ -12,7 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomDialog
@@ -49,6 +51,7 @@ fun SettingScreen(
     onSignOut: () -> Unit ={},
     onDeleteAccount: () -> Unit = {},
 ){
+    val scrollState = rememberScrollState()
 
     val showDeleteDialog = remember {mutableStateOf(false)}
 
@@ -59,7 +62,8 @@ fun SettingScreen(
     ){
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ){
             Text(
                 text = stringResource(R.string.settings),
@@ -73,15 +77,14 @@ fun SettingScreen(
                 ),
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
                 outerPadding = 0.dp
             ){
                 Column(modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ){
                     Box(
@@ -141,20 +144,20 @@ fun SettingScreen(
 
                     SeparatorLine()
 
-                    // Self Care Tips
+                    // All Reminders
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ){
                         ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.heart),
-                            tint = AppTheme.colors.SecondaryThree,
+                            imageVector = ImageVector.vectorResource(id = R.drawable.bars_solid_full),
+                            tint = AppTheme.colors.BrandOne,
                             modifier = Modifier
                                 .size(40.dp)
                                 .align(Alignment.CenterVertically)
 
                         )
                         Text(
-                            text = stringResource(R.string.selfCareTips),
+                            text = stringResource(R.string.my_reminders),
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -165,7 +168,37 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("selfcare") }
+                                .clickable { TODO("Add in navigation to all reminders") }
+                        )
+                    }
+
+                    SeparatorLine()
+
+                    // User's Journey
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.badge),
+                            tint = AppTheme.colors.SecondaryTwo,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
+
+                        )
+                        Text(
+                            text = stringResource(R.string.my_journey_stats),
+                            color = AppTheme.colors.Gray,
+                            style = AppTheme.textStyles.HeadingSix.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable { navController?.navigate("journey_stats") }
                         )
                     }
 
@@ -196,6 +229,36 @@ fun SettingScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
 
+                        )
+                    }
+
+                    SeparatorLine()
+
+                    // Self Care Tips
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.heart),
+                            tint = AppTheme.colors.SecondaryThree,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
+
+                        )
+                        Text(
+                            text = stringResource(R.string.selfCareTips),
+                            color = AppTheme.colors.Gray,
+                            style = AppTheme.textStyles.HeadingSix.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(3f, 4f),
+                                    blurRadius = 6f,
+                                )
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable { navController?.navigate("selfcare") }
                         )
                     }
 
@@ -292,6 +355,10 @@ fun SettingScreen(
                         )
                     }
                 }
+
+                ScrollFadeEdges(
+                    scrollState = scrollState,
+                )
             }
         }
     }

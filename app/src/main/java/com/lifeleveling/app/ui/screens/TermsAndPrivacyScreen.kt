@@ -1,7 +1,7 @@
 package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,12 +24,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
-import com.lifeleveling.app.ui.components.ShadowedIcon
 
 @Preview
 @Composable
@@ -46,12 +43,11 @@ fun TermsAndPrivacyScreen(
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ){
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
                     text = stringResource(R.string.termsAnd)+"\n"+stringResource(R.string.privacy),
@@ -63,37 +59,31 @@ fun TermsAndPrivacyScreen(
                             blurRadius = 6f,
                         )
                     ),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 CircleButton(
                     modifier = Modifier,
                     onClick = {navController?.popBackStack()},
-                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
+                    size = 48.dp
                 )
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             HighlightCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-
                 outerPadding = 0.dp
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-
-
-                    Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         modifier = Modifier
-
                     ) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
                         Text(
                             text = stringResource(R.string.termsAndConditions),
                             color = AppTheme.colors.Gray,
@@ -109,17 +99,8 @@ fun TermsAndPrivacyScreen(
 
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
 
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
-                    )
 
-                    Spacer(modifier = Modifier.height(16.dp))
 
                     Row(modifier = Modifier) {
 

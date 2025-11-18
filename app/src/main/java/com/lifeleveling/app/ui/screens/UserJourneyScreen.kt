@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.TestUser
@@ -45,6 +46,7 @@ import java.util.Locale
 fun UserJourneyScreen(
     navController: NavController,
 ) {
+    val scrollState = rememberScrollState()
     val showJourneyTip = remember { mutableStateOf(false) }
     val profileCreatedDate = TestUser.profileCreatedDate.let {
         SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
@@ -182,7 +184,7 @@ fun UserJourneyScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // Sections
@@ -203,13 +205,15 @@ fun UserJourneyScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ){
                                     Text(
-                                        modifier = Modifier.weight(1f),
+                                        modifier = Modifier.weight(1f)
+                                            .align(Alignment.CenterVertically),
                                         text = stringResource(item.name),
                                         color = AppTheme.colors.Gray,
                                         style = AppTheme.textStyles.Default
                                     )
                                     Text(
-                                        modifier = Modifier.weight(.45f),
+                                        modifier = Modifier.weight(.45f)
+                                            .align(Alignment.CenterVertically),
                                         text = item.value,
                                         color = AppTheme.colors.Gray,
                                         style = AppTheme.textStyles.Default
@@ -222,6 +226,10 @@ fun UserJourneyScreen(
                         if (index < statistics.lastIndex){ SeparatorLine() }
                     }
                 }
+
+                ScrollFadeEdges(
+                    scrollState = scrollState,
+                )
             }
         }
     }
