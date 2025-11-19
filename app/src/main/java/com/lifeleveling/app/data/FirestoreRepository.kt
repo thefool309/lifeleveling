@@ -882,4 +882,27 @@ class FirestoreRepository {
             false
         }
     }
+
+    /**
+     * Resets the current user’s stats back to 0 and refunds all spent points into their lifePoints pool.
+     *
+     * Flow:
+     * 1. Look up the currently signed-in user’s ID.
+     * 2. Load their user document and read the current stats + lifePoints.
+     * 3. Sum all points spent across Health, Agility, Intelligence, Defense, and Strength.
+     * 4. Add those spent points back into lifePoints.
+     * 5. Write zeroed-out stats and the new lifePoints total back to Firestore.
+     * 6. Update the user’s timestamp so other parts of the app know the data changed.
+     *
+     * Example:
+     *  Stats: H=5, A=7, I=3, D=8, S=17  (total 40)
+     *  lifePoints = 5
+     *  After reset → all stats = 0, lifePoints = 45.
+     *
+     * @param logger Used to log any errors while resetting life points.
+     * @return true if the Firestore update succeeds, false otherwise.
+     * @author fdesouza1992
+     */
+
+
 }
