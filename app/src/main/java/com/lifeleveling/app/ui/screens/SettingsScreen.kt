@@ -231,6 +231,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
+                                .clickable { showResetLifePointsDialog.value = true }
 
                         )
                     }
