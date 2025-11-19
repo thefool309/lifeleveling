@@ -56,6 +56,7 @@ fun SettingScreen(
     val scrollState = rememberScrollState()
 
     val showDeleteDialog = remember {mutableStateOf(false)}
+    val showResetLifePointsDialog = remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
