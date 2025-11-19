@@ -559,8 +559,8 @@ class FirestoreRepository {
                 is String -> raw.toDoubleOrNull() ?: 0.0
                 else -> 0.0
             }
-        fun ts(key: String): com.google.firebase.Timestamp? =
-            data[key] as? com.google.firebase.Timestamp
+        fun ts(key: String): Timestamp? =
+            data[key] as? Timestamp
 
         // stats are stored as a nested map
         val statsMap = data["stats"] as? Map<*, *> ?: emptyMap<String, Any>()
