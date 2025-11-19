@@ -194,7 +194,7 @@ class FirestoreRepository {
     // User information
     /**
      * This function is designed for specifically updating the users displayName.
-     * The displayName field is synonomous with a "username."
+     * The displayName field is synonyms with a "username."
      * This will take the new userName string and replace the value of the "displayName" field.
      * @param userName A string representing the new display name for the user
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
