@@ -9,14 +9,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,10 +35,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -56,6 +57,7 @@ import com.google.firebase.firestore.ktx.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.auth.AuthViewModel
+import com.lifeleveling.app.navigation.BottomNavItem
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
@@ -321,6 +323,9 @@ fun NavHostContainer(
     )
 }
 
+/**
+ * Old standard nav bar. See new CustomNavBar
+ */
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
@@ -351,13 +356,16 @@ fun BottomNavigationBar(navController: NavHostController) {
     }
 }
 
-
+/**
+ * New beautiful nav bar. Look at it. LOOK AT IT!
+ * @author Elyseia fixed this
+ */
 @Composable
 fun CustomNavBar(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     height: Dp = 80.dp,
-    indicatorSize: Dp = 56.dp,
+    indicatorSize: Dp = 60.dp,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -368,7 +376,7 @@ fun CustomNavBar(
             .fillMaxWidth()
             .height(height)
             .background(AppTheme.colors.DarkerBackground)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -399,11 +407,21 @@ fun CustomNavBar(
                                 shape = CircleShape
                             )
                     ) {
+                        if (selected) {
+                            Image(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .matchParentSize(),
+                                painter = painterResource(R.drawable.circle_button_innerlight),
+                                contentDescription = null,
+                            )
+                        }
+
                         Icon(
                             imageVector = ImageVector.vectorResource(navItem.icon),
                             contentDescription = navItem.route,
                             modifier = Modifier.size(40.dp),
-                            tint = if(selected) AppTheme.colors.DarkerBackground else AppTheme.colors.BrandTwo
+                            tint = if (selected) AppTheme.colors.DarkerBackground else AppTheme.colors.BrandTwo
                         )
                     }
                 }
