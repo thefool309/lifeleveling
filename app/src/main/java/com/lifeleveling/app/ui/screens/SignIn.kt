@@ -35,9 +35,6 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
-
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import com.lifeleveling.app.auth.AuthUiState
 import com.lifeleveling.app.ui.components.CustomDialog
 import androidx.compose.foundation.layout.Row
