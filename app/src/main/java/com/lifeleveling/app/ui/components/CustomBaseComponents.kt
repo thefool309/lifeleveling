@@ -108,8 +108,8 @@ fun TestScreen() {
                             style = AppTheme.textStyles.HeadingThree.copy(
                                 shadow = Shadow(
                                     color = AppTheme.colors.DropShadow,
-                                    offset = Offset(3f, 4f),
-                                    blurRadius = 6f,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
                                 )
                             ),
                         )
@@ -255,8 +255,8 @@ fun TestScreen() {
 //                            style = AppTheme.textStyles.HeadingFour.copy(
 //                                shadow = Shadow(
 //                                    color = AppTheme.colors.DropShadow,
-//                                    offset = Offset(3f, 4f),
-//                                    blurRadius = 6f,
+//                                    offset = Offset(2f, 2f),
+//                                    blurRadius = 2f,
 //                                )
 //                            )
 //                        )
@@ -285,8 +285,8 @@ fun TestScreen() {
                                 style = AppTheme.textStyles.HeadingFour.copy(
                                     shadow = Shadow(
                                         color = AppTheme.colors.DropShadow,
-                                        offset = Offset(3f, 4f),
-                                        blurRadius = 6f,
+                                        offset = Offset(2f, 2f),
+                                        blurRadius = 2f,
                                     )
                                 )
                             )
@@ -479,7 +479,7 @@ fun ShadowedIcon(
     contentDescription: String? = null,
     tint: Color = AppTheme.colors.Background,  // Icon color
     shadowColor: Color = AppTheme.colors.DropShadow,  // Shadow color
-    shadowOffset: Offset = Offset(3f,3f),  // Moves the shadow farther out from the icon
+    shadowOffset: Offset = Offset(2f,2f),  // Moves the shadow farther out from the icon
     shadowAlpha: Float = .5f  // how dark the shadow should be
 ) {
     val painter = rememberVectorPainter(image = imageVector)
