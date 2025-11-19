@@ -380,7 +380,7 @@ fun SettingScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Reset Life Points?",
+                    text = stringResource(R.string.resetLifePoints),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingFour.copy(
                         shadow = Shadow(
@@ -391,7 +391,7 @@ fun SettingScreen(
                     )
                 )
                 Text(
-                    text = "This will set all stats back to 0 and refund the spent points into your Life Points pool so you can redistribute them.",
+                    text = stringResource(R.string.resetLifePointsWarning),
                     color = AppTheme.colors.Gray,
                     style = AppTheme.textStyles.Default
                 )
@@ -401,6 +401,8 @@ fun SettingScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+
+                    // Cancel button
                     CustomButton(
                         onClick = { showResetLifePointsDialog.value = false },
                         width = 120.dp,
@@ -415,16 +417,17 @@ fun SettingScreen(
 
                     Spacer(modifier = Modifier.width(20.dp))
 
+                    // Confirm Reset Button
                     CustomButton(
                         onClick = {
                             showResetLifePointsDialog.value = false
                             onResetLifePoints()
                         },
                         width = 120.dp,
-                        backgroundColor = AppTheme.colors.SecondaryOne
+                        backgroundColor = AppTheme.colors.Error75
                     ) {
                         Text(
-                            text = stringResource(R.string.resetLifePoints),
+                            text = stringResource(R.string.reset),
                             color = AppTheme.colors.DarkerBackground,
                             style = AppTheme.textStyles.HeadingSix
                         )
