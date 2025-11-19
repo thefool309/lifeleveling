@@ -1279,7 +1279,7 @@ fun CustomTextField(
             )
         },
         keyboardOptions = keyboardOptions,
-        supportingText = if (supportingUnit != null) { { supportingUnit } } else null,
+        supportingText = if (supportingUnit != null) { { supportingUnit.invoke() } } else null,
         visualTransformation = visualTransformation,
     )
 }
