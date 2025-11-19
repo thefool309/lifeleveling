@@ -36,25 +36,25 @@ import com.lifeleveling.app.ui.theme.AppTheme
 fun CreateReminderScreen(
     navController: NavController? = null,
 ){
-    var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string
-    var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool
-    var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool
-    var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool
-    var indefinitelyRepeat by remember { mutableStateOf(false) } // does it repeat forever bool
-    var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder
+    var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
+    var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
+    var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
+    var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed
+    var indefinitelyRepeat by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
+    var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
-    var selectedHour by remember { mutableStateOf(0) }          // selected hour for reminder
+    var selectedHour by remember { mutableStateOf(0) }          // selected hour for reminder   <-- This is needed
     val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
     val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
-    var selectedMinute by remember { mutableStateOf(0) }        // selected minute
-    var selectedAmOrPm by remember {mutableStateOf(0)}          // selected AM or PM
+    var selectedMinute by remember { mutableStateOf(0) }        // selected minute                 <-- This is needed
+    var selectedAmOrPm by remember {mutableStateOf(0)}          // selected AM or PM                <-- This is needed
     val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
-    var reminderAmountNumber by remember { mutableStateOf("") }       // how many times the reminder is set for ex 5 days , 5 weeks , 5 months, 5 years
+    var reminderAmountNumber by remember { mutableStateOf("") }       // how many times the reminder is set for ex 5 days , 5 weeks , 5 months, 5 years <-- This is needed
     val selectedReminderAmountMenu = remember { mutableStateOf(false) } // bool for menu
-    var selectedReminderAmountHourDayWeek by remember { mutableStateOf(0) }        // the reminder is set for hours , days, week
-    var repeatAmount by remember { mutableStateOf("") }                     // how many times to repeat the reminder text entered by user
+    var selectedReminderAmountHourDayWeek by remember { mutableStateOf(0) }        // the reminder is set for hours , days, week    <-- This is needed
+    var repeatAmount by remember { mutableStateOf("") }                     // how many times to repeat the reminder text entered by user   <-- This is needed
     val selectedRepeatAmountMenu = remember { mutableStateOf(false) }       // bool to show menu
-    var selectedRepeatAmount by remember { mutableStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years
+    var selectedRepeatAmount by remember { mutableStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
     val iconOptions = listOf(
         Reminder(0, "", R.drawable.water_drop, null, false, 0, 0, 0),
         Reminder(1, "", R.drawable.bed_color, null, false, 0, 0, 0),
@@ -297,6 +297,7 @@ fun CreateReminderScreen(
                                                 if(it){
                                                     doNotRepeat = false
                                                     asDaily = false
+                                                    reminderAmountNumber = ""
                                                 }
                                             }
                                         )
@@ -365,7 +366,7 @@ fun CreateReminderScreen(
                                             indefinitelyRepeat = it
                                             if(it){
                                                 doNotRepeat = false
-                                                reminderAmountNumber = ""
+                                                repeatAmount = ""
                                             }
                                         }
 
@@ -394,7 +395,7 @@ fun CreateReminderScreen(
                                                 doNotRepeat = it
                                                 if(it){
                                                     indefinitelyRepeat = false
-                                                    reminderAmountNumber = ""
+                                                    repeatAmount = ""
                                                     asWeekDay = false
                                                     asDaily = false
                                                 }
