@@ -622,7 +622,7 @@ fun CircleButton(
         Image(
             modifier = Modifier
                 .clip(CircleShape)
-                .size(size),
+                .matchParentSize(),
             painter = painterResource(R.drawable.circle_button_innerlight),
             contentDescription = null,
         )
