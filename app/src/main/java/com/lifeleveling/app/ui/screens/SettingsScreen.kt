@@ -367,6 +367,74 @@ fun SettingScreen(
         }
     }
 
+    // Reset Life Points Dialog Box
+    if (showResetLifePointsDialog.value) {
+        CustomDialog(
+            toShow = showResetLifePointsDialog,
+            dismissOnInsideClick = false,
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Reset Life Points?",
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    )
+                )
+                Text(
+                    text = "This will set all stats back to 0 and refund the spent points into your Life Points pool so you can redistribute them.",
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    CustomButton(
+                        onClick = { showResetLifePointsDialog.value = false },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Success75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    CustomButton(
+                        onClick = {
+                            showResetLifePointsDialog.value = false
+                            onResetLifePoints()
+                        },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.SecondaryOne
+                    ) {
+                        Text(
+                            text = stringResource(R.string.resetLifePoints),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // Delete Account Dialog Box
     if (showDeleteDialog.value) {
         CustomDialog(
             toShow = showDeleteDialog,
