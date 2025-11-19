@@ -51,6 +51,7 @@ fun SettingScreen(
     onThemeChange: (Boolean) -> Unit,
     onSignOut: () -> Unit ={},
     onDeleteAccount: () -> Unit = {},
+    onResetLifePoints: () -> Unit = {},
 ){
     val scrollState = rememberScrollState()
 
@@ -450,6 +451,7 @@ fun PreviewSettingScreen() {
             isDarkTheme = newIsDark // update the state in preview
         },
         onSignOut = {},
-        onDeleteAccount = {}
+        onDeleteAccount = {},
+        onResetLifePoints = {}
     )
 }
