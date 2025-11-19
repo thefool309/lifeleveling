@@ -167,6 +167,8 @@
     <string name="deleteAccountQuestion">Delete Account?</string>
     <string name="deleteDialogBoxWarning">This will permanently delete your account and all saved data. This action cannot be undone.</string>
     <string name="about_life_leveling">About Life Leveling</string>
+    <string name="reset">Reset</string>
+    <string name="resetLifePointsWarning">Resetting your life points will set all stats back to 0. You will not lose any points. All points will be refunded so you can reassign them as you wish.</string>
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>
