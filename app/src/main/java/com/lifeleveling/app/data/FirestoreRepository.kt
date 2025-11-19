@@ -903,6 +903,43 @@ class FirestoreRepository {
      * @return true if the Firestore update succeeds, false otherwise.
      * @author fdesouza1992
      */
+    suspend fun resetLifePoints(logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
 
+        // Loads current user
+        val user = getUser(uid, logger) ?: return false
+        val stats = user.stats
 
+        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
+        val currentLifePointsPool = user.lifePoints
+        val newLifePointsPool = usedLifePoint+currentLifePointsPool
+
+        val docRef = db.collection("users").document(uid)
+        return try {
+            val resetStats = Stats(
+                agility = 0L,
+                defense = 0L,
+                intelligence = 0L,
+                strength = 0L,
+                health = 0L
+            )
+
+            docRef.update(
+                mapOf(
+                    "stats" to resetStats,
+                    "lifePoints" to newLifePointsPool,
+                )
+            ).await()
+
+            updateTimestamp(uid, logger)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error resetting life points", e)
+            false
+        }
+    }
 }
