@@ -49,6 +49,7 @@ import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
 
 
 import com.lifeleveling.app.ui.screens.HomeScreen
@@ -270,7 +271,9 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable("calendar") {
-                CalendarScreen()
+                CalendarScreen(
+                    navController = navController,
+                )
             }
             composable("stats") {
                 StatsScreenRoute()
@@ -304,6 +307,10 @@ fun NavHostContainer(
             composable ("journey_stats") {
                 UserJourneyScreen(navController = navController)
             }
+            composable("createReminderScreen") {
+                CreateReminderScreen(navController = navController)
+            }
+
         }
     )
 }
