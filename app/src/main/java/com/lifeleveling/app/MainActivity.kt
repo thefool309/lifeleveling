@@ -229,6 +229,9 @@ class MainActivity : ComponentActivity() {
 
                             // Main App UI
                             val navController = rememberNavController()
+                            val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
+                            val logger = remember { AndroidLogger() }
+                            val scope = rememberCoroutineScope()
                             Surface(color = AppTheme.colors.Background) {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
@@ -238,9 +241,12 @@ class MainActivity : ComponentActivity() {
                                         padding = padding,
                                         isDarkThemeState = isDarkThemeState,
                                         onSignOut = {authVm.signOut(this@MainActivity)},
-                                        onDeleteAccount = {
-                                            val logger = AndroidLogger()
-                                            authVm.deleteAccount(logger)}
+                                        onDeleteAccount = {authVm.deleteAccount(logger)},
+                                        onResetLifePoints = {
+                                            scope.launch {
+                                                val ok = repo.resetLifePoints(logger)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -257,6 +263,7 @@ fun NavHostContainer(
     navController: NavHostController,
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
+    onResetLifePoints: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
 ) {
@@ -285,7 +292,8 @@ fun NavHostContainer(
                         isDarkThemeState.value = newIsDark
                     },
                     onSignOut = onSignOut,
-                    onDeleteAccount = onDeleteAccount
+                    onDeleteAccount = onDeleteAccount,
+                    onResetLifePoints = onResetLifePoints
                 )
             }
             composable ("notifications"){
