@@ -39,7 +39,6 @@ import com.lifeleveling.app.auth.AuthUiState
 import com.lifeleveling.app.ui.components.CustomDialog
 import androidx.compose.foundation.layout.Row
 
-
 // Helper Function to block gmail/googlemail on the email/password path
 private fun isGoogleMailboxUi(email: String): Boolean =
     email.endsWith("@gmail.com", ignoreCase = true) ||
