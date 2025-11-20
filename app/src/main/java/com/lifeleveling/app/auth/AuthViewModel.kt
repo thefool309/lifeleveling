@@ -46,14 +46,7 @@ data class AuthUiState(
  * **/
 class AuthViewModel : ViewModel() {
     // Firebase auth and Firestore repository instance
-    private val auth by lazy {
-        Firebase.auth.apply {
-            if (BuildConfig.DEBUG) {
-                // Connect Auth to emulator only in debug builds
-                useEmulator("10.0.2.2", 9099)
-            }
-        }
-    }
+    private val auth = Firebase.auth
     private val repo = FirestoreRepository()
 
     // Backing field for authentication UI state
