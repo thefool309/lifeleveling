@@ -2,6 +2,7 @@ package com.lifeleveling.app.auth
 
 import android.app.Activity
 import android.util.Log
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeleveling.app.R
@@ -404,29 +405,32 @@ class AuthViewModel : ViewModel() {
     fun sendPasswordResetEmail(
         email: String,
         logger: ILogger,
-        onResult: (Boolean, String) -> Unit
+        onResult: (Boolean, Int) -> Unit
     ) {
         viewModelScope.launch {
             try {
                 val trimmed = email.trim()
                 auth.sendPasswordResetEmail(trimmed).await()
 
-                onResult(
-                    true,
-                    "If an account exists for $trimmed, a password reset email has been sent."
-                )
+                onResult(true, (R.string.resetPasswordEmailSent))
+                    //"If an account was found for the email $trimmed, an email has been sent with a link to reset the password.")
+
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
                 logger.w("FB", "Password reset: no user for ${email.trim()}")
-                onResult(false, "No account found for this email.")
+                onResult(false, (R.string.resetPasswordEmailError))
+                    //"No account found for this email.")
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
                 logger.e("FB", "Password reset: invalid email format", e)
-                onResult(false, "Please enter a valid email address.")
+                onResult(false, (R.string.resetPasswordEmailError))
+                    //"An email could not be sent. Please enter a valid email address.")
             } catch (e: com.google.firebase.auth.FirebaseAuthException) {
                 logger.e("FB", "Password reset: FirebaseAuthException", e)
-                onResult(false, "We couldn't send a reset email right now. Please try again.")
+                onResult(false, (R.string.resetPasswordEmailError))
+                    //"We couldn't send a reset email right now. Please try again.")
             } catch (e: Exception) {
                 logger.e("FB", "Password reset: unexpected error", e)
-                onResult(false, "We couldn't send a reset email right now. Please try again.")
+                onResult(false, (R.string.resetPasswordEmailError))
+                    //"We couldn't send a reset email right now. Please try again.")
             }
         }
     }

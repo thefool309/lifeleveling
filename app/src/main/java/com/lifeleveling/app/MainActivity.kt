@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,6 +53,7 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.CustomDialog
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
@@ -159,8 +161,10 @@ class MainActivity : ComponentActivity() {
                         if (authState.user == null) {
 
                             val preAuthNav = rememberNavController()
-                            val resetMissingEmailMessage = stringResource(R.string.resetPasswordMissingEmail)
-                            val resetGoogleAccountMessage = stringResource(R.string.resetPasswordGoogleAccount)
+                            //val resetMissingEmailMessage = stringResource
+                            //val resetGoogleAccountMessage = stringResource
+                            //val resetPasswordTitle = stringResource(R.string.resetPasswordTitle)
+                            var result = remember {mutableStateOf(Pair<Boolean, Int>(true,R.string.resetPasswordMissingEmail))}
 
                             NavHost(navController = preAuthNav, startDestination = "signIn") {
                                 composable("signIn") {
@@ -170,7 +174,7 @@ class MainActivity : ComponentActivity() {
                                     val logger : ILogger = AndroidLogger()
                                     val scope = rememberCoroutineScope()
                                     val showPasswordResetDialog = remember { mutableStateOf(false) }
-                                    val passwordResetDialogMessage = remember { mutableStateOf("") }
+                                    val passwordResetDialogMessage = remember { mutableStateOf(R.string.resetPasswordMissingEmail) }
                                     SignIn(
                                         // Auth using email and password
                                         onLogin = {
@@ -205,7 +209,7 @@ class MainActivity : ComponentActivity() {
 
                                             // No email typed yet
                                             if (currentEmail.isEmpty()) {
-                                                passwordResetDialogMessage.value = resetMissingEmailMessage
+                                                passwordResetDialogMessage.value = (R.string.resetPasswordMissingEmail)
                                                 showPasswordResetDialog.value = true
                                                 return@SignIn
                                             }
@@ -214,38 +218,43 @@ class MainActivity : ComponentActivity() {
                                             val isGmail = currentEmail.endsWith("@gmail.com", ignoreCase = true) ||
                                                     currentEmail.endsWith("@googlemail.com", ignoreCase = true)
                                             if (isGmail) {
-                                                passwordResetDialogMessage.value = resetGoogleAccountMessage
+                                                passwordResetDialogMessage.value = (R.string.resetPasswordGoogleAccount)
                                                 showPasswordResetDialog.value = true
                                                 return@SignIn
                                             }
 
                                             // Normal email/password account calls ViewModel
                                             authVm.sendPasswordResetEmail(currentEmail, logger) { ok, message ->
-                                                passwordResetDialogMessage.value = message
+                                                //passwordResetDialogMessage.value = message
+                                                result.value = Pair(ok, message)
                                                 showPasswordResetDialog.value = true
                                             }
                                         }
                                     )
                                     // Password reset feedback dialog
                                     if (showPasswordResetDialog.value) {
-                                        com.lifeleveling.app.ui.components.CustomDialog(
+                                        CustomDialog(
                                             toShow = showPasswordResetDialog,
                                             dismissOnInsideClick = false,
                                             dismissOnOutsideClick = true
                                         ) {
-                                            androidx.compose.foundation.layout.Column(
+                                            Column(
                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                                                 modifier = Modifier.fillMaxWidth()
                                             ) {
                                                 Text(
-                                                    text = "Password reset",
+                                                    text = stringResource(R.string.resetPasswordTitle),
                                                     color = AppTheme.colors.SecondaryOne,
                                                     style = AppTheme.textStyles.HeadingFour
                                                 )
 
                                                 Text(
-                                                    text = passwordResetDialogMessage.value,
+                                                    text = (
+                                                            if (result.value.first)
+                                                                stringResource(result.value.second, email.value.trim())
+                                                            else
+                                                                stringResource(result.value.second)),
                                                     color = AppTheme.colors.Gray,
                                                     style = AppTheme.textStyles.Default,
                                                     textAlign = TextAlign.Center
