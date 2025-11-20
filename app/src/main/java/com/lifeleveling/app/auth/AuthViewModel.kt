@@ -413,24 +413,18 @@ class AuthViewModel : ViewModel() {
                 auth.sendPasswordResetEmail(trimmed).await()
 
                 onResult(true, (R.string.resetPasswordEmailSent))
-                    //"If an account was found for the email $trimmed, an email has been sent with a link to reset the password.")
-
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
                 logger.w("FB", "Password reset: no user for ${email.trim()}")
-                onResult(false, (R.string.resetPasswordEmailError))
-                    //"No account found for this email.")
+                onResult(false, (R.string.resetPasswordNoAccountFoundError))
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
                 logger.e("FB", "Password reset: invalid email format", e)
                 onResult(false, (R.string.resetPasswordEmailError))
-                    //"An email could not be sent. Please enter a valid email address.")
             } catch (e: com.google.firebase.auth.FirebaseAuthException) {
                 logger.e("FB", "Password reset: FirebaseAuthException", e)
-                onResult(false, (R.string.resetPasswordEmailError))
-                    //"We couldn't send a reset email right now. Please try again.")
+                onResult(false, (R.string.resetPasswordFirebaseAuthError))
             } catch (e: Exception) {
                 logger.e("FB", "Password reset: unexpected error", e)
-                onResult(false, (R.string.resetPasswordEmailError))
-                    //"We couldn't send a reset email right now. Please try again.")
+                onResult(false, (R.string.resetPasswordFirebaseAuthError))
             }
         }
     }
