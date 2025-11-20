@@ -9,9 +9,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,11 +28,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -45,6 +51,7 @@ import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
+import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
@@ -152,6 +159,9 @@ class MainActivity : ComponentActivity() {
                         if (authState.user == null) {
 
                             val preAuthNav = rememberNavController()
+                            val resetMissingEmailMessage = stringResource(R.string.resetPasswordMissingEmail)
+                            val resetGoogleAccountMessage = stringResource(R.string.resetPasswordGoogleAccount)
+
                             NavHost(navController = preAuthNav, startDestination = "signIn") {
                                 composable("signIn") {
                                     // -------- Sign In UI --------
@@ -159,6 +169,8 @@ class MainActivity : ComponentActivity() {
                                     val password = remember { mutableStateOf("") }
                                     val logger : ILogger = AndroidLogger()
                                     val scope = rememberCoroutineScope()
+                                    val showPasswordResetDialog = remember { mutableStateOf(false) }
+                                    val passwordResetDialogMessage = remember { mutableStateOf("") }
                                     SignIn(
                                         // Auth using email and password
                                         onLogin = {
@@ -173,28 +185,91 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 }
                                             }
-
-                                            /* email/password auth */
                                         },
-
                                         // Auth with Google Sign In
                                         onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)
                                         },
-
                                         // Create account screen
                                         onCreateAccount = {
-                                            preAuthNav.navigate("createAccount") {
-                                                //launchSingleTop = false
-                                            }
+                                            preAuthNav.navigate("createAccount")
                                         },
                                         email,
                                         password,
                                         authState = authState,
-                                        onDismissError = {authVm.clearError()}
+                                        onDismissError = {authVm.clearError()},
+                                        onForgotPassword = { enteredEmail ->
+                                            val currentEmail = enteredEmail.trim()
+
+                                            // No email typed yet
+                                            if (currentEmail.isEmpty()) {
+                                                passwordResetDialogMessage.value = resetMissingEmailMessage
+                                                showPasswordResetDialog.value = true
+                                                return@SignIn
+                                            }
+
+                                            // Gmail / Googlemail
+                                            val isGmail = currentEmail.endsWith("@gmail.com", ignoreCase = true) ||
+                                                    currentEmail.endsWith("@googlemail.com", ignoreCase = true)
+                                            if (isGmail) {
+                                                passwordResetDialogMessage.value = resetGoogleAccountMessage
+                                                showPasswordResetDialog.value = true
+                                                return@SignIn
+                                            }
+
+                                            // Normal email/password account calls ViewModel
+                                            authVm.sendPasswordResetEmail(currentEmail, logger) { ok, message ->
+                                                passwordResetDialogMessage.value = message
+                                                showPasswordResetDialog.value = true
+                                            }
+                                        }
                                     )
+                                    // Password reset feedback dialog
+                                    if (showPasswordResetDialog.value) {
+                                        com.lifeleveling.app.ui.components.CustomDialog(
+                                            toShow = showPasswordResetDialog,
+                                            dismissOnInsideClick = false,
+                                            dismissOnOutsideClick = true
+                                        ) {
+                                            androidx.compose.foundation.layout.Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text(
+                                                    text = "Password reset",
+                                                    color = AppTheme.colors.SecondaryOne,
+                                                    style = AppTheme.textStyles.HeadingFour
+                                                )
+
+                                                Text(
+                                                    text = passwordResetDialogMessage.value,
+                                                    color = AppTheme.colors.Gray,
+                                                    style = AppTheme.textStyles.Default,
+                                                    textAlign = TextAlign.Center
+                                                )
+
+                                                Row(
+                                                    horizontalArrangement = Arrangement.Center,
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier.fillMaxWidth()
+                                                ) {
+                                                    CustomButton(
+                                                        onClick = { showPasswordResetDialog.value = false },
+                                                        width = 120.dp,
+                                                    ) {
+                                                        Text(
+                                                            text = stringResource(R.string.close),
+                                                            color = AppTheme.colors.DarkerBackground,
+                                                            style = AppTheme.textStyles.HeadingSix
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                                 composable("createAccount") {
                                     val email = remember { mutableStateOf("") }
