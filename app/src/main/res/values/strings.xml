@@ -49,11 +49,11 @@
     <string name="passwordNotEmpty">Password can not be empty</string>
     <string name="createAccount">Create an Account</string>
     <string name="forgotten_password">Forgot your password?</string>
-    <string name="resetPasswordTitle">Password reset</string>
-    <string name="resetPasswordMissingEmail">Please enter your email address above so we can send you a reset link.</string>
-    <string name="resetPasswordGoogleAccount">For Gmail addresses, please use "Login using Google" instead of resetting a password here.</string>
-    <string name="resetPasswordEmailSent">If an account exists for %1$s, a password reset email has been sent.</string>
-    <string name="resetPasswordEmailError">We could not send a reset email right now. Please try again.</string>
+    <string name="resetPasswordTitle">Password Reset</string>
+    <string name="resetPasswordMissingEmail">Enter your email address. A message will be sent to this address with a link to reset your password.</string>
+    <string name="resetPasswordGoogleAccount">If your email is a gmail account, use the password reset found in the google account login.</string>
+    <string name="resetPasswordEmailSent">If an account was found for the email %1$s, an email has been sent with a link to reset the password.</string>
+    <string name="resetPasswordEmailError">An email could not be sent. Please try again.</string>
 
     <!-- Create Account Screen -->
     <string name="createAccountTitle">Create An Account</string>
