@@ -386,4 +386,19 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+    /**
+     * Sends a Firebase password reset email to the user's registered address.
+     *
+     * Flow:
+     * 1. Try to send the reset email using FirebaseAuth.
+     * 2. If it succeeds, call onResult with true and a friendly message.
+     * 3. If it fails (no user, bad email, or other error), log and call onResult with false and a brief message.
+     * Note: This does NOT change AuthUiState;
+     *
+     * @param email     The email address to send the reset link to.
+     * @param logger    Used for logging errors and warnings.
+     * @param onResult  Callback with successFlag, userFacingMessage.
+     * @author fdesouza1992
+     */
 }
