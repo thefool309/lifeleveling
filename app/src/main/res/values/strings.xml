@@ -54,6 +54,8 @@
     <string name="resetPasswordGoogleAccount">If your email is a gmail account, use the password reset found in the google account login.</string>
     <string name="resetPasswordEmailSent">If an account was found for the email %1$s, an email has been sent with a link to reset the password.</string>
     <string name="resetPasswordEmailError">An email could not be sent. Please try again.</string>
+    <string name="resetPasswordNoAccountFoundError">No account found for the email %1$s. Please try again.</string>
+
 
     <!-- Create Account Screen -->
     <string name="createAccountTitle">Create An Account</string>
