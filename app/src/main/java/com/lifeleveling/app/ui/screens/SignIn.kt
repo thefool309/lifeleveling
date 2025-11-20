@@ -53,7 +53,8 @@ fun SignIn(
     email: MutableState<String>,
     password: MutableState<String>,
     authState: AuthUiState,
-    onDismissError: () -> Unit = {}
+    onDismissError: () -> Unit = {},
+    onForgotPassword: (String) -> Unit = {}
 ) {
 
     val isGmail = isGoogleMailboxUi(email.value)
@@ -189,7 +190,7 @@ fun SignIn(
                 color = AppTheme.colors.Gray,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { /* Forgotten password logic here */ }
+                modifier = Modifier.clickable { onForgotPassword(email.value) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
