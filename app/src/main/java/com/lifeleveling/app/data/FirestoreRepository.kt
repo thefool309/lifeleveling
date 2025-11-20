@@ -1,6 +1,7 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
+import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -24,8 +25,27 @@ import kotlin.Long
  * @property auth a shortened alias for `Firebase.auth`
  */
 class FirestoreRepository {
-    private val db = Firebase.firestore
-    private val auth = Firebase.auth
+    private val auth by lazy {
+        Firebase.auth.apply {
+            if (BuildConfig.DEBUG) {
+                // Connect Auth to emulator only in debug builds
+                useEmulator("10.0.2.2", 9099)
+            }
+        }
+    }
+
+    private val db by lazy {
+        Firebase.firestore.apply {
+            if (BuildConfig.DEBUG) {
+                // Connect Firestore to emulator only in debug builds
+                useEmulator("10.0.2.2", 8080)
+                firestoreSettings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
+                    .setPersistenceEnabled(false)
+                    .build()
+            }
+        }
+    }
+
 
     /**
      * Velma wuz here :3
