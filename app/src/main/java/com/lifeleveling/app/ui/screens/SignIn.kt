@@ -54,7 +54,7 @@ fun SignIn(
     password: MutableState<String>,
     authState: AuthUiState,
     onDismissError: () -> Unit = {},
-    onForgotPassword: (String) -> Unit = {}
+    onForgotPassword: () -> Unit = {}
 ) {
 
     val isGmail = isGoogleMailboxUi(email.value)
@@ -116,7 +116,7 @@ fun SignIn(
                                         style = AppTheme.textStyles.Small)
 
                                 isGmail ->
-                                    Text("Use 'Login using Google' for Gmail addresses.",
+                                    Text(stringResource(R.string.login_gmail),
                                         style = AppTheme.textStyles.Small)
                             }
                         },
@@ -190,7 +190,7 @@ fun SignIn(
                 color = AppTheme.colors.Gray,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { onForgotPassword(email.value) }
+                modifier = Modifier.clickable { onForgotPassword() }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
