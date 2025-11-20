@@ -229,7 +229,7 @@ class AuthViewModel : ViewModel() {
      * 3. Run post-login work (create user doc, log event, etc.).
      * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc.).
      *
-     * Note: even though this function is marked `suspend`, it uses viewModelScope.launch` so it never blocks the caller.
+     * Note: even though this function is marked `suspend`, it uses 'viewModelScope.launch' so it never blocks the caller.
      *
      * @param email  The user’s email address.
      * @param password The user’s password.
@@ -393,7 +393,7 @@ class AuthViewModel : ViewModel() {
      * Flow:
      * 1. Try to send the reset email using FirebaseAuth.
      * 2. If it succeeds, call onResult with true and a friendly message.
-     * 3. If it fails (no user, bad email, or other error), log and call onResult with false and a brief message.
+     * 3. If it fails, log and call onResult with false and a brief message.
      * Note: This does NOT change AuthUiState;
      *
      * @param email     The email address to send the reset link to.
@@ -401,4 +401,34 @@ class AuthViewModel : ViewModel() {
      * @param onResult  Callback with successFlag, userFacingMessage.
      * @author fdesouza1992
      */
+    fun sendPasswordResetEmail(
+        email: String,
+        logger: ILogger,
+        onResult: (Boolean, String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val trimmed = email.trim()
+                auth.sendPasswordResetEmail(trimmed).await()
+
+                onResult(
+                    true,
+                    "If an account exists for $trimmed, a password reset email has been sent."
+                )
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+                logger.w("FB", "Password reset: no user for ${email.trim()}")
+                onResult(false, "No account found for this email.")
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                logger.e("FB", "Password reset: invalid email format", e)
+                onResult(false, "Please enter a valid email address.")
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Password reset: FirebaseAuthException", e)
+                onResult(false, "We couldn't send a reset email right now. Please try again.")
+            } catch (e: Exception) {
+                logger.e("FB", "Password reset: unexpected error", e)
+                onResult(false, "We couldn't send a reset email right now. Please try again.")
+            }
+        }
+    }
+
 }
