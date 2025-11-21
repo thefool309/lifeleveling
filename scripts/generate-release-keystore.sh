@@ -36,7 +36,9 @@ abort() {
 check_gh_auth() {
   echo "Checking Github CLI authentication..."
   if ! gh auth status > /dev/null 2>&1; then
-    echo "if you're trying to run this script without our permission you need to try harder, SCR1PT K1DD13"
+    # just a fun little witty message if the user is unauthorized
+    echo "Woah there stranger. Only contributors are allowed here..."
+    echo "HANDS OFF if you're not a contributor. Don't be a SCR1PT K1DD13."
     abort "if you should be here you must run: gh auth login."
   fi
 }
@@ -125,4 +127,4 @@ upload_secret "$SECRET_STOREPASS" "$PASSWORD"
 upload_secret "$SECRET_KEYPASS" "$PASSWORD"
 upload_secret "$SECRET_ALIAS" "$ALIAS"
 
-echo "All secrets uploaded successfully!!!"
+echo "All secrets uploaded successfully! I hope you're authorized to do that... TwT"
