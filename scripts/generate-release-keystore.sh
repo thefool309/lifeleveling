@@ -5,6 +5,12 @@ KEYSTORE="release.keystore"
 ALIAS="release-keystore"
 PASSWORD="${1:-}"  # optional: pass password as argument
 
+SECRET_KEYSTORE="ANDROID_KEYSTORE_BASE64"
+SECRET_STOREPASS="ANDROID_KEYSTORE_PASSWORD"
+SECRET_KEYPASS="ANDROID_KEY_PASSWORD"
+SECRET_ALIAS="ANDROID_KEY_ALIAS"
+
+
 if [[ -z "$PASSWORD" ]]; then
   echo "Usage: $0 <keystore-password>"
   exit 1
@@ -45,6 +51,12 @@ check_permissions() {
   echo "Repo access confirmed for $USERNAME: $PERM"
 }
 
+
+confirm() {
+    read -rp "Are you sure you want to overwrite secrets? (y/N) " answer
+    [[ "$answer" == "y" || "$answer" == "Y" ]] || abort "User cancelled."
+}
+
 check_gh_auth
 check_permissions
 
@@ -66,3 +78,5 @@ base64 "$KEYSTORE" | tr -d '\n' > "${KEYSTORE}.base64"
 echo "Created:"
 echo "$KEYSTORE"
 echo "${KEYSTORE}.base64"
+
+confirm
