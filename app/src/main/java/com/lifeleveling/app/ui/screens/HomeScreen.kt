@@ -79,6 +79,7 @@ fun HomeScreen() {
                     modifier = Modifier
                         .matchParentSize(),
                 ) {
+                    // Background Image
                     if (fightMeditateSwitch.value == 0){
                         Image(
                             painter = painterResource(R.drawable.dungeon_door),
@@ -88,7 +89,7 @@ fun HomeScreen() {
                                 .offset(x = 70.dp, y = (-10).dp)
                                 .fillMaxWidth(1.5f)
                                 .aspectRatio(1f)
-                                .alpha(0.7f),
+                                .alpha(0.9f),
                             contentScale = ContentScale.Crop
                         )
                     } else {
@@ -100,7 +101,7 @@ fun HomeScreen() {
                                 .offset(x = 0.dp, y = 40.dp)
                                 .fillMaxWidth(1f)
                                 .aspectRatio(1f)
-                                .alpha(0.8f),
+                                .alpha(0.9f),
                             contentScale = ContentScale.Fit
                         )
                     }
