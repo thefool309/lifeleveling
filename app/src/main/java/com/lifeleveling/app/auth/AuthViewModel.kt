@@ -408,35 +408,22 @@ class AuthViewModel : ViewModel() {
         onResult: (Boolean, Int) -> Unit
     ) {
         viewModelScope.launch {
-            val trimmed = email.trim()
-
             try {
-                // First check is to see if there are any matching users in our firebase auth
-                val methodResult = try {
-                    auth.fetchSignInMethodsForEmail(trimmed).await()
-                } catch (e: Exception) {
-                    logger.e("FB", "Password reset: failed to fetch sign-in methods", e)
-                    onResult(false, R.string.resetPasswordFirebaseAuthError)
-                    return@launch
-                }
-
-                val methods = methodResult.signInMethods.orEmpty()
-                if (methods.isEmpty()) {
-                    // No user registered with this email
-                    logger.w("FB", "Password reset: no user for $trimmed")
-                    onResult(false, R.string.resetPasswordNoAccountFoundError)
-                    return@launch
-                }
-
-                // Once we have identified an email try sending the reset e-mail.
+                val trimmed = email.trim()
                 auth.sendPasswordResetEmail(trimmed).await()
                 onResult(true, (R.string.resetPasswordEmailSent))
-            } catch (e: com.google.firebase.FirebaseNetworkException) {
-                logger.e("FB", "Password reset: network error", e)
-                onResult(false, R.string.resetPasswordFirebaseAuthError)
-            } catch (e: com.google.firebase.auth.FirebaseAuthException)  {
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+                logger.w("FB", "Password reset: no user for ${email.trim()}")
+                onResult(false, (R.string.resetPasswordNoAccountFoundError))
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                logger.e("FB", "Password reset: invalid email format", e)
+                onResult(false, (R.string.resetPasswordEmailError))
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
                 logger.e("FB", "Password reset: FirebaseAuthException", e)
-                onResult(false, R.string.resetPasswordFirebaseAuthError)
+                onResult(false, (R.string.resetPasswordFirebaseAuthError))
+
             } catch (e: Exception) {
                 logger.e("FB", "Password reset: unexpected error", e)
                 onResult(false, (R.string.resetPasswordFirebaseAuthError))
