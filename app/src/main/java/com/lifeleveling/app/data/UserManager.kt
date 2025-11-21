@@ -3,14 +3,11 @@ package com.lifeleveling.app.data
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 /**
  * Information for the user that WILL be written into firebase
@@ -53,6 +50,7 @@ class UserManager(
                         isLoading = false,
                         userData = null,
                         expToNextLevel = 0,
+                        isLoggedIn = false,
                         )
                 }
             } else {
