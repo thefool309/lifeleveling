@@ -57,6 +57,14 @@ confirm() {
     [[ "$answer" == "y" || "$answer" == "Y" ]] || abort "User cancelled."
 }
 
+upload_secret() {
+  local name="$1"
+  local value="$2"
+  echo "Uploading secret: $name"
+  gh secret set "$name" --repo "REPO" --body "$value" > /dev/null
+}
+
+
 check_gh_auth
 check_permissions
 
@@ -72,8 +80,10 @@ keytool -genkeypair \
   -keypass "$PASSWORD" \
   -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, S=Unknown, C=US"
 
+KEYSTORE_BASE64="${KEYSTORE}.base64"
+
 # consistent encoding across platforms
-base64 "$KEYSTORE" | tr -d '\n' > "${KEYSTORE}.base64"
+base64 "$KEYSTORE" | tr -d '\n' > "$KEYSTORE_BASE64"
 
 echo "Created:"
 echo "$KEYSTORE"
