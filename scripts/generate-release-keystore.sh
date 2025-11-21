@@ -9,7 +9,6 @@ if [[ -f ".env" ]]; then
 fi
 
 KEYSTORE="release.keystore"
-# optional: pass password as argument
 
 SECRET_KEYSTORE="ANDROID_KEYSTORE_BASE64"
 SECRET_STOREPASS="ANDROID_KEYSTORE_PASSWORD"
