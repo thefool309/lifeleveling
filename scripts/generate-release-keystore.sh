@@ -87,6 +87,6 @@ base64 "$KEYSTORE" | tr -d '\n' > "$KEYSTORE_BASE64"
 
 echo "Created:"
 echo "$KEYSTORE"
-echo "${KEYSTORE}.base64"
+echo "$KEYSTORE_BASE64"
 
 confirm
