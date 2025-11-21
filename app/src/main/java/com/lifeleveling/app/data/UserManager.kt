@@ -1,9 +1,16 @@
 package com.lifeleveling.app.data
 
-import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /**
  * Information for the user that WILL be written into firebase
@@ -14,123 +21,159 @@ data class UserData(
 )
 
 /**
+ * Information that will NOT be written in firebase
+ */
+data class UserLocals(
+    val userData: UserData? = null,
+    val expToNextLevel: Int = 0,
+
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+
+    val isLoggedIn: Boolean = false,
+)
+
+/**
  * Manages the local state of the user, writing to firebase, pulling from firebase, and more
  */
-object UserManager {
-    private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
+class UserManager(
+    private val authRepo: AuthRepository = AuthRepository(),
+    private val userRepo: UserRepository = UserRepository()
+) : ViewModel() {
+    private val userLocals = MutableStateFlow(UserLocals())
+    val uiState: StateFlow<UserLocals> = userLocals.asStateFlow()
 
-    // Firestore reference
-    private val userDoc: DocumentReference?
-        get() = auth.currentUser?.let { user ->
-            firestore.collection("users").document(user.uid)
+    // Initialization
+    init {
+        // Listens for login/logout
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            if (firebaseAuth.currentUser == null) {
+                userLocals.update {
+                    it.copy(
+                        isLoading = false,
+                        userData = null,
+                        expToNextLevel = 0,
+                        )
+                }
+            } else {
+                viewModelScope.launch { loadUser() }
+            }
         }
-
-
-    // ================== User Values =====================================================
-    // User State for UI to pull
-    var user by mutableStateOf<UserData?>(null)
-    private set
-
-    // Other exposed variable for any file to pull that will be calculated locally
-    // Do not forget to make a function to do the calculations and/or add it into updateLocalVariables
-    var expToNextLevel by mutableStateOf(100)
+        authRepo.addAuthStateListener(listener)
+    }
 
 
     // ================== Functions =======================================================
 
     // ================== Firestore managing functions ==========
     // Load user from firestore
-    fun loadUser(
-        onResult: (Boolean, String?) -> Unit = { _, _ -> }
-    ) {
-        val doc = userDoc ?: run {
-            onResult(false, "No user logged in.")
-            return
-        }
+    suspend fun loadUser() {
+        val uid = authRepo.currentUser?.uid ?: return
+        userLocals.update { it.copy(isLoading = true, errorMessage = null) }
 
-        doc.get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    val data = snapshot.toObject(UserData::class.java)
-                    if (data != null) {
-                        // updates local save of user data
-                        user = data
-                        // updates local variables based on that data
-                        updateLocalVariables(data)
-                        onResult(true, null)
-                    } else {
-                        onResult(false, "Corrupt user data")
-                    }
-                } else {
-                    // First time user so create a new profile
-                    createNewUser(onResult)
-                }
+        try {
+            val data = userRepo.loadUser(uid)
+            if (data != null) {
+                updateLocalVariables(data)
+                userLocals.update { it.copy(isLoading = false, isLoggedIn = true) }
+            } else {
+                createNewUser()
             }
-            .addOnFailureListener { exception ->
-                onResult(false, exception.localizedMessage)
-            }
+        } catch (e: Exception) {
+            userLocals.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
+        }
     }
 
     // Write user into firestore
-    fun saveUser(onResult: (Boolean, String?) -> Unit = { _, _ -> }) {
-        val doc = userDoc ?: run {
-            onResult(false, "No user logged in.")
-            return
-        }
+    suspend fun saveUser() {
+        val user = userLocals.value.userData ?: return
+        val uid = authRepo.currentUser?.uid ?: return
 
-        val current = user ?: run {
-            onResult(false, "User data not loaded")
-            return
+        userLocals.update { it.copy(isLoading = true, errorMessage = null) }
+        try {
+            userRepo.saveUser(uid, user)
+            userLocals.update { it.copy(isLoading = false) }
+        } catch (e: Exception) {
+            userLocals.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
         }
-
-        doc.set(current)
-            .addOnSuccessListener { onResult(true, null) }
-            .addOnFailureListener { exception ->
-                onResult(false, exception.localizedMessage)
-            }
     }
 
     // Create a new User
-    private fun createNewUser(
-        onResult: (Boolean, String?) -> Unit = { _, _ -> }
-    ) {
-        val startingData = UserData()
-        user = startingData
-        updateLocalVariables(startingData)
+    suspend fun createNewUser() {
+        val user = UserData()
+        val uid = authRepo.currentUser?.uid ?: return
 
-        userDoc?.set(startingData)
-            ?.addOnSuccessListener { onResult(true, null) }
-            ?.addOnFailureListener { exception -> onResult(false, exception.localizedMessage) }
+        updateLocalVariables(user)
+        userLocals.update { it.copy(isLoading = true, errorMessage = null) }
+        try {
+            userRepo.createNewUser(uid, user)
+            userLocals.update { it.copy(isLoading = false, isLoggedIn = true) }
+        } catch (e: Exception) {
+            userLocals.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
+        }
     }
 
     // ========= Calculating Local Logic Variable Functions ==========
     // Broad function for any smaller ones so they all get loaded at once
     // Used after reading from firebase
     private fun updateLocalVariables(userData: UserData) {
-        expToNextLevel = calcExpToNextLevel(userData.level)
+        userLocals.update { current ->
+            current.copy(
+                userData = userData,
+                expToNextLevel = calcExpToNextLevel(userData.level)
+            )
+        }
     }
 
-    private fun calcExpToNextLevel(level: Int): Int {
-        return 100 * level
-    }
+    private fun calcExpToNextLevel(level: Int) = 100 * level
 
     // ============ Functions for changing variables =================
     fun addExp(amount: Int) {
-        val current = user ?: return
+        val user = userLocals.value.userData ?: return
+        val next = userLocals.value.expToNextLevel
+        val newExp = user.currentExp + amount
 
-        val newExp = current.currentExp + amount
-        val nextLevelReq = expToNextLevel
-
-        if (newExp > nextLevelReq) {
-            // Level up
-            user = current.copy(
-                level = current.level + 1,
-                currentExp = newExp - nextLevelReq
-            )
-            expToNextLevel = calcExpToNextLevel(current.level + 1)
+        val updated = if (newExp >= next) {
+            val leftover = newExp - next
+            user.copy(level = user.level + 1, currentExp = leftover)
         } else {
-            user = current.copy(currentExp = newExp)
+            user.copy(currentExp = newExp)
+        }
+        updateLocalVariables(updated)
+    }
+
+    // ================== Auth Functions =========================
+    fun login(email: String, password: String) = viewModelScope.launch {
+        try {
+            userLocals.update { it.copy(isLoading = true, errorMessage = null) }
+            authRepo.login(email, password)
+            loadUser()
+        } catch (e: Exception) {
+            userLocals.update { it.copy(errorMessage = e.localizedMessage) }
+        } finally {
+            userLocals.update { it.copy(isLoading = false) }
+        }
+    }
+
+    fun register(email: String, password: String) = viewModelScope.launch {
+        try {
+            userLocals.update { it.copy(isLoading = true, errorMessage = null) }
+            authRepo.register(email, password)
+            createNewUser()
+        } catch (e: Exception) {
+            userLocals.update { it.copy(errorMessage = e.localizedMessage) }
+        } finally {
+            userLocals.update { it.copy(isLoading = false) }
+        }
+    }
+
+    fun logout() = authRepo.logout()
+
+    fun sendPasswordResetEmail(email: String) = viewModelScope.launch {
+        try {
+            authRepo.sendPasswordResetEmail(email)
+        } catch (e: Exception) {
+            userLocals.update { it.copy(errorMessage = e.localizedMessage) }
         }
     }
 }
