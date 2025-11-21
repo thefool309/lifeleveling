@@ -64,6 +64,7 @@ upload_secret() {
   gh secret set "$name" --repo "REPO" --body "$value" > /dev/null
 }
 
+[[ -z "$REPO" ]] && abort "Set REPO=owner/repo in your environment or .env file."
 
 check_gh_auth
 check_permissions
@@ -84,6 +85,8 @@ KEYSTORE_BASE64="${KEYSTORE}.base64"
 
 # consistent encoding across platforms
 base64 "$KEYSTORE" | tr -d '\n' > "$KEYSTORE_BASE64"
+
+[[ -f $KEYSTORE_BASE64 ]] || abort "For some reason the $KEYSTORE_BASE64 file was not generated"
 
 echo "Created:"
 echo "$KEYSTORE"
