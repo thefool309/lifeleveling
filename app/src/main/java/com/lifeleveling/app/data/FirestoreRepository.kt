@@ -1,6 +1,7 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
+import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -24,8 +25,10 @@ import kotlin.Long
  * @property auth a shortened alias for `Firebase.auth`
  */
 class FirestoreRepository {
-    private val db = Firebase.firestore
     private val auth = Firebase.auth
+
+    private val db = Firebase.firestore
+
 
     /**
      * Velma wuz here :3
