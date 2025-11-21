@@ -28,7 +28,7 @@ abort() {
 check_gh_auth() {
   echo "Checking Github CLI authentication..."
   if ! gh auth status > /dev/null 2>&1; then
-    echo "if you're trying to run this script without our permission you need to try harder, script kiddie"
+    echo "if you're trying to run this script without our permission you need to try harder, SCR1PT K1DD13"
     abort "if you should be here you must run: gh auth login."
   fi
 }
