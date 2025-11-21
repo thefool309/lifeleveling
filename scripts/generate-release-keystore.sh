@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck disable=SC1091
+if [[ -f ".env" ]]; then
+  set -a           # automatically export all variables
+  source ".env"    # load variables
+  set +a
+fi
+
 KEYSTORE="release.keystore"
 # optional: pass password as argument
 
@@ -9,11 +16,12 @@ SECRET_STOREPASS="ANDROID_KEYSTORE_PASSWORD"
 SECRET_KEYPASS="ANDROID_KEY_PASSWORD"
 SECRET_ALIAS="ANDROID_KEY_ALIAS"
 
-
-if [[ -z "$PASSWORD" ]]; then
-  echo "Usage: $0 <keystore-password>"
-  exit 1
-fi
+CN="${CN:-Unknown}"
+OU="${OU:-Unknown}"
+O="${O:-Unknown}"
+L="${L:-Unknown}"
+S="${S:-Unknown}"
+C="${C:-US}"
 
 if [[ -f "$KEYSTORE" ]]; then
   echo "Error: $KEYSTORE already exists. Delete it or choose a different name."
@@ -60,27 +68,31 @@ upload_secret() {
   local name="$1"
   local value="$2"
   echo "Uploading secret: $name"
-  gh secret set "$name" --repo "REPO" --body "$value" > /dev/null
+  gh secret set "$name" --repo "$REPO" --body "$value" > /dev/null
 }
 
 [[ -z "$REPO" ]] && abort "Set REPO=owner/repo in your environment or .env file."
 
 check_gh_auth
 check_permissions
-
-read -rsp "Enter keystore password: " PASSWORD
-echo
-read -rsp "Confirm keystore password: " PASSWORD2
-echo
-[[ "$PASSWORD" == "$PASSWORD2" ]] || abort "Passwords do not match!"
-
-read -rp "Enter key alias: " ALIAS
-echo
-read -rp "Confirm key alias: " ALIAS2
-echo
+PASSWORD="${KEYSTORE_PASSWORD:-}"
+if [[ -z "$PASSWORD" ]]; then 
+  read -rsp "Enter keystore password: " PASSWORD
+  echo
+  read -rsp "Confirm keystore password: " PASSWORD2
+  echo
+  [[ "$PASSWORD" == "$PASSWORD2" ]] || abort "Passwords do not match!"
+fi
+ALIAS="${KEYSTORE_ALIAS:-}" 
+if [[ -z "$ALIAS" ]]; then
+  read -rp "Enter key alias: " ALIAS
+  echo
+  read -rp "Confirm key alias: " ALIAS2
+  echo
 [[ "$ALIAS" == "$ALIAS2" ]] || abort "Aliases do not match!"
+fi
 
-keytool -genkeypair \
+if ! keytool -genkeypair \
   -v \
   -keystore "$KEYSTORE" \
   -alias "$ALIAS" \
@@ -89,7 +101,9 @@ keytool -genkeypair \
   -validity 10000 \
   -storepass "$PASSWORD" \
   -keypass "$PASSWORD" \
-  -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, S=Unknown, C=US"
+  -dname "CN=$CN, OU=$OU, O=$O, L=$L, S=$S, C=$C"; then
+  abort "Key generation failed!"
+fi
 
 KEYSTORE_BASE64="${KEYSTORE}.base64"
 
