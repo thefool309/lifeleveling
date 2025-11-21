@@ -2,8 +2,7 @@
 set -euo pipefail
 
 KEYSTORE="release.keystore"
-ALIAS="release-keystore"
-PASSWORD="${1:-}"  # optional: pass password as argument
+# optional: pass password as argument
 
 SECRET_KEYSTORE="ANDROID_KEYSTORE_BASE64"
 SECRET_STOREPASS="ANDROID_KEYSTORE_PASSWORD"
@@ -69,6 +68,17 @@ upload_secret() {
 check_gh_auth
 check_permissions
 
+read -rsp "Enter keystore password: " PASSWORD
+echo
+read -rsp "Confirm keystore password: " PASSWORD2
+echo
+[[ "$PASSWORD" == "$PASSWORD2" ]] || abort "Passwords do not match!"
+
+read -rp "Enter key alias: " ALIAS
+echo
+read -rp "Confirm key alias: " ALIAS2
+echo
+[[ "$ALIAS" == "$ALIAS2" ]] || abort "Aliases do not match!"
 
 keytool -genkeypair \
   -v \
@@ -93,3 +103,12 @@ echo "$KEYSTORE"
 echo "$KEYSTORE_BASE64"
 
 confirm
+
+KEYSTORE_BASE64_CONTENT=$(< "$KEYSTORE_BASE64")
+
+upload_secret "$SECRET_KEYSTORE" "$KEYSTORE_BASE64_CONTENT"
+upload_secret "$SECRET_STOREPASS" "$PASSWORD"
+upload_secret "$SECRET_KEYPASS" "$PASSWORD"
+upload_secret "$SECRET_ALIAS" "$ALIAS"
+
+echo "All secrets uploaded successfully!!!"
