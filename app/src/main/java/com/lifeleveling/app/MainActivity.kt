@@ -42,6 +42,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.auth.AuthViewModel
+import com.lifeleveling.app.navigation.BottomNavItem
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
@@ -67,6 +69,7 @@ import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -235,7 +238,7 @@ class MainActivity : ComponentActivity() {
                             val navController = rememberNavController()
                             Surface(color = AppTheme.colors.Background) {
                                 Scaffold(
-                                    bottomBar = { BottomNavigationBar(navController = navController) },
+                                    bottomBar = { CustomNavBar(navController = navController) },
                                 ) { padding ->
                                     NavHostContainer(
                                         navController = navController,
@@ -308,6 +311,9 @@ fun NavHostContainer(
     )
 }
 
+/**
+ * Old standard nav bar. See new CustomNavBar
+ */
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
@@ -334,6 +340,80 @@ fun BottomNavigationBar(navController: NavHostController) {
                     unselectedIconColor = AppTheme.colors.BrandTwo,
                 )
             )
+        }
+    }
+}
+
+/**
+ * New beautiful nav bar. Look at it. LOOK AT IT!
+ * @author Elyseia fixed this
+ */
+@Composable
+fun CustomNavBar(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    height: Dp = 80.dp,
+    indicatorSize: Dp = 60.dp,
+) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Background
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .background(AppTheme.colors.DarkerBackground)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Constants.BottomNavItems.forEach { navItem ->
+                val selected = currentRoute == navItem.route
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clickable {
+                            navController.navigate(navItem.route) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(indicatorSize)
+                            .background(
+                                color = if (selected) AppTheme.colors.BrandOne else Color.Transparent,
+                                shape = CircleShape
+                            )
+                    ) {
+                        if (selected) {
+                            Image(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .matchParentSize(),
+                                painter = painterResource(R.drawable.circle_button_innerlight),
+                                contentDescription = null,
+                            )
+                        }
+
+                        Icon(
+                            imageVector = ImageVector.vectorResource(navItem.icon),
+                            contentDescription = navItem.route,
+                            modifier = Modifier.size(40.dp),
+                            tint = if (selected) AppTheme.colors.DarkerBackground else AppTheme.colors.BrandTwo
+                        )
+                    }
+                }
+            }
         }
     }
 }

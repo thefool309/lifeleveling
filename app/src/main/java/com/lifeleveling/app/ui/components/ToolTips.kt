@@ -87,8 +87,8 @@ fun Tooltip(
                 style = AppTheme.textStyles.HeadingSix.copy(
                     shadow = Shadow(
                         color = AppTheme.colors.DropShadow,
-                        offset = Offset(3f, 4f),
-                        blurRadius = 6f,
+                        offset = Offset(2f, 2f),
+                        blurRadius = 2f,
                     )
                 )
             )
