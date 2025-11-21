@@ -30,14 +30,18 @@ Text(
     style = AppTheme.textStyles.HeadingThree.copy(
         shadow = Shadow(
             color = AppTheme.colors.DropShadow,
-            offset = Offset(3f, 4f),
-            blurRadius = 6f,
+            offset = Offset(2f, 2f),
+            blurRadius = 2f,
         )
     ),
 modifier = Modifier.align(Alignment.TopStart),
 )
 */
 
+/**
+ * Draws an inner shadow to the parent component
+ * @author Elyseia
+ */
 @Composable
 fun InnerShadow(
     modifier: Modifier = Modifier,

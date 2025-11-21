@@ -30,6 +30,8 @@ import com.lifeleveling.app.ui.theme.AppTheme
 
 /**
  * Makes a list of the bullets passed in.
+ *
+ * @author Elyseia
  */
 @Composable
 fun BulletPoints(items: List<AnnotatedString>) {
@@ -63,6 +65,8 @@ fun BulletPoints(items: List<AnnotatedString>) {
  * @param toShow Boolean for showing the dialog
  * @param title Title of tooltip window. Call as R.string.[string name]
  * @param tips Build a list of annotatedStrings to pass in as bullet points
+ *
+ * @author Elyseia
  */
 @Composable
 fun Tooltip(

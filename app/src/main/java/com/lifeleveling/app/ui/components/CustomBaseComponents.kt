@@ -307,6 +307,8 @@ fun TestScreen() {
  * Darker background Screen
  *@param wrapContent Change this is for the box to be the width of the content
  * @param height Leaving this null will make the card adjust based on content height
+ *
+ * @author Elyseia
  */
 @Composable
 fun HighlightCard(
@@ -382,6 +384,8 @@ fun HighlightCard(
  * A weight can be passed in to adjust the width
  * @param width Sets a specific width. Only use for precision
  * @param enabled Sets a boolean condition of if the button is clickable
+ *
+ * @author Elyseia
  */
 @Composable
 fun CustomButton(
@@ -471,6 +475,8 @@ fun CustomButton(
  * @param shadowColor Color of the drop shadow
  * @param shadowOffset Moves the shadow out farther from the icon
  * @param shadowAlpha How dark the shadow will appear
+ *
+ * @author Elyseia
  */
 @Composable
 fun ShadowedIcon(
@@ -512,6 +518,8 @@ fun ShadowedIcon(
 
 /**
  * Shaded popup card for overlays.
+ *
+ * @author Elyseia
  */
 @Composable
 fun PopupCard(
@@ -585,6 +593,8 @@ fun PopupCard(
  * @param iconTint Color of the icon inside
  * @param shadowColor Color of the button drop shadow.
  * @param elevation Button drop shadow adjustment.
+ *
+ * @author Elyseia
  */
 @Composable
 fun CircleButton(
@@ -641,6 +651,8 @@ fun CircleButton(
  * @param progress Percentage value for how full the bar will appear.
  * @param backgroundColor Color of hte unfilled space.
  * @param progressColor Color of the filled in space.
+ *
+ * @author Elyseia
  */
 @Composable
 fun ProgressBar(
@@ -741,6 +753,8 @@ fun ProgressBar(
  * @param textStyle The style of the text inside. Will change the size of the entire switch to fit it.
  * @param insetAmount The offset of the indicator to appear inside the switch.
  * @param extraWidth Adds space to the button to stretch it wider if needed.
+ *
+ * @author Elyseia
  */
 @Composable
 fun SlidingSwitch(
@@ -890,6 +904,8 @@ fun SlidingSwitch(
  * @param size Adjusts size of box and icon inside
  * @param mainColor Outline of unchecked area and fill of checked box
  * @param checkColor Color of the checkmark inside
+ *
+ * @author Elyseia
  */
 @Composable
 fun CustomCheckbox(
@@ -928,6 +944,8 @@ fun CustomCheckbox(
  * @param toShow The boolean for if the window shows or not.
  * @param dismissOnInsideClick If the contents is NOT interactive, leave this as true for the window to disappear if clicked on. False will allow buttons to be on the inside.
  * @param dismissOnOutsideClick Controls if the window will close if you click outside the box
+ *
+ * @author Elyseia
  */
 @Composable
 fun CustomDialog(
@@ -974,6 +992,8 @@ fun CustomDialog(
  * @param outlineColor Color of the text field outline
  * @param selectedBackground A highlight to the option that is currently selected
  * @param selectedText A highlight to the text of the currently selected option
+ *
+ * @author Elyseia
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1082,6 +1102,8 @@ fun DropDownTextMenu(
  * @param outlineColor Color of the text field outline
  * @param selectedBackground A highlight to the option that is currently selected
  * @param selectedText A highlight to the text of the currently selected option,
+ *
+ * @author Elyseia
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1202,6 +1224,8 @@ fun DropDownReminderMenu(
 
 /**
  * A thin line with a dot at either end for separating UI sections
+ *
+ * @author Elyseia
  */
 @Composable
 fun SeparatorLine(
@@ -1230,6 +1254,8 @@ fun SeparatorLine(
  * @param inputFilter Allows the use of filters on what can be entered. Examples: { it.all { char -> char.isDigit() } } is only numbers. .isLetter() is only letters. .isWhitespace() allows spaces
  * @param backgroundColor Color of the text box inside the outline
  * @param outlineColor Color of the outline of the box
+ *
+ * @author Elyseia
  */
 @Composable
 fun CustomTextField(
@@ -1291,6 +1317,8 @@ fun CustomTextField(
  * @param topFadeHeight Controls the size of the top faded bit
  * @param bottomFadeHeight Controls the size of the bottom faded section
  * @param fadeColor The color in the gradient
+ *
+ * @author Elyseia
  */
 @Composable
 fun ScrollFadeEdges(
@@ -1348,6 +1376,8 @@ fun ScrollFadeEdges(
  * @param topFadeHeight Controls the size of the top faded bit
  * @param bottomFadeHeight Controls the size of the bottom faded section
  * @param fadeColor The color in the gradient
+ *
+ * @author Elyseia
  */
 @Composable
 fun LazyColumnFadeEdges(

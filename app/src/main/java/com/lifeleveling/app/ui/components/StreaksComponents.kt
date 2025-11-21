@@ -48,6 +48,8 @@ import java.util.Locale
  * Shows the information of a streak and option to delete it.
  * @param toShow A boolean controlling if the window shows or not.
  * @param passedStreak The streak that is being clicked on.
+ *
+ * @author Elyseia
  */
 @Composable
 fun ShowStreak(
@@ -225,6 +227,8 @@ fun ShowStreak(
  * Add a streak to streak containers and UI
  * @param toShow Boolean needed to show screen because it is a dialog
  * @param daily Determines if it shows daily reminders or monthly reminders
+ *
+ * @author Elyseia
  */
 @Composable
 fun AddStreak(
@@ -499,6 +503,8 @@ fun AddStreak(
  * @param columns Number of columns in the grid.
  * @param toShow A boolean for showing a window with badge information inside it.
  * @param showBadge A variable to store a badge into when it is clicked, will be used for displaying the information.
+ *
+ * @author Elyseia
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -543,6 +549,8 @@ fun AllBadgesDisplay(
  * Shows the information of a single badge
  * @param toShow A boolean to determine if the window shows
  * @param badge The badge item to be displayed
+ *
+ * @author Elyseia
  */
 @Composable
 fun SingleBadgeDisplay(

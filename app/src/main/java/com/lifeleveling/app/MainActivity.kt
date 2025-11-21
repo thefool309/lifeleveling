@@ -9,16 +9,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,48 +21,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.lifeleveling.app.auth.AuthViewModel
-import com.lifeleveling.app.navigation.BottomNavItem
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
-import com.lifeleveling.app.navigation.Constants
+import com.lifeleveling.app.navigation.CustomNavBar
+import com.lifeleveling.app.navigation.MainScreenNavigationHost
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
-import com.lifeleveling.app.navigation.TempCalendarScreen
-import com.lifeleveling.app.ui.screens.CalendarScreen
-import com.lifeleveling.app.ui.screens.CreateAccountScreen
-
-
-import com.lifeleveling.app.ui.screens.HomeScreen
-import com.lifeleveling.app.ui.screens.NotificationScreen
-import com.lifeleveling.app.ui.screens.SelfCareScreen
-import com.lifeleveling.app.ui.screens.SettingScreen
-import com.lifeleveling.app.ui.screens.SignIn
-
-import com.lifeleveling.app.ui.screens.StatsScreenRoute
-import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
+import com.lifeleveling.app.ui.screens.*
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 // Temp Check to ensure firebase connection
-import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
-import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
-import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -240,14 +212,15 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(
                                     bottomBar = { CustomNavBar(navController = navController) },
                                 ) { padding ->
-                                    NavHostContainer(
+                                    MainScreenNavigationHost(
                                         navController = navController,
                                         padding = padding,
                                         isDarkThemeState = isDarkThemeState,
-                                        onSignOut = {authVm.signOut(this@MainActivity)},
+                                        onSignOut = { authVm.signOut(this@MainActivity) },
                                         onDeleteAccount = {
                                             val logger = AndroidLogger()
-                                            authVm.deleteAccount(logger)}
+                                            authVm.deleteAccount(logger)
+                                        }
                                     )
                                 }
                             }
@@ -259,161 +232,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun NavHostContainer(
-    navController: NavHostController,
-    onSignOut: () -> Unit,
-    onDeleteAccount: () -> Unit,
-    padding: PaddingValues,
-    isDarkThemeState: MutableState<Boolean>,
-) {
-    NavHost(
-        navController = navController,
-        startDestination = "home",
-        modifier = Modifier.padding(paddingValues = padding),
-        builder = {
-            composable("calendar") {
-                CalendarScreen()
-            }
-            composable("stats") {
-                StatsScreenRoute()
-            }
-            composable("home") {
-                HomeScreen()
-            }
-            composable("streaks") {
-                StreaksScreen(navController = navController)
-            }
-            composable("settings") {
-                SettingScreen(
-                    navController = navController,
-                    isDarkTheme = isDarkThemeState.value,
-                    onThemeChange = { newIsDark ->
-                        isDarkThemeState.value = newIsDark
-                    },
-                    onSignOut = onSignOut,
-                    onDeleteAccount = onDeleteAccount
-                )
-            }
-            composable ("notifications"){
-                NotificationScreen(navController = navController)
-            }
-            composable ("selfCare"){
-                SelfCareScreen(navController = navController)
-            }
-            composable ("termsAndPrivacy") {
-                TermsAndPrivacyScreen(navController = navController)
-            }
-            composable ("journey_stats") {
-                UserJourneyScreen(navController = navController)
-            }
-        }
-    )
-}
-
-/**
- * Old standard nav bar. See new CustomNavBar
- */
-@Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    NavigationBar(
-        containerColor = AppTheme.colors.DarkerBackground,
-        modifier = Modifier.height(80.dp)
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
-        Constants.BottomNavItems.forEach { navItem ->
-            NavigationBarItem(
-                selected = currentRoute == navItem.route,
-                onClick = { navController.navigate(navItem.route) },
-                icon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(navItem.icon),
-                        contentDescription = navItem.route,
-                        modifier = Modifier.size(40.dp),
-                    )
-                },
-                alwaysShowLabel = false,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = AppTheme.colors.BrandOne,
-                    unselectedIconColor = AppTheme.colors.BrandTwo,
-                )
-            )
-        }
-    }
-}
-
-/**
- * New beautiful nav bar. Look at it. LOOK AT IT!
- * @author Elyseia fixed this
- */
-@Composable
-fun CustomNavBar(
-    navController: NavHostController,
-    modifier: Modifier = Modifier,
-    height: Dp = 80.dp,
-    indicatorSize: Dp = 60.dp,
-) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
-    // Background
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
-            .background(AppTheme.colors.DarkerBackground)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Constants.BottomNavItems.forEach { navItem ->
-                val selected = currentRoute == navItem.route
-
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable {
-                            navController.navigate(navItem.route) {
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(indicatorSize)
-                            .background(
-                                color = if (selected) AppTheme.colors.BrandOne else Color.Transparent,
-                                shape = CircleShape
-                            )
-                    ) {
-                        if (selected) {
-                            Image(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .matchParentSize(),
-                                painter = painterResource(R.drawable.circle_button_innerlight),
-                                contentDescription = null,
-                            )
-                        }
-
-                        Icon(
-                            imageVector = ImageVector.vectorResource(navItem.icon),
-                            contentDescription = navItem.route,
-                            modifier = Modifier.size(40.dp),
-                            tint = if (selected) AppTheme.colors.DarkerBackground else AppTheme.colors.BrandTwo
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
