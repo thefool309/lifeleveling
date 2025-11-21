@@ -9,6 +9,14 @@ plugins {
 android {
     namespace = "com.lifeleveling.app"
     compileSdk = 36
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.keystore")
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+        }
+    }
     defaultConfig {
         applicationId = "com.lifeleveling.app"
         minSdk = 24
@@ -32,6 +40,7 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("boolean", "DEBUG", "false")
+            signingConfig = signingConfigs.named("release").get()
         }
     }
     compileOptions {
