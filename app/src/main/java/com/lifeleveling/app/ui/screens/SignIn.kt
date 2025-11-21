@@ -119,7 +119,7 @@ fun SignIn(
                                         style = AppTheme.textStyles.Small)
 
                                 isGmail ->
-                                    Text("Use 'Login using Google' for Gmail addresses.",
+                                    Text(stringResource(R.string.use_gmail_address),
                                         style = AppTheme.textStyles.Small)
                             }
                         },
@@ -164,16 +164,9 @@ fun SignIn(
                 onClick = onGoogleLogin,
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
-            ) {         //This below can place and image in the button
-//                        Image(
-//                            painter = painterResource(id = R.drawable.gmail_color),
-//                            contentDescription = "Google Image",
-//                            modifier = Modifier
-//                                .size(48.dp)
-//                        )
-                //button text
+            ) {
                 Text(
-                    "G",
+                    stringResource(R.string.google_G),
                     color = AppTheme.colors.DropShadow,
                     style = AppTheme.textStyles.HeadingFive
                 )
@@ -225,7 +218,7 @@ fun SignIn(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Sign-in error",
+                    text = stringResource(R.string.signin_error),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingFour
                 )
@@ -251,7 +244,7 @@ fun SignIn(
                         width = 120.dp,
                     ) {
                         Text(
-                            text = "OK",
+                            text = stringResource(R.string.ok),
                             color = AppTheme.colors.DarkerBackground,
                             style = AppTheme.textStyles.HeadingSix
                         )

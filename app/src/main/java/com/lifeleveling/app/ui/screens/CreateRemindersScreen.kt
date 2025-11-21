@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,25 +69,25 @@ fun CreateReminderScreen(
         Reminder(9, "", R.drawable.document, null, false, 0, 0, 0),
         Reminder(10, "", R.drawable.doctor, null, false, 0, 0, 0),
     )
-    val hourOptions = listOf( "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11","12")
-    val minutesOptions = listOf("00", "01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16",
-        "17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41",
-        "42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"
-        )
+    val hourOptions = stringArrayResource(R.array.hour_array).toList()
+    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
     val amOrPmOptions = listOf(
-        "AM", "PM"
+        stringResource(R.string.am),
+        stringResource(R.string.pm),
     )
     val hoursDaysWeeks = listOf(
-        "Hours",
-        "Days",
-        "Weeks"
-    )
+        stringResource(R.string.hours),
+        stringResource(R.string.days),
+        stringResource(R.string.weeks),
+
+        )
     val daysWeeksMonthsYearsList = listOf(
-        "Days",
-        "Weeks",
-        "Months",
-        "Years",
-    )
+        stringResource(R.string.days),
+        stringResource(R.string.weeks),
+        stringResource(R.string.months),
+        stringResource(R.string.years),
+
+        )
 
     Surface(
 
@@ -104,7 +105,7 @@ fun CreateReminderScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
                 Text(
-                    text = "Add Reminders",
+                    text = stringResource(R.string.add_reminders),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -128,14 +129,14 @@ fun CreateReminderScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ){
                         Text(
-                            text = "Title:",
+                            text = stringResource(R.string.title_colon),
                             color = AppTheme.colors.SecondaryOne,
                             style = AppTheme.textStyles.HeadingFive
                         )
                         CustomTextField(
                             value = createdReminderTitle,
                             onValueChange = { createdReminderTitle = it },
-                            placeholderText = "Reminder Title",
+                            placeholderText = stringResource(R.string.reminder_title),
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -143,7 +144,7 @@ fun CreateReminderScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ){
                             Text(
-                                text = "Icon:",
+                                text = stringResource(R.string.icon),
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
@@ -163,7 +164,7 @@ fun CreateReminderScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
                             Text(
-                                text = "Starting at:",
+                                text = stringResource(R.string.starting_at),
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
@@ -182,7 +183,7 @@ fun CreateReminderScreen(
                                 )
 
                                 Text(
-                                    text = ":",
+                                    text = stringResource(R.string.hour_minute_colon),
                                     color = AppTheme.colors.SecondaryOne,
                                     style = AppTheme.textStyles.HeadingFive,
                                     modifier = Modifier
@@ -216,8 +217,7 @@ fun CreateReminderScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
                             Text(
-                                text = "Remind me every:",
-                                color = AppTheme.colors.SecondaryOne,
+                                text = stringResource(R.string.remind_me_every),                                color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
                             Row(
@@ -273,8 +273,7 @@ fun CreateReminderScreen(
 
                                     )
                                     Text(
-                                        text = "Set as daily",
-                                        style = AppTheme.textStyles.Default,
+                                        text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
                                         color = AppTheme.colors.Gray
                                     )
                                 }
@@ -302,8 +301,7 @@ fun CreateReminderScreen(
                                             }
                                         )
                                         Text(
-                                            text = "Set up week days",
-                                            style = AppTheme.textStyles.Default,
+                                            text = stringResource(R.string.checkbox_weekdays),                                            style = AppTheme.textStyles.Default,
                                             color = AppTheme.colors.Gray
                                         )
                                     }
@@ -316,8 +314,7 @@ fun CreateReminderScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
                             Text(
-                                text = "Repeat for:",
-                                color = AppTheme.colors.SecondaryOne,
+                                text = stringResource(R.string.repeat_for),                                color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
                             Row(
@@ -372,8 +369,7 @@ fun CreateReminderScreen(
 
                                     )
                                     Text(
-                                        text = stringResource(R.string.indefinitely),
-                                        style = AppTheme.textStyles.Default,
+                                        text = stringResource(R.string.repeats_indefinitely),                                        style = AppTheme.textStyles.Default,
                                         color = AppTheme.colors.Gray
                                     )
                                 }
