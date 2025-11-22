@@ -164,6 +164,89 @@ fun LevelAndProgress(
     }
 }
 
+@Composable
+fun HealthDisplay(
+    //modifier: Modifier = Modifier,
+    showHealthTip: MutableState<Boolean>,
+    fightMeditateSwitch: MutableState<Int>,
+    repo: FirestoreRepository = FirestoreRepository(),
+    logger: ILogger = AndroidLogger(),
+) {
+    var currentHealth by remember { mutableStateOf(0) }
+    var maxHealth by remember { mutableStateOf(1) }   // avoid divide-by-zero
+
+    // Load current user once, like LevelAndProgress
+    LaunchedEffect(Unit) {
+        val user = repo.getCurrentUser(logger)
+        if (user != null) {
+            currentHealth = user.currHealth.toInt()
+            maxHealth = user.maxHealth.toInt()
+        } else {
+            logger.e("Home", "HealthDisplay: could not load current user.")
+        }
+    }
+
+    val safeMax = maxHealth.coerceAtLeast(1)
+    val progress = (currentHealth.toFloat() / safeMax.toFloat()).coerceIn(0f, 1f)
+
+    Column(
+        modifier = Modifier
+            //.weight(.2f)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {// This line of health display
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+                ) {
+            // Heart
+            ShadowedIcon(
+                modifier = Modifier.size(20.dp),
+                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                tint = AppTheme.colors.SecondaryThree,
+                shadowOffset = Offset(4f, 4f)
+            )
+
+            // Health text
+            Text(
+                text = stringResource(R.string.health_display, currentHealth, maxHealth),
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.Gray
+            )
+
+            // Info pop-up button
+            ShadowedIcon(
+                imageVector = ImageVector.vectorResource(R.drawable.info),
+                tint = AppTheme.colors.FadedGray,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable {
+                        //showHealthTip.value = !showHealthTip.value
+                        if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
+                    }
+            )
+        }
+
+        // Health progress bar
+        ProgressBar(
+            progress = progress,
+            progressColor = AppTheme.colors.SecondaryThree
+        )
+
+        // Fight / Meditate switch
+        SlidingSwitch(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            options = listOf(
+                stringResource(R.string.fight),
+                stringResource(R.string.meditate)
+            ),
+            selectedIndex = fightMeditateSwitch.value,
+            onOptionSelected = { fightMeditateSwitch.value = it },
+        )
+    }
+}
+
+
 /**
  * Display of the equipment boxes
  * @param modifier Recommended passed in variables are .align(Alignment.TopStart).zIndex(1f)
