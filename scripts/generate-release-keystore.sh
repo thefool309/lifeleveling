@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+[[ -f ".env" ]] && echo "FOUND" || echo "NOT FOUND"
 # shellcheck disable=SC1091
-if [[ -f ".env" ]]; then
-  set -a           # automatically export all variables
-  source ".env"    # load variables
-  set +a
-fi
-
+source ".env"
+echo "DEBUG: REPO='$REPO'"
 KEYSTORE="release.keystore"
 
 SECRET_KEYSTORE="ANDROID_KEYSTORE_BASE64"
