@@ -27,6 +27,18 @@ jobs:
 
       - name: Rename APK
         run: mv ./artifacts/latest-build.apk ./app-${{ github.event.release.tag_name }}.apk
+      - name: Sign APK
+        run: |
+          echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > release.keystore
+
+          # Sign the APK
+          apksigner sign \
+            --ks release.keystore \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_KEY_PASSWORD" \
+            --out signed-${{ github.event.release.tag_name }}.apk \
+          app-${{ github.event.release.tag_name }}.apk
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
