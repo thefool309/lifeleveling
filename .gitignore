@@ -56,4 +56,4 @@ node_modules/
 *.local
 
 *.jks
-*.keystore
+*.keystore*

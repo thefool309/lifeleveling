@@ -2,7 +2,7 @@
 set -euo pipefail
 [[ -f ".env" ]] && echo "FOUND" || echo "NOT FOUND"
 # shellcheck disable=SC1091
-source ".env"
+export $(grep -v '^#' .env | xargs)
 echo "DEBUG: REPO='$REPO'"
 KEYSTORE="release.keystore"
 
