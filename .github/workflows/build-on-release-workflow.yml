@@ -31,8 +31,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip
-          sudo apt-get install -y zipalign apksigner
-          
+
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip cmdline-tools.zip -d $HOME/android-sdk/
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0"
+
+          echo "$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_PATH
+    
+    
           echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > release.keystore
 
           # Sign the APK
