@@ -29,6 +29,10 @@ jobs:
         run: mv ./artifacts/latest-build.apk ./app-${{ github.event.release.tag_name }}.apk
       - name: Sign APK
         run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          sudo apt-get install -y zipalign apksigner
+          
           echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > release.keystore
 
           # Sign the APK
@@ -38,13 +42,20 @@ jobs:
             --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" \
             --key-pass "pass:$ANDROID_KEY_PASSWORD" \
             --out signed-${{ github.event.release.tag_name }}.apk \
-          app-${{ github.event.release.tag_name }}.apk
+              app-${{ github.event.release.tag_name }}.apk
+          apksigner verify --verbose signed-${{ github.event.release.tag_name }}.apk
+          rm release.keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
           name: app-release-${{ github.event.release.tag_name }}
-          files: ./*.apk
+          files: signed-${{ github.event.release.tag_name }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
