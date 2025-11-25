@@ -1,6 +1,7 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
+import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -18,14 +19,16 @@ import kotlin.Long
  * This is instantiated as an object, then the functions are called from the object.
  * This is for access to private member variables(properties),
  * to simplify the use of `Firebase.firestore` and `Firebase.auth`.
- * @author Felipe
+ * @author fdesouza1992
  * @author thefool309
  * @property db a shortened alias for `Firebase.firestore`
  * @property auth a shortened alias for `Firebase.auth`
  */
 class FirestoreRepository {
-    private val db = Firebase.firestore
     private val auth = Firebase.auth
+
+    private val db = Firebase.firestore
+
 
     /**
      * Velma wuz here :3
@@ -465,6 +468,11 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Increments the players level by one in the firestore data
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @see ILogger
+     * */
     suspend fun incrementLevel(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -487,7 +495,12 @@ class FirestoreRepository {
         }
     }
 
-    // By Velma
+    /**
+    * A function for adding Xp to the users firestore data
+    * @param xp A double representing the amount of xp to be added
+     * @param logger A double representing the amount of xp to be added
+     * @see ILogger
+     */
     suspend fun addXp(xp: Double, logger: ILogger) : Users? {
         val userId: String? = getUserId()
         if(userId == null) {

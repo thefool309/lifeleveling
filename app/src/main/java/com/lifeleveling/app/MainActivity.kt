@@ -39,7 +39,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.BuildConfig
+import com.lifeleveling.app.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -78,6 +78,8 @@ class MainActivity : ComponentActivity() {
 
         // It is important to do this before any Firebase use
         if (BuildConfig.DEBUG) {
+            // 10.0.2.2 is the special IP address to connect to the 'localhost' of
+            // the host computer from an Android emulator.
             Firebase.firestore.useEmulator("10.0.2.2", 8080)
             Firebase.auth.useEmulator("10.0.2.2", 9099)
         }
