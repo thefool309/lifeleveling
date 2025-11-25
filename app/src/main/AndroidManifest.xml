@@ -30,7 +30,7 @@
 
         </activity>
         <service
-                android:name="com.lifeleveling.app."
+                android:name="com.lifeleveling.app.services.LLFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -43,7 +43,7 @@
              notification message. See README(https://goo.gl/6BKBk7) for more. -->
         <meta-data
                 android:name="com.google.firebase.messaging.default_notification_color"
-                android:resource="com.lifeleveling.app.Color.FadedGray_Light" />
+                android:resource="@color/purple_700" />
     </application>
 
 </manifest>

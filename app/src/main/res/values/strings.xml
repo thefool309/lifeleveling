@@ -189,4 +189,9 @@
     <!-- Calendar -->
     <string name="my_reminders">My Reminders</string>
 
+    <!-- FCM/androidSettings -->
+    <string name="reminder_channel">Reminders</string>
+    <string name="reminder_channel_description">The default channel for all reminders</string>
+
+
 </resources>
