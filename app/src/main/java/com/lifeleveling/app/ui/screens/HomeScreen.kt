@@ -87,7 +87,7 @@ fun HomeScreen() {
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
                                 .offset(x = 70.dp, y = (-10).dp)
-                                .fillMaxWidth(1.5f)
+                                .fillMaxWidth(1f)
                                 .aspectRatio(1f)
                                 .alpha(0.9f),
                             contentScale = ContentScale.Crop
