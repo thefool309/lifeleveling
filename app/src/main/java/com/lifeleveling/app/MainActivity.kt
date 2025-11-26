@@ -1,7 +1,10 @@
 package com.lifeleveling.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -31,6 +34,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -42,6 +46,7 @@ import com.google.firebase.auth.ktx.auth
 import com.lifeleveling.app.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
@@ -67,14 +72,58 @@ import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
+import com.lifeleveling.app.R
+import android.Manifest
 
 class MainActivity : ComponentActivity() {
+
+
+
+    val logger = AndroidLogger()
+    private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM handles everything here there is nothing else to do, but I added it in case we find something we wish to do here later
+        }
+        else {
+            Toast.makeText(applicationContext, R.string.permission_denied_notif, Toast.LENGTH_SHORT).show()
+            logger.d("Permissions", getString(R.string.permission_denied_notif))
+        }
+    }
+
+    /**
+     * function for asking the user for notification permission. Will be kept at the top of whatever activity or fragment is being used
+     * https://firebase.google.com/docs/cloud-messaging/get-started?platform=android#request-permission13
+     * @see androidx.core.content.ContextCompat
+     * @see android.Manifest
+     * @see android.content.pm.PackageManager
+     * @see android.content.pm.PackageManager.PERMISSION_GRANTED
+     */
+    private fun askNotificationPermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                //FCM SDK (and our app) can post notifications under this condition
+                // no action is necessary
+            }
+            else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user the features that will be enabled by granting the POST_NOTIFICATION permission.
+                // Should have an "Ok" and "No thanks" button. If the user selects "OK,' directly request the permission.
+                // If the user selects "No Thanks," allow the user to continue without notifications.
+                Toast.makeText(applicationContext, "We're finna ask you for notifications permissions", Toast.LENGTH_SHORT).show()
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            else {
+                // ask for permissions Directly
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     private lateinit var googleLauncher: ActivityResultLauncher<Intent>
     private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // It is important to do this before any Firebase use
         if (BuildConfig.DEBUG) {
@@ -84,6 +133,7 @@ class MainActivity : ComponentActivity() {
             Firebase.auth.useEmulator("10.0.2.2", 9099)
         }
 
+        requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
         enableEdgeToEdge(

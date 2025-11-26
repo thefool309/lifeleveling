@@ -192,6 +192,6 @@
     <!-- FCM/androidSettings -->
     <string name="reminder_channel">Reminders</string>
     <string name="reminder_channel_description">The default channel for all reminders</string>
-
+    <string name="permission_denied_notif">"Notification Permission Denied. You will not receive notifications from FCM"</string>
 
 </resources>
