@@ -7,10 +7,10 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.util.ILogger
 
 /**
- *
- * @param message The `RemoteMessage` from firebase
+ * A service for handling Firebase Cloud Messaging interactions will handle receiving the messages and sending the notifications
  * @see FirebaseMessagingService.onMessageReceived
  * @see android.app.Service
+ * @see NotificationCompat
  */
 class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService() {
 
@@ -42,6 +42,10 @@ class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService
                 .setContentText(message.data["message"])
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
+        }
+        // Check if message contains a notification payload.
+        message.notification?.let {
+            logger.d(TAG, "Message Notification Body: ${it.body}")
         }
     }
 }
