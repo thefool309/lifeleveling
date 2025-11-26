@@ -34,6 +34,11 @@ fun AppNavHost() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
 
+    // Shows loading screen as it looks if the user is logged in
+    if (userState.isLoading) {
+
+    }
+
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val hideBottomBar = listOf("signIn", "register", "forgotPassword")
     val showBottomBar = currentRoute !in hideBottomBar
@@ -61,7 +66,7 @@ fun AppNavHost() {
             // Auth Screens
             composable("signIn") { SignIn() }
             composable("createAccount") { CreateAccountScreen() }
-            composable("forgotPassword") { ForgotPasswordScreen() }
+//            composable("forgotPassword") { ForgotPasswordScreen() }
 
             // Main Screens
             composable("home") { HomeScreen() }
@@ -69,6 +74,10 @@ fun AppNavHost() {
             composable("stats") { StatsScreen() }
             composable("streaks") { StreaksScreen() }
             composable("settings") { SettingScreen() }
+            composable("notifications") { NotificationScreen() }
+            composable("selfCare") { SelfCareScreen() }
+            composable("termsAndPrivacy") { TermsAndPrivacyScreen() }
+            composable("journeyStats") { UserJourneyScreen() }
         }
     }
 }

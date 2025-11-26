@@ -9,11 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class Application : Application(), DefaultLifecycleObserver {
+class LifeLevelingApplication : Application(), DefaultLifecycleObserver {
     lateinit var userManager: UserManager
 
     override fun onCreate() {
-        super.onCreate()
+        super<Application>.onCreate()
 
         userManager = UserManager()
 

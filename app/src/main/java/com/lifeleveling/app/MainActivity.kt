@@ -46,17 +46,21 @@ import com.lifeleveling.app.navigation.MainScreenNavigationHost
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.*
 import com.lifeleveling.app.ui.theme.HideSystemBars
+import com.lifeleveling.app.ui.theme.LoadingOverlay
 import com.lifeleveling.app.ui.theme.StartLogic
+import com.lifeleveling.app.ui.theme.StartLogicFactory
 // Temp Check to ensure firebase connection
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
-    private val userManager: UserManager by viewModels()
+    private val userManager: UserManager
+        get() = (application as LifeLevelingApplication).userManager
 
 //    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
 //    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
@@ -64,9 +68,38 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Global edge to edge hides the system bars
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Transparent.toArgb()
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
+                darkScrim = Color.Transparent.toArgb()
+            )
+        )
+
         setContent {
             val navController = rememberNavController()
             val userState by userManager.uiState.collectAsState()
+
+            // Splash logic startup ---------------------------------------
+            val startLogic: StartLogic = viewModel(factory = StartLogicFactory(userManager))
+            val isInitialized by startLogic.isInitialized.collectAsState()
+            var appReady by remember { mutableStateOf(false) }
+            val startTime = remember { System.currentTimeMillis() }
+            val minSplashTime = 2000L
+
+            LaunchedEffect(isInitialized) {
+                if (isInitialized) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val remaining = minSplashTime - elapsed
+                    if (remaining > 0) delay(remaining)
+                    appReady = true
+                }
+            }
+            // End splash -------------------------------------------------
 
             CompositionLocalProvider(
                 LocalUserManager provides userManager,
@@ -75,7 +108,38 @@ class MainActivity : ComponentActivity() {
                 LifelevelingTheme(
                     darkTheme = userState.userData?.isDarkTheme ?: true
                 ) {
-                    AppNavHost()
+                    // System icon change on navigation bars to ensure they are visible when pulled
+                    LaunchedEffect(userState.userData?.isDarkTheme) {
+                        enableEdgeToEdge(
+                            statusBarStyle = if(userState.userData?.isDarkTheme == true) {
+                                SystemBarStyle.dark(Color.Transparent.toArgb())
+                            } else {
+                                SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                            },
+                            navigationBarStyle = if(userState.userData?.isDarkTheme == true) {
+                                SystemBarStyle.dark(Color.Transparent.toArgb())
+                            } else {
+                                SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                            }
+                        )
+                    }
+
+                    // Keeps system bars hidden
+                    HideSystemBars()
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        // Checks if the app is done loading, shows overlay at start
+                        if (!appReady) { SplashAnimationOverlay() }
+                        else {
+                            // Main screens
+                            AppNavHost()
+                            // Will show a loading wheel if the state is showing it is loading
+                            if(userState.isLoading) LoadingOverlay()
+                        }
+                    }
                 }
             }
         }

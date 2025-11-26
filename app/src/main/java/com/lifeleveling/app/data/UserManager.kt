@@ -247,6 +247,10 @@ class UserManager(
 
     fun logout() = authRepo.logout()
 
+    fun setLoggedOut() {
+        userAllData.update { it.copy(isLoggedIn = false, userData = null) }
+    }
+
     fun sendPasswordResetEmail(email: String) = viewModelScope.launch {
         try {
             authRepo.sendPasswordResetEmail(email)
