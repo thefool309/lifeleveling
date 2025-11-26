@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,9 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.EquipmentDisplay
+import com.lifeleveling.app.ui.components.HealthDisplay
 import com.lifeleveling.app.ui.components.HealthToolTip
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.LevelAndProgress
@@ -47,9 +51,12 @@ import com.lifeleveling.app.ui.models.StatsUi
 //@Preview
 @Composable
 fun HomeScreen() {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+
     val showLevelTip = remember { mutableStateOf(false) }
     val showHealthTip = remember { mutableStateOf(false) }
-    val fightMeditateSwitch = remember { mutableStateOf(0) }
+    var fightMeditateSwitch = userState.userData?.fightOrMeditate ?: 0
 
     // Main screen pulling everything in 16.dp from edge
     Box(
@@ -81,7 +88,7 @@ fun HomeScreen() {
                         .matchParentSize(),
                 ) {
                     // Background Image
-                    if (fightMeditateSwitch.value == 0){
+                    if (fightMeditateSwitch == 0){
                         Image(
                             painter = painterResource(R.drawable.dungeon_door),
                             contentDescription = null,
@@ -195,49 +202,15 @@ fun HomeScreen() {
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {// This line of health display
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    // Heart
-                    ShadowedIcon(
-                        modifier = Modifier
-                            .size(20.dp),
-                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                        tint = AppTheme.colors.SecondaryThree,
-                        shadowOffset = Offset(4f, 4f)
-                    )
-                    // Health Text
-                    Text(
-                        text = stringResource(R.string.health_display, TestUser.currentHealth, TestUser.maxHealth),
-                        style = AppTheme.textStyles.Default,
-                        color = AppTheme.colors.Gray
-                    )
-                    // Info Pop-up Button
-                    ShadowedIcon(
-                        imageVector = ImageVector.vectorResource(R.drawable.info),
-                        tint = AppTheme.colors.FadedGray,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
-                            }
-                    )
-                }
-
-                // Progress bar
-                ProgressBar(
-                    progress = TestUser.currentHealth.toFloat() / TestUser.maxHealth,
-                    progressColor = AppTheme.colors.SecondaryThree
-                )
+                HealthDisplay( showHealthTip = showHealthTip )
 
                 // Fight to Meditate Switch
                 SlidingSwitch(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),
                     options = listOf(stringResource(R.string.fight), stringResource(R.string.meditate)),
-                    selectedIndex = fightMeditateSwitch.value,
-                    onOptionSelected = { fightMeditateSwitch.value = it },
+                    selectedIndex = fightMeditateSwitch,
+                    onOptionSelected = { fightMeditateSwitch = it },
                 )
             }
         }

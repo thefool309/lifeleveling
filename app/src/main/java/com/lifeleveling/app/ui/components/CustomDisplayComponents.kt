@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.models.StatsUi
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.util.AndroidLogger
@@ -47,9 +49,9 @@ fun found in this file
  * While it is loading, a small progress indicator is shown.
  *
  * @param showLevelTip The bool that controls showing the tooltip window
- * @param statsUi Optional stats model so when null, stats are fetched from Firestore
- * @param repo Used to load the current user when [statsUi] is null.
- * @param logger Used for reporting any errors while loading stats from Firestore.
+// * @param statsUi Optional stats model so when null, stats are fetched from Firestore
+// * @param repo Used to load the current user when [statsUi] is null.
+// * @param logger Used for reporting any errors while loading stats from Firestore.
  *
  * @author Elyseia, fdesouza1992
  *
@@ -58,58 +60,65 @@ fun found in this file
 fun LevelAndProgress(
     modifier: Modifier = Modifier,// add a weight for how much of the page or a size
     showLevelTip: MutableState<Boolean>,
-    statsUi: StatsUi? = null,
-    repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = AndroidLogger(),
+//    statsUi: StatsUi? = null,
+//    repo: FirestoreRepository = FirestoreRepository(),
+//    logger: ILogger = AndroidLogger(),
 ) {
+//
+//    var isLoading by remember { mutableStateOf(statsUi == null) }
+//    var uiState by remember { mutableStateOf(statsUi) }
+//
+//    // Decide: use provided statsUi, or fetch from Firestore if null
+//    LaunchedEffect(statsUi) {
+//        if (statsUi != null) {
+//            uiState = statsUi
+//            isLoading = false
+//        } else {
+//            // No stats provided → fetch current user from Firestore.
+//            isLoading = true
+//            val user = repo.getCurrentUser(logger)
+//            uiState = user?.let { u ->
+//                val baseStats = u.stats
+//                StatsUi(
+//                    level            = u.level.toInt(),
+//                    currentXp        = u.currentXp.toInt(),
+//                    xpToNextLevel    = u.xpToNextLevel.toInt(),
+//                    usedLifePoints   = 0,
+//                    unusedLifePoints = u.lifePoints.toInt(),                // total life point pool
+//                    strength         = baseStats.strength.toInt(),
+//                    defense          = baseStats.defense.toInt(),
+//                    intelligence     = baseStats.intelligence.toInt(),
+//                    agility          = baseStats.agility.toInt(),
+//                    health           = baseStats.health.toInt()
+//                )
+//            }
+//            isLoading = false
+//        }
+//    }
 
-    var isLoading by remember { mutableStateOf(statsUi == null) }
-    var uiState by remember { mutableStateOf(statsUi) }
+//    when {
+//        isLoading -> {
+//            // Small inline loader
+//            CircularProgressIndicator(
+//                color = AppTheme.colors.SecondaryTwo
+//            )
+//        }
+//
+//        uiState != null -> {
+//            val data = uiState!!
+//
+//            val progress = if (data.xpToNextLevel > 0) {
+//                (data.currentXp.toFloat() / data.xpToNextLevel.toFloat()).coerceIn(0f, 1f)
+//            } else {
+//                0f
+//            }
 
-    // Decide: use provided statsUi, or fetch from Firestore if null
-    LaunchedEffect(statsUi) {
-        if (statsUi != null) {
-            uiState = statsUi
-            isLoading = false
-        } else {
-            // No stats provided → fetch current user from Firestore.
-            isLoading = true
-            val user = repo.getCurrentUser(logger)
-            uiState = user?.let { u ->
-                val baseStats = u.stats
-                StatsUi(
-                    level            = u.level.toInt(),
-                    currentXp        = u.currentXp.toInt(),
-                    xpToNextLevel    = u.xpToNextLevel.toInt(),
-                    usedLifePoints   = 0,
-                    unusedLifePoints = u.lifePoints.toInt(),                // total life point pool
-                    strength         = baseStats.strength.toInt(),
-                    defense          = baseStats.defense.toInt(),
-                    intelligence     = baseStats.intelligence.toInt(),
-                    agility          = baseStats.agility.toInt(),
-                    health           = baseStats.health.toInt()
-                )
-            }
-            isLoading = false
-        }
-    }
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
 
-    when {
-        isLoading -> {
-            // Small inline loader
-            CircularProgressIndicator(
-                color = AppTheme.colors.SecondaryTwo
-            )
-        }
-
-        uiState != null -> {
-            val data = uiState!!
-
-            val progress = if (data.xpToNextLevel > 0) {
-                (data.currentXp.toFloat() / data.xpToNextLevel.toFloat()).coerceIn(0f, 1f)
-            } else {
-                0f
-            }
+    val level = userState.userData?.level ?: 0
+    val currentExp = userState.userData?.currentExp ?: 0
+    val expToNextLevel = userState.expToNextLevel
 
             Column(
                 modifier = modifier
@@ -124,7 +133,8 @@ fun LevelAndProgress(
                 ) {
                     // Level Display
                     Text(
-                        text = stringResource(R.string.level, data.level),
+//                        text = stringResource(R.string.level, data.level),
+                        text = stringResource(R.string.level, level),
                         color = AppTheme.colors.SecondaryOne,
                         style = AppTheme.textStyles.HeadingThree.copy(
                             shadow = Shadow(
@@ -149,19 +159,21 @@ fun LevelAndProgress(
 
                 // Progress Bar
                 ProgressBar(
-                    progress = data.currentXp.toFloat() / data.xpToNextLevel
+//                    progress = data.currentXp.toFloat() / data.xpToNextLevel
+                    progress = currentExp.toFloat() / expToNextLevel.toFloat(),
                 )
 
                 // Experience Display
                 Text(
-                    text = stringResource(R.string.exp_display, data.currentXp, data.xpToNextLevel),
+//                    text = stringResource(R.string.exp_display, data.currentXp, data.xpToNextLevel),
+                    text = stringResource(R.string.exp_display, currentExp, expToNextLevel),
                     color = AppTheme.colors.Gray,
                     style = AppTheme.textStyles.Default,
                     modifier = Modifier.align(Alignment.End)
                 )
             }
-        } else -> {}
-    }
+//        } else -> {}
+//    }
 }
 
 /**
@@ -309,5 +321,60 @@ fun EquipmentDisplay(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun HealthDisplay(
+    modifier: Modifier = Modifier,
+    showHealthTip: MutableState<Boolean>,
+) {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+
+    val currentHealth = userState.userData?.currentHealth ?: 0
+    val maxHealth = userState.maxHealth
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        // This line of health display
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Heart
+            ShadowedIcon(
+                modifier = Modifier
+                    .size(20.dp),
+                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                tint = AppTheme.colors.SecondaryThree,
+                shadowOffset = Offset(4f, 4f)
+            )
+            // Health Text
+            Text(
+                text = stringResource(R.string.health_display, currentHealth, maxHealth),
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.Gray
+            )
+            // Info Pop-up Button
+            ShadowedIcon(
+                imageVector = ImageVector.vectorResource(R.drawable.info),
+                tint = AppTheme.colors.FadedGray,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable {
+                        showHealthTip.value = !showHealthTip.value
+                    }
+            )
+        }
+
+        // Progress bar
+        ProgressBar(
+            progress = currentHealth.toFloat() / maxHealth,
+            progressColor = AppTheme.colors.SecondaryThree
+        )
     }
 }

@@ -25,6 +25,7 @@ data class UserData(
     val lifePointsTotal: Long = 3,
     val profileCreatedOn: Long = 0,
     val lastUpdate: Long = 0,
+    val fightOrMeditate: Int = 0,
 
     val stats: Stats = Stats(),
     val reminders: List<Reminder> = listOf(),
