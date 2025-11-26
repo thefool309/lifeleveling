@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
 data class Users(
@@ -22,7 +23,6 @@ data class Users(
     // Badges can be stored in arrays of Badge objects on user doc.
     val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
     val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
-    val firebaseToken: String? = null
     ) {
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
@@ -101,4 +101,10 @@ data class Streak(
     val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
+)
+
+data class FcmTokens(
+    val uID: String = "",
+    val token: String = "",
+    val lastUpdate: Timestamp? = null
 )

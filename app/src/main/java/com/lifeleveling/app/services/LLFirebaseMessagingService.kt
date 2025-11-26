@@ -1,7 +1,5 @@
 package com.lifeleveling.app.services
 
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -14,6 +12,9 @@ import kotlinx.coroutines.runBlocking
  * A service for handling Firebase Cloud Messaging interactions will handle receiving the messages and sending the notifications
  * Override base class methods to handle any events required by the application. All methods are invoked on a background thread,
  * and may be called when the app is in the background or not open
+ * @property channelID and arbitrary channelID I selected for the notification channel
+ * @property logTag the tag for the logger to point you back to this file
+ * @property repo a `FirestoreRepository()` object for saving FcmTokens
  * @see FirebaseMessagingService
  * @see android.app.Service
  * @see NotificationCompat
@@ -21,8 +22,8 @@ import kotlinx.coroutines.runBlocking
  */
 class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService() {
 
-    val CHANNEL_ID = "com.lifeleveling.app.FirebaseMessagingService"
-    val TAG = "FirebaseMessagingService"
+    val channelID = "LifeLevelingFirebaseMessagingService"
+    val logTag = "FirebaseMessagingService"
 
     val repo = FirestoreRepository()
 
@@ -36,15 +37,15 @@ class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         if(com.lifeleveling.app.BuildConfig.DEBUG) {
-            logger.d(TAG, "Message ID: " + message.messageId)
+            logger.d(logTag, "Message ID: " + message.messageId)
         }
         if (message.data.isNotEmpty()) {
 
             if(com.lifeleveling.app.BuildConfig.DEBUG) {
-                logger.d(TAG, "Message data payload: " + message.data)
+                logger.d(logTag, "Message data payload: " + message.data)
             }
             // create the NotificationCompat.Builder
-            val builder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+            val builder = NotificationCompat.Builder(applicationContext, channelID)
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(message.data["title"])
                 .setContentText(message.data["message"])
@@ -53,11 +54,11 @@ class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService
         }
         // Check if message contains a notification payload.
         message.notification?.let {
-            logger.d(TAG, "Message Notification Body: ${it.body}")
+            logger.d(logTag, "Message Notification Body: ${it.body}")
         }
     }
     override fun onNewToken(token: String) {
-        logger.d(TAG, "Refreshed token: $token")
+        logger.d(logTag, "Refreshed token: $token")
 
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
@@ -65,10 +66,8 @@ class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService
         sendRegistrationToServer(token)
     }
     private fun sendRegistrationToServer(token: String?) {
-        // TODO: Implement this method to send token to your app server.
+        // send token to the Firestore.
         runBlocking {   repo.setFirebaseToken(token, logger) }
-        logger.d(TAG, "sendRegistrationTokenToServer($token)")
-
-
+        logger.d(logTag, "sendRegistrationTokenToServer($token)")
     }
 }
