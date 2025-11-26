@@ -43,15 +43,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
-import com.lifeleveling.app.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
-import com.lifeleveling.app.navigation.TempCalendarScreen
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
 
@@ -72,13 +69,13 @@ import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
-import com.lifeleveling.app.R
 import android.Manifest
 
 class MainActivity : ComponentActivity() {
 
-
-
+    //toggle this to true if you want to use firebaseEmulators
+    val useFirebaseEmulators = false;
+    val logTag = "MainActivity"
     val logger = AndroidLogger()
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
@@ -135,14 +132,28 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         askNotificationPermission()
 
-        // It is important to do this before any Firebase use
-        if (BuildConfig.DEBUG) {
-            // 10.0.2.2 is the special IP address to connect to the 'localhost' of
-            // the host computer from an Android emulator.
-            Firebase.firestore.useEmulator("10.0.2.2", 8080)
-            Firebase.auth.useEmulator("10.0.2.2", 9099)
+        // if the quick toggle is turned and you're in debug build
+        if (useFirebaseEmulators) {
+            // It is important to do this before any Firebase use
+            if (BuildConfig.DEBUG) {
+                // 10.0.2.2 is the special IP address to connect to the 'localhost' of
+                // the host computer from an Android emulator.
+                try{
+                    Firebase.firestore.useEmulator("10.0.2.2", 8080)
+                    Firebase.auth.useEmulator("10.0.2.2", 9099)
+                    logger.d(logTag, "Using Firebase Emulator...")
+                }
+                catch(ex: Exception) {
+                    logger.e(logTag, "Could not connect to Firebase Emulators. error message: ",ex)
+                }
+            }
+            else {
+                logger.e(logTag, "Not in a Debug Build. Using the Production dataset...")
+            }
         }
-
+        else {
+            logger.d(logTag, "useFirebaseEmulator is false. Using the Production dataset...")
+        }
 
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
