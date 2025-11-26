@@ -8,7 +8,9 @@ import com.lifeleveling.app.util.ILogger
 
 /**
  * A service for handling Firebase Cloud Messaging interactions will handle receiving the messages and sending the notifications
- * @see FirebaseMessagingService.onMessageReceived
+ * Override base class methods to handle any events required by the application. All methods are invoked on a background thread,
+ * and may be called when the app is in the background or not open
+ * @see FirebaseMessagingService
  * @see android.app.Service
  * @see NotificationCompat
  */
