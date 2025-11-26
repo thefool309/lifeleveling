@@ -93,8 +93,8 @@ class MainActivity : ComponentActivity() {
     /**
      * function for asking the user for notification permission. Will be kept at the top of whatever activity or fragment is being used
      * This function should only be necessary in android TIRAMASU and higher so it is wrapped in a check to see the androidVersion
-     *
-     * https://firebase.google.com/docs/cloud-messaging/get-started?platform=android#request-permission13
+     * if using a lower version of android than 12 the phone will request notification permissions automatically the first time a notification channel is created
+     * MORE INFO: https://firebase.google.com/docs/cloud-messaging/get-started?platform=android#request-permission13
      * @see androidx.core.content.ContextCompat
      * @see android.Manifest
      * @see android.content.pm.PackageManager
