@@ -104,4 +104,7 @@ dependencies {
     implementation("com.kizitonwose.calendar:compose-multiplatform:2.6.2")
 //    // Since minSDK is 24, calendar API requires 26+ due to the java.time calls that are used. Desugar allows compat on older vers. by rewriting into older java code
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-process:2.10.0")
 }
