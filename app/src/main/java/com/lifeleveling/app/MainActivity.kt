@@ -85,6 +85,8 @@ class MainActivity : ComponentActivity() {
             // FCM handles everything here there is nothing else to do, but I added it in case we find something we wish to do here later
         }
         else {
+            // a Toast message informing the user they denied permissions and will not recieve notifications.
+            // pretty much anywhere you see a Toast message, it is a filler that can be replaced if you wish
             Toast.makeText(applicationContext, R.string.permission_denied_notif, Toast.LENGTH_SHORT).show()
             logger.d("Permissions", getString(R.string.permission_denied_notif))
         }
@@ -106,10 +108,15 @@ class MainActivity : ComponentActivity() {
                 //FCM SDK (and our app) can post notifications under this condition
                 // no action is necessary
             }
+            // this if statement compares against a lot of variables
             else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // TODO: display an educational UI explaining to the user the features that will be enabled by granting the POST_NOTIFICATION permission.
-                // Should have an "Ok" and "No thanks" button. If the user selects "OK,' directly request the permission.
-                // If the user selects "No Thanks," allow the user to continue without notifications.
+                // TODO: display an educational UI explaining to the user the features that will be enabled
+                //  by granting the POST_NOTIFICATION permission.
+                //  Should have an "Ok" and "No thanks" button. If the user selects "OK,' directly request the permission.
+                //  If the user selects "No Thanks," allow the user to continue without notifications.
+                //  The above is paraphrased from the documentation link listed above MORE ON NOTIFICATION PERMISSIONS BEST PRACTICES:
+
+                // the filler solution (Can be commented out. mostly just here for an example )
                 Toast.makeText(applicationContext, "We're finna ask you for notifications permissions", Toast.LENGTH_SHORT).show()
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
@@ -123,9 +130,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var googleLauncher: ActivityResultLauncher<Intent>
     private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        askNotificationPermission()
 
         // It is important to do this before any Firebase use
         if (BuildConfig.DEBUG) {
@@ -135,7 +143,7 @@ class MainActivity : ComponentActivity() {
             Firebase.auth.useEmulator("10.0.2.2", 9099)
         }
 
-        requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
         enableEdgeToEdge(
