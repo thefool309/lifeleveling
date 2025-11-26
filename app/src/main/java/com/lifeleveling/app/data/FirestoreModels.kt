@@ -22,6 +22,7 @@ data class Users(
     // Badges can be stored in arrays of Badge objects on user doc.
     val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
     val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
+    val firebaseToken: String? = null
     ) {
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated

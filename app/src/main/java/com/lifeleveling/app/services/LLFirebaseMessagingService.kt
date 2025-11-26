@@ -6,7 +6,9 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.runBlocking
 
 /**
  * A service for handling Firebase Cloud Messaging interactions will handle receiving the messages and sending the notifications
@@ -15,13 +17,14 @@ import com.lifeleveling.app.util.ILogger
  * @see FirebaseMessagingService
  * @see android.app.Service
  * @see NotificationCompat
+ * @author thefool309
  */
 class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService() {
 
     val CHANNEL_ID = "com.lifeleveling.app.FirebaseMessagingService"
     val TAG = "FirebaseMessagingService"
 
-
+    val repo = FirestoreRepository()
 
 
     /**
@@ -63,6 +66,9 @@ class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService
     }
     private fun sendRegistrationToServer(token: String?) {
         // TODO: Implement this method to send token to your app server.
+        runBlocking {   repo.setFirebaseToken(token, logger) }
         logger.d(TAG, "sendRegistrationTokenToServer($token)")
+
+
     }
 }
