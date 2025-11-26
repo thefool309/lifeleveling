@@ -127,7 +127,7 @@ class FirestoreRepository {
      * We use a suspend function because FirebaseFirestore is async
      * @param userData a map of userData, with the key being the name of the field to be filled
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @author thefool309
+     * @author thefool309, fdesouza1992
      * @return Users?
      * @see ILogger
      */
@@ -199,7 +199,7 @@ class FirestoreRepository {
         }
     }
     /**
-     * A function for editing the Users "email" field.
+     * A function for editing the Users "email" field in the firestore data.
      * This will take the new email and update the field in Firestore Cloud storage.
      * @param email A string containing the updated email.
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
@@ -232,7 +232,7 @@ class FirestoreRepository {
     }
 
     /**
-     * A function for editing the value stored as the URL for the users photo they choose to represent themselves.
+     * A function for editing the value stored as the URL for the users photo they choose to represent themselves in the firestore data.
      * @param url A string representing the URL of the user's photo they choose to represent themselves
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309
@@ -264,7 +264,7 @@ class FirestoreRepository {
 
 
     /**
-     * increment the streaks property of the users data class
+     * increment the streaks property of the users data class in the firestore data
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
      * @return Boolean
      */
@@ -317,7 +317,7 @@ class FirestoreRepository {
 
     }
     /**
-     * set the currHealth
+     * set the currHealth value in the firestore data
      * @return Boolean
      * @param health  a long that contains the new balance
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
@@ -342,7 +342,7 @@ class FirestoreRepository {
         }
     }
     /**
-     * set the number coins to the Users firebase balance
+     * set the coins value in the Users firebase balance
      * @return Boolean
      * @param coins  a long that contains the new balance
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
@@ -422,7 +422,7 @@ class FirestoreRepository {
     }
 
     /**
-     * A toggler for setOnboardingComplete
+     * A toggler for setOnboardingComplete in the firestore database. should be called after the user has walked through a tutorial
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @returns Boolean
      * @author thefool309

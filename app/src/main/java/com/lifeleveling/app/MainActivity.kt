@@ -73,8 +73,7 @@ import android.Manifest
 
 class MainActivity : ComponentActivity() {
 
-    //toggle this to true if you want to use firebaseEmulators
-    val useFirebaseEmulators = false;
+    
     val logTag = "MainActivity"
     val logger = AndroidLogger()
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -101,11 +100,13 @@ class MainActivity : ComponentActivity() {
      */
     private fun askNotificationPermission() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // this condition is checking if the permission is granted already
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
                 //FCM SDK (and our app) can post notifications under this condition
                 // no action is necessary
             }
-            // this if statement compares against a lot of variables
+            // this if statement compares against a lot of cases.
+            //
             else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                 // TODO: display an educational UI explaining to the user the features that will be enabled
                 //  by granting the POST_NOTIFICATION permission.
@@ -123,17 +124,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
-    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        askNotificationPermission()
-
-        // if the quick toggle is turned and you're in debug build
+    //toggle this to true if you want to use firebaseEmulators
+    val useFirebaseEmulators = false;
+    private fun setupEmulators() {
         if (useFirebaseEmulators) {
+            //separate if for separate error message
             // It is important to do this before any Firebase use
             if (BuildConfig.DEBUG) {
                 // 10.0.2.2 is the special IP address to connect to the 'localhost' of
@@ -153,8 +148,49 @@ class MainActivity : ComponentActivity() {
         }
         else {
             logger.d(logTag, "useFirebaseEmulator is false. Using the Production dataset...")
-        }
 
+        }
+    }
+
+    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
+    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
+
+    /**
+     *  When the activity enters the Resumed state, it comes to the foreground, and the system invokes the onResume() callback. This is the state in which the app interacts with the user. The app stays in this state until something happens to take focus away from the app, such as the device receiving a phone call, the user navigating to another activity, or the device screen turning off.
+     *
+     * When the activity moves to the Resumed state, any lifecycle-aware component tied to the activity's lifecycle receives the ON_RESUME event. This is where the lifecycle components can enable any functionality that needs to run while the component is visible and in the foreground, such as starting a camera preview.
+     *
+     * When an interruptive event occurs, the activity enters the Paused state and the system invokes the onPause() callback.
+     *
+     * If the activity returns to the Resumed state from the Paused state, the system once again calls the onResume() method. For this reason, implement onResume() to initialize components that you release during onPause() and to perform any other initializations that must occur each time the activity enters the Resumed state.
+     * @see ActivityResultLauncher
+     * @see ActivityResultContracts
+     * @see android.app.Activity
+     * @see Intent
+     */
+    override fun onResume() {
+        super.onResume()
+    }
+
+    /**
+     *  When the activity enters the Started state, the system invokes onStart(). This call makes the activity visible to the user as the app prepares for the activity to enter the foreground and become interactive. For example, this method is where the code that maintains the UI is initialized.
+     *
+     * When the activity moves to the Started state, any lifecycle-aware component tied to the activity's lifecycle receives the ON_START event.
+     *
+     * The onStart() method completes quickly and, as with the Created state, the activity does not remain in the Started state. Once this callback finishes, the activity enters the Resumed state and the system invokes the onResume() method.
+     * @see ActivityResultLauncher
+     * @see ActivityResultContracts
+     * @see android.app.Activity
+     * @see Intent
+     */
+    override fun onStart() {
+        super.onStart()
+
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        askNotificationPermission()
+        setupEmulators()
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
         enableEdgeToEdge(
