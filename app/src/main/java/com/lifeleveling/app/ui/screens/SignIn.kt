@@ -229,7 +229,12 @@ fun SignIn() {
                 color = AppTheme.colors.SecondaryThree,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { navController.navigate("createAccount") }
+                modifier = Modifier.clickable {
+                    navController.navigate("createAccount") {
+                        popUpTo("createAccount") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
 
             // Extra spacer to make up for image blank space

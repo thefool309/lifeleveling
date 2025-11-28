@@ -271,7 +271,12 @@ fun CreateAccountScreen() {
                 color = AppTheme.colors.SecondaryThree,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { navController.navigate("signIn") }
+                modifier = Modifier.clickable {
+                    navController.navigate("signIn") {
+                        popUpTo("signIn") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }
