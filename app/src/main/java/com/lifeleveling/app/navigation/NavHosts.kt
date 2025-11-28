@@ -74,6 +74,7 @@ fun AppNavHost() {
             composable("stats") { StatsScreen() }
             composable("streaks") { StreaksScreen() }
             composable("settings") { SettingScreen() }
+
             composable("notifications") { NotificationScreen() }
             composable("selfCare") { SelfCareScreen() }
             composable("termsAndPrivacy") { TermsAndPrivacyScreen() }

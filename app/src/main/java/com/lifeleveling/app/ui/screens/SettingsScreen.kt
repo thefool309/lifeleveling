@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.CustomButton
@@ -45,13 +48,11 @@ import com.lifeleveling.app.ui.components.CustomDialog
 
 
 @Composable
-fun SettingScreen(
-    navController: NavController? = null,
-    isDarkTheme: Boolean,
-    onThemeChange: (Boolean) -> Unit,
-    onSignOut: () -> Unit ={},
-    onDeleteAccount: () -> Unit = {},
-){
+fun SettingScreen(){
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
     val scrollState = rememberScrollState()
 
     val showDeleteDialog = remember {mutableStateOf(false)}
@@ -96,10 +97,10 @@ fun SettingScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         SlidingSwitch(
                             options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
-                            selectedIndex = if (isDarkTheme) 0 else 1,
+                            selectedIndex = if (userState.userData?.isDarkTheme ?: true) 0 else 1,
                             onOptionSelected = { index ->
                                 val newIsDark = index == 0
-                                onThemeChange(newIsDark)
+                                userManager.updateTheme(newIsDark)
                             },
                             horizontalPadding = 12.dp,
                             backgroundColor = AppTheme.colors.DarkerBackground,
@@ -138,7 +139,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("notifications") }
+                                .clickable { navController.navigate("notifications") }
 
                         )
                     }
@@ -199,7 +200,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("journey_stats") }
+                                .clickable { navController.navigate("journeyStats") }
                         )
                     }
 
@@ -259,7 +260,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("selfcare") }
+                                .clickable { navController.navigate("selfCare") }
                         )
                     }
 
@@ -289,7 +290,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("termsAndPrivacy") }
+                                .clickable { navController.navigate("termsAndPrivacy") }
                         )
                     }
 
@@ -352,7 +353,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { onSignOut() }
+                                .clickable { userManager.logout() }
                         )
                     }
                 }
@@ -416,7 +417,7 @@ fun SettingScreen(
                     CustomButton(
                         onClick = {
                             showDeleteDialog.value = false
-                            onDeleteAccount()
+//                            onDeleteAccount()
                         },
                         width = 120.dp,
                         backgroundColor = AppTheme.colors.Error75
@@ -443,13 +444,5 @@ fun PreviewSettingScreen() {
     // Create a state variable for the theme toggle
     var isDarkTheme by remember { mutableStateOf(false) }
 
-    SettingScreen(
-        navController = navController,
-        isDarkTheme = isDarkTheme,
-        onThemeChange = { newIsDark ->
-            isDarkTheme = newIsDark // update the state in preview
-        },
-        onSignOut = {},
-        onDeleteAccount = {}
-    )
+    SettingScreen()
 }

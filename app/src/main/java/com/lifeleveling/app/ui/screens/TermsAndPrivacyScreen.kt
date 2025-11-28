@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -25,6 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
@@ -32,9 +36,10 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 
 @Preview
 @Composable
-fun TermsAndPrivacyScreen(
-    navController: NavHostController? = null,
-){
+fun TermsAndPrivacyScreen(){
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
 
     Surface(
         modifier = Modifier
@@ -51,7 +56,7 @@ fun TermsAndPrivacyScreen(
                     .fillMaxWidth(),
             ){
                 Text(
-                    text = stringResource(R.string.termsAnd)+"\n"+stringResource(R.string.privacy),
+                    text = stringResource(R.string.about_life_leveling),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -66,7 +71,7 @@ fun TermsAndPrivacyScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 CircleButton(
                     modifier = Modifier,
-                    onClick = {navController?.popBackStack()},
+                    onClick = {navController.popBackStack()},
                     imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
                     size = 48.dp
                 )

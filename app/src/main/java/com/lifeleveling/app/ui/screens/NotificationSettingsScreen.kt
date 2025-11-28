@@ -19,6 +19,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,6 +36,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
@@ -42,9 +46,10 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 
 @Preview
 @Composable
-fun NotificationScreen(
-    navController: NavController? = null,
-){
+fun NotificationScreen(){
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
 
     Surface(
         modifier = Modifier
@@ -59,7 +64,8 @@ fun NotificationScreen(
             ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ){
                 Text(
                     text = "Notifications",
@@ -75,8 +81,9 @@ fun NotificationScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 CircleButton(
                     modifier = Modifier,
-                    onClick = {navController?.popBackStack()},
-                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
+                    onClick = {navController.popBackStack()},
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
+                    size = 48.dp
                 )
             }
 
@@ -101,27 +108,27 @@ fun NotificationScreen(
                         ),
                     )
 
-                    Row(){
-                        CustomCheckbox(
-                            modifier = TODO(),
-                            checked = TODO(),
-                            onCheckedChange = TODO(),
-                            size = TODO(),
-                            cornerRadius = TODO(),
-                            mainColor = TODO(),
-                            checkColor = TODO()
-                        )
-                        //checkbox for no sound and dont vibrate
-                        CustomCheckbox(
-                        modifier = TODO(),
-                        checked = TODO(),
-                        onCheckedChange = TODO(),
-                        size = TODO(),
-                        cornerRadius = TODO(),
-                        mainColor = TODO(),
-                        checkColor = TODO()
-                    )
-                    }
+//                    Row(){
+//                        CustomCheckbox(
+//                            modifier = TODO(),
+//                            checked = TODO(),
+//                            onCheckedChange = TODO(),
+//                            size = TODO(),
+//                            cornerRadius = TODO(),
+//                            mainColor = TODO(),
+//                            checkColor = TODO()
+//                        )
+//                        //checkbox for no sound and dont vibrate
+//                        CustomCheckbox(
+//                        modifier = TODO(),
+//                        checked = TODO(),
+//                        onCheckedChange = TODO(),
+//                        size = TODO(),
+//                        cornerRadius = TODO(),
+//                        mainColor = TODO(),
+//                        checkColor = TODO()
+//                    )
+//                    }
                     Text(
                         text = stringResource(R.string.whenToNotify),
                         color = AppTheme.colors.Gray,
@@ -134,45 +141,45 @@ fun NotificationScreen(
                         ),
                     )
                     //checkbox for reminder times
-                    CustomCheckbox(
-                        modifier = TODO(),
-                        checked = TODO(),
-                        onCheckedChange = TODO(),
-                        size = TODO(),
-                        cornerRadius = TODO(),
-                        mainColor = TODO(),
-                        checkColor = TODO()
-                    )
-                    //checkbox for at time
-                     CustomCheckbox(
-                        modifier = TODO(),
-                        checked = TODO(),
-                        onCheckedChange = TODO(),
-                        size = TODO(),
-                        cornerRadius = TODO(),
-                        mainColor = TODO(),
-                        checkColor = TODO()
-                    )
-                    // checkbox for when character levels up
-                     CustomCheckbox(
-                        modifier = TODO(),
-                        checked = TODO(),
-                        onCheckedChange = TODO(),
-                        size = TODO(),
-                        cornerRadius = TODO(),
-                        mainColor = TODO(),
-                        checkColor = TODO()
-                    )
-                    //checkbox for when health runs out
-                     CustomCheckbox(
-                        modifier = TODO(),
-                        checked = TODO(),
-                        onCheckedChange = TODO(),
-                        size = TODO(),
-                        cornerRadius = TODO(),
-                        mainColor = TODO(),
-                        checkColor = TODO()
-                    )
+//                    CustomCheckbox(
+//                        modifier = TODO(),
+//                        checked = TODO(),
+//                        onCheckedChange = TODO(),
+//                        size = TODO(),
+//                        cornerRadius = TODO(),
+//                        mainColor = TODO(),
+//                        checkColor = TODO()
+//                    )
+//                    //checkbox for at time
+//                     CustomCheckbox(
+//                        modifier = TODO(),
+//                        checked = TODO(),
+//                        onCheckedChange = TODO(),
+//                        size = TODO(),
+//                        cornerRadius = TODO(),
+//                        mainColor = TODO(),
+//                        checkColor = TODO()
+//                    )
+//                    // checkbox for when character levels up
+//                     CustomCheckbox(
+//                        modifier = TODO(),
+//                        checked = TODO(),
+//                        onCheckedChange = TODO(),
+//                        size = TODO(),
+//                        cornerRadius = TODO(),
+//                        mainColor = TODO(),
+//                        checkColor = TODO()
+//                    )
+//                    //checkbox for when health runs out
+//                     CustomCheckbox(
+//                        modifier = TODO(),
+//                        checked = TODO(),
+//                        onCheckedChange = TODO(),
+//                        size = TODO(),
+//                        cornerRadius = TODO(),
+//                        mainColor = TODO(),
+//                        checkColor = TODO()
+//                    )
 
 
 

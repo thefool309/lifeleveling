@@ -1,9 +1,11 @@
 package com.lifeleveling.app.data
 
 import android.content.Intent
+import android.icu.util.Calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.lifeleveling.app.ui.components.TestUser.profileCreatedDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -220,6 +222,14 @@ class UserManager(
             user.copy(currentExp = newExp)
         }
         updateLocalVariables(updated)
+    }
+
+    fun updateTheme(isDark: Boolean) = viewModelScope.launch {
+        val current = userAllData.value.userData ?: return@launch
+        val updated = current.copy(isDarkTheme = isDark)
+        userAllData.update { current ->
+            current.copy(userData = updated)
+        }
     }
 
     // ================== Auth Functions =========================
