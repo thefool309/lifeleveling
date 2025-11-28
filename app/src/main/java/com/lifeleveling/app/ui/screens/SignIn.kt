@@ -1,5 +1,7 @@
 package com.lifeleveling.app.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +43,14 @@ import androidx.compose.runtime.mutableStateOf
 import com.lifeleveling.app.auth.AuthUiState
 import com.lifeleveling.app.ui.components.CustomDialog
 import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 
 
 // Helper Function to block gmail/googlemail on the email/password path
@@ -50,23 +60,26 @@ private fun isGoogleMailboxUi(email: String): Boolean =
 
 // @Preview(showBackground = true)
 @Composable
-fun SignIn(
-    onLogin: () -> Unit = {println("Login pressed")},
-    onGoogleLogin: () -> Unit = {println("Google login pressed")},
-    onCreateAccount: () -> Unit = {println("Create account pressed")},
-    email: MutableState<String>,
-    password: MutableState<String>,
-    authState: AuthUiState,
-    onDismissError: () -> Unit = {}
-) {
+fun SignIn() {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
 
     val isGmail = isGoogleMailboxUi(email.value)
 
     // Controls the visibility of the sign-in error dialog
     val showErrorDialog = remember { mutableStateOf(false) }
 
+    val googleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        userManager.signInWithGoogleIntent(result.data)
+    }
+    val context = LocalContext.current
+
     // If an error occurs, the dialog box will open
-    if (authState.error != null && !showErrorDialog.value) {
+    if (userState.errorMessage != null && !showErrorDialog.value) {
         showErrorDialog.value = true
     }
 
@@ -147,7 +160,9 @@ fun SignIn(
                     )
                     //login button
                     CustomButton(
-                        onClick = onLogin,
+                        onClick = {
+                            userManager.login(email.value, password.value)
+                        },
                         enabled = !isGmail && email.value.isNotEmpty() && password.value.isNotEmpty()
                     ) {
                         Text(stringResource(R.string.login), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix)
@@ -157,11 +172,21 @@ fun SignIn(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Google signin button
             Button(
                 modifier = Modifier
                     .width(250.dp)
                     .height(50.dp),
-                onClick = onGoogleLogin,
+                onClick = {
+                    val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(context.getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build()
+
+                    val client = GoogleSignIn.getClient(context, googleSignInOptions)
+
+                    googleLauncher.launch(client.signInIntent)
+                },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
             ) {         //This below can place and image in the button
@@ -204,7 +229,7 @@ fun SignIn(
                 color = AppTheme.colors.SecondaryThree,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { onCreateAccount() }
+                modifier = Modifier.clickable { navController.navigate("createAccount") }
             )
 
             // Extra spacer to make up for image blank space
@@ -213,7 +238,7 @@ fun SignIn(
     }
 
     // Auth Error Dialog Box
-    if (showErrorDialog.value && authState.error != null) {
+    if (showErrorDialog.value && userState.errorMessage != null) {
         CustomDialog(
             toShow = showErrorDialog,
             dismissOnInsideClick = false,
@@ -231,7 +256,7 @@ fun SignIn(
                 )
 
                 Text(
-                    text = authState.error,
+                    text = userState.errorMessage.toString(),
                     color = AppTheme.colors.Gray,
                     style = AppTheme.textStyles.Default,
                     textAlign = TextAlign.Center
@@ -246,7 +271,7 @@ fun SignIn(
                         onClick = {
                             // Close dialog locally and tell the ViewModel
                             showErrorDialog.value = false
-                            onDismissError()
+//                            onDismissError()
                         },
                         width = 120.dp,
                     ) {

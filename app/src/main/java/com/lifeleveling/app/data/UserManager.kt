@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -239,6 +240,19 @@ class UserManager(
         try {
             authRepo.register(email, password)
             createNewUser()
+        } catch (e: Exception) {
+            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
+        } finally {
+            userAllData.update { it.copy(isLoading = false) }
+        }
+    }
+
+    fun signInWithGoogleIntent(intent: Intent?) = viewModelScope.launch {
+        userAllData.update { it.copy(isLoading = true, errorMessage = null) }
+
+        try {
+            authRepo.handleGoogleResultIntent(intent)
+            loadUser()
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
         } finally {

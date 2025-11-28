@@ -1,5 +1,7 @@
 package com.lifeleveling.app.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,10 +23,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -35,7 +40,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
@@ -50,13 +59,19 @@ private fun isGoogleMailboxUi(email: String): Boolean =
 
 // @Preview(showBackground = true)
 @Composable
-fun CreateAccountScreen(
-    onJoin: () -> Unit = {println("Join pressed")},
-    onGoogleLogin: () -> Unit = {println("Google login pressed")},
-    onLog: () -> Unit = {println("Login account pressed")},
-    email: MutableState<String>,
-    password: MutableState<String>,
-) {
+fun CreateAccountScreen() {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
+    val googleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        userManager.signInWithGoogleIntent(result.data)
+    }
+    val context = LocalContext.current
+
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+
     val isGmail = isGoogleMailboxUi(email.value)
     val pwordRules = PasswordRules(password.value)
     val isPasswordValid = pwordRules.all{it.second}
@@ -201,7 +216,9 @@ fun CreateAccountScreen(
                     }
                     // Join
                     CustomButton(
-                        onClick = onJoin,
+                        onClick = {
+                            userManager.register(email.value, password.value)
+                        },
                         enabled = !isGmail && email.value.isNotEmpty() && isPasswordValid && termsCheck.value
                         ,
                         content = {
@@ -210,11 +227,21 @@ fun CreateAccountScreen(
                     )
                 }
             }
+            // Google sign in button
             Button(
                     modifier = Modifier
                         .width(250.dp)
                         .height(50.dp),
-            onClick = onGoogleLogin,
+            onClick = {
+                val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(context.getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build()
+
+                val client = GoogleSignIn.getClient(context, googleSignInOptions)
+
+                googleLauncher.launch(client.signInIntent)
+            },
             shape = RoundedCornerShape(50),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.Gray)
             ) {         //This below can place and image in the button
@@ -244,7 +271,7 @@ fun CreateAccountScreen(
                 color = AppTheme.colors.SecondaryThree,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { onLog() }
+                modifier = Modifier.clickable { navController.navigate("signIn") }
             )
         }
     }
@@ -270,8 +297,5 @@ fun PreviewCreateAccount() {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
-    CreateAccountScreen(
-        email = email,
-        password = password,
-    )
+    CreateAccountScreen()
 }
