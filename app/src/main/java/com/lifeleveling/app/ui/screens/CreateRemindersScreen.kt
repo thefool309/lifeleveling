@@ -59,15 +59,16 @@ fun CreateReminderScreen(
     val iconOptions = listOf(
         Reminder(0, "", R.drawable.water_drop, null, false, 0, 0, 0),
         Reminder(1, "", R.drawable.bed_color, null, false, 0, 0, 0),
-        Reminder(2, "", R.drawable.med_bottle, null, false, 0, 0, 0),
-        Reminder(3, "", R.drawable.shower_bath, null, false, 0, 0, 0),
-        Reminder(4, "", R.drawable.shop_color, null, false, 0, 0, 0),
-        Reminder(5, "", R.drawable.person_running, null, false, 0, 0, 0),
-        Reminder(6, "", R.drawable.heart, null, false, 0, 0, 0),
-        Reminder(7, "", R.drawable.bell, null, false, 0, 0, 0),
-        Reminder(8, "", R.drawable.brain, null, false, 0, 0, 0),
-        Reminder(9, "", R.drawable.document, null, false, 0, 0, 0),
-        Reminder(10, "", R.drawable.doctor, null, false, 0, 0, 0),
+        Reminder(2, "", R.drawable.shirt_color, null, false, 0, 0, 0),
+        Reminder(3, "", R.drawable.med_bottle, null, false, 0, 0, 0),
+        Reminder(4, "", R.drawable.shower_bath, null, false, 0, 0, 0),
+        Reminder(5, "", R.drawable.shop_color, null, false, 0, 0, 0),
+        Reminder(6, "", R.drawable.person_running, null, false, 0, 0, 0),
+        Reminder(7, "", R.drawable.heart, null, false, 0, 0, 0),
+        Reminder(8, "", R.drawable.bell, null, false, 0, 0, 0),
+        Reminder(9, "", R.drawable.brain, null, false, 0, 0, 0),
+        Reminder(10, "", R.drawable.document, null, false, 0, 0, 0),
+        Reminder(11, "", R.drawable.doctor, null, false, 0, 0, 0)
     )
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
@@ -78,16 +79,14 @@ fun CreateReminderScreen(
     val hoursDaysWeeks = listOf(
         stringResource(R.string.hours),
         stringResource(R.string.days),
-        stringResource(R.string.weeks),
-
-        )
+        stringResource(R.string.weeks)
+    )
     val daysWeeksMonthsYearsList = listOf(
         stringResource(R.string.days),
         stringResource(R.string.weeks),
         stringResource(R.string.months),
-        stringResource(R.string.years),
-
-        )
+        stringResource(R.string.years)
+    )
 
     Surface(
 
@@ -195,9 +194,7 @@ fun CreateReminderScreen(
                                     onSelectedChange = {selectedMinute = it },
                                     expanded = selectedMinuteMenu,
                                     modifier = Modifier
-                                        .weight(1f),
-
-
+                                        .weight(1f)
                                     )
                                 DropDownTextMenu(
                                     options = amOrPmOptions,
@@ -205,10 +202,8 @@ fun CreateReminderScreen(
                                     onSelectedChange = {selectedAmOrPm = it },
                                     expanded = amOrPmOptionsMenu,
                                     modifier = Modifier
-                                        .weight(1f),
-
-
-                                    )
+                                        .weight(1f)
+                                )
                             }
 
                         }
@@ -270,7 +265,6 @@ fun CreateReminderScreen(
                                                 asWeekDay = false
                                             }
                                         }
-
                                     )
                                     Text(
                                         text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
@@ -307,7 +301,6 @@ fun CreateReminderScreen(
                                     }
                                 }
                             }
-
                         }
                         Column(
                             modifier = Modifier,
@@ -366,10 +359,9 @@ fun CreateReminderScreen(
                                                 repeatAmount = ""
                                             }
                                         }
-
                                     )
                                     Text(
-                                        text = stringResource(R.string.repeats_indefinitely),                                        style = AppTheme.textStyles.Default,
+                                        text = stringResource(R.string.repeats_indefinitely),style = AppTheme.textStyles.Default,
                                         color = AppTheme.colors.Gray
                                     )
                                 }
