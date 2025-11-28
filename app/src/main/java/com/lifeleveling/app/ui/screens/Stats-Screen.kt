@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
@@ -47,13 +50,11 @@ import com.lifeleveling.app.ui.models.EditedStats
 import kotlinx.coroutines.launch
 
 @Composable
-fun StatsScreen(
-    uiState: StatsUi,
-    onCancel: () -> Unit = { println("Cancel pressed") },
-    onConfirm: () -> Unit = { println("Confirm pressed") },
-    onCommit: (EditedStats) -> Unit = {},
-    resetSignal: Int = 0,   // bump this from the Route to re-seed local state
-) {
+fun StatsScreen() {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
     val progress = (uiState.currentXp.toFloat() / uiState.xpToNextLevel.toFloat()).coerceIn(0f, 1f)
 
     // Small dialogs
@@ -107,9 +108,7 @@ fun StatsScreen(
             ) {
 
                 LevelAndProgress(
-                    modifier = Modifier,
                     showLevelTip = showHelpDialog,
-                    statsUi = uiState
                 )
 
                 // Header + counters
@@ -443,5 +442,5 @@ data class StatItem(
     val icon: Int,
     val label: Int,
     val color: androidx.compose.ui.graphics.Color,
-    val value: MutableState<Int>
+    val value: MutableState<Long>
 )

@@ -16,6 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ScrollFadeEdges
@@ -43,9 +47,11 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun UserJourneyScreen(
-    navController: NavController,
-) {
+fun UserJourneyScreen() {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
     val scrollState = rememberScrollState()
     val showJourneyTip = remember { mutableStateOf(false) }
     val profileCreatedDate = TestUser.profileCreatedDate.let {
@@ -257,7 +263,5 @@ fun PreviewUserJourneyScreen() {
     // Create a mock navController
     val navController = rememberNavController()
 
-    UserJourneyScreen(
-        navController = navController
-    )
+    UserJourneyScreen()
 }

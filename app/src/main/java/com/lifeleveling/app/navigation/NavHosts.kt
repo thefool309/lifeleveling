@@ -71,7 +71,7 @@ fun AppNavHost() {
             // Main Screens
             composable("home") { HomeScreen() }
             composable("calendar") { CalendarScreen() }
-            composable("stats") { StatsScreen() }
+            composable("stats") { TempStatsScreen()/*StatsScreen()*/ }
             composable("streaks") { StreaksScreen() }
             composable("settings") { SettingScreen() }
 
@@ -84,54 +84,54 @@ fun AppNavHost() {
 }
 
 
-@Composable
-fun MainScreenNavigationHost(
-    navController: NavHostController,
-    onSignOut: () -> Unit,
-    onDeleteAccount: () -> Unit,
-    padding: PaddingValues,
-    isDarkThemeState: MutableState<Boolean>,
-) {
-    NavHost(
-        navController = navController,
-        startDestination = "home",
-        modifier = Modifier.Companion.padding(paddingValues = padding),
-        builder = {
-            composable("calendar") {
-                CalendarScreen()
-            }
-            composable("stats") {
-                StatsScreenRoute()
-            }
-            composable("home") {
-                HomeScreen()
-            }
-            composable("streaks") {
-                StreaksScreen(navController = navController)
-            }
-            composable("settings") {
-                SettingScreen(
-                    navController = navController,
-                    isDarkTheme = isDarkThemeState.value,
-                    onThemeChange = { newIsDark ->
-                        isDarkThemeState.value = newIsDark
-                    },
-                    onSignOut = onSignOut,
-                    onDeleteAccount = onDeleteAccount
-                )
-            }
-            composable("notifications") {
-                NotificationScreen(navController = navController)
-            }
-            composable("selfCare") {
-                SelfCareScreen(navController = navController)
-            }
-            composable("termsAndPrivacy") {
-                TermsAndPrivacyScreen(navController = navController)
-            }
-            composable("journey_stats") {
-                UserJourneyScreen(navController = navController)
-            }
-        }
-    )
-}
+//@Composable
+//fun MainScreenNavigationHost(
+//    navController: NavHostController,
+//    onSignOut: () -> Unit,
+//    onDeleteAccount: () -> Unit,
+//    padding: PaddingValues,
+//    isDarkThemeState: MutableState<Boolean>,
+//) {
+//    NavHost(
+//        navController = navController,
+//        startDestination = "home",
+//        modifier = Modifier.Companion.padding(paddingValues = padding),
+//        builder = {
+//            composable("calendar") {
+//                CalendarScreen()
+//            }
+//            composable("stats") {
+//                StatsScreenRoute()
+//            }
+//            composable("home") {
+//                HomeScreen()
+//            }
+//            composable("streaks") {
+//                StreaksScreen(navController = navController)
+//            }
+//            composable("settings") {
+//                SettingScreen(
+//                    navController = navController,
+//                    isDarkTheme = isDarkThemeState.value,
+//                    onThemeChange = { newIsDark ->
+//                        isDarkThemeState.value = newIsDark
+//                    },
+//                    onSignOut = onSignOut,
+//                    onDeleteAccount = onDeleteAccount
+//                )
+//            }
+//            composable("notifications") {
+//                NotificationScreen(navController = navController)
+//            }
+//            composable("selfCare") {
+//                SelfCareScreen(navController = navController)
+//            }
+//            composable("termsAndPrivacy") {
+//                TermsAndPrivacyScreen(navController = navController)
+//            }
+//            composable("journey_stats") {
+//                UserJourneyScreen(navController = navController)
+//            }
+//        }
+//    )
+//}
