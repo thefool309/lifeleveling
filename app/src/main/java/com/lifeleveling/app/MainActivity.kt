@@ -53,6 +53,7 @@ import com.lifeleveling.app.ui.screens.CreateReminderScreen
 
 
 import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.screens.MyRemindersScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
@@ -310,6 +311,10 @@ fun NavHostContainer(
             composable("createReminderScreen") {
                 CreateReminderScreen(navController = navController)
             }
+            composable("MyReminders") {
+                MyRemindersScreen(navController = navController)
+            }
+
 
         }
     )

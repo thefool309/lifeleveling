@@ -314,7 +314,8 @@ fun CalendarScreen(
                         modifier = Modifier
                             .align(Alignment.Start)
                             .clickable {
-                                // Todo add all reminder list click > might be handled in Days list cause how they are created
+                                navController?.navigate("MyReminders")
+
                             },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -75,7 +75,18 @@ object TestUser {
         Reminder(9, "Feed the dog", R.drawable.grass, null, true, 2, 0, 13),
         Reminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0, 9),
     )
+    val calendarReminders by mutableStateOf(listOf(
+        calReminder(1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
+        calReminder(2,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
+        calReminder(3,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0),
+        calReminder(4,"TEST", false,false,true,true,R.drawable.med_bottle, 1, 12, 0,0,0,0,0),
+        calReminder(5,"Run", false,false,true,true,R.drawable.person_running, 1, 12, 0,0,0,0,0),
+        calReminder(6,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0),
+        calReminder(7,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0),
+        calReminder(8,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
 
+        )
+    )
     private var nextId = (reminders.maxOfOrNull { it.id } ?: 0) + 1
 
     // Weekly and monthly lists
@@ -441,3 +452,21 @@ data class Badge (
     val completed: Boolean = false,
     val completedOn: Long? = null,
 )
+
+data class calReminder(
+    val id: Int,
+    val name: String,
+    val isDoNotRepeat: Boolean,
+    val isDaily: Boolean,
+    val isWeekDay: Boolean,
+    val isIndefiniteRepeat: Boolean,
+    val icon: Int,
+    val selectedHours: Int,
+    val selectedMinutes: Int,
+    val amOrPm: Int,
+    val reminderAmount: Int,
+    val reminderAmountHourDayWeek: Int,
+    val repeatAmount: Int,
+    val selectRepeatAmount: Int,
+)
+

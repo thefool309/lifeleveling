@@ -37,6 +37,7 @@ import com.lifeleveling.app.ui.theme.AppTheme
 fun CreateReminderScreen(
     navController: NavController? = null,
 ){
+
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
@@ -489,5 +490,6 @@ fun CreateReminderScreen(
 
 
     }
+
 }
 
