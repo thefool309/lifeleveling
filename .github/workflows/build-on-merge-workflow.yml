@@ -50,6 +50,16 @@ jobs:
       - name: List APK
         run: find app/build/outputs/apk/release -type f -name "*.apk"
 
+      - name: Sign app APK
+        id: sign_app # ID used to access action output (e.g., signed file path)
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
