@@ -5,6 +5,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.runBlocking
 
@@ -20,12 +21,18 @@ import kotlinx.coroutines.runBlocking
  * @see NotificationCompat
  * @author thefool309
  */
-class LLFirebaseMessagingService(val logger: ILogger) : FirebaseMessagingService() {
+class LLFirebaseMessagingService() : FirebaseMessagingService() {
 
+
+    var logger: ILogger = AndroidLogger()
     val channelID = "LifeLevelingFirebaseMessagingService"
     val logTag = "FirebaseMessagingService"
 
     val repo = FirestoreRepository()
+
+    constructor(logger: ILogger) : this() {
+        this.logger = logger
+    }
 
 
     /**
