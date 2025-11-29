@@ -30,12 +30,21 @@ import androidx.navigation.NavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.google.firebase.Timestamp
+import com.lifeleveling.app.data.Reminders
+import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.ILogger
+import com.lifeleveling.app.util.AndroidLogger
+import kotlinx.coroutines.launch
+import java.util.Calendar
 
 
 @Preview
 @Composable
 fun CreateReminderScreen(
     navController: NavController? = null,
+    repo: FirestoreRepository = FirestoreRepository(),
+    logger: ILogger = AndroidLogger(),
 ){
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed

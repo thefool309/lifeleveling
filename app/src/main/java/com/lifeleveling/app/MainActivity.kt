@@ -328,7 +328,10 @@ fun NavHostContainer(
                 UserJourneyScreen(navController = navController)
             }
             composable("createReminderScreen") {
-                CreateReminderScreen(navController = navController)
+                CreateReminderScreen(
+                    navController = navController,
+                    repo = repo,
+                    logger = logger)
             }
 
         }
