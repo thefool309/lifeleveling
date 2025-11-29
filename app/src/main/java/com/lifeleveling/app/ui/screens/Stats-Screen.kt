@@ -50,7 +50,13 @@ import com.lifeleveling.app.ui.models.EditedStats
 import kotlinx.coroutines.launch
 
 @Composable
-fun StatsScreen() {
+fun StatsScreen(
+    uiState: StatsUi,
+    resetSignal: Int = 0,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    onCommit: (EditedStats) -> Unit,
+) {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
@@ -442,5 +448,5 @@ data class StatItem(
     val icon: Int,
     val label: Int,
     val color: androidx.compose.ui.graphics.Color,
-    val value: MutableState<Long>
+    val value: MutableState<Int>
 )

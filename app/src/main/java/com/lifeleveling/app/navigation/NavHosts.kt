@@ -40,7 +40,7 @@ fun AppNavHost() {
     }
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val hideBottomBar = listOf("signIn", "register", "forgotPassword")
+    val hideBottomBar = listOf("signIn", "createAccount", "forgotPassword")
     val showBottomBar = currentRoute !in hideBottomBar
 
     LaunchedEffect(userState.isLoggedIn) {

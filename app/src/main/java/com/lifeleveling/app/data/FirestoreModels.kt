@@ -63,41 +63,41 @@ data class Reminders(
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
     val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
 )
-
-// Player stat block (Stats Screen)
-data class Stats (
-    val agility: Long = 0,
-    val defense: Long = 0,
-    val intelligence: Long = 0,
-    val strength: Long = 0,
-    val health: Long = 0,
-)
-
-// Badge the user can earn
-data class Badge(
-    val badgeId: String = "",
-    val badgeName: String = "",
-    val badgeDescription: String = "",
-    val iconName: String = "",           // Stores the name, not the R.drawable
-    val colorToken: String = "",
-    val completed: Boolean = false,
-    val unlockedAt: Timestamp? = null,   // When badge was earned
-)
-
-// One active streak the user is tracking
-/* Figma concept:
-   - Add a Week or Add a Month Streak
-   - Choose an existing reminder
-   - Track how many times they've completed it */
-data class Streak(
-    val streakId: String = "",                  // doc id inside streaks subcollection
-    val reminderId: String = "",                // link to Reminders.reminderId
-    val periodType: String = "weekly",          // "weekly" or "monthly"
-    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
-    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
-    val repeatIndefinitely: Boolean = false,
-    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
-    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
-    val createdAt: Timestamp? = null,
-    val lastUpdate: Timestamp? = null,
-)
+//
+//// Player stat block (Stats Screen)
+//data class Stats (
+//    val agility: Long = 0,
+//    val defense: Long = 0,
+//    val intelligence: Long = 0,
+//    val strength: Long = 0,
+//    val health: Long = 0,
+//)
+//
+//// Badge the user can earn
+//data class Badge(
+//    val badgeId: String = "",
+//    val badgeName: String = "",
+//    val badgeDescription: String = "",
+//    val iconName: String = "",           // Stores the name, not the R.drawable
+//    val colorToken: String = "",
+//    val completed: Boolean = false,
+//    val unlockedAt: Timestamp? = null,   // When badge was earned
+//)
+//
+//// One active streak the user is tracking
+///* Figma concept:
+//   - Add a Week or Add a Month Streak
+//   - Choose an existing reminder
+//   - Track how many times they've completed it */
+//data class Streak(
+//    val streakId: String = "",                  // doc id inside streaks subcollection
+//    val reminderId: String = "",                // link to Reminders.reminderId
+//    val periodType: String = "weekly",          // "weekly" or "monthly"
+//    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
+//    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
+//    val repeatIndefinitely: Boolean = false,
+//    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
+//    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
+//    val createdAt: Timestamp? = null,
+//    val lastUpdate: Timestamp? = null,
+//)

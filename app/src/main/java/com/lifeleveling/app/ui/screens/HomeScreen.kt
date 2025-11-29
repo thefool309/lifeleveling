@@ -155,7 +155,7 @@ fun HomeScreen() {
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = stringResource(R.string.coins, TestUser.coins),
+                                    text = stringResource(R.string.coins, userState.userData?.coins ?: 0),
                                     style = AppTheme.textStyles.Default,
                                     color = AppTheme.colors.Gray
                                 )

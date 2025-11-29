@@ -42,7 +42,7 @@ import com.lifeleveling.app.navigation.AppNavHost
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.CustomNavBar
-import com.lifeleveling.app.navigation.MainScreenNavigationHost
+//import com.lifeleveling.app.navigation.MainScreenNavigationHost
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.*
 import com.lifeleveling.app.ui.theme.HideSystemBars

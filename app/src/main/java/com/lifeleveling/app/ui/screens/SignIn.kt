@@ -43,8 +43,12 @@ import androidx.compose.runtime.mutableStateOf
 import com.lifeleveling.app.auth.AuthUiState
 import com.lifeleveling.app.ui.components.CustomDialog
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -88,12 +92,14 @@ fun SignIn() {
         modifier = Modifier
             .fillMaxSize()
             .background(color = AppTheme.colors.Background)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.fillMaxWidth()
         ){
             //logo
             Image(
