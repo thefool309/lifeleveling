@@ -740,7 +740,7 @@ class FirestoreRepository {
      * **/
     suspend fun createReminder(
         reminders: Reminders,
-        logger: AndroidLogger
+        logger: ILogger
     ): String? {
         val uid = auth.currentUser?.uid
         if (uid == null) {
