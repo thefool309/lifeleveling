@@ -237,7 +237,7 @@ class AuthViewModel : ViewModel() {
      *
      * @author thefool309, fdesouza1992
      */
-    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
+    fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
