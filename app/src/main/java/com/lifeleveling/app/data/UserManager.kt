@@ -147,12 +147,12 @@ class UserManager(
     // Create a new User
     suspend fun createNewUser() {
         val user = UserData()
-        val uid = authRepo.currentUser?.uid ?: return
+        val uid = userRepo.getUserId() ?: return
 
         updateLocalVariables(user)
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
         try {
-            userRepo.createNewUser(uid, user)
+            userRepo.createUser()
             userAllData.update { it.copy(isLoading = false, isLoggedIn = true) }
         } catch (e: Exception) {
             userAllData.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }

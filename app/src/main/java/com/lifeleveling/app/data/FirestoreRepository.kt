@@ -36,7 +36,7 @@ class FirestoreRepository {
     private val logTag = "FirestoreRepository"
 
     // Helper functions
-    private fun getUserId() : String? {
+    public fun getUserId() : String? {
         return auth.currentUser?.uid
     }
 
@@ -429,7 +429,7 @@ class FirestoreRepository {
      * @returns Boolean
      * @author thefool309
      */
-    suspend fun saveUser(logger: ILogger, user: Users) : Boolean {
+    suspend fun saveUser(user: Users, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
             if(BuildConfig.DEBUG){ logger.e(logTag,"ID is null. Please login to firebase.") }
