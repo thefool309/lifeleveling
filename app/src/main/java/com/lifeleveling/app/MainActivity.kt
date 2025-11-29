@@ -83,8 +83,10 @@ class MainActivity : ComponentActivity() {
         else {
             // a Toast message informing the user they denied permissions and will not recieve notifications.
             // pretty much anywhere you see a Toast message, it is a filler that can be replaced if you wish
-            Toast.makeText(applicationContext, R.string.permission_denied_notif, Toast.LENGTH_SHORT).show()
-            logger.d("Permissions", getString(R.string.permission_denied_notif))
+            if (BuildConfig.DEBUG) {
+                Toast.makeText(applicationContext, R.string.permission_denied_notif, Toast.LENGTH_SHORT).show()
+                logger.d("Permissions", getString(R.string.permission_denied_notif))
+            }
         }
     }
 
@@ -124,9 +126,16 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    //toggle this to true if you want to use firebaseEmulators
-    val useFirebaseEmulators = false;
+
+    /**
+     *  setup emulators is a helper function for the MainActivity to check and see if we need to setup firebase emulators or run on prod
+     *  toggle Property useFirebaseEmulators to true to enable the firebase emulators.
+     */
+
+
     private fun setupEmulators() {
+        //toggle this to true if you want to use firebaseEmulators.
+        val useFirebaseEmulators = false
         if (useFirebaseEmulators) {
             //separate if for separate error message
             // It is important to do this before any Firebase use
