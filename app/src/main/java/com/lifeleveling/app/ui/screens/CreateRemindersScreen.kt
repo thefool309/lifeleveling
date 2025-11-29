@@ -37,6 +37,7 @@ import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import androidx.compose.runtime.rememberCoroutineScope
 
 
 @Preview
@@ -46,6 +47,7 @@ fun CreateReminderScreen(
     repo: FirestoreRepository = FirestoreRepository(),
     logger: ILogger = AndroidLogger(),
 ){
+    val scope = rememberCoroutineScope()
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
@@ -66,18 +68,18 @@ fun CreateReminderScreen(
     val selectedRepeatAmountMenu = remember { mutableStateOf(false) }       // bool to show menu
     var selectedRepeatAmount by remember { mutableStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
     val iconOptions = listOf(
-        Reminder(0, "", R.drawable.water_drop, null, false, 0, 0, 0),
-        Reminder(1, "", R.drawable.bed_color, null, false, 0, 0, 0),
-        Reminder(2, "", R.drawable.shirt_color, null, false, 0, 0, 0),
-        Reminder(3, "", R.drawable.med_bottle, null, false, 0, 0, 0),
-        Reminder(4, "", R.drawable.shower_bath, null, false, 0, 0, 0),
-        Reminder(5, "", R.drawable.shop_color, null, false, 0, 0, 0),
-        Reminder(6, "", R.drawable.person_running, null, false, 0, 0, 0),
-        Reminder(7, "", R.drawable.heart, null, false, 0, 0, 0),
-        Reminder(8, "", R.drawable.bell, null, false, 0, 0, 0),
-        Reminder(9, "", R.drawable.brain, null, false, 0, 0, 0),
-        Reminder(10, "", R.drawable.document, null, false, 0, 0, 0),
-        Reminder(11, "", R.drawable.doctor, null, false, 0, 0, 0)
+        Reminder(0, "water_drop", R.drawable.water_drop, null, false, 0, 0, 0),
+        Reminder(1, "bed_color", R.drawable.bed_color, null, false, 0, 0, 0),
+        Reminder(2, "shirt_color", R.drawable.shirt_color, null, false, 0, 0, 0),
+        Reminder(3, "med_bottle", R.drawable.med_bottle, null, false, 0, 0, 0),
+        Reminder(4, "shower_bath", R.drawable.shower_bath, null, false, 0, 0, 0),
+        Reminder(5, "shop_color", R.drawable.shop_color, null, false, 0, 0, 0),
+        Reminder(6, "person_running", R.drawable.person_running, null, false, 0, 0, 0),
+        Reminder(7, "heart", R.drawable.heart, null, false, 0, 0, 0),
+        Reminder(8, "bell", R.drawable.bell, null, false, 0, 0, 0),
+        Reminder(9, "brain", R.drawable.brain, null, false, 0, 0, 0),
+        Reminder(10, "document", R.drawable.document, null, false, 0, 0, 0),
+        Reminder(11, "doctor", R.drawable.doctor, null, false, 0, 0, 0)
     )
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
@@ -444,59 +446,6 @@ fun CreateReminderScreen(
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /**
-         *This is the sacred whitespace - do not remove
-         */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
 
