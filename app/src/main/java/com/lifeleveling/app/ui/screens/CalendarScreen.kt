@@ -28,6 +28,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
@@ -50,7 +51,9 @@ import kotlin.time.ExperimentalTime
 @Preview
 @OptIn(ExperimentalTime::class)
 @Composable
-fun CalendarScreen() {
+fun CalendarScreen(
+    navController: NavController? = null,
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -279,7 +282,7 @@ fun CalendarScreen() {
                         modifier = Modifier
                             .align(Alignment.Start)
                             .clickable {
-                                // Todo add way to add reminders
+                                navController?.navigate("createReminderScreen")
                             },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -302,7 +305,7 @@ fun CalendarScreen() {
                                     color = AppTheme.colors.DropShadow,
                                     offset = Offset(3f, 4f),
                                     blurRadius = 6f,
-                                )
+                                ),
                             ),
                         )
                     }
