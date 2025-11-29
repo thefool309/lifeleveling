@@ -504,11 +504,11 @@ fun CreateReminderScreen(
                                         navController?.popBackStack()
                                     } else {
                                         logger.e("Reminders", "CreateReminderScreen: createReminder returned null.")
-                                        // TODO: show a user-facing error (snackbar/dialog) if you want
+                                        // TODO: show a user-facing error dialog box
                                     }
                                 } catch (e: Exception) {
                                     logger.e("Reminders", "CreateReminderScreen: failed to create reminder", e)
-                                    // TODO: show a user-facing error
+                                    // TODO: show a user-facing error dialog box
                                 }
                             }
                         },
