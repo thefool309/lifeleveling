@@ -466,16 +466,20 @@ fun CreateReminderScreen(
                                         // AM
                                         rawHour % 12
                                     }
-
+                                    val now = Calendar.getInstance()
                                     val cal = Calendar.getInstance().apply{
                                         set(Calendar.HOUR_OF_DAY, hour24)
                                         set(Calendar.MINUTE, minute)
                                         set(Calendar.SECOND, 0)
                                         set(Calendar.MILLISECOND, 0)
                                     }
+                                    // If time is earlier than "now", we will move to the next day
+                                    if (cal.before(now)){
+                                        cal.add(Calendar.DAY_OF_YEAR,1)
+                                    }
+
                                     val dueAt = Timestamp(cal.time)
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
-
                                     // --- "Remind me every" section ---
                                     val isDaily = asDaily || asWeekDay
                                     var timesPerDay = 0
