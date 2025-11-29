@@ -30,14 +30,14 @@ import androidx.navigation.NavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.google.firebase.Timestamp
-import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.AndroidLogger
-import kotlinx.coroutines.launch
-import java.util.Calendar
 import androidx.compose.runtime.rememberCoroutineScope
+import com.lifeleveling.app.data.Reminders
+import kotlinx.coroutines.launch
+import com.google.firebase.Timestamp
+import java.util.Calendar
 
 
 @Preview
@@ -80,6 +80,20 @@ fun CreateReminderScreen(
         Reminder(9, "brain", R.drawable.brain, null, false, 0, 0, 0),
         Reminder(10, "document", R.drawable.document, null, false, 0, 0, 0),
         Reminder(11, "doctor", R.drawable.doctor, null, false, 0, 0, 0)
+    )
+    val iconNameOptions = listOf(
+        "water_drop",    // 0
+        "bed_color",     // 1
+        "shirt_color",   // 2
+        "med_bottle",    // 3
+        "shower_bath",   // 4
+        "shop_color",    // 5
+        "person_running",// 6
+        "heart",         // 7
+        "bell",          // 8
+        "brain",         // 9
+        "document",      // 10
+        "doctor"         // 11
     )
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
@@ -433,7 +447,70 @@ fun CreateReminderScreen(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            // @Todo saving and uploading to fbfs
+                            // Basic validation that we can build upon if needed
+                            if (createdReminderTitle.isBlank()){
+                                logger.w("Reminders", "CreateReminderScreen: title is blank, not saving.")
+                                return@CustomButton
+                            }
+
+                            scope.launch {
+                                try {
+                                    val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
+                                    val minuteStr = minutesOptions.getOrNull(selectedMinute) ?: "0"
+                                    val rawHour = hourStr.toIntOrNull() ?: 0
+                                    val minute = minuteStr.toIntOrNull() ?: 0
+
+                                    // 0 = AM, 1 = PM
+                                    val hour24 = if (selectedAmOrPm == 1) {
+                                        // PM
+                                        if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
+                                    } else {
+                                        // AM
+                                        rawHour % 12
+                                    }
+
+                                    val cal = Calendar.getInstance().apply{
+                                        set(Calendar.HOUR_OF_DAY, hour24)
+                                        set(Calendar.MINUTE, minute)
+                                        set(Calendar.SECOND, 0)
+                                        set(Calendar.MILLISECOND, 0)
+                                    }
+
+                                    val dueAt = Timestamp(cal.time)
+
+                                    val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
+
+                                    // Simple isDaily: if they picked daily or weekdays, treat as daily
+                                    val isDaily = asDaily || asWeekDay
+
+                                    val reminder = Reminders(
+                                        reminderId = "",                    // Firestore auto-generates
+                                        title = createdReminderTitle.trim(),
+                                        notes = "",                         // no notes field in UI yet, but here if needed
+                                        dueAt = dueAt,
+                                        isCompleted = false,
+                                        completedAt = null,
+                                        createdAt = null,
+                                        lastUpdate = null,
+                                        isDaily = isDaily,
+                                        timesPerDay = 0,                    // TODO: wire from reminderAmountNumber later if needed
+                                        timesPerMonth = 0,                  // TODO: same idea for monthly
+                                        colorToken = null,                  // TODO: hook to a color selector later
+                                        iconName = iconName           // fallback to empty if somehow null
+                                    )
+
+                                    val id = repo.createReminder(reminder, logger)
+                                    if (id != null) {
+                                        navController?.popBackStack()
+                                    } else {
+                                        logger.e("Reminders", "CreateReminderScreen: createReminder returned null.")
+                                        // TODO: show a user-facing error (snackbar/dialog) if you want
+                                    }
+                                } catch (e: Exception) {
+                                    logger.e("Reminders", "CreateReminderScreen: failed to create reminder", e)
+                                    // TODO: show a user-facing error
+                                }
+                            }
                         },
                         backgroundColor = AppTheme.colors.Success75,
                     ) {
