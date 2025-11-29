@@ -63,6 +63,9 @@ data class Reminders(
     val timesPerMonth: Int = 0,         // How many month(s)
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
     val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
+    val repeatCount: Int = 0,            // how many units
+    val repeatInterval: String? = null,  // days, weeks, months or years
 )
 
 // Player stat block (Stats Screen)
