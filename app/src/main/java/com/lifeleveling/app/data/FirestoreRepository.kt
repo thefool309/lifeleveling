@@ -762,7 +762,10 @@ class FirestoreRepository {
             "timesPerDay" to reminders.timesPerDay,
             "timesPerMonth" to reminders.timesPerMonth,
             "colorToken" to reminders.colorToken,
-            "iconName" to reminders.iconName
+            "iconName" to reminders.iconName,
+            "repeatForever" to reminders.repeatForever,
+            "repeatCount" to reminders.repeatCount,
+            "repeatInterval" to reminders.repeatInterval,
         ).filterValues { it != null } // don't write null reminderId if empty
 
         return try {
