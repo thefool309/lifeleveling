@@ -288,7 +288,7 @@ class AuthViewModel : ViewModel() {
      * @param logger Used to log any issues during sign-up.
      * @author thefool309, fdesouza1992
      */
-    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
+    fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
