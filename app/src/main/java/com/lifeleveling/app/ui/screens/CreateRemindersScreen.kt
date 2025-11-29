@@ -477,30 +477,28 @@ fun CreateReminderScreen(
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
                                     // --- "Remind me every" section ---
-                                    var isDaily = asDaily || asWeekDay
+                                    val isDaily = asDaily || asWeekDay
                                     var timesPerDay = 0
                                     var timesPerMonth = 0
 
-                                    val everyCount = reminderAmountNumber.toIntOrNull()
-                                    if (everyCount != null && everyCount > 0) {
+                                    val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
+                                    if (everyCount > 0) {
                                         when (selectedReminderAmountHourDayWeek) {
                                             0 -> {
-                                                // Hours -> treat as daily: X times per day
-                                                isDaily = true
+                                                // "8 Hours" -> 8 times per day
                                                 timesPerDay = everyCount
                                             }
                                             1 -> {
-                                                // Days -> also daily, every X days
-                                                isDaily = false
+                                                // "Every X Days" -> store as monthly-ish frequency for now
                                                 timesPerMonth = everyCount
                                             }
                                             2 -> {
-                                                // Weeks -> store as monthly-ish frequency
-                                                isDaily = false
+                                                // "Every X Weeks" -> also stored in timesPerMonth for now
                                                 timesPerMonth = everyCount
                                             }
                                         }
                                     }
+
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore auto-generates
                                         title = createdReminderTitle.trim(),
