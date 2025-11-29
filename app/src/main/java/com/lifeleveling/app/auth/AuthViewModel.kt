@@ -125,7 +125,7 @@ class AuthViewModel : ViewModel() {
         Firebase.firestore.collection("authLogs")
             .add(
                 mapOf(
-                    "ts" to com.google.firebase.Timestamp.now(),
+                    "ts" to Timestamp.now(),
                     "source" to "emailPasswordLogin",
                     "provider" to provider,
                     "uid" to user.uid,
