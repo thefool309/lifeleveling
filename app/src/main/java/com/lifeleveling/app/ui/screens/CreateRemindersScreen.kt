@@ -113,9 +113,7 @@ fun CreateReminderScreen(
         stringResource(R.string.years)
     )
 
-    Surface(
-
-    ){
+    Surface {
         Box(
             modifier = Modifier
                 .fillMaxSize()
