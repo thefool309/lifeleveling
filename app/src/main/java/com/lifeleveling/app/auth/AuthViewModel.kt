@@ -42,15 +42,16 @@ data class AuthUiState(
 /**
  * ViewModel that owns all of our Firebase/Google sign-in logic and exposes a simple UI state (AuthUiState) that screens can observe.
  *
- * @author fdesouza1992
+ * @author fdesouza1992, thefool309
  * **/
 class AuthViewModel : ViewModel() {
     // Firebase auth and Firestore repository instance
     private val auth = Firebase.auth
     private val repo = FirestoreRepository()
 
-    // Backing field for authentication UI state
+    // Backing field for authentication UI state. Can only be changed inside this class
     private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
+    //an immutable state for the ui
     val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
 
     /**

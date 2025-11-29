@@ -4,8 +4,13 @@ import android.content.Intent
 import android.icu.util.Calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
+import com.lifeleveling.app.auth.AuthViewModel
 import com.lifeleveling.app.ui.components.TestUser.profileCreatedDate
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -69,40 +74,21 @@ data class UserCalculated(
  * Manages the local state of the user, writing to firebase, pulling from firebase, and more
  */
 class UserManager(
-    private val authRepo: AuthRepository = AuthRepository(),
-    private val userRepo: UserRepository = UserRepository()
+    private val authRepo: AuthViewModel = AuthViewModel(),
+    private val userRepo: FirestoreRepository = FirestoreRepository(),
 ) : ViewModel() {
     private val userAllData = MutableStateFlow(UserCalculated())
     val uiState: StateFlow<UserCalculated> = userAllData.asStateFlow()
 
+    var logger: ILogger = AndroidLogger()
+
+    constructor(authRepo: AuthViewModel, userRepo: FirestoreRepository, logger: ILogger) : this(authRepo = authRepo, userRepo = userRepo) {
+        this.logger = logger
+    }
+
     // Initialization
     init {
-        // Listens for login/logout
-        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            if (firebaseAuth.currentUser == null) {
-                userAllData.update {
-                    it.copy(
-                        isLoading = false,
-                        userData = null,
-                        isLoggedIn = false,
-                        expToNextLevel = 0,
-                        maxHealth = 60,
-                        lifePointsNotUsed = 0,
 
-                        enabledReminders = listOf(),
-
-                        totalStreaksCompleted = 0,
-                        badgesEarned = 0,
-                        allExpEver = 0,
-                        coinsSpend = 0,
-                        mostCompletedRemind = Pair("", 0L),
-                        )
-                }
-            } else {
-                viewModelScope.launch { loadUser() }
-            }
-        }
-        authRepo.addAuthStateListener(listener)
     }
 
 
@@ -111,11 +97,11 @@ class UserManager(
     // ================== Firestore managing functions ==========
     // Load user from firestore
     suspend fun loadUser() {
-        val uid = authRepo.currentUser?.uid ?: return
+        val uid = authRepo.ui.value.user?.uid ?: return
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
 
         try {
-            val data = userRepo.loadUser(uid)
+            val data = userRepo.getUser(uid, logger)
             if (data != null) {
                 updateLocalVariables(data)
                 userAllData.update { it.copy(isLoading = false, isLoggedIn = true) }
@@ -130,7 +116,7 @@ class UserManager(
     // Write user into firestore
     suspend fun saveUser() {
         val user = userAllData.value.userData ?: return
-        val uid = authRepo.currentUser?.uid ?: return
+        val uid = authRepo.ui.value.user?.uid ?: return
 
         try {
             userRepo.saveUser(uid, user)
@@ -138,7 +124,22 @@ class UserManager(
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
         }
     }
-
+    val db = Firebase.firestore
+    /**
+     * Firestore is a NoSQL database, so it is best practice to save pieces of data individually instead of saving the whole user all at once.
+     *
+     * there is a lot of reasons why but the breakdown is essentially
+     *
+     * - Efficiency. Saving the whole user on pause can cause the app to hang when reopening, and the operation to write the whole user is extremely inneficient.
+     *
+     * - Concurrency and Data Integrity. Using "save whole user" operations can run the risk of overwriting changes made elsewhere.
+     *
+     * - The security rules are easier to manage when they focus on validating individual fields, rather than the entire shape of a large complex object during every write operation
+     *
+     * However firestore charges on the number of read and writes, whether it's 20 things written or 1.
+     * There is probably a careful balance that can optimize not only the users experience but the number of reads and writes we are performing.
+     *  @see FirestoreRepository
+     */
     fun saveOnPause() {
         viewModelScope.launch { saveUser() }
     }

@@ -422,6 +422,31 @@ class FirestoreRepository {
     }
 
     /**
+     * save whole user. DO NOT USE THIS WITHOUT PURPOSE.
+     * This is going to end up being a long operation with a lot of validation to the input into it,
+     * so using this willy nilly will not only complicate the logic, but cause the apps performance to dip
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @returns Boolean
+     * @author thefool309
+     */
+    suspend fun saveUser(logger: ILogger, user: Users) : Boolean {
+        val userId: String? = getUserId()
+        if (userId == null) {
+            if(BuildConfig.DEBUG){ logger.e(logTag,"ID is null. Please login to firebase.") }
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try {
+            docRef.set(user).await()
+            if(BuildConfig.DEBUG){ logger.e(logTag,"User Successfully updated.") }
+            return true
+        }catch(e: Exception) {
+            logger.e(logTag, "Error Updating User: ", e)
+            return false
+        }
+    }
+    /**
      * A toggler for setOnboardingComplete in the firestore database. should be called after the user has walked through a tutorial
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @returns Boolean
