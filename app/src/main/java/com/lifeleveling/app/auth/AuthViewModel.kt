@@ -2,7 +2,6 @@ package com.lifeleveling.app.auth
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeleveling.app.R
