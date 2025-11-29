@@ -482,6 +482,7 @@ fun CreateReminderScreen(
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
                                     // --- "Remind me every" section ---
                                     val isDaily = asDaily || asWeekDay
+                                    var timesPerHour = 0
                                     var timesPerDay = 0
                                     var timesPerMonth = 0
 
@@ -490,11 +491,11 @@ fun CreateReminderScreen(
                                         when (selectedReminderAmountHourDayWeek) {
                                             0 -> {
                                                 // "8 Hours" -> 8 times per day
-                                                timesPerDay = everyCount
+                                                timesPerHour = everyCount
                                             }
                                             1 -> {
                                                 // "Every X Days" -> store as monthly-ish frequency for now
-                                                timesPerMonth = everyCount
+                                                timesPerDay = everyCount
                                             }
                                             2 -> {
                                                 // "Every X Weeks" -> also stored in timesPerMonth for now
@@ -513,8 +514,9 @@ fun CreateReminderScreen(
                                         createdAt = null,
                                         lastUpdate = null,
                                         isDaily = isDaily,
-                                        timesPerDay = timesPerDay,                    // TODO: wire from reminderAmountNumber later if needed
-                                        timesPerMonth = timesPerMonth,                  // TODO: same idea for monthly
+                                        timesPerHour = timesPerHour,
+                                        timesPerDay = timesPerDay,
+                                        timesPerMonth = timesPerMonth,
                                         colorToken = null,                  // TODO: hook to a color selector later
                                         iconName = iconName           // fallback to empty if somehow null
                                     )
