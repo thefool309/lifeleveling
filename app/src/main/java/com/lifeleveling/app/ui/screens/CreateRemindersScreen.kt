@@ -509,6 +509,25 @@ fun CreateReminderScreen(
                                         }
                                     }
 
+                                    // --- "Repeat for" [ amount + (Days/Weeks/Months/Years) ]
+                                    val repeatForever = indefinitelyRepeat
+                                    var repeatCount = 0
+                                    var repeatInterval: String? = null
+
+                                    if (!doNotRepeat && !repeatForever) {
+                                        val count = repeatAmount.toIntOrNull() ?: 0
+                                        if (count > 0) {
+                                            repeatCount = count
+                                            repeatInterval = when (selectedRepeatAmount) {
+                                                0 -> "days"
+                                                1 -> "weeks"
+                                                2 -> "months"
+                                                3 -> "years"
+                                                else -> null
+                                            }
+                                        }
+                                    }
+
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore auto-generates
                                         title = createdReminderTitle.trim(),
@@ -522,7 +541,10 @@ fun CreateReminderScreen(
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
-                                        colorToken = null,                  // TODO: hook to a color selector later
+                                        repeatForever = repeatForever,
+                                        repeatCount = repeatCount,
+                                        repeatInterval = repeatInterval,
+                                        colorToken = null,
                                         iconName = iconName           // fallback to empty if somehow null
                                     )
 
