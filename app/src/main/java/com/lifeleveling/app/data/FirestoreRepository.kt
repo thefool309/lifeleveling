@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
@@ -739,7 +740,7 @@ class FirestoreRepository {
      * **/
     suspend fun createReminder(
         reminders: Reminders,
-        logger: ILogger
+        logger: AndroidLogger
     ): String? {
         val uid = auth.currentUser?.uid
         if (uid == null) {
@@ -749,14 +750,19 @@ class FirestoreRepository {
 
         // Build the payload; let Firestore set timestamps
         val payload = hashMapOf(
-            "reminderId" to (if (reminders.reminderId.isNotBlank()) reminders.reminderId else null),
+            "reminderId" to (reminders.reminderId.ifBlank { null }),
             "title" to reminders.title,
             "notes" to reminders.notes,
             "dueAt" to reminders.dueAt,
             "isCompleted" to reminders.isCompleted,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
-            "lastUpdate" to FieldValue.serverTimestamp()
+            "lastUpdate" to FieldValue.serverTimestamp(),
+            "isDaily" to reminders.isDaily,
+            "timesPerDay" to reminders.timesPerDay,
+            "timesPerMonth" to reminders.timesPerMonth,
+            "colorToken" to reminders.colorToken,
+            "iconName" to reminders.iconName
         ).filterValues { it != null } // don't write null reminderId if empty
 
         return try {
