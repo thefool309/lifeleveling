@@ -58,8 +58,8 @@ data class Reminders(
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
     val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
-    val timesPerDay: Long = 0,           // How many times per day
-    val timesPerMonth: Long = 0,         // How many times per month
+    val timesPerDay: Int = 0,           // How many times per day
+    val timesPerMonth: Int = 0,         // How many times per month
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
     val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
 )
