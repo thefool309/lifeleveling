@@ -259,7 +259,9 @@ class MainActivity : ComponentActivity() {
                                             scope.launch {
                                                 val ok = repo.resetLifePoints(logger)
                                             }
-                                        }
+                                        },
+                                        repo = repo,
+                                        logger = logger
                                     )
                                 }
                             }
@@ -279,6 +281,8 @@ fun NavHostContainer(
     onResetLifePoints: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
+    repo: com.lifeleveling.app.data.FirestoreRepository,
+    logger: AndroidLogger,
 ) {
     NavHost(
         navController = navController,
