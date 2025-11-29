@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
 data class Users(
@@ -63,7 +64,7 @@ data class Reminders(
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
     val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
 )
-//
+
 //// Player stat block (Stats Screen)
 //data class Stats (
 //    val agility: Long = 0,
@@ -101,3 +102,9 @@ data class Reminders(
 //    val createdAt: Timestamp? = null,
 //    val lastUpdate: Timestamp? = null,
 //)
+
+data class FcmTokens(
+    val uID: String = "",
+    val token: String = "",
+    val lastUpdate: Timestamp? = null
+)
