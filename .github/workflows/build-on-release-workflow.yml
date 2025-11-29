@@ -1,9 +1,9 @@
 name: Attach APK to release
 on:
-  workflow_run:
-    workflows: ["Android CI"]
-    types:
-      - completed
+#  workflow_run:
+#    workflows: ["Android CI"]
+#    types:
+#      - completed
   release:
     types:
       - published
@@ -41,20 +41,7 @@ jobs:
           yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0"
 
           echo "$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_PATH
-    
-    
-          echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > release.keystore
 
-          # Sign the APK
-          apksigner sign \
-            --ks release.keystore \
-            --ks-key-alias "$ANDROID_KEY_ALIAS" \
-            --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" \
-            --key-pass "pass:$ANDROID_KEY_PASSWORD" \
-            --out signed-${{ github.event.release.tag_name }}.apk \
-              app-${{ github.event.release.tag_name }}.apk
-          apksigner verify --verbose signed-${{ github.event.release.tag_name }}.apk
-          rm release.keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}

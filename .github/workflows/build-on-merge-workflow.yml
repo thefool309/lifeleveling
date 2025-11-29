@@ -42,7 +42,7 @@ jobs:
         run: chmod +x gradlew
       # need this file, but it's sensitive so we encode it into BASE64 and upload as a secret
       - name: Decode google-services.json
-        run: printf "%s" "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode >
+        run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode >
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
