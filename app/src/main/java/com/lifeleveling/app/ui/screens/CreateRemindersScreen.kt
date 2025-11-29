@@ -473,14 +473,31 @@ fun CreateReminderScreen(
                                         set(Calendar.SECOND, 0)
                                         set(Calendar.MILLISECOND, 0)
                                     }
-
                                     val dueAt = Timestamp(cal.time)
-
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
-                                    // Simple isDaily: if they picked daily or weekdays, treat as daily
-                                    val isDaily = asDaily || asWeekDay
+                                    // --- "Remind me every" section ---
+                                    var isDaily = asDaily || asWeekDay
+                                    var timesPerDay = 0L
+                                    var timesPerMonth = 0L
 
+                                    val everyCount = reminderAmountNumber.toLongOrNull()
+                                    if (everyCount != null && everyCount > 0L) {
+                                        when (selectedReminderAmountHourDayWeek) {
+                                            0 -> {
+                                                isDaily = true
+                                                timesPerDay = everyCount
+                                            }
+                                            1 -> {
+                                                isDaily = false
+                                                timesPerMonth = everyCount
+                                            }
+                                            2 -> {
+                                                isDaily = false
+                                                timesPerMonth = everyCount
+                                            }
+                                        }
+                                    }
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore auto-generates
                                         title = createdReminderTitle.trim(),
