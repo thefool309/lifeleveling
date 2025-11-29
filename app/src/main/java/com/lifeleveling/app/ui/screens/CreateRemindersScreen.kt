@@ -478,21 +478,24 @@ fun CreateReminderScreen(
 
                                     // --- "Remind me every" section ---
                                     var isDaily = asDaily || asWeekDay
-                                    var timesPerDay = 0L
-                                    var timesPerMonth = 0L
+                                    var timesPerDay = 0
+                                    var timesPerMonth = 0
 
-                                    val everyCount = reminderAmountNumber.toLongOrNull()
-                                    if (everyCount != null && everyCount > 0L) {
+                                    val everyCount = reminderAmountNumber.toIntOrNull()
+                                    if (everyCount != null && everyCount > 0) {
                                         when (selectedReminderAmountHourDayWeek) {
                                             0 -> {
+                                                // Hours -> treat as daily: X times per day
                                                 isDaily = true
                                                 timesPerDay = everyCount
                                             }
                                             1 -> {
+                                                // Days -> also daily, every X days
                                                 isDaily = false
                                                 timesPerMonth = everyCount
                                             }
                                             2 -> {
+                                                // Weeks -> store as monthly-ish frequency
                                                 isDaily = false
                                                 timesPerMonth = everyCount
                                             }
@@ -508,8 +511,8 @@ fun CreateReminderScreen(
                                         createdAt = null,
                                         lastUpdate = null,
                                         isDaily = isDaily,
-                                        timesPerDay = 0,                    // TODO: wire from reminderAmountNumber later if needed
-                                        timesPerMonth = 0,                  // TODO: same idea for monthly
+                                        timesPerDay = timesPerDay,                    // TODO: wire from reminderAmountNumber later if needed
+                                        timesPerMonth = timesPerMonth,                  // TODO: same idea for monthly
                                         colorToken = null,                  // TODO: hook to a color selector later
                                         iconName = iconName           // fallback to empty if somehow null
                                     )
