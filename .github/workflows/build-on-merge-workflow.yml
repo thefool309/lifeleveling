@@ -15,7 +15,9 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -46,7 +48,7 @@ jobs:
         run: find app/build/outputs/apk/release -type f -name "*.apk"
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latest-build
           path: app/build/outputs/apk/release/*.apk
