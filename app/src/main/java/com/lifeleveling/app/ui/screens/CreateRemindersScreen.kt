@@ -458,7 +458,8 @@ fun CreateReminderScreen(
                                     val rawHour = hourStr.toIntOrNull() ?: 0
                                     val minute = minuteStr.toIntOrNull() ?: 0
 
-                                    // 0 = AM, 1 = PM
+                                    // This block converts the chosen AM/PM hour into a proper 24-hour format,
+                                    // handling the special cases for 12 AM and 12 PM.
                                     val hour24 = if (selectedAmOrPm == 1) {
                                         // PM
                                         if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
@@ -466,6 +467,7 @@ fun CreateReminderScreen(
                                         // AM
                                         rawHour % 12
                                     }
+                                    // --- Starting time: move to tomorrow if time already passed today ---
                                     val now = Calendar.getInstance()
                                     val cal = Calendar.getInstance().apply{
                                         set(Calendar.HOUR_OF_DAY, hour24)
@@ -477,9 +479,9 @@ fun CreateReminderScreen(
                                     if (cal.before(now)){
                                         cal.add(Calendar.DAY_OF_YEAR,1)
                                     }
-
                                     val dueAt = Timestamp(cal.time)
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
+
                                     // --- "Remind me every" section ---
                                     val isDaily = asDaily || asWeekDay
                                     var timesPerHour = 0
@@ -490,15 +492,18 @@ fun CreateReminderScreen(
                                     if (everyCount > 0) {
                                         when (selectedReminderAmountHourDayWeek) {
                                             0 -> {
-                                                // "8 Hours" -> 8 times per day
+                                                // Example: "Remind me every 8 Hours"
+                                                // We store "8" in timesPerHour.
                                                 timesPerHour = everyCount
                                             }
                                             1 -> {
-                                                // "Every X Days" -> store as monthly-ish frequency for now
+                                                // Example: "Remind me every 3 Days"
+                                                // For now we store the number 3 in timesPerDay.
                                                 timesPerDay = everyCount
                                             }
                                             2 -> {
-                                                // "Every X Weeks" -> also stored in timesPerMonth for now
+                                                // Example: "Remind me every 2 Weeks"
+                                                // For now we store the number 2 in timesPerMonth
                                                 timesPerMonth = everyCount
                                             }
                                         }
