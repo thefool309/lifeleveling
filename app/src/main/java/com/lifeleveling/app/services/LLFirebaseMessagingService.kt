@@ -31,7 +31,7 @@ import kotlinx.coroutines.runBlocking
 class LLFirebaseMessagingService() : FirebaseMessagingService() {
     var logger: ILogger = AndroidLogger()
 companion object {
-    const val CHANNEL_ID = "LifeLevelingFirebaseMessagingService"
+    const val CHANNEL_ID = "LifeLevelingFirebaseMessagingService" // TODO: this string should be seperated out into an R.string
     const val TAG = "FirebaseMessagingService"
 }
     val repo = FirestoreRepository()
@@ -65,6 +65,13 @@ companion object {
         }
 
     }
+    /**
+     * Persist token to third-party servers. uses FirestoreRepository.setFirebaseToken to do the leg work of creating the token
+     * will need to setup script on the firebase console that automatically empties any records over 270 days old,
+     * in line with firebase best practices
+     *
+     * @param token The new token.
+     */
     override fun onNewToken(token: String) {
         logger.d(TAG, "Refreshed token: $token")
 
@@ -80,8 +87,8 @@ companion object {
     }
 
     /**
-     * the function that carries out the logic  of creating the notification and sending it.
-     *
+     * Create and show a simple notification containing the received FCM message.
+     * @param messageBody a string containing the messageBody from the FCM message
      */
 
     private fun sendNotification(messageBody: String) {
@@ -115,7 +122,7 @@ companion object {
  * @see LLFirebaseMessagingService.sendNotification
  */
 private fun NotificationCompat.Builder.setContentTitle() : NotificationCompat.Builder {
-    setContentTitle("Life Leveling")
+    setContentTitle("Life Leveling") // TODO: this string should be seperated out into an R.string
     return this
 }
 
