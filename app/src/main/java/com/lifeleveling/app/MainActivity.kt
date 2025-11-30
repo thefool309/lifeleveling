@@ -140,7 +140,7 @@ class MainActivity : ComponentActivity() {
 
     private fun setupEmulators() {
         //toggle this to true if you want to use firebaseEmulators.
-        val useFirebaseEmulators = false
+        val useFirebaseEmulators = true
         if (useFirebaseEmulators) {
             //separate if for separate error message
             // It is important to do this before any Firebase use
