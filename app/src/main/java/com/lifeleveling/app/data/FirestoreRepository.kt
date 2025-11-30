@@ -11,6 +11,10 @@ import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
+import com.google.firebase.firestore.ktx.toObject
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 
 /**
  * A library of CRUD functions for our Firestore Cloud Database.
@@ -853,6 +857,41 @@ class FirestoreRepository {
         } catch (e: Exception) {
             logger.e("Reminders", "deleteReminder failed", e)
             false
+        }
+    }
+
+    suspend fun getRemindersForDay(
+        date: LocalDate,
+        logger: ILogger
+    ): List<Reminders> {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e("Reminders", "getRemindersForDay: user id is null/blank; sign in first.")
+            return emptyList()
+        }
+
+        val zone = ZoneId.systemDefault()
+        val startOfDay = date.atStartOfDay(zone)
+        val endOfDay = startOfDay.plusDays(1)
+
+        val startTs = Timestamp(Date.from(startOfDay.toInstant()))
+        val endTs = Timestamp(Date.from(endOfDay.toInstant()))
+
+        return try {
+            val snap = db.collection("users")
+                .document(uid)
+                .collection("reminders")
+                .whereGreaterThanOrEqualTo("dueAt", startTs)
+                .whereLessThan("dueAt", endTs)
+                .get()
+                .await()
+
+            snap.documents.mapNotNull { doc ->
+                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
+            }
+        } catch (e: Exception) {
+            logger.e("Reminders", "getRemindersForDay failed for $date", e)
+            emptyList()
         }
     }
 
