@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +33,8 @@ import com.lifeleveling.app.ui.models.StatsUi
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
+import com.lifeleveling.app.data.Reminders
+import java.time.LocalDate
 
 /*
 Reusable components that will appear on multiple screens
@@ -390,6 +393,72 @@ fun EquipmentDisplay(
                     tint = AppTheme.colors.Background,
                     modifier = Modifier.size(50.dp),
                 )
+            }
+        }
+    }
+
+    @Composable
+    fun DailyRemindersList(
+        date: LocalDate,
+        repo: FirestoreRepository = FirestoreRepository(),
+        logger: ILogger = AndroidLogger(),
+    ) {
+        var isLoading by remember { mutableStateOf(true) }
+        var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
+
+        LaunchedEffect(date) {
+            isLoading = true
+            try {
+                //reminders = repo.getRemindersForDay(date, logger)
+            } catch (e: Exception) {
+                logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
+                reminders = emptyList()
+            } finally {
+                isLoading = false
+            }
+        }
+
+        when {
+            isLoading -> {
+                // Small inline loader so the user sees *something*
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = AppTheme.colors.SecondaryTwo
+                    )
+                }
+            }
+
+            reminders.isEmpty() -> {
+                // Empty-state text – matches Figma “blank day” vibe
+                Text(
+                    text = stringResource(R.string.no_reminders_for_day),
+                    // add this string in strings.xml: "No reminders for this day yet."
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.FadedGray,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    reminders.forEach { reminder ->
+                        //DailyReminderRow(reminder = reminder, logger = logger)
+                    }
+                }
             }
         }
     }
