@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.UserDocument
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
@@ -345,7 +346,7 @@ fun StatsScreenRoute(
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var user by remember { mutableStateOf<com.lifeleveling.app.data.Users?>(null) }
+    var user by remember { mutableStateOf<UserDocument?>(null) }
 
     // NEW: a knob we can twist to force the child screen to reset its remembered fields
     var resetSignal by remember { mutableStateOf(0) }

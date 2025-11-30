@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
-import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.auth.AuthViewModel
 import com.lifeleveling.app.util.AndroidLogger
@@ -24,7 +24,7 @@ import kotlin.Int
 
 
 data class UserCalculated(
-    val users: Users? = null,
+    val userDocument: UserDocument? = null,
     val expToNextLevel: Long = 0,
     val maxHealth: Long = 60,
     val lifePointsNotUsed: Long = 0,
@@ -50,8 +50,8 @@ class UserManager(
     private val authRepo: AuthViewModel = AuthViewModel(),
     private val userRepo: FirestoreRepository = FirestoreRepository(),
 ) : ViewModel() {
-    private val userAllData = MutableStateFlow(UserCalculated())
-    val uiState: StateFlow<UserCalculated> = userAllData.asStateFlow()
+    private val userAllData = MutableStateFlow(UserDocument())
+    val uiState: StateFlow<UserDocument> = userAllData.asStateFlow()
 
     var logger: ILogger = AndroidLogger()
 
@@ -61,7 +61,29 @@ class UserManager(
 
     // Initialization
     init {
-
+//        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+//            if (firebaseAuth.currentUser == null) {
+//                userAllData.update {
+//                    isLoading -> false
+//                        isLoggedIn -> false
+//                        expToNextLevel = 0,
+//                        maxHealth = 60,
+//                        lifePointsNotUsed = 0,
+//
+//                        enabledReminders = listOf(),
+//
+//                        totalStreaksCompleted = 0,
+//                        badgesEarned = 0,
+//                        allExpEver = 0,
+//                        coinsSpend = 0,
+//                        mostCompletedRemind = Pair("", 0L),
+//                    )
+//                }
+//            } else {
+//                viewModelScope.launch { loadUser() }
+//            }
+//        }
+//        authRepo.addAuthStateListener(listener)
     }
 
 
@@ -119,7 +141,7 @@ class UserManager(
 
     // Create a new User
     suspend fun createNewUser() {
-        val user = Users()
+        val user = UserDocument()
         val uid = userRepo.getUserId() ?: return
 
         updateLocalVariables(user)
@@ -135,21 +157,21 @@ class UserManager(
     // ========= Calculating Local Logic Variable Functions ==========
     // Broad function for any smaller ones so they all get loaded at once
     // Used after reading from firebase
-    private fun updateLocalVariables(users: Users) {
+    private fun updateLocalVariables(userDocument: UserDocument) {
         userAllData.update { current ->
             current.copy(
-                users = users,
-                expToNextLevel = calcLevelExp(users.level),
-                maxHealth = calcMaxHealth(users.stats.health),
-                lifePointsNotUsed = calcNotUsedLifePoints(users.lifePointsTotal, users.lifePointsUsed),
+                users = userDocument,
+                expToNextLevel = calcLevelExp(userDocument.level),
+                maxHealth = calcMaxHealth(userDocument.stats.health),
+                lifePointsNotUsed = calcNotUsedLifePoints(userDocument.lifePointsTotal, userDocument.lifePointsUsed),
 
-                enabledReminders = calcEnabledReminders(users.reminders),
+                enabledReminders = calcEnabledReminders(userDocument.reminders),
 
-                totalStreaksCompleted = calcTotalStreaks(users.weekStreaksCompleted, users.monthStreaksCompleted),
-                badgesEarned = calcBadgesEarned(users.badges),
-                allExpEver = calcAllExp(users.currentExp, users.level),
-                coinsSpend = calcCoinsSpent(users.coins, users.allCoinsEarned),
-                mostCompletedRemind = calcMostCompletedReminder(users.reminders),
+                totalStreaksCompleted = calcTotalStreaks(userDocument.weekStreaksCompleted, userDocument.monthStreaksCompleted),
+                badgesEarned = calcBadgesEarned(userDocument.badges),
+                allExpEver = calcAllExp(userDocument.currentExp, userDocument.level),
+                coinsSpend = calcCoinsSpent(userDocument.coins, userDocument.allCoinsEarned),
+                mostCompletedRemind = calcMostCompletedReminder(userDocument.reminders),
             )
         }
     }

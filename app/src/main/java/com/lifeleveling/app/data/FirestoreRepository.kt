@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
-import androidx.lifecycle.viewmodel.CreationExtras
 import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
@@ -14,8 +13,6 @@ import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
-import java.util.HashMap
-import java.util.Hashtable
 import kotlin.Long
 
 /**
@@ -63,7 +60,7 @@ class FirestoreRepository {
         val firstTime = !snap.exists()
 
         // Compose the write payload using your Users model defaults
-        val model = Users()
+        val model = UserDocument()
 
         val data = mutableMapOf<String, Any?>(
             "userId" to model.userId,
@@ -107,7 +104,7 @@ class FirestoreRepository {
      * @return Users?
      * @see ILogger
      */
-    suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
+    suspend fun createUser(userData: Map<String, Any>, logger: ILogger): UserDocument? {
         val currentUser = auth.currentUser
 
         return if (currentUser != null) {
@@ -115,7 +112,7 @@ class FirestoreRepository {
             val docRef = db.collection("users")
                             .document(uid)
 
-            val result = Users(
+            val result = UserDocument(
                 userId = uid,
                 displayName = userData["displayName"].toString(),
                 email = userData["email"].toString(),
@@ -405,7 +402,7 @@ class FirestoreRepository {
      * @returns Boolean
      * @author thefool309
      */
-    suspend fun saveUser(user: Users, logger: ILogger) : Boolean {
+    suspend fun saveUser(user: UserDocument, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
             if(BuildConfig.DEBUG){ logger.e(logTag,"ID is null. Please login to firebase.") }
@@ -514,7 +511,7 @@ class FirestoreRepository {
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309, fd
      */
-    suspend fun addXp(xp: Double, logger: ILogger) : Users? {
+    suspend fun addXp(xp: Double, logger: ILogger) : UserDocument? {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e(logTag,"ID is null. Please login to firebase.")
@@ -611,11 +608,11 @@ class FirestoreRepository {
      * @param uID the userId you're looking for
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @returns Users?
-     * @see Users
+     * @see UserDocument
      * @see ILogger
      * @see com.lifeleveling.app.util.AndroidLogger
      */
-    suspend fun getUser(uID: String?, logger: ILogger): Users? {
+    suspend fun getUser(uID: String?, logger: ILogger): UserDocument? {
         if (uID.isNullOrBlank()) {
             logger.e("Auth", "User ID null/blank; sign in first.")
             return null
@@ -663,7 +660,7 @@ class FirestoreRepository {
         )
 
 
-        val user = Users(
+        val user = UserDocument(
             userId             = data["userId"] as? String ?: uID,
             displayName        = data["displayName"] as? String ?: "",
             email              = data["email"] as? String ?: "",
@@ -683,7 +680,7 @@ class FirestoreRepository {
             badgesUnlocked     = emptyList(),
         )
         // new method of retrieving user
-        val newUser = docRef.awaitAndMapObject<Users>()
+        val newUser = docRef.awaitAndMapObject<UserDocument>()
 
         // derive fields
         newUser?.calculateXpToNextLevel()
@@ -948,7 +945,7 @@ class FirestoreRepository {
 
 
     // A wrapper method to get me the current user
-    suspend fun getCurrentUser(logger: ILogger): Users? {
+    suspend fun getCurrentUser(logger: ILogger): UserDocument? {
         val uid = getUserId()
         if (uid == null) {
             logger.e("Auth", "No user found with uid $uid; Please sign in.")

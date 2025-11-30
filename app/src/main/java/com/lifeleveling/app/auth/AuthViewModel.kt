@@ -74,7 +74,9 @@ class AuthViewModel : ViewModel() {
     // Initialization/ Cleanup
     init { auth.addAuthStateListener(listener) }
     override fun onCleared() { auth.removeAuthStateListener(listener) }
-
+    fun addAuthStateListener(listener: FirebaseAuth.AuthStateListener) {
+        auth.addAuthStateListener(listener)
+    }
     /**
      * Builds and returns a GoogleSignInClient configured for our app.
      *
