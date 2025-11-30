@@ -17,7 +17,7 @@ import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.runBlocking
 
 /**
- * A service for handling Firebase Cloud Messaging interactions will handle receiving the messages and sending the notifications
+ * A service for handling Firebase Cloud Messaging interactions.This will handle receiving the messages and sending the notifications
  * Override base class methods to handle any events required by the application. All methods are invoked on a background thread,
  * and may be called when the app is in the background or not open
  * @property CHANNEL_ID and arbitrary channelID I selected for the notification channel
@@ -42,10 +42,18 @@ companion object {
 
 
     /**
-     * handles receiving the message from firebase, and creating and displaying the notification
+     * Called when a message is received.
+     * This should complete within 20 seconds. Taking longer may interfere with your ability to complete your work and may affect pending messages.
+     * This is also called when a notification message is received while the app is in the foreground.
+     *
+     * handles receiving the message from firebase, and creating and displaying the notification.
+     * the "main" function of this service.
+     * is an override of the base classes onMessageReceived, and inherits its functionality and triggers
+     *
      * @param message The `RemoteMessage` from firebase
      * @see FirebaseMessagingService.onMessageReceived
      * @see android.app.Service
+     * @see LLFirebaseMessagingService.sendNotification
      */
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
@@ -80,6 +88,10 @@ companion object {
         // FCM registration token to your app server.
         sendRegistrationToServer(token)
     }
+
+    /**
+     * A wrapper function for starting a coroutine to send the registration to the server.
+     */
     private fun sendRegistrationToServer(token: String?) {
         // send token to the Firestore.
         runBlocking {   repo.setFirebaseToken(token, logger) }
@@ -87,7 +99,7 @@ companion object {
     }
 
     /**
-     * Create and show a simple notification containing the received FCM message.
+     * Create and display a simple notification containing the received FCM message.
      * @param messageBody a string containing the messageBody from the FCM message
      */
 
