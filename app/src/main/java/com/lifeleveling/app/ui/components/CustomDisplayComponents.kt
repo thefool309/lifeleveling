@@ -410,7 +410,7 @@ fun DailyRemindersList(
     LaunchedEffect(date) {
         isLoading = true
         try {
-            //reminders = repo.getRemindersForDay(date, logger)
+            reminders = repo.getRemindersForDay(date, logger)
         } catch (e: Exception) {
             logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
             reminders = emptyList()
