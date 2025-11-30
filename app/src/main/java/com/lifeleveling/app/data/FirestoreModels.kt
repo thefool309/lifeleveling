@@ -1,6 +1,5 @@
 package com.lifeleveling.app.data
 
-import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
 //data class Users(
@@ -50,12 +49,14 @@ import com.google.firebase.Timestamp
 // Nested Models
 // A user's "reminder template" (the base CRUD)
 data class Reminders(
-    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
+    val reminderId: String = "", // Firestore doc id (also stored in doc for convenience)
+    val enabled: Boolean = false,
     val title: String = "",
     val notes: String = "",
     val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
     val isCompleted: Boolean = false,
-    val completedAt: Timestamp? = null,  // set when marked complete
+    val lastCompletedAt: Timestamp? = null,  // set when marked complete
+    val completedTally: Long = 0,
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
     val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
@@ -65,43 +66,43 @@ data class Reminders(
     val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
 )
 
-//// Player stat block (Stats Screen)
-//data class Stats (
-//    val agility: Long = 0,
-//    val defense: Long = 0,
-//    val intelligence: Long = 0,
-//    val strength: Long = 0,
-//    val health: Long = 0,
-//)
-//
-//// Badge the user can earn
-//data class Badge(
-//    val badgeId: String = "",
-//    val badgeName: String = "",
-//    val badgeDescription: String = "",
-//    val iconName: String = "",           // Stores the name, not the R.drawable
-//    val colorToken: String = "",
-//    val completed: Boolean = false,
-//    val unlockedAt: Timestamp? = null,   // When badge was earned
-//)
-//
-//// One active streak the user is tracking
-///* Figma concept:
-//   - Add a Week or Add a Month Streak
-//   - Choose an existing reminder
-//   - Track how many times they've completed it */
-//data class Streak(
-//    val streakId: String = "",                  // doc id inside streaks subcollection
-//    val reminderId: String = "",                // link to Reminders.reminderId
-//    val periodType: String = "weekly",          // "weekly" or "monthly"
-//    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
-//    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
-//    val repeatIndefinitely: Boolean = false,
-//    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
-//    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
-//    val createdAt: Timestamp? = null,
-//    val lastUpdate: Timestamp? = null,
-//)
+// Player stat block (Stats Screen)
+data class Stats (
+    val agility: Long = 0,
+    val defense: Long = 0,
+    val intelligence: Long = 0,
+    val strength: Long = 0,
+    val health: Long = 0,
+)
+
+// Badge the user can earn
+data class Badge(
+    val badgeId: String = "",
+    val badgeName: String = "",
+    val badgeDescription: String = "",
+    val iconName: String = "",           // Stores the name, not the R.drawable
+    val colorToken: String = "",
+    val completed: Boolean = false,
+    val unlockedAt: Timestamp? = null,   // When badge was earned
+)
+
+// One active streak the user is tracking
+/* Figma concept:
+   - Add a Week or Add a Month Streak
+   - Choose an existing reminder
+   - Track how many times they've completed it */
+data class Streak(
+    val streakId: String = "",                  // doc id inside streaks subcollection
+    val reminderId: String = "",                // link to Reminders.reminderId
+    val periodType: String = "weekly",          // "weekly" or "monthly"
+    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
+    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
+    val repeatIndefinitely: Boolean = false,
+    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
+    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
+    val createdAt: Timestamp? = null,
+    val lastUpdate: Timestamp? = null,
+)
 
 data class FcmTokens(
     val uID: String = "",

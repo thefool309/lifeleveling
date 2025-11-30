@@ -7,8 +7,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.auth.AuthViewModel
+import com.lifeleveling.app.ui.components.Reminder
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,43 +49,47 @@ data class UserCalculated(
  * Manages the local state of the user, writing to firebase, pulling from firebase, and more
  */
 class UserManager(
-    private val authRepo: AuthViewModel = AuthViewModel(),
+    private val authViewModel: AuthViewModel = AuthViewModel(),
     private val userRepo: FirestoreRepository = FirestoreRepository(),
 ) : ViewModel() {
-    private val userAllData = MutableStateFlow(UserDocument())
-    val uiState: StateFlow<UserDocument> = userAllData.asStateFlow()
+    private val userAllData = MutableStateFlow(UserState())
+    val uiState: StateFlow<UserState> = userAllData.asStateFlow()
+
+    private val logTag = "UserManager"
 
     var logger: ILogger = AndroidLogger()
 
-    constructor(authRepo: AuthViewModel, userRepo: FirestoreRepository, logger: ILogger) : this(authRepo = authRepo, userRepo = userRepo) {
+    constructor(authRepo: AuthViewModel, userRepo: FirestoreRepository, logger: ILogger) : this(authViewModel = authRepo, userRepo = userRepo) {
         this.logger = logger
     }
 
     // Initialization
     init {
-//        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-//            if (firebaseAuth.currentUser == null) {
-//                userAllData.update {
-//                    isLoading -> false
-//                        isLoggedIn -> false
-//                        expToNextLevel = 0,
-//                        maxHealth = 60,
-//                        lifePointsNotUsed = 0,
-//
-//                        enabledReminders = listOf(),
-//
-//                        totalStreaksCompleted = 0,
-//                        badgesEarned = 0,
-//                        allExpEver = 0,
-//                        coinsSpend = 0,
-//                        mostCompletedRemind = Pair("", 0L),
-//                    )
-//                }
-//            } else {
-//                viewModelScope.launch { loadUser() }
-//            }
-//        }
-//        authRepo.addAuthStateListener(listener)
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            if (firebaseAuth.currentUser == null) {
+                userAllData.update {
+                    it.copy(
+                        userDoc = UserDocument(),
+                        xpToNextLevel = 0L,
+                        maxHealth = 0L,
+                        lifePointsNotUsed = 0L,
+                        enabledReminders = listOf(),
+                        totalStreaksCompleted = 0L,
+                        badgesEarned = 0L,
+                        allExpEver = 0L,
+                        coinsSpend = 0L,
+                        mostCompletedRemind = Pair("", 0L),
+                        isLoading = false,
+                        errorMessage = null,
+                        isLoggedIn = false,
+                    )
+
+                }
+            } else {
+                viewModelScope.launch { loadUser() }
+            }
+        }
+        authViewModel.addAuthStateListener(listener)
     }
 
 
@@ -92,7 +98,7 @@ class UserManager(
     // ================== Firestore managing functions ==========
     // Load user from firestore
     suspend fun loadUser() {
-        val uid = authRepo.ui.value.user?.uid ?: return
+        val uid = authViewModel.ui.value.user?.uid ?: return
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
 
         try {
@@ -110,11 +116,11 @@ class UserManager(
 
     // Write user into firestore
     suspend fun saveUser() {
-        val user = userAllData.value.users ?: return
-        val uid = authRepo.ui.value.user?.uid ?: return
+        val user: UserDocument = userAllData.value.userDoc ?: return
+        val uid = authViewModel.ui.value.user?.uid ?: return
 
         try {
-            userRepo.saveUser(uid, user)
+            userRepo.saveUser(user, logger)
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
         }
@@ -147,10 +153,11 @@ class UserManager(
         updateLocalVariables(user)
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
         try {
-            userRepo.createUser()
+            userRepo.saveUser(UserDocument(),logger=logger)
             userAllData.update { it.copy(isLoading = false, isLoggedIn = true) }
         } catch (e: Exception) {
             userAllData.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
+            logger.e(logTag, "createNewUser error: ", e)
         }
     }
 
@@ -160,71 +167,74 @@ class UserManager(
     private fun updateLocalVariables(userDocument: UserDocument) {
         userAllData.update { current ->
             current.copy(
-                users = userDocument,
-                expToNextLevel = calcLevelExp(userDocument.level),
+                userDoc = userDocument,
+                xpToNextLevel = calcLevelExp(userDocument.level),
                 maxHealth = calcMaxHealth(userDocument.stats.health),
                 lifePointsNotUsed = calcNotUsedLifePoints(userDocument.lifePointsTotal, userDocument.lifePointsUsed),
 
                 enabledReminders = calcEnabledReminders(userDocument.reminders),
 
                 totalStreaksCompleted = calcTotalStreaks(userDocument.weekStreaksCompleted, userDocument.monthStreaksCompleted),
-                badgesEarned = calcBadgesEarned(userDocument.badges),
-                allExpEver = calcAllExp(userDocument.currentExp, userDocument.level),
+                badgesEarned = calcBadgesEarned(userDocument.badgesUnlocked),
+                allExpEver = calcAllExp(userDocument.currentXp, userDocument.level),
                 coinsSpend = calcCoinsSpent(userDocument.coins, userDocument.allCoinsEarned),
                 mostCompletedRemind = calcMostCompletedReminder(userDocument.reminders),
             )
         }
     }
 
-    private fun calcLevelExp(level: Int) = (100 * level).toLong()
+    private fun calcLevelExp(level: Long) = (100 * level).toLong()
     private fun calcMaxHealth(healthPoints: Long) = 60 + ( 5 * healthPoints)
     private fun calcNotUsedLifePoints(total: Long, used: Long) = total - used
-    private fun calcEnabledReminders(reminders: List<Reminder>) = reminders.filter { it.enabled }
+    private fun calcEnabledReminders(reminders: List<Reminders>) = reminders.filter { it.enabled }
     private fun calcTotalStreaks(dailyStreaks: Long, monthlyStreaks: Long) = dailyStreaks + monthlyStreaks
-    private fun calcBadgesEarned(badges: List<Badge>) = (badges.filter { it.completed }).size.toLong()
-    private fun calcAllExp(currentExp: Long, level: Int): Long {
+    private fun calcBadgesEarned(badges: List<Badge>) = badges.size.toLong()
+    private fun calcAllExp(currentExp: Long, level: Long): Long {
         val exp = 100L * level * (level + 1) / 2
         return currentExp + exp
     }
     private fun calcCoinsSpent(current: Long, total: Long) = total - current
-    private fun calcMostCompletedReminder(reminders: List<Reminder>): Pair<String, Long> {
+    private fun calcMostCompletedReminder(reminders: List<Reminders>): Pair<String, Long> {
         val highest = reminders.maxByOrNull { it.completedTally }
         var result = Pair("", 0L)
         if (highest != null) {
-            result = Pair(highest.name, highest.completedTally)
+            result = Pair(highest.reminderId, highest.completedTally)
         }
         return result
     }
 
 
     // ============ Functions for changing variables =================
-    fun addExp(amount: Int) {
-        val user = userAllData.value.users ?: return
-        val next = userAllData.value.expToNextLevel
-        val newExp = user.currentExp + amount
+    fun addExp(amount: Int) = viewModelScope.launch(Dispatchers.IO) {
+        val user = userAllData.value.userDoc ?: return@launch
+        val next = userAllData.value.xpToNextLevel
+        val newExp = user.currentXp + amount
 
-        val updated = if (newExp >= next) {
+        val updated : UserDocument
+        if (newExp >= next) {
             // Level up
             val leftover = newExp - next
             val coins = user.level * 25
             user.copy(
                 level = user.level + 1,
-                currentExp = leftover,
+                currentXp = leftover,
                 lifePointsUsed = user.lifePointsUsed + 3,
                 coins = user.coins + coins,
                 allCoinsEarned = user.allCoinsEarned + coins
                 )
+            userRepo.setExp(user.currentXp, logger)
+
         } else {
-            user.copy(currentExp = newExp)
+            user.copy(currentXp = newExp)
         }
-        updateLocalVariables(updated)
+        updateLocalVariables(user)
     }
 
     fun updateTheme(isDark: Boolean) = viewModelScope.launch {
-        val current = userAllData.value.users ?: return@launch
+        val current = userAllData.value.userDoc ?: return@launch
         val updated = current.copy(isDarkTheme = isDark)
         userAllData.update { current ->
-            current.copy(users = updated)
+            current.copy(userDoc = updated)
         }
     }
 
@@ -232,7 +242,7 @@ class UserManager(
     fun login(email: String, password: String) = viewModelScope.launch {
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
         try {
-            authRepo.login(email, password)
+            authViewModel.signInWithEmailPassword(email, password, logger)
             loadUser()
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
@@ -244,7 +254,7 @@ class UserManager(
     fun register(email: String, password: String) = viewModelScope.launch {
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
         try {
-            authRepo.register(email, password)
+            authViewModel.createUserWithEmailAndPassword(email, password, logger)
             createNewUser()
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
@@ -257,7 +267,7 @@ class UserManager(
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
 
         try {
-            authRepo.handleGoogleResultIntent(intent)
+            authViewModel.handleGoogleResultIntent(intent)
             loadUser()
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
@@ -266,15 +276,16 @@ class UserManager(
         }
     }
 
-    fun logout() = authRepo.logout()
+    fun logout() = authViewModel.signOut()
 
     fun setLoggedOut() {
-        userAllData.update { it.copy(isLoggedIn = false, users = null) }
+        userAllData.update { it.copy(isLoggedIn = false, userDoc = null) }
     }
 
     fun sendPasswordResetEmail(email: String) = viewModelScope.launch {
         try {
-            authRepo.sendPasswordResetEmail(email)
+//            authViewModel.sendPasswordResetEmail(email)
+            TODO("sendPasswordResetEmail not implemented")
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
         }

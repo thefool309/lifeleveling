@@ -108,9 +108,9 @@ fun LevelAndProgress(
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
 
-    val level = userState.users?.level ?: 0
-    val currentExp = userState.users?.currentExp ?: 0
-    val expToNextLevel = userState.expToNextLevel
+    val level = userState.userDoc?.level ?: 0
+    val currentExp = userState.userDoc?.currentXp ?: 0
+    val expToNextLevel = userState.xpToNextLevel
 
             Column(
                 modifier = modifier
@@ -324,7 +324,7 @@ fun HealthDisplay(
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
 
-    val currentHealth = userState.users?.currentHealth ?: 0
+    val currentHealth = userState.userDoc?.currentHealth ?: 0
     val maxHealth = userState.maxHealth
 
     Column(

@@ -49,7 +49,7 @@ fun HomeScreen() {
 
     val showLevelTip = remember { mutableStateOf(false) }
     val showHealthTip = remember { mutableStateOf(false) }
-    var fightMeditateSwitch = userState.users?.fightOrMeditate ?: 0
+    var fightMeditateSwitch = userState.userDoc?.fightOrMeditate ?: 0
 
     // Main screen pulling everything in 16.dp from edge
     Box(
@@ -148,7 +148,7 @@ fun HomeScreen() {
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = stringResource(R.string.coins, userState.users?.coins ?: 0),
+                                    text = stringResource(R.string.coins, userState.userDoc?.coins ?: 0),
                                     style = AppTheme.textStyles.Default,
                                     color = AppTheme.colors.Gray
                                 )

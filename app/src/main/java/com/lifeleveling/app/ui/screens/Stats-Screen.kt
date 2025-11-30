@@ -38,6 +38,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.UserDocument
+import com.lifeleveling.app.data.UserState
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
@@ -366,17 +367,17 @@ fun StatsScreenRoute(
         return
     }
 
-    val u = user!!
+    val userState = UserState(user!!)
 
     // Build UI model from the current snapshot
-    val baseStats = u.stats
-    val baseUsed  = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
-    val lifePool  = u.lifePoints.toInt()
+    val baseStats = userState.userDoc?.stats
+    val baseUsed  = (baseStats!!.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
+    val lifePool  = userState.userDoc.lifePoints.toInt()
 
     val uiState = StatsUi(
-        level           = u.level.toInt(),
-        currentXp       = u.currentXp.toInt(),
-        xpToNextLevel   = u.xpToNextLevel.toInt(),
+        level           = userState.userDoc.level.toInt(),
+        currentXp       = userState.userDoc.currentXp.toInt(),
+        xpToNextLevel   = userState.xpToNextLevel.toInt(),
         usedLifePoints  = 0,                                    // Starts the session with used = 0
         unusedLifePoints= lifePool,                             // total spendable life points for the session
         strength        = baseStats.strength.toInt(),

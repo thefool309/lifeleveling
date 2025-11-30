@@ -96,7 +96,7 @@ fun SettingScreen(){
                         Spacer(modifier = Modifier.height(8.dp))
                         SlidingSwitch(
                             options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
-                            selectedIndex = if (userState.users?.isDarkTheme ?: true) 0 else 1,
+                            selectedIndex = if (userState.userDoc?.isDarkTheme ?: true) 0 else 1,
                             onOptionSelected = { index ->
                                 val newIsDark = index == 0
                                 userManager.updateTheme(newIsDark)

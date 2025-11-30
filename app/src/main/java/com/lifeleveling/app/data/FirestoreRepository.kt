@@ -34,7 +34,7 @@ class FirestoreRepository {
     private val logTag = "FirestoreRepository"
 
     // Helper functions
-    public fun getUserId() : String? {
+    fun getUserId() : String? {
         return auth.currentUser?.uid
     }
 
@@ -266,7 +266,7 @@ class FirestoreRepository {
     /**
      * set the number coins to the Users firebase balance
      * @return Boolean
-     * @param health  a long that contains the new balance
+     * @param stats  a stats() object that represents the nested table in the UserDocument
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
      */
 
@@ -457,6 +457,7 @@ class FirestoreRepository {
      * @return boolean
      * @param onboardingComplete the value that is passed in to change onboardingComplete to
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @see
      */
     suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -481,6 +482,7 @@ class FirestoreRepository {
      * Increments the players level by one in the firestore data
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @see ILogger
+     * @author thefool309
      * */
     suspend fun incrementLevel(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -509,9 +511,9 @@ class FirestoreRepository {
     * @param xp A double representing the amount of xp to be added
      * @param logger A double representing the amount of xp to be added
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @author thefool309, fd
+     * @author thefool309, fdesouza1992
      */
-    suspend fun addXp(xp: Double, logger: ILogger) : UserDocument? {
+    suspend fun addXp(xp: Long, logger: ILogger) : Boolean? {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e(logTag,"ID is null. Please login to firebase.")
@@ -520,34 +522,33 @@ class FirestoreRepository {
         val docRef = db.collection("users")
             .document(userId)
         return try {
-            val data = docRef.get().await()
-
+            val data = docRef.awaitAndMapObject<UserState>()
+            var newXp: Long = 0
             // read either "currentXp" (new) or "currXp" (legacy)
-            val current = when (val raw = data["currentXp"] ?: data["currXp"]) {
-                is Number -> raw.toDouble()
-                is String -> raw.toDoubleOrNull() ?: 0.0
-                else -> 0.0
+            try {
+                val current = data?.userDoc?.currentXp
+                 newXp = current!! + xp
             }
-            val newXp = current + xp
+            catch(ne: NullPointerException) {
+                logger.e(logTag, "Error Updating User: ", ne)
+                false
+            }
             // write back to "currentXp" (canonical)
             docRef.update("currentXp", newXp).await()
+            var user: UserState? = null;
+            user =  UserState(getUser(userId, logger)) // right side operands of these statements became unreachable
 
-            var user = getUser(userId, logger) ?: run {
-                logger.e(logTag, "Error Updating User: Please make sure you're logged in")
-                return null
-            }
-
-            if (newXp >= user.expToNextLevel.toDouble()) {
+            if (newXp >= user.xpToNextLevel.toDouble()) {
                 if (!incrementLevel(logger)) {
                     logger.e(logTag, "Level increment failed")
                 }
-                user = getUser(userId, logger) ?: return null
-                user.calculateXpToNextLevel()
+                user = UserState(getUser(userId, logger)) // right side operands of these statements became unreachable
+
             }
-            user
+            true
         } catch (e: Exception) {
             logger.e("Firestore", "Error Updating User: ", e)
-            null
+            false
         }
     }
 
@@ -674,7 +675,7 @@ class FirestoreRepository {
             level              = (data["level"] as? Number)?.toLong() ?: 1L,
             lifePoints         = num("lifePoints"),
             // support either "currentXp" (new) or "currXp" (legacy)
-            currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
+            currentXp          = if (data.containsKey("currentXp")) num("currentXp") else num("currXp"),
             currHealth         = num("currHealth"),
             badgesLocked       = emptyList(),   // map arrays if/when needed
             badgesUnlocked     = emptyList(),
@@ -682,9 +683,6 @@ class FirestoreRepository {
         // new method of retrieving user
         val newUser = docRef.awaitAndMapObject<UserDocument>()
 
-        // derive fields
-        newUser?.calculateXpToNextLevel()
-        newUser?.calculateMaxHealth()
         return newUser
     }
 
@@ -844,7 +842,7 @@ class FirestoreRepository {
             "notes" to reminders.notes,
             "dueAt" to reminders.dueAt,
             "isCompleted" to reminders.isCompleted,
-            "completedAt" to reminders.completedAt,
+            "completedAt" to reminders.lastCompletedAt,
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp()
         ).filterValues { it != null } // don't write null reminderId if empty
@@ -969,6 +967,21 @@ class FirestoreRepository {
             true
         } catch (e: Exception) {
             logger.e("Firestore", "Error updating lifePoints", e)
+            false
+        }
+    }
+
+    suspend fun setExp(currentXp: Long, logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth", "No user found with uid $uid; Please sign in.")
+            return false
+        }
+        return try {
+            db.collection("users").document(uid).update("currentXp", currentXp)
+            true
+        }
+        catch(e: Exception) {
             false
         }
     }

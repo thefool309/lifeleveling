@@ -106,12 +106,14 @@ class MainActivity : ComponentActivity() {
     /**
      *  setup emulators is a helper function for the MainActivity to check and see if we need to setup firebase emulators or run on prod
      *  toggle Property useFirebaseEmulators to true to enable the firebase emulators.
+     *  You now also have to be running with a DEBUG BuildConfig
+     *
      */
 
 
     private fun setupEmulators() {
         //toggle this to true if you want to use firebaseEmulators.
-        val useFirebaseEmulators = false
+        val useFirebaseEmulators = true
         if (useFirebaseEmulators) {
             //separate if for separate error message
             // It is important to do this before any Firebase use
@@ -220,17 +222,17 @@ class MainActivity : ComponentActivity() {
                 LocalNavController provides navController,
             ) {
                 LifelevelingTheme(
-                    darkTheme = userState.users?.isDarkTheme ?: true
+                    darkTheme = userState.userDoc?.isDarkTheme ?: true
                 ) {
                     // System icon change on navigation bars to ensure they are visible when pulled
-                    LaunchedEffect(userState.users?.isDarkTheme) {
+                    LaunchedEffect(userState.userDoc!!.isDarkTheme) {
                         enableEdgeToEdge(
-                            statusBarStyle = if(userState.users?.isDarkTheme == true) {
+                            statusBarStyle = if(userState.userDoc!!.isDarkTheme) {
                                 SystemBarStyle.dark(Color.Transparent.toArgb())
                             } else {
                                 SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
                             },
-                            navigationBarStyle = if(userState.users?.isDarkTheme == true) {
+                            navigationBarStyle = if(userState.userDoc!!.isDarkTheme) {
                                 SystemBarStyle.dark(Color.Transparent.toArgb())
                             } else {
                                 SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())

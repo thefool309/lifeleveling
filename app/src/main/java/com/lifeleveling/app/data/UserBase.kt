@@ -1,6 +1,7 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
+import com.lifeleveling.app.ui.components.Reminder
 
 /**
  * The abstract base class for all User sub objects. This mostly serves as a rules guideline for what NEEDS to be included
@@ -13,12 +14,12 @@ interface UserBase {
     val photoUrl: String
     var level: Long
     val lifePoints: Long            // unused lifePoints
-    val currentXp: Double        // Current Experience
+       // Current Experience
     val currHealth: Long
     val coinsBalance: Long
     // Update from inline map to now use Stats data class
     val stats: Stats
-    val currentExp: Long
+    val currentXp: Long
     val coins: Long
     val currentHealth: Int
     val lifePointsUsed: Long
@@ -26,7 +27,7 @@ interface UserBase {
     val fightOrMeditate: Int
     val badgesLocked: List<Badge>        // greyed out badges/ secret badges
     val badgesUnlocked: List<Badge>
-    val reminders: List<Reminder>
+    val reminders: List<Reminders>
 
     val allCoinsEarned: Long
     val streaks: List<Streak>
