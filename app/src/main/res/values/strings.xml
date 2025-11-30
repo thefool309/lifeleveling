@@ -297,5 +297,6 @@
         <item>58</item>
         <item>59</item>
     </string-array>
+    <string name="no_reminders_for_day">No reminders for this day yet.</string>
 
 </resources>
