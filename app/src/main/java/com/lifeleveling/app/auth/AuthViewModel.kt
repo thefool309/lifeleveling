@@ -46,7 +46,7 @@ data class AuthUiState(
  * **/
 class AuthViewModel : ViewModel() {
     // Firebase auth and Firestore repository instance
-    private val auth = Firebase.auth
+    private val auth = FirebaseAuth.getInstance()
     private val repo = FirestoreRepository()
 
     // Backing field for authentication UI state. Can only be changed inside this class

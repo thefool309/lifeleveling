@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
 
     private fun setupEmulators() {
         //toggle this to true if you want to use firebaseEmulators.
-        val useFirebaseEmulators = true
+        val useFirebaseEmulators = false
         if (useFirebaseEmulators) {
             //separate if for separate error message
             // It is important to do this before any Firebase use
@@ -179,6 +179,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         askNotificationPermission()
