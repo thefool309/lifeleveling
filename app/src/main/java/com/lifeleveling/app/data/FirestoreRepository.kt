@@ -10,6 +10,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
@@ -62,32 +63,7 @@ class FirestoreRepository {
         val firstTime = !snap.exists()
 
         // Compose the write payload using your Users model defaults
-        val model = Users(
-            userId = uid,
-            displayName = user.displayName.orEmpty(),
-            email = user.email.orEmpty(),
-            photoUrl = user.photoUrl?.toString().orEmpty(),
-            coinsBalance = 0L,
-            stats = Stats(
-                agility = 0L,
-                defense = 0L,
-                intelligence = 0L,
-                strength = 0L,
-                health = 0L
-            ),
-            streaks = 0L,
-            onboardingComplete = false,
-            createdAt = null,
-            lastUpdate = null,
-            level = 1L,
-            lifePoints = 4L,        // Adding some life points to demo
-            currentXp = 0.0,
-            // xpToNextLevel is derived in Users, and we are not storing it
-            currHealth = 10,
-            badgesLocked = emptyList(),
-            badgesUnlocked = emptyList(),
-
-        )
+        val model = Users()
 
         val data = mutableMapOf<String, Any?>(
             "userId" to model.userId,
@@ -564,7 +540,7 @@ class FirestoreRepository {
                 return null
             }
 
-            if (newXp >= user.xpToNextLevel.toDouble()) {
+            if (newXp >= user.expToNextLevel.toDouble()) {
                 if (!incrementLevel(logger)) {
                     logger.e(logTag, "Level increment failed")
                 }
@@ -614,6 +590,23 @@ class FirestoreRepository {
         }
     }
     /**
+     * Extension function to asynchronously fetch and map a DocumentReference to a specific type T.
+     * In standard Kotlin generics, type information is erased at runtime. You usually can't know the exact class T is referring to when the function runs.
+     * Firebase's snapshot.toObject<T>() method needs the actual Kotlin Class<T> instance at runtime so it can instantiate the correct object using reflection.
+     * The reified keyword solves this by telling the compiler to keep the type information for T available at runtime.
+     * When a function is marked inline, the Kotlin compiler essentially copies the body of the function directly into the place where it is called, instead of creating a standard function call (which involves creating a new stack frame, etc.).
+     * For a small, generic utility function like this one, inlining prevents the minor overhead associated with function calls, making the final bytecode slightly more efficient.
+     * @see getUser
+     * @param
+     */
+    suspend inline fun <reified T : Any> DocumentReference.awaitAndMapObject(): T? {
+        // Call get() on the reference and use .await() to suspend the coroutine
+        val documentSnapshot = this.get().await()
+
+        // Use .toObject<T>() to automatically map the data
+        return documentSnapshot.toObject<T>()
+    }
+    /**
      * A function for retrieving the full `Users` object from the firebase. Returns null on failure
      * @param uID the userId you're looking for
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
@@ -657,6 +650,8 @@ class FirestoreRepository {
         fun ts(key: String): com.google.firebase.Timestamp? =
             data[key] as? com.google.firebase.Timestamp
 
+
+
         // stats are stored as a nested map
         val statsMap = data["stats"] as? Map<*, *> ?: emptyMap<String, Any>()
         val stats = Stats(
@@ -667,6 +662,7 @@ class FirestoreRepository {
             health        = (statsMap["health"] as? Number)?.toLong() ?: 0L,
         )
 
+
         val user = Users(
             userId             = data["userId"] as? String ?: uID,
             displayName        = data["displayName"] as? String ?: "",
@@ -674,7 +670,7 @@ class FirestoreRepository {
             photoUrl           = data["photoUrl"] as? String ?: "",
             coinsBalance       = num("coinsBalance"),
             stats              = stats,
-            streaks            = num("streaks"),
+            streaks            = data["streaks"] as List<Streak>,
             onboardingComplete = data["onboardingComplete"] as? Boolean ?: false,
             createdAt          = ts("createdAt"),
             lastUpdate         = ts("lastUpdate"),
@@ -686,11 +682,13 @@ class FirestoreRepository {
             badgesLocked       = emptyList(),   // map arrays if/when needed
             badgesUnlocked     = emptyList(),
         )
+        // new method of retrieving user
+        val newUser = docRef.awaitAndMapObject<Users>()
 
         // derive fields
-        user.calculateXpToNextLevel()
-        user.calculateMaxHealth()
-        return user
+        newUser?.calculateXpToNextLevel()
+        newUser?.calculateMaxHealth()
+        return newUser
     }
 
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud

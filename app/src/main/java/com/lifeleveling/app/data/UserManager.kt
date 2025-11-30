@@ -1,14 +1,12 @@
 package com.lifeleveling.app.data
 
 import android.content.Intent
-import android.icu.util.Calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.auth.AuthViewModel
-import com.lifeleveling.app.ui.components.TestUser.profileCreatedDate
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,40 +16,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.Int
 
-/**
- * Information for the user that WILL be written into firebase
- */
-data class UserData(
-    val username: String = "",
-    val email: String = "",
 
-    val level: Int = 1,
-    val currentExp: Long = 0,
-    val coins: Long = 0,
-    val currentHealth: Int = 60,
-    val lifePointsUsed: Long = 0,
-    val lifePointsTotal: Long = 3,
-    val profileCreatedOn: Long = 0,
-    val lastUpdate: Long = 0,
-    val fightOrMeditate: Int = 0,
 
-    val stats: Stats = Stats(),
-    val reminders: List<Reminder> = listOf(),
-    val streaks: List<Streak> = listOf(),
-    val badges: List<Badge> = listOf(),
 
-    val weekStreaksCompleted: Long = 0,
-    val monthStreaksCompleted: Long = 0,
-    val allCoinsEarned: Long = 0,
 
-    val isDarkTheme: Boolean = true,
-)
 
-/**
- * Information that will NOT be written in firebase
- */
+
+
 data class UserCalculated(
-    val userData: UserData? = null,
+    val users: Users? = null,
     val expToNextLevel: Long = 0,
     val maxHealth: Long = 60,
     val lifePointsNotUsed: Long = 0,
@@ -115,7 +88,7 @@ class UserManager(
 
     // Write user into firestore
     suspend fun saveUser() {
-        val user = userAllData.value.userData ?: return
+        val user = userAllData.value.users ?: return
         val uid = authRepo.ui.value.user?.uid ?: return
 
         try {
@@ -146,7 +119,7 @@ class UserManager(
 
     // Create a new User
     suspend fun createNewUser() {
-        val user = UserData()
+        val user = Users()
         val uid = userRepo.getUserId() ?: return
 
         updateLocalVariables(user)
@@ -162,21 +135,21 @@ class UserManager(
     // ========= Calculating Local Logic Variable Functions ==========
     // Broad function for any smaller ones so they all get loaded at once
     // Used after reading from firebase
-    private fun updateLocalVariables(userData: UserData) {
+    private fun updateLocalVariables(users: Users) {
         userAllData.update { current ->
             current.copy(
-                userData = userData,
-                expToNextLevel = calcLevelExp(userData.level),
-                maxHealth = calcMaxHealth(userData.stats.health),
-                lifePointsNotUsed = calcNotUsedLifePoints(userData.lifePointsTotal, userData.lifePointsUsed),
+                users = users,
+                expToNextLevel = calcLevelExp(users.level),
+                maxHealth = calcMaxHealth(users.stats.health),
+                lifePointsNotUsed = calcNotUsedLifePoints(users.lifePointsTotal, users.lifePointsUsed),
 
-                enabledReminders = calcEnabledReminders(userData.reminders),
+                enabledReminders = calcEnabledReminders(users.reminders),
 
-                totalStreaksCompleted = calcTotalStreaks(userData.weekStreaksCompleted, userData.monthStreaksCompleted),
-                badgesEarned = calcBadgesEarned(userData.badges),
-                allExpEver = calcAllExp(userData.currentExp, userData.level),
-                coinsSpend = calcCoinsSpent(userData.coins, userData.allCoinsEarned),
-                mostCompletedRemind = calcMostCompletedReminder(userData.reminders),
+                totalStreaksCompleted = calcTotalStreaks(users.weekStreaksCompleted, users.monthStreaksCompleted),
+                badgesEarned = calcBadgesEarned(users.badges),
+                allExpEver = calcAllExp(users.currentExp, users.level),
+                coinsSpend = calcCoinsSpent(users.coins, users.allCoinsEarned),
+                mostCompletedRemind = calcMostCompletedReminder(users.reminders),
             )
         }
     }
@@ -204,7 +177,7 @@ class UserManager(
 
     // ============ Functions for changing variables =================
     fun addExp(amount: Int) {
-        val user = userAllData.value.userData ?: return
+        val user = userAllData.value.users ?: return
         val next = userAllData.value.expToNextLevel
         val newExp = user.currentExp + amount
 
@@ -226,10 +199,10 @@ class UserManager(
     }
 
     fun updateTheme(isDark: Boolean) = viewModelScope.launch {
-        val current = userAllData.value.userData ?: return@launch
+        val current = userAllData.value.users ?: return@launch
         val updated = current.copy(isDarkTheme = isDark)
         userAllData.update { current ->
-            current.copy(userData = updated)
+            current.copy(users = updated)
         }
     }
 
@@ -274,7 +247,7 @@ class UserManager(
     fun logout() = authRepo.logout()
 
     fun setLoggedOut() {
-        userAllData.update { it.copy(isLoggedIn = false, userData = null) }
+        userAllData.update { it.copy(isLoggedIn = false, users = null) }
     }
 
     fun sendPasswordResetEmail(email: String) = viewModelScope.launch {

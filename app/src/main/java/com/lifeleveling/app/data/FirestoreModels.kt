@@ -3,47 +3,47 @@ package com.lifeleveling.app.data
 import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
-data class Users(
-    val userId: String = "",
-    val displayName: String = "",
-    val email: String = "",
-    val photoUrl: String = "",
-    val coinsBalance: Long = 0,
-    // Update from inline map to now use Stats data class
-    val stats: Stats = Stats(),
-    val streaks: Long = 0,
-    val onboardingComplete: Boolean = false,
-    val createdAt: Timestamp? = null,
-    val lastUpdate: Timestamp? = null,
-    // variables that were missing during our first introduction of the Users collection
-    var level: Long = 1,
-    val lifePoints: Long = 0,           // unused lifePoints
-    val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
-    val currHealth: Long = 0,
-    // Badges can be stored in arrays of Badge objects on user doc.
-    val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
-    val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
-    ) {
-    // for a derived property like this it is not necessary to include in firebase
-    // since it's calculated everytime a user is instantiated
-    // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
-    var xpToNextLevel: Long = 0L
-    var maxHealth: Long = 0L
-    val baseHealth: Long = 60L
-    init {
-        calculateXpToNextLevel()
-        calculateMaxHealth()
-    }
-
-    fun calculateXpToNextLevel() {
-        xpToNextLevel = level * 100L
-    }
-
-    fun calculateMaxHealth() {
-        val healthStat = stats.health
-        maxHealth = baseHealth + (healthStat * 5)
-    }
-}
+//data class Users(
+//    val userId: String = "",
+//    val displayName: String = "",
+//    val email: String = "",
+//    val photoUrl: String = "",
+//    val coinsBalance: Long = 0,
+//    // Update from inline map to now use Stats data class
+//    val stats: Stats = Stats(),
+//    val streaks: Long = 0,
+//    val onboardingComplete: Boolean = false,
+//    val createdAt: Timestamp? = null,
+//    val lastUpdate: Timestamp? = null,
+//    // variables that were missing during our first introduction of the Users collection
+//    var level: Long = 1,
+//    val lifePoints: Long = 0,           // unused lifePoints
+//    val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
+//    val currHealth: Long = 0,
+//    // Badges can be stored in arrays of Badge objects on user doc.
+//    val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
+//    val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
+//    ) {
+//    // for a derived property like this it is not necessary to include in firebase
+//    // since it's calculated everytime a user is instantiated
+//    // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
+//    var xpToNextLevel: Long = 0L
+//    var maxHealth: Long = 0L
+//    val baseHealth: Long = 60L
+//    init {
+//        calculateXpToNextLevel()
+//        calculateMaxHealth()
+//    }
+//
+//    fun calculateXpToNextLevel() {
+//        xpToNextLevel = level * 100L
+//    }
+//
+//    fun calculateMaxHealth() {
+//        val healthStat = stats.health
+//        maxHealth = baseHealth + (healthStat * 5)
+//    }
+//}
 
 
 

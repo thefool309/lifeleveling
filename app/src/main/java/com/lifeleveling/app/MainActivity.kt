@@ -13,31 +13,19 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -45,37 +33,20 @@ import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.UserManager
 import com.lifeleveling.app.navigation.AppNavHost
-import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
-import com.lifeleveling.app.navigation.CustomNavBar
 //import com.lifeleveling.app.navigation.MainScreenNavigationHost
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
-import com.lifeleveling.app.ui.screens.CalendarScreen
-import com.lifeleveling.app.ui.screens.CreateAccountScreen
 
 
-import com.lifeleveling.app.ui.screens.HomeScreen
-import com.lifeleveling.app.ui.screens.NotificationScreen
-import com.lifeleveling.app.ui.screens.SelfCareScreen
-import com.lifeleveling.app.ui.screens.SettingScreen
-import com.lifeleveling.app.ui.screens.SignIn
-
-import com.lifeleveling.app.ui.screens.StatsScreenRoute
-import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
-import com.lifeleveling.app.ui.screens.*
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.LoadingOverlay
 import com.lifeleveling.app.ui.theme.StartLogic
 import com.lifeleveling.app.ui.theme.StartLogicFactory
 // Temp Check to ensure firebase connection
 import com.lifeleveling.app.util.AndroidLogger
-import kotlinx.coroutines.launch
-import com.lifeleveling.app.util.ILogger
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import android.Manifest
-import com.lifeleveling.app.BuildConfig
+
 class MainActivity : ComponentActivity() {
 
 
@@ -249,17 +220,17 @@ class MainActivity : ComponentActivity() {
                 LocalNavController provides navController,
             ) {
                 LifelevelingTheme(
-                    darkTheme = userState.userData?.isDarkTheme ?: true
+                    darkTheme = userState.users?.isDarkTheme ?: true
                 ) {
                     // System icon change on navigation bars to ensure they are visible when pulled
-                    LaunchedEffect(userState.userData?.isDarkTheme) {
+                    LaunchedEffect(userState.users?.isDarkTheme) {
                         enableEdgeToEdge(
-                            statusBarStyle = if(userState.userData?.isDarkTheme == true) {
+                            statusBarStyle = if(userState.users?.isDarkTheme == true) {
                                 SystemBarStyle.dark(Color.Transparent.toArgb())
                             } else {
                                 SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
                             },
-                            navigationBarStyle = if(userState.userData?.isDarkTheme == true) {
+                            navigationBarStyle = if(userState.users?.isDarkTheme == true) {
                                 SystemBarStyle.dark(Color.Transparent.toArgb())
                             } else {
                                 SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())

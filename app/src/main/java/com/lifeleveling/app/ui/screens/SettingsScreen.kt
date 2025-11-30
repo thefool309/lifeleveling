@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.HighlightCard
@@ -97,7 +96,7 @@ fun SettingScreen(){
                         Spacer(modifier = Modifier.height(8.dp))
                         SlidingSwitch(
                             options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
-                            selectedIndex = if (userState.userData?.isDarkTheme ?: true) 0 else 1,
+                            selectedIndex = if (userState.users?.isDarkTheme ?: true) 0 else 1,
                             onOptionSelected = { index ->
                                 val newIsDark = index == 0
                                 userManager.updateTheme(newIsDark)

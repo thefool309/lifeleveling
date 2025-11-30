@@ -8,16 +8,16 @@ class UserRepository (
 ) {
     private fun userDoc(uid: String) = firestore.collection("users").document(uid)
 
-    suspend fun loadUser(uid: String): UserData? {
+    suspend fun loadUser(uid: String): Users? {
         val snapshot = userDoc(uid).get().await()
-        return snapshot.toObject(UserData::class.java)
+        return snapshot.toObject(Users::class.java)
     }
 
-    suspend fun saveUser(uid: String, userData: UserData) {
-        userDoc(uid).set(userData).await()
+    suspend fun saveUser(uid: String, users: Users) {
+        userDoc(uid).set(users).await()
     }
 
-    suspend fun createNewUser(uid: String, userData: UserData) {
-        userDoc(uid).set(userData).await()
+    suspend fun createNewUser(uid: String, users: Users) {
+        userDoc(uid).set(users).await()
     }
 }
