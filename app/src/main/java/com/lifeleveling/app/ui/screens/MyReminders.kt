@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -66,7 +67,7 @@ fun MyRemindersScreen(
         stringResource(R.string.months),
         stringResource(R.string.years)
     )
-    var isEnabled = remember {mutableStateOf(true) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -101,7 +102,11 @@ fun MyRemindersScreen(
                     .weight(1f),
                 outerPadding = 0.dp
             ) {
-
+                val isEnabled = remember {
+                    mutableStateListOf<Boolean>().apply {
+                        addAll(List(TestUser.calendarReminders.size) { true })
+                    }
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -145,10 +150,9 @@ fun MyRemindersScreen(
 
                             ){
                                 CustomCheckbox(
-                                    checked = isEnabled.value,
-                                    onCheckedChange = {
-                                        isEnabled.value = it
-
+                                    checked = isEnabled[index],
+                                    onCheckedChange = { newValue ->
+                                        isEnabled[index] = newValue
                                     }
                                 )
                             }
