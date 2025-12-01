@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lifeleveling.app.MainActivity
@@ -33,6 +35,7 @@ class LLFirebaseMessagingService() : FirebaseMessagingService() {
 companion object {
     const val CHANNEL_ID = "LifeLevelingFirebaseMessagingService" // TODO: this string should be seperated out into an R.string
     const val TAG = "FirebaseMessagingService"
+    const val NOTIFICATION_ID = 1   // may be taken out later if we decide to have more than one type of notification
 }
     val repo = FirestoreRepository()
 
@@ -45,6 +48,8 @@ companion object {
      * Called when a message is received.
      * This should complete within 20 seconds. Taking longer may interfere with your ability to complete your work and may affect pending messages.
      * This is also called when a notification message is received while the app is in the foreground.
+     *
+     * some sources say 20 and others say 10 seconds. I am opting to roll with the 10 second timeline to be safe
      *
      * handles receiving the message from firebase, and creating and displaying the notification.
      * the "main" function of this service.
@@ -64,6 +69,15 @@ companion object {
 
             if(com.lifeleveling.app.BuildConfig.DEBUG) {
                 logger.d(TAG, "Message data payload: " + message.data)
+            }
+            // this section is for handling any other operations that may need to be carried out upon receiving a notification
+            if (false/*check if the process will need a worker thread or not*/) {
+                // For long-running tasks (10 seconds or more) use WorkManager.
+                scheduleJob()
+            } else {
+                // Handle message within 10 seconds
+                // notifications technically fall under this category, but are handled below with message.notification?.let
+                handleNow()
             }
         }
         // Check if message contains a notification payload.
@@ -115,7 +129,7 @@ companion object {
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .setContentTitle() //must be placed at the end since we overrode it's local functionality
+            .setContentTitle("Life Leveling") // TODO: put string in R.strings
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -123,18 +137,24 @@ companion object {
             val channel = NotificationChannel(CHANNEL_ID, channelId, NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
-        notificationManager.notify(0, notificationBuilder.build())
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
+
+
+    /**
+     * Schedule async work using WorkManager. a template for future functions that may make use of different Worker derived classes
+     */
+    private fun scheduleJob() {
+        // [START dispatch_job]
+        val work = OneTimeWorkRequest.Builder(LLWorker::class.java).build()
+        WorkManager.getInstance(this).beginWith(work).enqueue()
+        // [END dispatch_job]
+    }
+
+    private fun handleNow() {
+        logger.d(TAG, "handleNow()")
+    }
+
 }
 
-/**
- * extension function for NotificationCompat.Builder that gives us a default ContentTitle for notifications.
- * must be placed last on the NotificationCompat.Builder() if using the default,
- * so we should make it a habit to always place anything we extend last
- * @see LLFirebaseMessagingService.sendNotification
- */
-private fun NotificationCompat.Builder.setContentTitle() : NotificationCompat.Builder {
-    setContentTitle("Life Leveling") // TODO: this string should be seperated out into an R.string
-    return this
-}
 
