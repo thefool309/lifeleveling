@@ -151,6 +151,9 @@ companion object {
         // [END dispatch_job]
     }
 
+    /**
+     * any logic that can be handled within ten seconds
+     */
     private fun handleNow() {
         logger.d(TAG, "handleNow()")
     }
