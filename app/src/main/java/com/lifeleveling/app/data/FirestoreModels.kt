@@ -2,8 +2,9 @@ package com.lifeleveling.app.data
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
+import com.lifeleveling.app.util.GlobalConst
 
-data class Users(
+data class UserDoc(
     override val userId: String = "",
     override val displayName: String = "",
     override val email: String = "",
@@ -17,7 +18,8 @@ data class Users(
     override val lastUpdate: Timestamp? = null,
     // variables that were missing during our first introduction of the Users collection
     override var level: Long = 1,
-    override val lifePoints: Long = 0,           // unused lifePoints
+    override val lifePointsUsed: Long = 0,           // unused lifePoints
+    override val lifePointsTotal: Long = 0,
     override val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
     override val currHealth: Long = 0,
     // Badges can be stored in arrays of Badge objects on user doc.
@@ -28,10 +30,27 @@ data class Users(
 }
 
 
-data class UserState(val user: Users,
-                var xpToNextLevel: Long = 0L,
-                var maxHealth: Long = 0L,
-                val baseHealth: Long = 60L) : ViewModel() {
+data class UserState(
+    val user: UserDoc,
+    var xpToNextLevel: Long = 0L,
+    var maxHealth: Long = 0L,
+    val baseHealth: Long = GlobalConst.BASE_HEALTH,
+    val lifePointsNotUsed: Long = 0,
+    val enabledReminders: List<Reminders> = listOf(),
+
+    val totalStreaksCompleted: Long = 0,
+    val badgesEarned: Long = 0,
+    val allExpEver: Long = 0,
+    val coinsSpend: Long = 0,
+    val mostCompletedRemind: Pair<String, Long> = Pair("", 0L),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+
+    val isLoggedIn: Boolean = false,
+    ) : ViewModel() {
+
+    init { }
+
 
 }
 
@@ -51,7 +70,10 @@ data class Reminders(
     val timesPerDay: Long = 0,           // How many times per day
     val timesPerMonth: Long = 0,         // How many times per month
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
-    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val iconName: String = "",
+    val name: String,
+    val enabled: Boolean,
+    val completedTally: Long // store icon key (ex: "water_drop"), not R.drawable.id
 )
 
 // Player stat block (Stats Screen)

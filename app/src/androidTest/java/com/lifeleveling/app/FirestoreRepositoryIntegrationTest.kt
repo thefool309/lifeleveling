@@ -12,7 +12,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.data.Users
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
@@ -21,7 +20,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertFailsWith
 
 @RunWith(AndroidJUnit4::class)
 class FirestoreRepositoryIntegrationTest {

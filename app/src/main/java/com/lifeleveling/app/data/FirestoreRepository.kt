@@ -59,7 +59,7 @@ companion object {
         val firstTime = !snap.exists()
 
         // Compose the write payload using your Users model defaults
-        val model = Users(
+        val model = UserDoc(
             userId = uid,
             displayName = user.displayName.orEmpty(),
             email = user.email.orEmpty(),
@@ -77,7 +77,7 @@ companion object {
             createdAt = null,
             lastUpdate = null,
             level = 1L,
-            lifePoints = 4L,        // Adding some life points to demo
+            lifePointsUsed = 4L,        // Adding some life points to demo
             currentXp = 0.0,
             // xpToNextLevel is derived in Users, and we are not storing it
             currHealth = 10,
@@ -98,7 +98,7 @@ companion object {
             "createdAt" to model.createdAt,
             "lastUpdate" to FieldValue.serverTimestamp(),
             "level" to model.level,
-            "lifePoints" to model.lifePoints,
+            "lifePoints" to model.lifePointsUsed,
             "currentXp" to model.currentXp,
             "currHealth" to model.currHealth,
             "badgesLocked" to model.badgesLocked,
@@ -130,7 +130,7 @@ companion object {
      * @sample FirestoreSamplesViewModel launching in a view model
      * @sample FirestoreSamples launching directly
      */
-    suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
+    suspend fun createUser(userData: Map<String, Any>, logger: ILogger): UserDoc? {
         val currentUser = auth.currentUser
 
         return if (currentUser != null) {
@@ -138,7 +138,7 @@ companion object {
             val docRef = db.collection("users")
                             .document(uid)
 
-            val result = Users(
+            val result = UserDoc(
                 userId = uid,
                 displayName = userData["displayName"].toString(),
                 email = userData["email"].toString(),
@@ -397,7 +397,7 @@ companion object {
      * @return Boolean
      * @param coins  a long that contains the amount of coins to subtract
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @sample
+     * @sample FirestoreSamplesViewModel
      */
     suspend fun subtractCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -540,7 +540,7 @@ companion object {
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309, fdesouza1992
      */
-    suspend fun addXp(xp: Double, logger: ILogger) : Users? {
+    suspend fun addXp(xp: Double, logger: ILogger) : UserDoc? {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e(TAG,"ID is null. Please login to firebase.")
@@ -622,11 +622,11 @@ companion object {
      * @param uID the userId you're looking for
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @returns Users?
-     * @see Users
+     * @see UserDoc
      * @see ILogger
      * @see com.lifeleveling.app.util.AndroidLogger
      */
-    suspend fun getUser(uID: String?, logger: ILogger): Users? {
+    suspend fun getUser(uID: String?, logger: ILogger): UserDoc? {
         if (uID.isNullOrBlank()) {
             logger.e("Auth", "User ID null/blank; sign in first.")
             return null
@@ -671,7 +671,7 @@ companion object {
             health        = (statsMap["health"] as? Number)?.toLong() ?: 0L,
         )
 
-        val user = Users(
+        val user = UserDoc(
             userId             = data["userId"] as? String ?: uID,
             displayName        = data["displayName"] as? String ?: "",
             email              = data["email"] as? String ?: "",
@@ -683,7 +683,7 @@ companion object {
             createdAt          = ts("createdAt"),
             lastUpdate         = ts("lastUpdate"),
             level              = (data["level"] as? Number)?.toLong() ?: 1L,
-            lifePoints         = num("lifePoints"),
+            lifePointsUsed         = num("lifePoints"),
             // support either "currentXp" (new) or "currXp" (legacy)
             currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
             currHealth         = num("currHealth"),
@@ -951,7 +951,7 @@ companion object {
 
 
     // A wrapper method to get me the current user
-    suspend fun getCurrentUser(logger: ILogger): Users? {
+    suspend fun getCurrentUser(logger: ILogger): UserDoc? {
         val uid = getUserId()
         if (uid == null) {
             logger.e("Auth", "No user found with uid $uid; Please sign in.")

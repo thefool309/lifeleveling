@@ -82,7 +82,7 @@ fun LevelAndProgress(
                     currentXp        = u.currentXp.toInt(),
                     xpToNextLevel    = u.xpToNextLevel.toInt(),
                     usedLifePoints   = 0,
-                    unusedLifePoints = u.lifePoints.toInt(),                // total life point pool
+                    unusedLifePoints = u.lifePointsUsed.toInt(),                // total life point pool
                     strength         = baseStats.strength.toInt(),
                     defense          = baseStats.defense.toInt(),
                     intelligence     = baseStats.intelligence.toInt(),

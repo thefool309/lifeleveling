@@ -340,7 +340,7 @@ fun StatsScreenRoute(
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var user by remember { mutableStateOf<com.lifeleveling.app.data.Users?>(null) }
+    var user by remember { mutableStateOf<com.lifeleveling.app.data.UserDoc?>(null) }
 
     // NEW: a knob we can twist to force the child screen to reset its remembered fields
     var resetSignal by remember { mutableStateOf(0) }
@@ -365,7 +365,7 @@ fun StatsScreenRoute(
     // Build UI model from the current snapshot
     val baseStats = u.stats
     val baseUsed  = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
-    val lifePool  = u.lifePoints.toInt()
+    val lifePool  = u.lifePointsUsed.toInt()
 
     val uiState = StatsUi(
         level           = u.level.toInt(),
