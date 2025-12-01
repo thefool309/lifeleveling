@@ -10,9 +10,10 @@ data class UserDoc(
     override val email: String = "",
     override val photoUrl: String = "",
     override val coinsBalance: Long = 0,
+    override val coinsSpent: Long = 0,
     // Update from inline map to now use Stats data class
     override val stats: Stats = Stats(),
-    override val streaks: Long = 0,
+    override val streaks: List<Streak> = emptyList(),
     override val onboardingComplete: Boolean = false,
     override val createdAt: Timestamp? = null,
     override val lastUpdate: Timestamp? = null,
@@ -20,11 +21,12 @@ data class UserDoc(
     override var level: Long = 1,
     override val lifePointsUsed: Long = 0,           // unused lifePoints
     override val lifePointsTotal: Long = 0,
-    override val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
+    override val currentXp: Long = 0L,        // Current Experience // Experience needed to level up
     override val currHealth: Long = 0,
     // Badges can be stored in arrays of Badge objects on user doc.
     override val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
     override val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
+    override val allReminders: List<Reminders> = emptyList(),
     ) : UserBase {
 
 }
@@ -72,9 +74,9 @@ data class Reminders(
     val timesPerMonth: Int = 0,         // How many month(s)
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
     val iconName: String = "",              // store icon key (ex: "water_drop"), not R.drawable.id
-    val name: String,
-    val enabled: Boolean,
-    val completedTally: Long // store icon key (ex: "water_drop"), not R.drawable.id
+    val name: String = "",
+    val enabled: Boolean = false,
+    val completedTally: Long = 0L, // store icon key (ex: "water_drop"), not R.drawable.id
     val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
     val repeatCount: Int = 0,            // how many units
     val repeatInterval: String? = null,  // days, weeks, months or years

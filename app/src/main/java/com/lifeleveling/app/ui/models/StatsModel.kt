@@ -1,6 +1,11 @@
 package com.lifeleveling.app.ui.models
 
+// TODO: Needs To use a Long Data type instead of int.
+//  firebase and the data classes are setup to use 64 bit signed integers
+//  A.K.A Long this being used in the ui could result in loss of data
+//  https://firebase.google.com/docs/firestore/manage-data/data-types
 data class StatsUi(
+
     val level: Int,
     val currentXp: Int,
     val xpToNextLevel: Int,

@@ -34,6 +34,8 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.data.Reminders
+import com.lifeleveling.app.data.UserDoc
+import com.lifeleveling.app.util.GlobalConst
 import java.time.LocalDate
 
 /*
@@ -42,6 +44,8 @@ fun found in this file
 * LevelAndProgress
 * EquipmentDisplay
  */
+
+
 
 /**
  * Level and Experience Display
@@ -83,7 +87,7 @@ fun LevelAndProgress(
                 StatsUi(
                     level            = u.level.toInt(),
                     currentXp        = u.currentXp.toInt(),
-                    xpToNextLevel    = u.xpToNextLevel.toInt(),
+                    xpToNextLevel    = (u.level.toInt() * 100), // TODO: Implement User manager and Find a way to access xpToNextLevel
                     usedLifePoints   = 0,
                     unusedLifePoints = u.lifePointsUsed.toInt(),                // total life point pool
                     strength         = baseStats.strength.toInt(),
@@ -183,7 +187,7 @@ fun HealthDisplay(
         val user = repo.getCurrentUser(logger)
         if (user != null) {
             currentHealth = user.currHealth.toInt()
-            maxHealth = user.maxHealth.toInt()
+            maxHealth = GlobalConst.BASE_HEALTH.toInt() + (5 * user.stats.health.toInt()) // TODO: Implement User manager and Find a way to access xpToNextLevel
         } else {
             logger.e("Home", "HealthDisplay: could not load current user.")
         }

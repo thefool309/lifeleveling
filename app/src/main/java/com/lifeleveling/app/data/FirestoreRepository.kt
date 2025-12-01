@@ -1055,12 +1055,11 @@ companion object {
         }
 
         // Loads current user
-        val user = getUser(uid, logger) ?: return false
+        val user: UserDoc = getUser(uid, logger) ?: return false
         val stats = user.stats
 
-        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
-        val currentLifePointsPool = user.lifePoints
-        val newLifePointsPool = usedLifePoint+currentLifePointsPool
+        
+        val newLifePointsPoolTotal = user.lifePointsTotal
 
         val docRef = db.collection("users").document(uid)
         return try {
@@ -1075,7 +1074,7 @@ companion object {
             docRef.update(
                 mapOf(
                     "stats" to resetStats,
-                    "lifePoints" to newLifePointsPool,
+                    "lifePoints" to newLifePointsPoolTotal,
                 )
             ).await()
 

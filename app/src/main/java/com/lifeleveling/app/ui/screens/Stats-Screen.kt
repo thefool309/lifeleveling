@@ -370,7 +370,7 @@ fun StatsScreenRoute(
     val uiState = StatsUi(
         level           = u.level.toInt(),
         currentXp       = u.currentXp.toInt(),
-        xpToNextLevel   = u.xpToNextLevel.toInt(),
+        xpToNextLevel   = (u.level.toInt() * 100), // TODO: Implement User manager and Find a way to access xpToNextLevel
         usedLifePoints  = 0,                                    // Starts the session with used = 0
         unusedLifePoints= lifePool,                             // total spendable life points for the session
         strength        = baseStats.strength.toInt(),
