@@ -49,16 +49,18 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
+
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
 
 
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
+import com.lifeleveling.app.ui.screens.PasswordResetScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
-
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
@@ -74,7 +76,7 @@ import android.Manifest
 
 class MainActivity : ComponentActivity() {
 
-    
+
     val logTag = "MainActivity"
     val logger = AndroidLogger()
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -296,27 +298,22 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 }
                                             }
-
-                                            /* email/password auth */
                                         },
-
                                         // Auth with Google Sign In
                                         onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)
                                         },
-
                                         // Create account screen
                                         onCreateAccount = {
-                                            preAuthNav.navigate("createAccount") {
-                                                //launchSingleTop = false
-                                            }
+                                            preAuthNav.navigate("createAccount")
                                         },
                                         email,
                                         password,
                                         authState = authState,
-                                        onDismissError = {authVm.clearError()}
+                                        onDismissError = {authVm.clearError()},
+                                        onForgotPassword = { preAuthNav.navigate("passwordReset") },
                                     )
                                 }
                                 composable("createAccount") {
@@ -347,11 +344,27 @@ class MainActivity : ComponentActivity() {
                                         password
                                     )
                                 }
+                                composable("passwordReset") {
+                                    val email = remember { mutableStateOf("") }
+                                    val logger : ILogger = AndroidLogger()
+                                    PasswordResetScreen(
+                                        email = email,
+                                        onReset = { email, callback ->
+                                            authVm.sendPasswordResetEmail(email, logger) { ok, message ->
+                                                callback(ok, message)
+                                            }
+                                        },
+                                        backToLogin = { preAuthNav.navigate("signIn") }
+                                    )
+                                }
                             }
                         } else {
 
                             // Main App UI
                             val navController = rememberNavController()
+                            val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
+                            val logger = remember { AndroidLogger() }
+                            val scope = rememberCoroutineScope()
                             Surface(color = AppTheme.colors.Background) {
                                 Scaffold(
                                     bottomBar = { BottomNavigationBar(navController = navController) },
@@ -361,9 +374,14 @@ class MainActivity : ComponentActivity() {
                                         padding = padding,
                                         isDarkThemeState = isDarkThemeState,
                                         onSignOut = {authVm.signOut(this@MainActivity)},
-                                        onDeleteAccount = {
-                                            val logger = AndroidLogger()
-                                            authVm.deleteAccount(logger)}
+                                        onDeleteAccount = {authVm.deleteAccount(logger)},
+                                        onResetLifePoints = {
+                                            scope.launch {
+                                                val ok = repo.resetLifePoints(logger)
+                                            }
+                                        },
+                                        repo = repo,
+                                        logger = logger
                                     )
                                 }
                             }
@@ -380,8 +398,11 @@ fun NavHostContainer(
     navController: NavHostController,
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
+    onResetLifePoints: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
+    repo: com.lifeleveling.app.data.FirestoreRepository,
+    logger: AndroidLogger,
 ) {
     NavHost(
         navController = navController,
@@ -389,7 +410,9 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable("calendar") {
-                CalendarScreen()
+                CalendarScreen(
+                    navController = navController,
+                )
             }
             composable("stats") {
                 StatsScreenRoute()
@@ -408,7 +431,8 @@ fun NavHostContainer(
                         isDarkThemeState.value = newIsDark
                     },
                     onSignOut = onSignOut,
-                    onDeleteAccount = onDeleteAccount
+                    onDeleteAccount = onDeleteAccount,
+                    onResetLifePoints = onResetLifePoints
                 )
             }
             composable ("notifications"){
@@ -423,6 +447,13 @@ fun NavHostContainer(
             composable ("journey_stats") {
                 UserJourneyScreen(navController = navController)
             }
+            composable("createReminderScreen") {
+                CreateReminderScreen(
+                    navController = navController,
+                    repo = repo,
+                    logger = logger)
+            }
+
         }
     )
 }

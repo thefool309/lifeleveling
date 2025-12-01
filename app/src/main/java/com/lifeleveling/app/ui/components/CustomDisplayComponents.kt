@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +33,8 @@ import com.lifeleveling.app.ui.models.StatsUi
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
+import com.lifeleveling.app.data.Reminders
+import java.time.LocalDate
 
 /*
 Reusable components that will appear on multiple screens
@@ -163,6 +166,89 @@ fun LevelAndProgress(
         } else -> {}
     }
 }
+
+@Composable
+fun HealthDisplay(
+    //modifier: Modifier = Modifier,
+    showHealthTip: MutableState<Boolean>,
+    fightMeditateSwitch: MutableState<Int>,
+    repo: FirestoreRepository = FirestoreRepository(),
+    logger: ILogger = AndroidLogger(),
+) {
+    var currentHealth by remember { mutableStateOf(0) }
+    var maxHealth by remember { mutableStateOf(1) }   // avoid divide-by-zero
+
+    // Load current user once, like LevelAndProgress
+    LaunchedEffect(Unit) {
+        val user = repo.getCurrentUser(logger)
+        if (user != null) {
+            currentHealth = user.currHealth.toInt()
+            maxHealth = user.maxHealth.toInt()
+        } else {
+            logger.e("Home", "HealthDisplay: could not load current user.")
+        }
+    }
+
+    val safeMax = maxHealth.coerceAtLeast(1)
+    val progress = (currentHealth.toFloat() / safeMax.toFloat()).coerceIn(0f, 1f)
+
+    Column(
+        modifier = Modifier
+            //.weight(.2f)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {// This line of health display
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+                ) {
+            // Heart
+            ShadowedIcon(
+                modifier = Modifier.size(20.dp),
+                imageVector = ImageVector.vectorResource(R.drawable.heart),
+                tint = AppTheme.colors.SecondaryThree,
+                shadowOffset = Offset(4f, 4f)
+            )
+
+            // Health text
+            Text(
+                text = stringResource(R.string.health_display, currentHealth, maxHealth),
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.Gray
+            )
+
+            // Info pop-up button
+            ShadowedIcon(
+                imageVector = ImageVector.vectorResource(R.drawable.info),
+                tint = AppTheme.colors.FadedGray,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable {
+                        //showHealthTip.value = !showHealthTip.value
+                        if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
+                    }
+            )
+        }
+
+        // Health progress bar
+        ProgressBar(
+            progress = progress,
+            progressColor = AppTheme.colors.SecondaryThree
+        )
+
+        // Fight / Meditate switch
+        SlidingSwitch(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            options = listOf(
+                stringResource(R.string.fight),
+                stringResource(R.string.meditate)
+            ),
+            selectedIndex = fightMeditateSwitch.value,
+            onOptionSelected = { fightMeditateSwitch.value = it },
+        )
+    }
+}
+
 
 /**
  * Display of the equipment boxes
@@ -311,3 +397,173 @@ fun EquipmentDisplay(
         }
     }
 }
+
+@Composable
+fun DailyRemindersList(
+    date: LocalDate,
+    repo: FirestoreRepository = FirestoreRepository(),
+    logger: ILogger = AndroidLogger(),
+) {
+    var isLoading by remember { mutableStateOf(true) }
+    var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
+
+    LaunchedEffect(date) {
+        isLoading = true
+        try {
+            reminders = repo.getRemindersForDay(date, logger)
+        } catch (e: Exception) {
+            logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
+            reminders = emptyList()
+        } finally {
+            isLoading = false
+        }
+    }
+
+    when {
+        isLoading -> {
+            // Small inline loader so the user sees *something*
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = AppTheme.colors.SecondaryTwo
+                )
+            }
+        }
+
+        reminders.isEmpty() -> {
+            // Empty-state text – matches Figma “blank day” vibe
+            Text(
+                text = stringResource(R.string.no_reminders_for_day),
+                // add this string in strings.xml: "No reminders for this day yet."
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.FadedGray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+        }
+
+        else -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                reminders.forEach { reminder ->
+                    DailyReminderRow(reminder = reminder, logger = logger)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DailyReminderRow(
+    reminder: Reminders,
+    logger: ILogger,
+) {
+    // How many “slots” we should show for today (1, 4, etc.)
+    val checkboxCount = calculateDailySlots(reminder)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Icon + title (left side)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val iconRes = iconResForName(reminder.iconName)
+            if (iconRes != null) {
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(iconRes),
+                    tint = AppTheme.colors.SecondaryThree,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+            Text(
+                text = reminder.title,
+                style = AppTheme.textStyles.Default,
+                color = AppTheme.colors.Gray
+            )
+        }
+
+        // Checkboxes (right side)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            repeat(checkboxCount) { index ->
+                var checked by remember(reminder.reminderId, index) {
+                    mutableStateOf(false)
+                }
+
+                CustomCheckbox(
+                    checked = checked,
+                    onCheckedChange = { new ->
+                        checked = new
+                        // TODO: hook this up to repo.setReminderCompleted / per-slot tracking
+                        logger.d(
+                            "Reminders",
+                            "Clicked checkbox $index for reminder ${reminder.reminderId}"
+                        )
+                    },
+                    size = 18.dp,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Decide how many checkboxes to show for a reminder on a given day.
+ *
+ * • Every N hours → 24 / N slots (so every 6 hours = 4 checkboxes)
+ * • Every N days → N checkboxes (simple mapping for now)
+ * • Every N weeks / months → N checkboxes (we can refine this to a bit more specific later)
+ * • One-off / simple daily → 1 checkbox.
+ */
+private fun calculateDailySlots(reminder: Reminders): Int {
+    val hours = reminder.timesPerHour
+    val perDay = reminder.timesPerDay
+    val perMonth = reminder.timesPerMonth
+
+    return when {
+        hours > 0 -> (24 / hours).coerceAtLeast(1)
+        perDay > 0 -> perDay
+        perMonth > 0 -> perMonth
+        else -> 1
+    }
+}
+
+/**
+ * Map stored iconName → drawable id. Falls back to the bell icon if we don’t recognize it (can be updated to the correct error icon).
+ */
+private fun iconResForName(iconName: String?): Int? =
+    when (iconName) {
+        "water_drop"     -> R.drawable.water_drop
+        "bed_color"      -> R.drawable.bed_color
+        "shirt_color"    -> R.drawable.shirt_color
+        "med_bottle"     -> R.drawable.med_bottle
+        "shower_bath"    -> R.drawable.shower_bath
+        "shop_color"     -> R.drawable.shop_color
+        "person_running" -> R.drawable.person_running
+        "heart"          -> R.drawable.heart
+        "bell"           -> R.drawable.bell
+        "brain"          -> R.drawable.brain
+        "document"       -> R.drawable.document
+        "doctor"         -> R.drawable.doctor
+        else             -> R.drawable.bell
+    }

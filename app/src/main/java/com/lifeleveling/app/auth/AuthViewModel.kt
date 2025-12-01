@@ -127,7 +127,7 @@ class AuthViewModel : ViewModel() {
         Firebase.firestore.collection("authLogs")
             .add(
                 mapOf(
-                    "ts" to com.google.firebase.Timestamp.now(),
+                    "ts" to Timestamp.now(),
                     "source" to "emailPasswordLogin",
                     "provider" to provider,
                     "uid" to user.uid,
@@ -231,7 +231,7 @@ class AuthViewModel : ViewModel() {
      * 3. Run post-login work (create user doc, log event, etc.).
      * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc.).
      *
-     * Note: even though this function is marked `suspend`, it uses viewModelScope.launch` so it never blocks the caller.
+     * Note: even though this function is marked `suspend`, it uses 'viewModelScope.launch' so it never blocks the caller.
      *
      * @param email  The user’s email address.
      * @param password The user’s password.
@@ -239,7 +239,7 @@ class AuthViewModel : ViewModel() {
      *
      * @author thefool309, fdesouza1992
      */
-    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
+    fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
@@ -290,7 +290,7 @@ class AuthViewModel : ViewModel() {
      * @param logger Used to log any issues during sign-up.
      * @author thefool309, fdesouza1992
      */
-    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
+    fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
@@ -385,6 +385,49 @@ class AuthViewModel : ViewModel() {
                     isLoading = false,
                     error = "Failed to delete account. Please try again."
                 )
+            }
+        }
+    }
+
+    /**
+     * Sends a Firebase password reset email to the user's registered address.
+     *
+     * Flow:
+     * 1. Try to send the reset email using FirebaseAuth.
+     * 2. If it succeeds, call onResult with true and a friendly message.
+     * 3. If it fails, log and call onResult with false and a brief message.
+     * Note: This does NOT change AuthUiState;
+     *
+     * @param email     The email address to send the reset link to.
+     * @param logger    Used for logging errors and warnings.
+     * @param onResult  Callback with successFlag, userFacingMessage.
+     * @author fdesouza1992
+     */
+    fun sendPasswordResetEmail(
+        email: String,
+        logger: ILogger,
+        onResult: (Boolean, Int) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val trimmed = email.trim()
+                auth.sendPasswordResetEmail(trimmed).await()
+                onResult(true, (R.string.resetPasswordEmailSent))
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+                logger.w("FB", "Password reset: no user for ${email.trim()}")
+                onResult(false, (R.string.resetPasswordNoAccountFoundError))
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                logger.e("FB", "Password reset: invalid email format", e)
+                onResult(false, (R.string.resetPasswordEmailError))
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Password reset: FirebaseAuthException", e)
+                onResult(false, (R.string.resetPasswordFirebaseAuthError))
+
+            } catch (e: Exception) {
+                logger.e("FB", "Password reset: unexpected error", e)
+                onResult(false, (R.string.resetPasswordFirebaseAuthError))
             }
         }
     }

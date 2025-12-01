@@ -11,6 +11,10 @@ import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
+import com.google.firebase.firestore.ktx.toObject
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 
 /**
  * A library of CRUD functions for our Firestore Cloud Database.
@@ -166,7 +170,7 @@ companion object {
 
     /**
      * This function is designed for specifically updating the users displayName.
-     * The displayName field is synonomous with a "username."
+     * The displayName field is synonyms with a "username."
      * This will take the new userName string and replace the value of the "displayName" field.
      * @param userName A string representing the new display name for the user
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
@@ -658,8 +662,8 @@ companion object {
                 is String -> raw.toDoubleOrNull() ?: 0.0
                 else -> 0.0
             }
-        fun ts(key: String): com.google.firebase.Timestamp? =
-            data[key] as? com.google.firebase.Timestamp
+        fun ts(key: String): Timestamp? =
+            data[key] as? Timestamp
 
         // stats are stored as a nested map
         val statsMap = data["stats"] as? Map<*, *> ?: emptyMap<String, Any>()
@@ -845,14 +849,23 @@ companion object {
 
         // Build the payload; let Firestore set timestamps
         val payload = hashMapOf(
-            "reminderId" to (if (reminders.reminderId.isNotBlank()) reminders.reminderId else null),
+            "reminderId" to (reminders.reminderId.ifBlank { null }),
             "title" to reminders.title,
             "notes" to reminders.notes,
             "dueAt" to reminders.dueAt,
             "isCompleted" to reminders.isCompleted,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
-            "lastUpdate" to FieldValue.serverTimestamp()
+            "lastUpdate" to FieldValue.serverTimestamp(),
+            "isDaily" to reminders.isDaily,
+            "timesPerHour" to reminders.timesPerHour,
+            "timesPerDay" to reminders.timesPerDay,
+            "timesPerMonth" to reminders.timesPerMonth,
+            "colorToken" to reminders.colorToken,
+            "iconName" to reminders.iconName,
+            "repeatForever" to reminders.repeatForever,
+            "repeatCount" to reminders.repeatCount,
+            "repeatInterval" to reminders.repeatInterval,
         ).filterValues { it != null } // don't write null reminderId if empty
 
         return try {
@@ -943,6 +956,41 @@ companion object {
         }
     }
 
+    suspend fun getRemindersForDay(
+        date: LocalDate,
+        logger: ILogger
+    ): List<Reminders> {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e("Reminders", "getRemindersForDay: user id is null/blank; sign in first.")
+            return emptyList()
+        }
+
+        val zone = ZoneId.systemDefault()
+        val startOfDay = date.atStartOfDay(zone)
+        val endOfDay = startOfDay.plusDays(1)
+
+        val startTs = Timestamp(Date.from(startOfDay.toInstant()))
+        val endTs = Timestamp(Date.from(endOfDay.toInstant()))
+
+        return try {
+            val snap = db.collection("users")
+                .document(uid)
+                .collection("reminders")
+                .whereGreaterThanOrEqualTo("dueAt", startTs)
+                .whereLessThan("dueAt", endTs)
+                .get()
+                .await()
+
+            snap.documents.mapNotNull { doc ->
+                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
+            }
+        } catch (e: Exception) {
+            logger.e("Reminders", "getRemindersForDay failed for $date", e)
+            emptyList()
+        }
+    }
+
     // Fetch a single reminder
 
     // Fetch a list of reminders
@@ -975,6 +1023,66 @@ companion object {
             true
         } catch (e: Exception) {
             logger.e("Firestore", "Error updating lifePoints", e)
+            false
+        }
+    }
+
+    /**
+     * Resets the current user’s stats back to 0 and refunds all spent points into their lifePoints pool.
+     *
+     * Flow:
+     * 1. Look up the currently signed-in user’s ID.
+     * 2. Load their user document and read the current stats + lifePoints.
+     * 3. Sum all points spent across Health, Agility, Intelligence, Defense, and Strength.
+     * 4. Add those spent points back into lifePoints.
+     * 5. Write zeroed-out stats and the new lifePoints total back to Firestore.
+     * 6. Update the user’s timestamp so other parts of the app know the data changed.
+     *
+     * Example:
+     *  Stats: H=5, A=7, I=3, D=8, S=17  (total 40)
+     *  lifePoints = 5
+     *  After reset → all stats = 0, lifePoints = 45.
+     *
+     * @param logger Used to log any errors while resetting life points.
+     * @return true if the Firestore update succeeds, false otherwise.
+     * @author fdesouza1992
+     */
+    suspend fun resetLifePoints(logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+
+        // Loads current user
+        val user = getUser(uid, logger) ?: return false
+        val stats = user.stats
+
+        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
+        val currentLifePointsPool = user.lifePoints
+        val newLifePointsPool = usedLifePoint+currentLifePointsPool
+
+        val docRef = db.collection("users").document(uid)
+        return try {
+            val resetStats = Stats(
+                agility = 0L,
+                defense = 0L,
+                intelligence = 0L,
+                strength = 0L,
+                health = 0L
+            )
+
+            docRef.update(
+                mapOf(
+                    "stats" to resetStats,
+                    "lifePoints" to newLifePointsPool,
+                )
+            ).await()
+
+            updateTimestamp(uid, logger)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error resetting life points", e)
             false
         }
     }

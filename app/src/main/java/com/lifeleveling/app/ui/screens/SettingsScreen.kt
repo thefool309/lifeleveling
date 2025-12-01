@@ -51,10 +51,12 @@ fun SettingScreen(
     onThemeChange: (Boolean) -> Unit,
     onSignOut: () -> Unit ={},
     onDeleteAccount: () -> Unit = {},
+    onResetLifePoints: () -> Unit = {},
 ){
     val scrollState = rememberScrollState()
 
     val showDeleteDialog = remember {mutableStateOf(false)}
+    val showResetLifePointsDialog = remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
@@ -229,6 +231,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
+                                .clickable { showResetLifePointsDialog.value = true }
 
                         )
                     }
@@ -364,6 +367,77 @@ fun SettingScreen(
         }
     }
 
+    // Reset Life Points Dialog Box
+    if (showResetLifePointsDialog.value) {
+        CustomDialog(
+            toShow = showResetLifePointsDialog,
+            dismissOnInsideClick = false,
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.resetLifePoints),
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    )
+                )
+                Text(
+                    text = stringResource(R.string.resetLifePointsWarning),
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    // Cancel button
+                    CustomButton(
+                        onClick = { showResetLifePointsDialog.value = false },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Success75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    // Confirm Reset Button
+                    CustomButton(
+                        onClick = {
+                            showResetLifePointsDialog.value = false
+                            onResetLifePoints()
+                        },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Error75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.reset),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // Delete Account Dialog Box
     if (showDeleteDialog.value) {
         CustomDialog(
             toShow = showDeleteDialog,
@@ -450,6 +524,7 @@ fun PreviewSettingScreen() {
             isDarkTheme = newIsDark // update the state in preview
         },
         onSignOut = {},
-        onDeleteAccount = {}
+        onDeleteAccount = {},
+        onResetLifePoints = {}
     )
 }
