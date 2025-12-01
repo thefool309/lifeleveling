@@ -1,50 +1,39 @@
 package com.lifeleveling.app.data
 
-import android.media.session.MediaSession
+import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
 
 data class Users(
-    val userId: String = "",
-    val displayName: String = "",
-    val email: String = "",
-    val photoUrl: String = "",
-    val coinsBalance: Long = 0,
+    override val userId: String = "",
+    override val displayName: String = "",
+    override val email: String = "",
+    override val photoUrl: String = "",
+    override val coinsBalance: Long = 0,
     // Update from inline map to now use Stats data class
-    val stats: Stats = Stats(),
-    val streaks: Long = 0,
-    val onboardingComplete: Boolean = false,
-    val createdAt: Timestamp? = null,
-    val lastUpdate: Timestamp? = null,
+    override val stats: Stats = Stats(),
+    override val streaks: Long = 0,
+    override val onboardingComplete: Boolean = false,
+    override val createdAt: Timestamp? = null,
+    override val lastUpdate: Timestamp? = null,
     // variables that were missing during our first introduction of the Users collection
-    var level: Long = 1,
-    val lifePoints: Long = 0,           // unused lifePoints
-    val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
-    val currHealth: Long = 0,
+    override var level: Long = 1,
+    override val lifePoints: Long = 0,           // unused lifePoints
+    override val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
+    override val currHealth: Long = 0,
     // Badges can be stored in arrays of Badge objects on user doc.
-    val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
-    val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
-    ) {
-    // for a derived property like this it is not necessary to include in firebase
-    // since it's calculated everytime a user is instantiated
-    // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
-    var xpToNextLevel: Long = 0L
-    var maxHealth: Long = 0L
-    val baseHealth: Long = 60L
-    init {
-        calculateXpToNextLevel()
-        calculateMaxHealth()
-    }
+    override val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
+    override val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
+    ) : UserBase {
 
-    fun calculateXpToNextLevel() {
-        xpToNextLevel = level * 100L
-    }
-
-    fun calculateMaxHealth() {
-        val healthStat = stats.health
-        maxHealth = baseHealth + (healthStat * 5)
-    }
 }
 
+
+data class UserState(val user: Users,
+                var xpToNextLevel: Long = 0L,
+                var maxHealth: Long = 0L,
+                val baseHealth: Long = 60L) : ViewModel() {
+
+}
 
 
 // Nested Models

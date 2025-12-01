@@ -1,20 +1,15 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
-import java.util.HashMap
-import java.util.Hashtable
 import kotlin.Long
 
 /**
@@ -26,15 +21,17 @@ import kotlin.Long
  * @author thefool309
  * @property db a shortened alias for `Firebase.firestore`
  * @property auth a shortened alias for `Firebase.auth`
- * @property logTag a tag added by thefool309 for debugging purposes. I chose a centralized tag so we could quickly identify what file any log is coming from
+ * @property TAG a tag added by thefool309 for debugging purposes. I chose a centralized tag so we could quickly identify what file any log is coming from
  */
 class FirestoreRepository {
+
+    class DataIsNullException(message: String) : Exception(message)
     private val auth = Firebase.auth
 
     private val db = Firebase.firestore
-
-    private val logTag = "FirestoreRepository"
-
+companion object {
+    private const val TAG = "FirestoreRepository"
+}
     // Helper functions
     private fun getUserId() : String? {
         return auth.currentUser?.uid
@@ -50,7 +47,7 @@ class FirestoreRepository {
                 .update("lastUpdate", Timestamp.now())
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating Timestamp", e)
+            logger.e(TAG, "Error Updating Timestamp", e)
         }
     }
 
@@ -130,6 +127,8 @@ class FirestoreRepository {
      * @author thefool309, fdesouza1992
      * @return Users?
      * @see ILogger
+     * @sample FirestoreSamplesViewModel launching in a view model
+     * @sample FirestoreSamples launching directly
      */
     suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
         val currentUser = auth.currentUser
@@ -153,13 +152,13 @@ class FirestoreRepository {
             }
             catch (e: Exception) {
                 // unknown error saving user to Firebase
-                logger.e(logTag, "Error Saving User: ", e)
+                logger.e(TAG, "Error Saving User: ", e)
                 null
             }
 
         } else {
             // No user is signed in
-            logger.e(logTag, "UID is null. Please authenticate user before calling CreateUser...")
+            logger.e(TAG, "UID is null. Please authenticate user before calling CreateUser...")
             null
         }
 
@@ -178,13 +177,13 @@ class FirestoreRepository {
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
         if(userName.isBlank()) {
-            logger.e(logTag,"User name is empty. Please add user name...")
+            logger.e(TAG,"User name is empty. Please add user name...")
             return false
         }
         try {
@@ -194,7 +193,7 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -210,13 +209,13 @@ class FirestoreRepository {
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
         if(email.isBlank()) {
-            logger.e(logTag,"User email is empty. Please add user email.")
+            logger.e(TAG,"User email is empty. Please add user email.")
             return false
         }
         try {
@@ -225,7 +224,7 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
 
@@ -242,13 +241,13 @@ class FirestoreRepository {
     suspend fun editPhotoUrl(url: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
         if(url.isBlank()) {
-            logger.e(logTag,"Photo url is empty. Please add Photo url.")
+            logger.e(TAG,"Photo url is empty. Please add Photo url.")
             return false
         }
         try {
@@ -257,7 +256,7 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -271,7 +270,7 @@ class FirestoreRepository {
     suspend fun incrementStreaks( logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
-            logger.e(logTag,"User ID is empty. Please make sure you're signed in.")
+            logger.e(TAG,"User ID is empty. Please make sure you're signed in.")
             return false
         }
         val docRef = db.collection("users")
@@ -285,7 +284,7 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -300,7 +299,7 @@ class FirestoreRepository {
     suspend fun setStats(stats: Stats, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -311,7 +310,7 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception){
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
 
@@ -325,7 +324,7 @@ class FirestoreRepository {
     suspend fun setCurrHealth(health: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -337,7 +336,7 @@ class FirestoreRepository {
             return true
         }
         catch(e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -350,7 +349,7 @@ class FirestoreRepository {
     suspend fun setCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -361,7 +360,7 @@ class FirestoreRepository {
             return true
         }
         catch(e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -375,7 +374,7 @@ class FirestoreRepository {
     suspend fun addCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -389,7 +388,7 @@ class FirestoreRepository {
             return true
         }
         catch(e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -398,11 +397,12 @@ class FirestoreRepository {
      * @return Boolean
      * @param coins  a long that contains the amount of coins to subtract
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @sample
      */
     suspend fun subtractCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -431,7 +431,7 @@ class FirestoreRepository {
     suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")  // and waste a ton of time
@@ -449,7 +449,7 @@ class FirestoreRepository {
             true
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             false
         }
     }
@@ -463,7 +463,7 @@ class FirestoreRepository {
     suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -507,16 +507,43 @@ class FirestoreRepository {
     }
 
     /**
+     * Get Xp. Returns a long representing the currentXp
+     */
+    suspend fun getXp(logger: ILogger) : Long {
+        val docRef = db.collection("users")
+        .document(getUserId()!!)
+        // currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
+        //
+        val data = docRef.get().await().data
+        try {
+            if(data!!.containsKey("currentXp")) {
+                return data["currentXp"] as Long
+            }
+            else {
+                // all data bearing the currXp tag has been removed from the database, so throw an exception if the field doesn't exist
+                throw DataIsNullException("currentXp is null")
+            }
+        }
+        catch(e: DataIsNullException) {
+            logger.e(TAG, "Error Getting XP: ${ e.message }", e)
+            return -1
+        }
+        catch(e: Exception) {
+            logger.e(TAG, "Error Getting XP: ", e)
+            return -1
+        }
+    }
+    /**
     * A function for adding Xp to the users firestore data
     * @param xp A double representing the amount of xp to be added
      * @param logger A double representing the amount of xp to be added
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @author thefool309, fd
+     * @author thefool309, fdesouza1992
      */
     suspend fun addXp(xp: Double, logger: ILogger) : Users? {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return null
         }
         val docRef = db.collection("users")
@@ -534,18 +561,20 @@ class FirestoreRepository {
             // write back to "currentXp" (canonical)
             docRef.update("currentXp", newXp).await()
 
-            var user = getUser(userId, logger) ?: run {
-                logger.e(logTag, "Error Updating User: Please make sure you're logged in")
+            val user = getUser(userId, logger) ?: run {
+                logger.e(TAG, "Error Updating User: Please make sure you're logged in")
                 return null
             }
-
-            if (newXp >= user.xpToNextLevel.toDouble()) {
-                if (!incrementLevel(logger)) {
-                    logger.e(logTag, "Level increment failed")
-                }
-                user = getUser(userId, logger) ?: return null
-                user.calculateXpToNextLevel()
-            }
+            // this logic will be handled in the UserManager
+//            var userState = UserState(user)
+//
+//            if (newXp >= userState.xpToNextLevel.toDouble()) {
+//                if (!incrementLevel(logger)) {
+//                    logger.e(logTag, "Level increment failed")
+//                }
+//                user = getUser(userId, logger) ?: return null
+//
+//            }
             user
         } catch (e: Exception) {
             logger.e("Firestore", "Error Updating User: ", e)
@@ -565,11 +594,11 @@ class FirestoreRepository {
         // get user ID
         val uID: String? = getUserId()
         if(uID == null) {
-            logger.e(logTag,"ID is null. Please login to firebase.")
+            logger.e(TAG,"ID is null. Please login to firebase.")
             return false
         }
         if(token == null) {
-            logger.e(logTag, "Token is null. Please login to firebase.")
+            logger.e(TAG, "Token is null. Please login to firebase.")
             return false
         }
         // document reference
@@ -584,7 +613,7 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e(logTag, "Error Updating User: ", e)
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
     }
@@ -662,9 +691,6 @@ class FirestoreRepository {
             badgesUnlocked     = emptyList(),
         )
 
-        // derive fields
-        user.calculateXpToNextLevel()
-        user.calculateMaxHealth()
         return user
     }
 
