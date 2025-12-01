@@ -21,7 +21,7 @@ interface UserBase {
     val streaks: List<Streak>
     val onboardingComplete: Boolean
     val createdAt: Timestamp?
-    val lastUpdate: Timestamp?
+    var lastUpdate: Timestamp?
     // variables that were missing during our first introduction of the Users collection
     var level: Long
     val lifePointsUsed: Long // unused lifePoints

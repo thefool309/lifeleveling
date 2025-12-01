@@ -2,6 +2,8 @@ package com.lifeleveling.app.data
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
+import com.google.firebase.firestore.ServerTimestamp
 import com.lifeleveling.app.util.GlobalConst
 
 data class UserDoc(
@@ -15,9 +17,18 @@ data class UserDoc(
     override val stats: Stats = Stats(),
     override val streaks: List<Streak> = emptyList(),
     override val onboardingComplete: Boolean = false,
+
     override val createdAt: Timestamp? = null,
-    override val lastUpdate: Timestamp? = null,
+    // Automatically populates the timestamp when the document is created/updated
+    @get:ServerTimestamp
+    @set:ServerTimestamp
+    override var lastUpdate: Timestamp? = null,
     // variables that were missing during our first introduction of the Users collection
+
+
+    // set different names in the database for properties with the below macros
+    //@set:PropertyName("level")
+    //@get:PropertyName("level")
     override var level: Long = 1,
     override val lifePointsUsed: Long = 0,           // unused lifePoints
     override val lifePointsTotal: Long = 0,

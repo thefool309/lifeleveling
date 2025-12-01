@@ -63,7 +63,7 @@ companion object {
         val firstTime = !snap.exists()
 
         // Compose the write payload using your Users model defaults
-        val model = Users(
+        val model = UserDoc(
             userId = uid,
             displayName = user.displayName.orEmpty(),
             email = user.email.orEmpty(),
@@ -76,13 +76,13 @@ companion object {
                 strength = 0L,
                 health = 0L
             ),
-            streaks = 0L,
+            streaks = emptyList(),
             onboardingComplete = false,
             createdAt = null,
             lastUpdate = null,
             level = 1L,
             lifePointsUsed = 4L,        // Adding some life points to demo
-            currentXp = 0.0,
+            currentXp = 0L,
             // xpToNextLevel is derived in Users, and we are not storing it
             currHealth = 10,
             badgesLocked = emptyList(),
@@ -90,28 +90,31 @@ companion object {
 
         )
 
-        val data = mutableMapOf<String, Any?>(
-            "userId" to model.userId,
-            "displayName" to model.displayName,
-            "email" to model.email,
-            "photoUrl" to model.photoUrl,
-            "coinsBalance" to model.coinsBalance,
-            "stats" to model.stats,
-            "streaks" to model.streaks,
-            "onboardingComplete" to model.onboardingComplete,
-            "createdAt" to model.createdAt,
-            "lastUpdate" to FieldValue.serverTimestamp(),
-            "level" to model.level,
-            "lifePoints" to model.lifePointsUsed,
-            "currentXp" to model.currentXp,
-            "currHealth" to model.currHealth,
-            "badgesLocked" to model.badgesLocked,
-            "badgesUnlocked" to model.badgesUnlocked,
-        )
+        // no need for data mutableMap. Can save data class directly
+
+//        val data = mutableMapOf<String, Any?>(
+//            "userId" to model.userId,
+//            "displayName" to model.displayName,
+//            "email" to model.email,
+//            "photoUrl" to model.photoUrl,
+//            "coinsBalance" to model.coinsBalance,
+//            "stats" to model.stats,
+//            "streaks" to model.streaks,
+//            "onboardingComplete" to model.onboardingComplete,
+//            "createdAt" to model.createdAt,
+//            "lastUpdate" to FieldValue.serverTimestamp(),
+//            "level" to model.level,
+//            "lifePoints" to model.lifePointsUsed,
+//            "currentXp" to model.currentXp,
+//            "currHealth" to model.currHealth,
+//            "badgesLocked" to model.badgesLocked,
+//            "badgesUnlocked" to model.badgesUnlocked,
+//        )
 
         if (firstTime) {
+            // you can call set on a data class object. There is no need to map it out.
             // first creation: write the full payload
-            docRef.set(data, SetOptions.merge()).await()
+            docRef.set(model, SetOptions.merge()).await()
         } else {
             // existing user: only bump lastUpdate (do NOT overwrite stats/lifePoints)
             docRef.set(mapOf("lastUpdate" to FieldValue.serverTimestamp()), SetOptions.merge()).await()
@@ -645,11 +648,11 @@ companion object {
             return null
         }
 
-        var userDoc: Users? = null
+        var userDoc: UserDoc? = null
         val userSnap = docRef.get()
             .await()
         if (userSnap.exists() && userSnap != null) {
-            userDoc = userSnap.toObject(Users::class.java)
+            userDoc = userSnap.toObject(UserDoc::class.java)
             return userDoc
         }
         if (!userSnap.exists()) {
