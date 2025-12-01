@@ -610,62 +610,24 @@ class FirestoreRepository {
             return null
         }
 
-        val snap = docRef.get().await()
-        if (!snap.exists()) {
+        var userDoc: Users? = null
+        val userSnap = docRef.get()
+            .await()
+        if (userSnap.exists() && userSnap != null) {
+            userDoc = userSnap.toObject(Users::class.java)
+            return userDoc
+        }
+        if (!userSnap.exists()) {
             logger.e("Firestore", "users/$uID does not exist.")
             return null
         }
 
-        val data = snap.data ?: run {
+        val data = userSnap.data ?: run {
             logger.e("Firestore", "users/$uID has no data.")
             return null
         }
 
-        fun num(key: String): Long =
-            (data[key] as? Number)?.toLong() ?: 0L
-        fun dbl(key: String): Double =
-            when (val raw = data[key]) {
-                is Number -> raw.toDouble()
-                is String -> raw.toDoubleOrNull() ?: 0.0
-                else -> 0.0
-            }
-        fun ts(key: String): com.google.firebase.Timestamp? =
-            data[key] as? com.google.firebase.Timestamp
-
-        // stats are stored as a nested map
-        val statsMap = data["stats"] as? Map<*, *> ?: emptyMap<String, Any>()
-        val stats = Stats(
-            agility       = (statsMap["agility"] as? Number)?.toLong() ?: 0L,
-            defense       = (statsMap["defense"] as? Number)?.toLong() ?: 0L,
-            intelligence  = (statsMap["intelligence"] as? Number)?.toLong() ?: 0L,
-            strength      = (statsMap["strength"] as? Number)?.toLong() ?: 0L,
-            health        = (statsMap["health"] as? Number)?.toLong() ?: 0L,
-        )
-
-        val user = Users(
-            userId             = data["userId"] as? String ?: uID,
-            displayName        = data["displayName"] as? String ?: "",
-            email              = data["email"] as? String ?: "",
-            photoUrl           = data["photoUrl"] as? String ?: "",
-            coinsBalance       = num("coinsBalance"),
-            stats              = stats,
-            streaks            = num("streaks"),
-            onboardingComplete = data["onboardingComplete"] as? Boolean ?: false,
-            createdAt          = ts("createdAt"),
-            lastUpdate         = ts("lastUpdate"),
-            level              = (data["level"] as? Number)?.toLong() ?: 1L,
-            lifePoints         = num("lifePoints"),
-            // support either "currentXp" (new) or "currXp" (legacy)
-            currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
-            currHealth         = num("currHealth"),
-            badgesLocked       = emptyList(),   // map arrays if/when needed
-            badgesUnlocked     = emptyList(),
-        )
-
-        // derive fields
-        user.calculateXpToNextLevel()
-        user.calculateMaxHealth()
-        return user
+        return null
     }
 
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
