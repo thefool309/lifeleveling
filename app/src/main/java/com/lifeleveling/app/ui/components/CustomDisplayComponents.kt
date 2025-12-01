@@ -487,10 +487,9 @@ private fun DailyReminderRow(
             val iconRes = iconResForName(reminder.iconName)
             if (iconRes != null) {
                 ShadowedIcon(
-                    modifier = Modifier.size(20.dp),
                     imageVector = ImageVector.vectorResource(iconRes),
                     tint = AppTheme.colors.SecondaryThree,
-                    shadowOffset = Offset(3f, 3f),
+                    modifier = Modifier.size(40.dp)
                 )
             }
 
