@@ -490,7 +490,7 @@ private fun DailyReminderRow(
                 ShadowedIcon(
                     imageVector = ImageVector.vectorResource(iconRes),
                     tint = Color.Unspecified,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             }
 
