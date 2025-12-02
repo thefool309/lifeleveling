@@ -39,7 +39,7 @@ import com.lifeleveling.app.ui.components.SingleBadgeDisplay
 import com.lifeleveling.app.ui.components.StreaksToolTip
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 
-@Preview
+//@Preview
 @Composable
 fun StreaksScreen(
     navController: NavController? = null,

@@ -43,8 +43,12 @@ import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
 import kotlin.text.isEmpty
 
+// Helper Function to block gmail/googlemail on the email/password path
+private fun isGoogleMailboxUi(email: String): Boolean =
+    email.endsWith("@gmail.com", ignoreCase = true) ||
+            email.endsWith("@googlemail.com", ignoreCase = true)
 
-
+// @Preview(showBackground = true)
 @Composable
 fun CreateAccountScreen(
     onJoin: () -> Unit = {println("Join pressed")},
@@ -53,7 +57,7 @@ fun CreateAccountScreen(
     email: MutableState<String>,
     password: MutableState<String>,
 ) {
-
+    val isGmail = isGoogleMailboxUi(email.value)
     val pwordRules = PasswordRules(password.value)
     val isPasswordValid = pwordRules.all{it.second}
     val termsCheck = remember { mutableStateOf(false) }
@@ -137,8 +141,16 @@ fun CreateAccountScreen(
                         placeholderTextColor = AppTheme.colors.Gray,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingUnit = {
-                            if(email.value.isEmpty()){
-                                Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
+                            when {
+                                email.value.isEmpty() ->
+                                    Text(stringResource(R.string.emailNotEmpty),
+                                        style = AppTheme.textStyles.Small,
+                                        color = AppTheme.colors.Error)
+
+                                isGmail ->
+                                    Text("Use 'Login using Google' for Gmail addresses.",
+                                        style = AppTheme.textStyles.Small,
+                                        color = AppTheme.colors.Error)
                             }
                         },
                         backgroundColor = AppTheme.colors.DarkerBackground
@@ -156,7 +168,7 @@ fun CreateAccountScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         supportingUnit = {
                             Column {
-                                pwordRules.forEach {rule ->
+                                pwordRules.forEach { rule: Pair<String, Boolean> ->
                                     Text(text = rule.first,
                                         color = if(rule.second){
                                             AppTheme.colors.SecondaryTwo
@@ -190,7 +202,8 @@ fun CreateAccountScreen(
                     // Join
                     CustomButton(
                         onClick = onJoin,
-                        enabled = isPasswordValid && termsCheck.value && email.value != "",
+                        enabled = !isGmail && email.value.isNotEmpty() && isPasswordValid && termsCheck.value
+                        ,
                         content = {
                             Text(stringResource(R.string.join), color = AppTheme.colors.DarkerBackground,style = AppTheme.textStyles.HeadingSix)
                         }

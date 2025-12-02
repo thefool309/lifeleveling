@@ -13,7 +13,16 @@ import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
 
-
+/**
+ * A library of CRUD functions for our Firestore Cloud Database.
+ * This is instantiated as an object, then the functions are called from the object.
+ * This is for access to private member variables(properties),
+ * to simplify the use of `Firebase.firestore` and `Firebase.auth`.
+ * @author Felipe
+ * @author thefool309
+ * @property db a shortened alias for `Firebase.firestore`
+ * @property auth a shortened alias for `Firebase.auth`
+ */
 class FirestoreRepository {
     private val db = Firebase.firestore
     private val auth = Firebase.auth
@@ -94,21 +103,28 @@ class FirestoreRepository {
         )
 
         if (firstTime) {
-            data["createdAt"] = FieldValue.serverTimestamp()
+            // first creation: write the full payload
+            docRef.set(data, SetOptions.merge()).await()
+        } else {
+            // existing user: only bump lastUpdate (do NOT overwrite stats/lifePoints)
+            docRef.set(mapOf("lastUpdate" to FieldValue.serverTimestamp()), SetOptions.merge()).await()
         }
-
-        // merge = idempotent; won’t blow away future fields
-        docRef.set(data, SetOptions.merge()).await()
 
         Log.d("FB", "users/$uid created=$firstTime")
         return firstTime
     }
+
     /**
-     * :3c Velma wuz here >^.^<
+     * This function creates a user data store in the Firestore Cloud Storage section of the project.
+     * It takes a map of userData, with the key being the name of the field to be filled,
+     * and an ILogger, which is an interface defined in this project to make the code more detachable.
+     * We use a suspend function because FirebaseFirestore is async
+     * @param userData a map of userData, with the key being the name of the field to be filled
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Users?
+     * @see ILogger
      */
-    // Function to create user and store in firebase
-    // returns null on failure. We use a suspend function because
-    // FirebaseFirestore is async
     suspend fun createUser(userData: Map<String, Any>, logger: ILogger): Users? {
         val currentUser = auth.currentUser
 
@@ -146,6 +162,16 @@ class FirestoreRepository {
     // function to edit user in firebase this function is unsafe and can
     // make dangerous type mismatches between the database and the code
     // Use at your own peril
+    /**
+     * This Function is now defunct and deprecated in favor of the more specific functions for updating specific fields.
+     * If you really feel you want to use this function, use it with caution, because storing the wrong data type,
+     * can actually cause a cascading failure in the getUser function, causing fields to be blank in the user object
+     * @param userData a map of userData, with the key being the name of the field to be filled
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editUser(userData: Map<String, Any>, logger: ILogger) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
         // if the user is not authenticated then authenticate before calling this function
@@ -167,7 +193,16 @@ class FirestoreRepository {
     }
 
     // User information
-
+    /**
+     * This function is designed for specifically updating the users displayName.
+     * The displayName field is synonomous with a "username."
+     * This will take the new userName string and replace the value of the "displayName" field.
+     * @param userName A string representing the new display name for the user
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -191,7 +226,15 @@ class FirestoreRepository {
             return false
         }
     }
-
+    /**
+     * A function for editing the Users "email" field.
+     * This will take the new email and update the field in Firestore Cloud storage.
+     * @param email A string containing the updated email.
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -216,6 +259,14 @@ class FirestoreRepository {
 
     }
 
+    /**
+     * A function for editing the value stored as the URL for the users photo they choose to represent themselves.
+     * @param url A string representing the URL of the user's photo they choose to represent themselves
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309
+     * @return Boolean
+     * @see ILogger
+     */
     suspend fun editPhotoUrl(url: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -375,9 +426,9 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")  // and waste a ton of time
             .document(userId)
-        try {
+        return try {
             val data = docRef.get().await()
-            val onboarding = data["onboarding"] as Boolean
+            val onboarding = data["onboardingComplete"] as Boolean
             if(onboarding) {
                 docRef.update("onboardingComplete", false).await()
             }
@@ -385,13 +436,15 @@ class FirestoreRepository {
                 docRef.update("onboardingComplete", true).await()
             }
             updateTimestamp(userId, logger)
-            return true
+            true
         }
         catch (e: Exception) {
             logger.e("FireStore", "Error Updating User: ", e)
-            return false
+            false
         }
     }
+
+    // By Velma
     // an overload to pass in a specific value
     suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
@@ -420,13 +473,13 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")
             .document(userId)
-        try {
+        return try {
             val data = docRef.get().await()
-            var newLevel = data["level"] as Int
-            newLevel = ++newLevel
-            docRef.update("level", newLevel).await()
+            val curr = (data["level"] as? Number)?.toLong() ?: 1L
+            val next = curr + 1L
+            docRef.update("level", next).await()
             updateTimestamp(userId, logger)
-            return true
+            true
         }
         catch(e: Exception) {
             logger.e("Firestore", "Error Updating User: ", e)
@@ -434,7 +487,8 @@ class FirestoreRepository {
         }
     }
 
-    suspend fun addXp(xp: Double, logger: ILogger) : Users? /*returns the updated User or null if it fails*/ {
+    // By Velma
+    suspend fun addXp(xp: Double, logger: ILogger) : Users? {
         val userId: String? = getUserId()
         if(userId == null) {
             logger.e("Auth","ID is null. Please login to firebase.")
@@ -442,29 +496,35 @@ class FirestoreRepository {
         }
         val docRef = db.collection("users")
             .document(userId)
-        try {
+        return try {
             val data = docRef.get().await()
-            var newXp = data["currXp"] as Double
-            newXp += xp
-            docRef.update("xp", newXp).await()
-            var user = getUser(userId, logger)
-            if(user == null) {
+
+            // read either "currentXp" (new) or "currXp" (legacy)
+            val current = when (val raw = data["currentXp"] ?: data["currXp"]) {
+                is Number -> raw.toDouble()
+                is String -> raw.toDoubleOrNull() ?: 0.0
+                else -> 0.0
+            }
+            val newXp = current + xp
+            // write back to "currentXp" (canonical)
+            docRef.update("currentXp", newXp).await()
+
+            var user = getUser(userId, logger) ?: run {
                 logger.e("Auth", "Error Updating User: Please make sure you're logged in")
                 return null
             }
-            if(newXp > user.xpToNextLevel) {
-                incrementLevel(logger)
-                user = getUser(userId, logger)
-                if(user == null) {
-                    return null
+
+            if (newXp >= user.xpToNextLevel.toDouble()) {
+                if (!incrementLevel(logger)) {
+                    logger.e("Auth", "Level increment failed")
                 }
+                user = getUser(userId, logger) ?: return null
                 user.calculateXpToNextLevel()
             }
-            return user
-        }
-        catch(e: Exception) {
+            user
+        } catch (e: Exception) {
             logger.e("Firestore", "Error Updating User: ", e)
-            return null
+            null
         }
     }
 
@@ -539,9 +599,7 @@ class FirestoreRepository {
         return user
     }
 
-
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud
-
     suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger) : Boolean {
         val uid: String? = getUserId()
         if (uid == null) {
@@ -583,26 +641,103 @@ class FirestoreRepository {
         setBadgesUnlocked(newBadgesUnlocked, logger)
     }
 
-    // TODO: add deleteUser() to the users crud
-
-    suspend fun deleteUser(logger: ILogger): Boolean  {
+    /**
+     * Tries to fully delete the currently signed-in user and their data.
+     *
+     * Method Flow:
+     * 1. Grabs the current user ID. If we don't have one, it will log it and stop.
+     * 2. Delete any existing subcollections and logs errors but keeps going
+     * 3. Delete the user document from the 'users' collection in Firestore Database
+     * 4. Delete the Firebase Auth user account.
+     *
+     * If any of the steps fail, method will log the problem and return false so the caller knows delete didn't fully complete
+     *
+     * @param logger Used to log errors and warnings during the delete process
+     * @return 'true' If we made it through the delete steps without a major failure, 'false' otherwise.
+     * @author fdesouza1992
+     * **/
+    suspend fun deleteUser(logger: ILogger): Boolean {
         val uid: String? = getUserId()
         if (uid == null) {
             logger.e("Auth", "User ID is null. Please login to firebase.")
             return false
         }
-        TODO("Not Implemented yet")
+
+        return try {
+            // Delete subcollections (Just reminders for now)
+            try {
+                val remindersSnap = remindersCol(uid).get().await()
+                if (!remindersSnap.isEmpty) {
+                    val batch = db.batch()
+                    for (doc in remindersSnap.documents) {
+                        batch.delete(doc.reference)
+                    }
+                    batch.commit().await()
+                }
+            } catch (e: Exception) {
+                // Log but continue so we at least try to delete the user document & auth user
+                logger.e("Firestore", "Failed to delete reminders for user $uid", e)
+            }
+
+            // Delete user document in Firestore
+            try {
+                db.collection("users").document(uid).delete().await()
+            } catch (e: Exception) {
+                logger.e("Firestore", "Failed to delete user document for $uid", e)
+                return false
+            }
+
+            // Delete Firebase Auth user
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                try {
+                    currentUser.delete().await()
+                } catch (e: Exception) {
+                    // Firestore doc is already gone.
+                    logger.e("Auth", "Failed to delete Firebase Auth user for $uid", e)
+                    return false
+                }
+            } else {
+                logger.w("Auth", "No Firebase Auth user found for $uid during deleteUser.")
+            }
+
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "deleteUser failed for $uid", e)
+            false
+        }
     }
 
     /**
-     * >^w^<
-     */
-
+     * Helper to get this user's 'reminders' collection in Firestore.
+     *
+     * We use this to keep the path logic in one place 'users/{uid}/reminders'.
+     *
+     * @param uid The user's unique Firestore/Firebase Auth ID.
+     * @return A reference to that user's 'reminders' collection.
+     * @author fdesouza1992
+     * **/
     private fun remindersCol(uid: String) =
         //Firebase.firestore.collection("users").document(uid).collection("reminders")
         db.collection("users").document(uid).collection("reminders")
 
-    // Creates a new reminder for the current user.
+    /**
+     * Creates or updates a reminder for the currently signed-in user.
+     *
+     * Current Flow:  (May need to be updated as we progress)
+     * 1. Check that we have a logged-in user; if not, log it and return null.
+     * 2. Builds the reminder payload, letting Firestore handle server timestamps.
+     * 3. If `reminders.reminderId` is blank, a new doc with an auto ID is created, otherwise writes to that specific document.
+     * 4. Ensures the `reminderId` field inside the document matches the doc ID to facilitate with mapping later.
+     *
+     * On success, we log the created reminder and return its document ID.
+     * On failure, we log the error and return null so the caller can handle it.
+     *
+     * @param reminders The reminder data we want to store.
+     * @param logger Used to log success or failures during write.
+     * @return The Firestore document ID for this reminder, or `null` if something went wrong.
+     * @author fdesouza1992
+     * **/
     suspend fun createReminder(
         reminders: Reminders,
         logger: ILogger

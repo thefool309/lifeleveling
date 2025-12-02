@@ -44,13 +44,16 @@ Thumbs.db
 /captures
 .externalNativeBuild
 .cxx
-local.properties
 /.idea/deviceManager.xml
 google-services.json
 
+# firebase emulator files
 .firebaserc
 firebase.json
 *.log
 
 node_modules/
 *.local
+
+*.jks
+*.keystore

@@ -32,10 +32,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
@@ -44,29 +42,55 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.StatsToolTip
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
+import com.lifeleveling.app.ui.models.StatsUi
+import com.lifeleveling.app.ui.models.EditedStats
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
 fun StatsScreen(
-    userLevel: Int = TestUser.level,
-    userExperience: Int = TestUser.currentExp,
-    maxExperience: Int = TestUser.expToLevel,
-    usedLifePoints: Int = TestUser.LifePointsUsed,
-    unusedLifePoints: Int = TestUser.UnusedLifePoints,
-    userStrength: Int = TestUser.StatStrength,
-    userDefense: Int = TestUser.StatDefense,
-    userIntel: Int = TestUser.StatIntelligence,
-    userAgility: Int = TestUser.StatAgility,
-    userHealth: Int = TestUser.StatHealth,
-    onConfirm: (newStats: com.lifeleveling.app.data.Stats, usedPoints: Int, remainingPoints: Int) -> Unit = { _,_,_ -> println("Confirm pressed") },
-    onCancel: () -> Unit = {println("Cancel pressed")},
-                ) {
-    val progress = (userExperience.toFloat() / maxExperience.toFloat()).coerceIn(0f,1f)
+    uiState: StatsUi,
+    onCancel: () -> Unit = { println("Cancel pressed") },
+    onConfirm: () -> Unit = { println("Confirm pressed") },
+    onCommit: (EditedStats) -> Unit = {},
+    resetSignal: Int = 0,   // bump this from the Route to re-seed local state
+) {
+    val progress = (uiState.currentXp.toFloat() / uiState.xpToNextLevel.toFloat()).coerceIn(0f, 1f)
+
+    // Small dialogs
     val showHelpDialog = remember { mutableStateOf(false) }
     val showStatsDialog = remember { mutableStateOf(false) }
-    var usedPoints by remember { mutableStateOf(usedLifePoints) }
-    var remainingPoints by remember { mutableStateOf(unusedLifePoints - usedLifePoints) }
+
+    // ---- SESSION STATE ----
+    // Start-of-session: user has 0 used points and a pool of uiState.unusedLifePoints to spend.
+
+    var usedPoints by remember(resetSignal) { mutableStateOf(0) }
+    val remainingPoints = (uiState.unusedLifePoints - usedPoints).coerceAtLeast(0)
+
+    // Per-stat values (one set only; re-seeded when resetSignal changes)
+    val strength     = remember(resetSignal) { mutableStateOf(uiState.strength) }
+    val defense      = remember(resetSignal) { mutableStateOf(uiState.defense) }
+    val intelligence = remember(resetSignal) { mutableStateOf(uiState.intelligence) }
+    val agility      = remember(resetSignal) { mutableStateOf(uiState.agility) }
+    val health       = remember(resetSignal) { mutableStateOf(uiState.health) }
+
+    // Minimum (floor) values from the snapshot, keyed by label resource id (avoid string key issues)
+    val baseByLabel = mapOf(
+        R.string.strength     to uiState.strength,
+        R.string.defense      to uiState.defense,
+        R.string.intelligence to uiState.intelligence,
+        R.string.agility      to uiState.agility,
+        R.string.health       to uiState.health,
+    )
+
+    // Pack items for rendering
+    val statItems = listOf(
+        StatItem(R.drawable.sword,          R.string.strength,     AppTheme.colors.BrandOne,      strength),
+        StatItem(R.drawable.shield,         R.string.defense,      AppTheme.colors.BrandTwo,      defense),
+        StatItem(R.drawable.brain,          R.string.intelligence, AppTheme.colors.SecondaryOne,  intelligence),
+        StatItem(R.drawable.person_running, R.string.agility,      AppTheme.colors.SecondaryTwo,  agility),
+        StatItem(R.drawable.heart,          R.string.health,       AppTheme.colors.SecondaryThree,health)
+    )
+    // ---- END SESSION STATE ----
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -75,24 +99,22 @@ fun StatsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-
-        ){
+                .padding(16.dp)
+        ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-            ){
+            ) {
 
                 LevelAndProgress(
                     modifier = Modifier,
                     showLevelTip = showHelpDialog,
+                    statsUi = uiState
                 )
-                Column(){
-                    Row(
-                        modifier = Modifier,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ){
+
+                // Header + counters
+                Column {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             stringResource(R.string.stats),
                             color = AppTheme.colors.SecondaryOne,
@@ -102,23 +124,20 @@ fun StatsScreen(
                                     offset = Offset(2f, 2f),
                                     blurRadius = 2f,
                                 )
-                            ),
-
                             )
+                        )
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(R.drawable.info),
                             tint = AppTheme.colors.FadedGray,
                             modifier = Modifier
                                 .size(20.dp)
                                 .offset(y = 9.74.dp)
-                                .clickable {
-                                    showStatsDialog.value = !showStatsDialog.value
-                                }
+                                .clickable { showStatsDialog.value = !showStatsDialog.value }
                         )
-
                     }
+
                     Text(
-                        text = stringResource(R.string.LPUsed,  TestUser.LifePointsUsed,TestUser.UnusedLifePoints),
+                        text = stringResource(R.string.LPUsed, usedPoints, uiState.unusedLifePoints),
                         color = AppTheme.colors.Gray,
                         style = AppTheme.textStyles.Default.copy(
                             shadow = Shadow(
@@ -126,9 +145,8 @@ fun StatsScreen(
                                 offset = Offset(2f, 2f),
                                 blurRadius = 2f,
                             )
-                        ),
-
                         )
+                    )
 
                     Text(
                         text = stringResource(R.string.LPRemaining, remainingPoints),
@@ -139,53 +157,23 @@ fun StatsScreen(
                                 offset = Offset(2f, 2f),
                                 blurRadius = 2f,
                             )
-                        ),
-
                         )
+                    )
                 }
 
-
-
-                // Variables were being declared inside of lambda but confirm button is outside of lambda
-                val strength = remember { mutableStateOf(userStrength) }
-                val defense = remember { mutableStateOf(userDefense) }
-                val intelligence = remember { mutableStateOf(userIntel) }
-                val agility = remember { mutableStateOf(userAgility) }
-                val health = remember { mutableStateOf(userHealth) }
-
+                // Stats list
                 HighlightCard(
                     modifier = Modifier.fillMaxWidth(),
                     outerPadding = 0.dp
                 ) {
-                    // create baseStats so user is not able to go lower than what is saved
-                    val baseStats = mapOf(
-                        "Strength" to userStrength,
-                        "Defense" to userDefense,
-                        "Intelligence" to userIntel,
-                        "Agility" to userAgility,
-                        "Health" to userHealth
-                    )
-                        //create a list of triples that contain the icon, label, and stat level
-                    val statItems = listOf(
-                        StatItem((R.drawable.sword), R.string.strength, AppTheme.colors.BrandOne, strength),
-                        StatItem((R.drawable.shield), R.string.defense, AppTheme.colors.BrandTwo, defense),
-                        StatItem((R.drawable.brain), R.string.intelligence, AppTheme.colors.SecondaryOne,intelligence),
-                        StatItem((R.drawable.person_running), R.string.agility, AppTheme.colors.SecondaryTwo,agility),
-                        StatItem((R.drawable.heart), R.string.health, AppTheme.colors.SecondaryThree,health)
-                    )
-                    //create column
                     Column(
                         modifier = Modifier
                             .fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // for each item in the list create a row
-                        // track index of list so divider line is not place after last
                         statItems.forEachIndexed { index, (iconRes, labelRes, color, statValue) ->
-                            val labelString = stringResource(labelRes)
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 //icons on the left and the text
@@ -208,6 +196,7 @@ fun StatsScreen(
                                 }
 
                                 // stat controls on the right
+                                // Right: − [value] +
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
@@ -226,17 +215,17 @@ fun StatsScreen(
                                                 indication = null,
                                                 interactionSource = remember { MutableInteractionSource() },
                                                 onClick = {
-                                                    val base: Int = baseStats[labelString] ?: 0
-                                                    if (statValue.value > base) {
+                                                    val floor = baseByLabel[labelRes] ?: 0
+                                                    if (statValue.value > floor) {
                                                         statValue.value -= 1
-                                                        usedPoints -= 1
-                                                        remainingPoints += 1
+                                                        usedPoints = (usedPoints - 1).coerceAtLeast(0)
+                                                        // remainingPoints is derived; no manual change
                                                     }
                                                 }
                                             )
                                     )
 
-                                    // stat value
+                                    // value
                                     Box(
                                         modifier = Modifier
                                             .weight(1f),
@@ -250,7 +239,7 @@ fun StatsScreen(
                                         )
                                     }
 
-                                    // plus button
+                                    // plus
                                     Image(
                                         painter = painterResource(id = R.drawable.plus),
                                         contentDescription = "Increase $labelRes",
@@ -264,7 +253,7 @@ fun StatsScreen(
                                                     if (remainingPoints > 0) {
                                                         statValue.value += 1
                                                         usedPoints += 1
-                                                        remainingPoints -= 1
+                                                        // remainingPoints is derived; no manual change
                                                     }
                                                 }
                                             )
@@ -272,7 +261,7 @@ fun StatsScreen(
                                 }
                             }
 
-                            // divider lines
+                            // divider
                             if (index < statItems.lastIndex) {
                                 Icon(
                                     imageVector = ImageVector.vectorResource(R.drawable.separator_line),
@@ -283,46 +272,65 @@ fun StatsScreen(
                         }
                     }
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
 
+                // Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-
                     CustomButton(
                         width = 122.dp,
-                        content = { Text(stringResource(R.string.Cancel), style = AppTextStyles.HeadingSix, color = AppTheme.colors.Background) },
+                        content = {
+                            Text(
+                                stringResource(R.string.Cancel),
+                                style = AppTextStyles.HeadingSix,
+                                color = AppTheme.colors.Background
+                            )
+                        },
                         onClick = { onCancel() },
                         backgroundColor = AppTheme.colors.Error,
                     )
+
                     Spacer(modifier = Modifier.width(32.dp))
+
                     CustomButton(
-                       width = 122.dp,
-                        content = { Text(stringResource(R.string.Confrim), style = AppTextStyles.HeadingSix, color = AppTheme.colors.Background) },
-                        onClick = {  val chosenStats = com.lifeleveling.app.data.Stats(
-                            strength = strength.value.toLong(),
-                            defense = defense.value.toLong(),
-                            intelligence = intelligence.value.toLong(),
-                            agility = agility.value.toLong(),
-                            health = health.value.toLong()
-                        )
-                            onConfirm(chosenStats, usedPoints, remainingPoints) },
+                        width = 122.dp,
+                        content = {
+                            Text(
+                                stringResource(R.string.Confrim),
+                                style = AppTextStyles.HeadingSix,
+                                color = AppTheme.colors.Background
+                            )
+                        },
+                        onClick = {
+                            onCommit(
+                                EditedStats(
+                                    strength = strength.value,
+                                    defense = defense.value,
+                                    intelligence = intelligence.value,
+                                    agility = agility.value,
+                                    health = health.value,
+                                    usedPoints = usedPoints,
+                                    remainingPoints = remainingPoints
+                                )
+                            )
+                            onConfirm()
+                        },
                         backgroundColor = AppTheme.colors.SecondaryTwo,
                     )
                 }
             }
+        }
 
-            }
+        if (showHelpDialog.value) {
+            LifeExperienceToolTip(showHelpDialog)
         }
-        if(showHelpDialog.value){
-        LifeExperienceToolTip(showHelpDialog)
-        }
-        if(showStatsDialog.value){
+        if (showStatsDialog.value) {
             StatsToolTip(showStatsDialog)
         }
     }
+}
 
 @Composable
 fun StatsScreenRoute(
@@ -334,83 +342,101 @@ fun StatsScreenRoute(
     var error by remember { mutableStateOf<String?>(null) }
     var user by remember { mutableStateOf<com.lifeleveling.app.data.Users?>(null) }
 
-    // Load the current user once
+    // NEW: a knob we can twist to force the child screen to reset its remembered fields
+    var resetSignal by remember { mutableStateOf(0) }
+
+    // Initial load
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        isLoading = true
         error = null
+        isLoading = true
         user = repo.getCurrentUser(logger)
         isLoading = false
         if (user == null) error = "Could not load user profile."
     }
 
-    when {
-        isLoading -> {
-            androidx.compose.material3.CircularProgressIndicator()
-            return
-        }
-        error != null -> {
-            androidx.compose.material3.Text(error!!)
-            return
-        }
+    // If still no user (very first frame), show a centered spinner
+    if (user == null) {
+        androidx.compose.material3.CircularProgressIndicator()
+        return
     }
 
     val u = user!!
 
-    // Derive display values
-    val level = u.level.toInt()
-    val currentXp = u.currentXp.toInt()
-    // Users calculates xpToNextLevel in init
-    val expToLevel = u.xpToNextLevel.toInt()
-
-    // Base stats and points
+    // Build UI model from the current snapshot
     val baseStats = u.stats
-    val baseUsed = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
-    val unusedLifePoints = u.lifePoints.toInt()
-    val usedLifePoints = baseUsed // how many are already allocated
+    val baseUsed  = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
+    val lifePool  = u.lifePoints.toInt()
 
-    StatsScreen(
-        userLevel = level,
-        userExperience = currentXp,
-        maxExperience = expToLevel,
-        usedLifePoints = usedLifePoints,
-        unusedLifePoints = unusedLifePoints + usedLifePoints, // your UI expects "total" on the right side (used / total)
-        userStrength = baseStats.strength.toInt(),
-        userDefense = baseStats.defense.toInt(),
-        userIntel = baseStats.intelligence.toInt(),
-        userAgility = baseStats.agility.toInt(),
-        userHealth = baseStats.health.toInt(),
-        onCancel = {
-            // reload from server to discard changes
-            isLoading = true
-            error = null
-            // simple re-fetch
-            scope.launch {
-                user = repo.getCurrentUser(logger)
-                isLoading = false
-            }
-        },
-        onConfirm = { newStats, usedPoints, remainingPoints ->
-            // Persist chosen stats and life points
-            // remainingPoints is what's left after the user’s edits.
-            // Our stored "lifePoints" is the remaining/unspent pool.
-            val newLifePoints = remainingPoints.toLong()
+    val uiState = StatsUi(
+        level           = u.level.toInt(),
+        currentXp       = u.currentXp.toInt(),
+        xpToNextLevel   = u.xpToNextLevel.toInt(),
+        usedLifePoints  = 0,                                    // Starts the session with used = 0
+        unusedLifePoints= lifePool,                             // total spendable life points for the session
+        strength        = baseStats.strength.toInt(),
+        defense         = baseStats.defense.toInt(),
+        intelligence    = baseStats.intelligence.toInt(),
+        agility         = baseStats.agility.toInt(),
+        health          = baseStats.health.toInt()
+    )
 
-            scope.launch() {
-                val okStats = repo.setStats(newStats, logger)
-                val okLP   = repo.setLifePoints(newLifePoints, logger)
-                if (okStats && okLP) {
-                    // refresh UI from server so progress bar & counts are consistent
+    // Keep content mounted; overlay loading/error
+    Box(modifier = Modifier.fillMaxSize()) {
+        StatsScreen(
+            uiState = uiState,
+            resetSignal = resetSignal,                 // <-- drives child state reset
+            onCancel = {
+                // No network call → just reset child state to the current snapshot
+                resetSignal++                          // forces StatsScreen to re-seed from uiState
+            },
+            onConfirm = { /* optional toast/snackbar */ },
+            onCommit = { edited ->
+                val newStats = com.lifeleveling.app.data.Stats(
+                    strength     = edited.strength.toLong(),
+                    defense      = edited.defense.toLong(),
+                    intelligence = edited.intelligence.toLong(),
+                    agility      = edited.agility.toLong(),
+                    health       = edited.health.toLong()
+                )
+                val newLifePoints = edited.remainingPoints.toLong()
+
+                // Save then soft-refresh snapshot (overlay loader, no unmount)
+                scope.launch {
                     isLoading = true
-                    user = repo.getCurrentUser(logger)
+                    val okStats = repo.setStats(newStats, logger)
+                    val okLP    = repo.setLifePoints(newLifePoints, logger)
+                    if (okStats && okLP) {
+                        user = repo.getCurrentUser(logger)   // refresh snapshot
+                        resetSignal++                         // and reset child UI to the new snapshot
+                        error = null
+                    } else {
+                        error = "Failed to save stats."
+                    }
                     isLoading = false
-                } else {
-                    error = "Failed to save stats."
                 }
             }
-        }
-    )
-}
+        )
 
+        if (isLoading) {
+            // Simple inline overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.CircularProgressIndicator()
+            }
+        }
+
+        if (error != null) {
+            // Non-blocking error text which can be swapped for a snackbar if preferred
+            androidx.compose.material3.Text(
+                text = error!!,
+                color = AppTheme.colors.Error
+            )
+        }
+    }
+}
 
 
 data class StatItem(

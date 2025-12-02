@@ -30,6 +30,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
@@ -99,5 +100,8 @@ dependencies {
     testImplementation("androidx.test:rules:1.7.0")
     androidTestImplementation("androidx.test:rules:1.7.0")
 
-
+    // Calendar API
+    implementation("com.kizitonwose.calendar:compose-multiplatform:2.6.2")
+//    // Since minSDK is 24, calendar API requires 26+ due to the java.time calls that are used. Desugar allows compat on older vers. by rewriting into older java code
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

@@ -1,6 +1,5 @@
 package com.lifeleveling.app.ui.screens
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -38,7 +36,19 @@ import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import com.lifeleveling.app.auth.AuthUiState
+import com.lifeleveling.app.ui.components.CustomDialog
+import androidx.compose.foundation.layout.Row
 
+
+// Helper Function to block gmail/googlemail on the email/password path
+private fun isGoogleMailboxUi(email: String): Boolean =
+    email.endsWith("@gmail.com", ignoreCase = true) ||
+            email.endsWith("@googlemail.com", ignoreCase = true)
+
+// @Preview(showBackground = true)
 @Composable
 fun SignIn(
     onLogin: () -> Unit = {println("Login pressed")},
@@ -46,7 +56,20 @@ fun SignIn(
     onCreateAccount: () -> Unit = {println("Create account pressed")},
     email: MutableState<String>,
     password: MutableState<String>,
+    authState: AuthUiState,
+    onDismissError: () -> Unit = {}
 ) {
+
+    val isGmail = isGoogleMailboxUi(email.value)
+
+    // Controls the visibility of the sign-in error dialog
+    val showErrorDialog = remember { mutableStateOf(false) }
+
+    // If an error occurs, the dialog box will open
+    if (authState.error != null && !showErrorDialog.value) {
+        showErrorDialog.value = true
+    }
+
     //screen
     Box(
         modifier = Modifier
@@ -90,8 +113,14 @@ fun SignIn(
                         textStyle = AppTheme.textStyles.HeadingSix,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         supportingUnit = {
-                            if (email.value.isEmpty()) {
-                                Text(stringResource(R.string.emailNotEmpty), style = AppTheme.textStyles.Small, color = AppTheme.colors.Error)
+                            when {
+                                email.value.isEmpty() ->
+                                    Text(stringResource(R.string.emailNotEmpty),
+                                        style = AppTheme.textStyles.Small)
+
+                                isGmail ->
+                                    Text(stringResource(R.string.use_gmail_address),
+                                        style = AppTheme.textStyles.Small)
                             }
                         },
                         backgroundColor = AppTheme.colors.DarkerBackground
@@ -119,7 +148,7 @@ fun SignIn(
                     //login button
                     CustomButton(
                         onClick = onLogin,
-                        enabled = email.value.isNotEmpty() && password.value.isNotEmpty()
+                        enabled = !isGmail && email.value.isNotEmpty() && password.value.isNotEmpty()
                     ) {
                         Text(stringResource(R.string.login), color = AppTheme.colors.DropShadow,style = AppTheme.textStyles.HeadingSix)
                     }
@@ -135,16 +164,9 @@ fun SignIn(
                 onClick = onGoogleLogin,
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.LightShadow)
-            ) {         //This below can place and image in the button
-//                        Image(
-//                            painter = painterResource(id = R.drawable.gmail_color),
-//                            contentDescription = "Google Image",
-//                            modifier = Modifier
-//                                .size(48.dp)
-//                        )
-                //button text
+            ) {
                 Text(
-                    "G",
+                    stringResource(R.string.google_G),
                     color = AppTheme.colors.DropShadow,
                     style = AppTheme.textStyles.HeadingFive
                 )
@@ -182,17 +204,67 @@ fun SignIn(
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
+
+    // Auth Error Dialog Box
+    if (showErrorDialog.value && authState.error != null) {
+        CustomDialog(
+            toShow = showErrorDialog,
+            dismissOnInsideClick = false,
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.signin_error),
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour
+                )
+
+                Text(
+                    text = authState.error,
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default,
+                    textAlign = TextAlign.Center
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    CustomButton(
+                        onClick = {
+                            // Close dialog locally and tell the ViewModel
+                            showErrorDialog.value = false
+                            onDismissError()
+                        },
+                        width = 120.dp,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.ok),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignIn() {
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-
-    SignIn(
-        email = email,
-        password = password,
-    )
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewSignIn() {
+//    val email = remember { mutableStateOf("") }
+//    val password = remember { mutableStateOf("") }
+//
+//    SignIn(
+//        email = email,
+//        password = password,
+//        authState =
+//    )
+//}

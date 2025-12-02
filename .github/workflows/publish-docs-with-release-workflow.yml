@@ -1,0 +1,36 @@
+name: publish-docs-with-release-workflow.yml
+on:
+  release:
+    types: [published] # triggers when a release is created
+
+jobs:
+  convert-wiki:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Wiki Repo
+        run: git clone https://github.com/${{ github.repository }}.wiki.git wiki
+
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Convert Markdown to Html
+        run: |
+          mkdir html_output
+          for f in wiki/*.md; do
+            filename=$(basename "$f" .md)
+            pandoc "$f" -s -o "html_ouput/$filename.html"
+          done
+
+      - name: List HTML Files
+        run: ls html_ouput
+
+      - name: Zip HTML Files
+        run: zip -r html_output_${{ github.ref_name }}.zip html_output/
+
+      - name: Upload HTML as Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: html_output_${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

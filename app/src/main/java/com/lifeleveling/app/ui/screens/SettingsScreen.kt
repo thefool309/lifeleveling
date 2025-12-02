@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
@@ -39,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.components.SeparatorLine
+import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.CustomDialog
 
 
 @Composable
@@ -47,8 +50,11 @@ fun SettingScreen(
     isDarkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit,
     onSignOut: () -> Unit ={},
+    onDeleteAccount: () -> Unit = {},
 ){
     val scrollState = rememberScrollState()
+
+    val showDeleteDialog = remember {mutableStateOf(false)}
 
     Surface(
         modifier = Modifier
@@ -313,6 +319,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
+                                .clickable { showDeleteDialog.value = true }
 
                         )
                     }
@@ -356,6 +363,74 @@ fun SettingScreen(
             }
         }
     }
+
+    if (showDeleteDialog.value) {
+        CustomDialog(
+            toShow = showDeleteDialog,
+            dismissOnInsideClick = false,     // keep dialog open while interacting with buttons
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.deleteAccountQuestion),
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    )
+                )
+                Text(
+                    text = stringResource(R.string.deleteDialogBoxWarning),
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Cancel button
+                    CustomButton(
+                        onClick = { showDeleteDialog.value = false },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Success75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    // Confirm delete
+                    CustomButton(
+                        onClick = {
+                            showDeleteDialog.value = false
+                            onDeleteAccount()
+                        },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Error75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -374,5 +449,7 @@ fun PreviewSettingScreen() {
         onThemeChange = { newIsDark ->
             isDarkTheme = newIsDark // update the state in preview
         },
+        onSignOut = {},
+        onDeleteAccount = {}
     )
 }

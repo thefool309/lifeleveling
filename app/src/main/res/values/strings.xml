@@ -49,6 +49,10 @@
     <string name="passwordNotEmpty">Password can not be empty</string>
     <string name="createAccount">Create an Account</string>
     <string name="forgotten_password">Forgot your password?</string>
+    <string name="ok">Ok</string>
+    <string name="signin_error">Sign-in error</string>
+    <string name="google_G">G</string>
+    <string name="use_gmail_address">Use Login using Google for Gmail addresses.</string>
 
     <!-- Create Account Screen -->
     <string name="createAccountTitle">Create An Account</string>
@@ -164,14 +168,16 @@
     <string name="logOut">Logout</string>
     <string name="darkMode">Dark Mode</string>
     <string name="lightMode">Light Mode</string>
+    <string name="deleteAccountQuestion">Delete Account?</string>
+    <string name="deleteDialogBoxWarning">This will permanently delete your account and all saved data. This action cannot be undone.</string>
     <string name="about_life_leveling">About Life Leveling</string>
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>
-    <string name="suggestedReminders">Settings</string>
-    <string name="importanceOfSelfCare">Notification Settings</string>
-    <string name="extraArticles">Self Care Tips</string>
-    <string name="needAdive">Terms and Privacy Policy</string>
+    <string name="suggestedReminders">Suggested Reminders</string>
+    <string name="importanceOfSelfCare">Importance of Self Care</string>
+    <string name="extraArticles">Extra Articles</string>
+    <string name="needAdive">Need advice or to know how to do something new? </string>
 
     <!-- Terms and Privacy Screen -->
     <string name="termsAnd">Terms and</string>
@@ -186,5 +192,99 @@
 
     <!-- Calendar -->
     <string name="my_reminders">My Reminders</string>
+
+    <!-- CreateReminders Screen -->
+    <string name="add_reminders">Add Reminders</string>
+    <string name="title_colon">Title:</string>
+    <string name="reminder_title">Reminder Title</string>
+    <string name="icon">Icon</string>
+    <string name="starting_at">Starting at:</string>
+    <string name="hour_minute_colon">:</string>
+    <string name="remind_me_every">Remind me every</string>
+    <string name="checkbox_setdaily">Set as daily</string>
+    <string name="checkbox_weekdays">Set up week days</string>
+    <string name="repeat_for">Repeat for:</string>
+    <string name="days">Days</string>
+    <string name="Weeks">Weeks</string>
+    <string name="Months">Months</string>
+    <string name="hours">Hours</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string-array name="hour_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+    <string-array name="minutes_array">
+        <item>00</item>
+        <item>01</item>
+        <item>02</item>
+        <item>03</item>
+        <item>04</item>
+        <item>05</item>
+        <item>06</item>
+        <item>07</item>
+        <item>08</item>
+        <item>09</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+        <item>32</item>
+        <item>33</item>
+        <item>34</item>
+        <item>35</item>
+        <item>36</item>
+        <item>37</item>
+        <item>38</item>
+        <item>39</item>
+        <item>40</item>
+        <item>41</item>
+        <item>42</item>
+        <item>43</item>
+        <item>44</item>
+        <item>45</item>
+        <item>46</item>
+        <item>47</item>
+        <item>48</item>
+        <item>49</item>
+        <item>50</item>
+        <item>51</item>
+        <item>52</item>
+        <item>53</item>
+        <item>54</item>
+        <item>55</item>
+        <item>56</item>
+        <item>57</item>
+        <item>58</item>
+        <item>59</item>
+    </string-array>
 
 </resources>
