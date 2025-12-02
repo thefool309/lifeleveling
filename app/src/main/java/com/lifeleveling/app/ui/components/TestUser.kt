@@ -75,6 +75,7 @@ object TestUser {
         Reminder(9, "Feed the dog", R.drawable.grass, null, true, 2, 0, 13),
         Reminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0, 9),
     )
+    // ================================= My Reminders Test stuff =================================
     val calendarReminders by mutableStateOf(listOf(
         calReminder(1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
         calReminder(2,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
@@ -84,6 +85,10 @@ object TestUser {
         calReminder(6,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0),
         calReminder(7,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0),
         calReminder(8,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        calReminder(9,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        calReminder(10,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        calReminder(11,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        calReminder(12,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
 
         )
     )
