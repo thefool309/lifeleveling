@@ -128,75 +128,68 @@ fun MyRemindersScreen(
                         addAll(List(TestUser.calendarReminders.size) { true })
                     }
                 }
-//                Box(
-//                    modifier = Modifier
-//                        .size(200.dp)
-//                        .background(color = AppTheme.colors.Background)
-//                ){
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ){
-                        TestUser.calendarReminders.forEachIndexed { index ,calReminder ->
-                            val hour = hourOptions[calReminder.selectedHours]
-                            val minutes = minutesOptions[calReminder.selectedMinutes]
-                            val ampm = amOrPmOptions[calReminder.amOrPm]
-                            Row(
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ){
+                    TestUser.calendarReminders.forEachIndexed { index ,calReminder ->
+                        val hour = hourOptions[calReminder.selectedHours]
+                        val minutes = minutesOptions[calReminder.selectedMinutes]
+                        val ampm = amOrPmOptions[calReminder.amOrPm]
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+
+                            ShadowedIcon(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
+                                    .size(32.dp),
+                                imageVector = ImageVector.vectorResource(id=calReminder.icon),
+                                contentDescription = null,
+                                tint = Color.Unspecified
 
-                                ShadowedIcon(
-                                    modifier = Modifier
-                                        .size(32.dp),
-                                    imageVector = ImageVector.vectorResource(id=calReminder.icon),
-                                    contentDescription = null,
-                                    tint = Color.Unspecified
+                            )
+                            Spacer(Modifier.width(20.dp))
+                            Text(
+                                text = calReminder.name,
+                                style = AppTheme.textStyles.HeadingSix,
+                                color = AppTheme.colors.Gray
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                text = "$hour:$minutes $ampm",
+                                style = AppTheme.textStyles.HeadingSix,
+                                color = AppTheme.colors.Gray
+                            )
 
+                            Spacer(Modifier.weight(1f))
+                            Box(
+                                modifier = Modifier
+
+                            ){
+                                CustomCheckbox(
+                                    checked = isEnabled[index],
+                                    onCheckedChange = { newValue ->
+                                        isEnabled[index] = newValue
+                                    }
                                 )
-                                Spacer(Modifier.width(20.dp))
-                                Text(
-                                    text = calReminder.name,
-                                    style = AppTheme.textStyles.HeadingSix,
-                                    color = AppTheme.colors.Gray
-                                )
-                                Spacer(modifier = Modifier.size(8.dp))
-                                Text(
-                                    text = "$hour:$minutes $ampm",
-                                    style = AppTheme.textStyles.HeadingSix,
-                                    color = AppTheme.colors.Gray
-                                )
-
-                                Spacer(Modifier.weight(1f))
-                                Box(
-                                    modifier = Modifier
-
-                                ){
-                                    CustomCheckbox(
-                                        checked = isEnabled[index],
-                                        onCheckedChange = { newValue ->
-                                            isEnabled[index] = newValue
-                                        }
-                                    )
-                                }
-
-
-
                             }
 
-                            if (index < TestUser.calendarReminders.lastIndex) {
-                                SeparatorLine()
-                            }
+
+
                         }
 
+                        if (index < TestUser.calendarReminders.lastIndex) {
+                            SeparatorLine()
+                        }
                     }
-               // }
 
-
+                }
             }
         }
     }
