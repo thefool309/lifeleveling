@@ -51,7 +51,7 @@ fun TermsAndPrivacyScreen(
                     .fillMaxWidth(),
             ){
                 Text(
-                    text = stringResource(R.string.termsAnd)+"\n"+stringResource(R.string.privacy),
+                    text = stringResource(R.string.about_life_leveling),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
