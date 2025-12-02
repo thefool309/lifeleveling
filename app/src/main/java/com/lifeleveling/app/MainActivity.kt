@@ -49,11 +49,14 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.Constants
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
+
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
 
 
 import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.screens.MyRemindersScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
@@ -74,7 +77,7 @@ import android.Manifest
 
 class MainActivity : ComponentActivity() {
 
-    
+
     val logTag = "MainActivity"
     val logger = AndroidLogger()
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -389,7 +392,9 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable("calendar") {
-                CalendarScreen()
+                CalendarScreen(
+                    navController = navController,
+                )
             }
             composable("stats") {
                 StatsScreenRoute()
@@ -423,6 +428,14 @@ fun NavHostContainer(
             composable ("journey_stats") {
                 UserJourneyScreen(navController = navController)
             }
+            composable("createReminderScreen") {
+                CreateReminderScreen(navController = navController)
+            }
+            composable("MyReminders") {
+                MyRemindersScreen(navController = navController)
+            }
+
+
         }
     )
 }
