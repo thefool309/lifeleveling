@@ -30,23 +30,6 @@ jobs:
 
       - name: Rename APK
         run: mv ./artifacts/latest-build.apk ./app-${{ github.event.release.tag_name }}.apk
-      - name: Sign APK
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip
-
-          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip cmdline-tools.zip -d $HOME/android-sdk/
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "build-tools;34.0.0"
-
-          echo "$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_PATH
-
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
