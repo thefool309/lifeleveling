@@ -73,12 +73,18 @@ import kotlinx.coroutines.launch
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import com.lifeleveling.app.services.LLFirebaseMessagingService
 
 
 class MainActivity : ComponentActivity() {
 
 
-    val logTag = "MainActivity"
+
+    companion object {
+        const val TAG = "MainActivity"
+    }
     val logger = AndroidLogger()
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
@@ -109,7 +115,7 @@ class MainActivity : ComponentActivity() {
             // this condition is checking if the permission is granted already
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
                 //FCM SDK (and our app) can post notifications under this condition
-                // no action is necessary
+                // the notification service is special and handled and started by the OS so long as notification permissions are granted.
             }
             // this if statement compares against a lot of cases.
             //
@@ -149,18 +155,18 @@ class MainActivity : ComponentActivity() {
                 try{
                     Firebase.firestore.useEmulator("10.0.2.2", 8080)
                     Firebase.auth.useEmulator("10.0.2.2", 9099)
-                    logger.d(logTag, "Using Firebase Emulator...")
+                    logger.d(TAG, "Using Firebase Emulator...")
                 }
                 catch(ex: Exception) {
-                    logger.e(logTag, "Could not connect to Firebase Emulators. error message: ",ex)
+                    logger.e(TAG, "Could not connect to Firebase Emulators. error message: ",ex)
                 }
             }
             else {
-                logger.e(logTag, "Not in a Debug Build. Using the Production dataset...")
+                logger.e(TAG, "Not in a Debug Build. Using the Production dataset...")
             }
         }
         else {
-            logger.d(logTag, "useFirebaseEmulator is false. Using the Production dataset...")
+            logger.d(TAG, "useFirebaseEmulator is false. Using the Production dataset...")
 
         }
     }
@@ -204,6 +210,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         askNotificationPermission()
         setupEmulators()
+
+
+
 
         var isDarkTheme = true  // TODO: Change to pull on saved preference
         enableEdgeToEdge(

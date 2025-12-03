@@ -19,7 +19,7 @@ import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.runBlocking
 
 /**
- * A service for handling Firebase Cloud Messaging interactions.This will handle receiving the messages and sending the notifications
+ * A special system managed service for handling Firebase Cloud Messaging interactions. This is created and managed by the OS. This will handle receiving the messages and sending the notifications
  * Override base class methods to handle any events required by the application. All methods are invoked on a background thread,
  * and may be called when the app is in the background or not open
  * @property CHANNEL_ID and arbitrary channelID I selected for the notification channel
