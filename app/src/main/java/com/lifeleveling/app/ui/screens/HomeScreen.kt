@@ -81,17 +81,17 @@ fun HomeScreen() {
                     modifier = Modifier
                         .matchParentSize(),
                 ) {
-                    if (fightMeditateSwitch.value == 0) {
+                    // Background Image
+                    if (fightMeditateSwitch.value == 0){
                         Image(
                             painter = painterResource(R.drawable.dungeon_door),
                             contentDescription = null,
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
                                 .offset(x = 70.dp, y = (-10).dp)
-                                .fillMaxSize(1.0f)
-                                //.graphicsLayer { scaleX = 1.5f }
+                                .fillMaxWidth(1f)
                                 .aspectRatio(1f)
-                                .alpha(0.7f),
+                                .alpha(0.9f),
                             contentScale = ContentScale.Crop
                         )
                     } else {
@@ -103,7 +103,7 @@ fun HomeScreen() {
                                 .offset(x = 0.dp, y = 40.dp)
                                 .fillMaxWidth(1f)
                                 .aspectRatio(1f)
-                                .alpha(0.8f),
+                                .alpha(0.9f),
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -133,7 +133,7 @@ fun HomeScreen() {
                     // Coins display
                     Box(
                         modifier = Modifier
-                    ) {
+                    ){
                         HighlightCard(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)

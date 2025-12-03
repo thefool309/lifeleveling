@@ -47,6 +47,7 @@ fun CreateReminderScreen(
     repo: FirestoreRepository = FirestoreRepository(),
     logger: ILogger = AndroidLogger(),
 ){
+
     val scope = rememberCoroutineScope()
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
@@ -218,7 +219,7 @@ fun CreateReminderScreen(
                                     expanded = selectedMinuteMenu,
                                     modifier = Modifier
                                         .weight(1f)
-                                    )
+                                )
                                 DropDownTextMenu(
                                     options = amOrPmOptions,
                                     selectedIndex = selectedAmOrPm,
@@ -284,7 +285,7 @@ fun CreateReminderScreen(
                                             asDaily = it
                                             if(it){
                                                 doNotRepeat = false
-                                                reminderAmountNumber = ""
+
                                                 asWeekDay = false
                                             }
                                         }
@@ -313,7 +314,7 @@ fun CreateReminderScreen(
                                                 if(it){
                                                     doNotRepeat = false
                                                     asDaily = false
-                                                    reminderAmountNumber = ""
+
                                                 }
                                             }
                                         )
@@ -379,7 +380,7 @@ fun CreateReminderScreen(
                                             indefinitelyRepeat = it
                                             if(it){
                                                 doNotRepeat = false
-                                                repeatAmount = ""
+
                                             }
                                         }
                                     )
@@ -406,7 +407,7 @@ fun CreateReminderScreen(
                                                 doNotRepeat = it
                                                 if(it){
                                                     indefinitelyRepeat = false
-                                                    repeatAmount = ""
+
                                                     asWeekDay = false
                                                     asDaily = false
                                                 }
@@ -626,5 +627,6 @@ fun CreateReminderScreen(
 
 
     }
+
 }
 
