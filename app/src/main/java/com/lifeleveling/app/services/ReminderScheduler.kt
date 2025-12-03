@@ -35,25 +35,30 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
         if (BuildConfig.DEBUG) { logger.d(TAG, "Reminder intent created for ${reminder.title}") }
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         // an example of how to set it to go off at a specific date.
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 20)
-            set(Calendar.MINUTE, 30)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            add(Calendar.DAY_OF_MONTH, 1)
+//        val calendar = Calendar.getInstance().apply {
+//            set(Calendar.HOUR_OF_DAY, 20)
+//            set(Calendar.MINUTE, 30)
+//            set(Calendar.SECOND, 0)
+//            set(Calendar.MILLISECOND, 0)
+//            add(Calendar.DAY_OF_MONTH, 1)
+//        }
+//
+//        val triggerAt = /*calendar.timeInMillis*/ // uncomment this for the calender defined time
+//            System.currentTimeMillis() + 10_000 // uncomment this for ten seconds from now
+
+        for(timestamp in reminder.notifTimestamps) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
+                // Millis since the Unix epoch (Unix Standard Time in milliseconds)
+                timestamp.toDate().time, // TODO: find out how to get the timestamps we need to remindAt
+                pendingIntent
+            )
+            if (BuildConfig.DEBUG) {
+                logger.d(TAG, "Reminder scheduled to ${reminder.title} at ${timestamp.toDate()}")
+                logger.d(TAG, "Time since Unix Epoch: ${timestamp.toDate().time}")
+            }
         }
-
-        val triggerAt = /*calendar.timeInMillis*/ // uncomment this for the calender defined time
-            System.currentTimeMillis() + 10_000 // uncomment this for ten seconds from now
-
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
-            // Millis since the Unix epoch (Unix Standard Time in milliseconds)
-            triggerAt, // TODO: find out how to get the timestamps we need to remindAt
-            pendingIntent
-        )
-        if(BuildConfig.DEBUG) { logger.d(TAG, "Reminder scheduled to ${reminder.title} at $triggerAt") }
     }
 
     fun cancel(reminder: Reminders) {
