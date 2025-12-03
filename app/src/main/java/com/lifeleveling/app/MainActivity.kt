@@ -10,15 +10,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,23 +22,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.BuildConfig
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.auth.AuthViewModel
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
-import com.lifeleveling.app.navigation.Constants
+import com.lifeleveling.app.navigation.CustomNavBar
+import com.lifeleveling.app.navigation.NavHostContainer
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
@@ -55,20 +46,21 @@ import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
+import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
+import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
-// Temp Check to ensure firebase connection
-import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
-import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
+
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var googleLauncher: ActivityResultLauncher<Intent>
-    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
+    private val authVm: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,7 +127,7 @@ class MainActivity : ComponentActivity() {
                 if (isInitialized) {
                     val elapsed = System.currentTimeMillis() - startTime
                     val remaining = minSplashTime - elapsed
-                    if (remaining > 0) kotlinx.coroutines.delay(remaining)
+                    if (remaining > 0) delay(remaining)
                     appReady = true
                 }
             }
@@ -244,7 +236,7 @@ class MainActivity : ComponentActivity() {
                             val scope = rememberCoroutineScope()
                             Surface(color = AppTheme.colors.Background) {
                                 Scaffold(
-                                    bottomBar = { BottomNavigationBar(navController = navController) },
+                                    bottomBar = { CustomNavBar(navController = navController) },
                                 ) { padding ->
                                     NavHostContainer(
                                         navController = navController,
@@ -320,34 +312,4 @@ fun NavHostContainer(
             }
         }
     )
-}
-
-@Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    NavigationBar(
-        containerColor = AppTheme.colors.DarkerBackground,
-        modifier = Modifier.height(80.dp)
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
-        Constants.BottomNavItems.forEach { navItem ->
-            NavigationBarItem(
-                selected = currentRoute == navItem.route,
-                onClick = { navController.navigate(navItem.route) },
-                icon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(navItem.icon),
-                        contentDescription = navItem.route,
-                        modifier = Modifier.size(40.dp),
-                    )
-                },
-                alwaysShowLabel = false,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = AppTheme.colors.BrandOne,
-                    unselectedIconColor = AppTheme.colors.BrandTwo,
-                )
-            )
-        }
-    }
 }
