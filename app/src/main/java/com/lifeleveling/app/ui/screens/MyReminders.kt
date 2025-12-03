@@ -1,6 +1,7 @@
 package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,6 +45,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.MyRemindersToolTip
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.TestUser
@@ -54,6 +57,7 @@ import kotlin.collections.forEach
 fun MyRemindersScreen(
     navController: NavController? = null
 ){
+    val showMyRemindersToolTip = remember { mutableStateOf(false) }
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
     val amOrPmOptions = listOf(
@@ -86,19 +90,32 @@ fun MyRemindersScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
 
             ) {
-            Text(
-                text = "My Reminders",
-                color = AppTheme.colors.SecondaryOne,
-                style = AppTheme.textStyles.HeadingThree.copy(
-                    shadow = Shadow(
-                        color = AppTheme.colors.DropShadow,
-                        offset = Offset(3f, 4f),
-                        blurRadius = 6f,
-                    )
-                ),
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                Text(
+                    text = "My Reminders",
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingThree.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    ),
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                )
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.info),
+                    tint = AppTheme.colors.FadedGray,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .offset(y = 9.74.dp)
+                        .clickable { showMyRemindersToolTip.value = !showMyRemindersToolTip.value }
+                )
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -192,6 +209,10 @@ fun MyRemindersScreen(
                 }
             }
         }
+    }
+
+    if(showMyRemindersToolTip.value){
+        MyRemindersToolTip(showMyRemindersToolTip)
     }
 }
 

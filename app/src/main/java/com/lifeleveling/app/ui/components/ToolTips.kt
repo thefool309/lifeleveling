@@ -335,3 +335,107 @@ fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
         tips = levelTips
     )
 }
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun MyRemindersToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val streaksTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_one))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_two))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_three))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.streaks_tip_four))
+            }
+        }
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.streaks,
+        tips = streaksTips
+    )
+}
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun CreateRemindersToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val streaksTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip1))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip2))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip3))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.reminders_tooptip,
+        tips = streaksTips
+    )
+}
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun CalendarToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val streaksTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip1))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip2))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip3))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.calendar_tooptiptitle,
+        tips = streaksTips
+    )
+}

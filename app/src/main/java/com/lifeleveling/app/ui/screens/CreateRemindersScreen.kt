@@ -1,6 +1,7 @@
 package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,8 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -37,7 +42,7 @@ import com.lifeleveling.app.ui.theme.AppTheme
 fun CreateReminderScreen(
     navController: NavController? = null,
 ){
-
+    val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
@@ -104,19 +109,32 @@ fun CreateReminderScreen(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
-                Text(
-                    text = stringResource(R.string.add_reminders),
-                    color = AppTheme.colors.SecondaryOne,
-                    style = AppTheme.textStyles.HeadingThree.copy(
-                        shadow = Shadow(
-                            color = AppTheme.colors.DropShadow,
-                            offset = Offset(3f, 4f),
-                            blurRadius = 6f,
-                        )
-                    ),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ){
+                    Text(
+                        text = stringResource(R.string.add_reminders),
+                        color = AppTheme.colors.SecondaryOne,
+                        style = AppTheme.textStyles.HeadingThree.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(3f, 4f),
+                                blurRadius = 6f,
+                            )
+                        ),
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                    )
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.info),
+                        tint = AppTheme.colors.FadedGray,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .offset(y = 9.74.dp)
+                            .clickable { showCreateRemindersToolTip.value = !showCreateRemindersToolTip.value }
+                    )
+                }
+
 
                 HighlightCard(
                     modifier = Modifier
@@ -489,6 +507,9 @@ fun CreateReminderScreen(
 
 
 
+    }
+    if(showCreateRemindersToolTip.value){
+        CreateRemindersToolTip(showCreateRemindersToolTip)
     }
 
 }

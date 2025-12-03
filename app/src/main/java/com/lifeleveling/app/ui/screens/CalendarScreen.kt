@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,6 +62,7 @@ fun CalendarScreen(
             .padding(16.dp),
 
         ) {
+        val showCalendarToolTip = remember { mutableStateOf(false) }
         val configuration = LocalConfiguration.current
         val screenHeight = configuration.screenHeightDp.dp
         val showMonths = remember { mutableStateOf(false) }
@@ -105,37 +107,39 @@ fun CalendarScreen(
                     modifier = Modifier
                         .fillMaxWidth(),
 
-
                     ) {
-                    SlidingSwitch(
+                    Row(
                         modifier = Modifier
                             .align(Alignment.Center),
-                        options = listOf("Day", "Month"),
-                        selectedIndex = if (isMonthView.value) 0 else 1,
-                        onOptionSelected = { index -> isMonthView.value = (index == 0) },
-                        horizontalPadding = 12.dp,
-                        verticalPadding = 8.dp,
-                        backgroundColor = AppTheme.colors.DarkerBackground,
-                        selectedColor = AppTheme.colors.BrandOne,
-                        unselectedColor = AppTheme.colors.Gray,
-                        cornerRadius = 32.dp,
-                        textStyle = AppTheme.textStyles.HeadingFour,
-                        insetAmount = 4.dp,
-                        extraWidth = 64.dp,
-                    )
-                    ShadowedIcon(
-                        imageVector = ImageVector.vectorResource(R.drawable.info),
-                        contentDescription = null,
-                        tint = AppTheme.colors.FadedGray,
-                        modifier = Modifier
-
-                            .align(Alignment.TopEnd)
-                            .size(28.dp)
-                            .clickable {
-                                // Todo add info i click action
-                            },
-
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ){
+                        SlidingSwitch(
+                            modifier = Modifier,
+                            options = listOf(stringResource(R.string.day_calendar), stringResource(R.string.month_calendar)),
+                            selectedIndex = if (isMonthView.value) 0 else 1,
+                            onOptionSelected = { index -> isMonthView.value = (index == 0) },
+                            horizontalPadding = 12.dp,
+                            verticalPadding = 8.dp,
+                            backgroundColor = AppTheme.colors.DarkerBackground,
+                            selectedColor = AppTheme.colors.BrandOne,
+                            unselectedColor = AppTheme.colors.Gray,
+                            cornerRadius = 32.dp,
+                            textStyle = AppTheme.textStyles.HeadingFour,
+                            insetAmount = 4.dp,
+                            extraWidth = 64.dp,
                         )
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(R.drawable.info),
+                            contentDescription = null,
+                            tint = AppTheme.colors.FadedGray,
+                            modifier = Modifier
+
+                                .size(28.dp)
+                                .clickable { showCalendarToolTip.value = !showCalendarToolTip.value },
+
+                            )
+                    }
+
                 }
 
                 HighlightCard(
@@ -298,7 +302,7 @@ fun CalendarScreen(
                         )
 
                         Text(
-                            text = "Add Reminder",
+                            text = stringResource(R.string.add_reminders),
                             color = AppTheme.colors.SecondaryThree,
                             style = AppTheme.textStyles.DefaultUnderlined.copy(
                                 shadow = Shadow(
@@ -331,7 +335,7 @@ fun CalendarScreen(
                         )
 
                         Text(
-                            text = "My Reminders",
+                            text = stringResource(R.string.my_reminders),
                             color = AppTheme.colors.SecondaryThree,
                             style = AppTheme.textStyles.DefaultUnderlined.copy(
                                 shadow = Shadow(
@@ -366,6 +370,9 @@ fun CalendarScreen(
                     jumpedDay.value = selectedDate
                 }
             )
+        }
+        if(showCalendarToolTip.value) {
+            CalendarToolTip(showCalendarToolTip)
         }
     }
 }

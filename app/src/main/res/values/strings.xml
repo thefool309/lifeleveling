@@ -202,10 +202,19 @@
     <string name="whenToNotify">When to Notify:</string>
 
     <!-- Calendar -->
+    <string name="calendar_tooptiptitle">Calendar View</string>
+    <string name="calendar_tooptip1">Day View will show you your daily reminders.</string>
+    <string name="calendar_tooptip2">Month view will show weekly and month reminders.</string>
+    <string name="calendar_tooptip3">Add Reminder will let you add a new one to your calendar.</string>
+    <string name="day_calendar">Day</string>
+    <string name="month_calendar">Month</string>
     <string name="my_reminders">My Reminders</string>
+
+
 
     <!-- CreateReminders Screen -->
     <string name="add_reminders">Add Reminders</string>
+    <string name="reminders_tooptip">Add Reminders</string>
     <string name="title_colon">Title:</string>
     <string name="reminder_title">Reminder Title</string>
     <string name="icon">Icon</string>
