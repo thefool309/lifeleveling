@@ -26,14 +26,20 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
         const val CHANNEL_ID = "channel_id_reminder"
     }
 
+    /**
+     * An override function that modifies the behavior for what happens when a broadcast is received
+     * @param context the application context
+     * @param intent the notifications intent.
+     */
     override fun onReceive(context: Context?, intent: Intent?) {
         val title = intent?.getStringExtra("title") ?: "Reminder"
         val message = intent?.getStringExtra("message") ?: "Reminder"
         // defines what activity opens when the user taps the notification
-        val notificationIntent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        val onClickIntent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(context, 0, onClickIntent, PendingIntent.FLAG_IMMUTABLE)
         val builder: NotificationCompat.Builder
         if (context != null) {
+            // if context isn't null, then build a notification
             builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_email)
                 .setContentTitle(title)
@@ -48,6 +54,9 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
             notificationManager.notify(NOTIFICATION_ID, builder.build())
         }
         else {
+            // otherwise inform the developers that the context is somehow null and this function is being called outside the context
+            // this case should never be hit but who knows. Better to have error checking and not need it than
+            // need error checking and not have it ¯\_(OwO)_/¯
             logger.e(TAG, "context is null!")
         }
     }

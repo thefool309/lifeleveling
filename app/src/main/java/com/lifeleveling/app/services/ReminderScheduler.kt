@@ -10,16 +10,24 @@ import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 
+/**
+ * an object for taking the `Reminders` data and scheduling notifications for it.
+ * @param context the application context
+ * @param logger an interface typed object for modifying the logging behavior in this class. Defaults to an `AndroidLogger`
+ * @see ILogger
+ * @see AndroidLogger
+ */
 
 class ReminderScheduler(private val context: Context, val logger: ILogger = AndroidLogger()) {
+
+    companion object {
+        const val TAG = "ReminderScheduler"
+    }
     /**
      * Schedule a reminder. Takes in the reminder and handles the rest of the legwork for you
      * can be used to Schedule a new reminder, or to
      * @param reminder the reminder to have a notification scheduled for it
      */
-    companion object {
-        const val TAG = "ReminderScheduler"
-    }
     fun schedule(reminder: Reminders) {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("title", reminder.title)
@@ -35,6 +43,9 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
         if (BuildConfig.DEBUG) { logger.d(TAG, "Reminder intent created for ${reminder.title}") }
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         // an example of how to set it to go off at a specific date.
+        // uncomment this block and change triggerAtMillis parameter
+        // in setExactAndAllowWhileIdle to use the val triggerAt
+
 //        val calendar = Calendar.getInstance().apply {
 //            set(Calendar.HOUR_OF_DAY, 20)
 //            set(Calendar.MINUTE, 30)
@@ -61,6 +72,10 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
         }
     }
 
+    /**
+     * cancel a reminder. Should cancel any scheduled notifications for a specific reminder.
+     * @param reminder the reminder to cancel all notifications for
+     */
     fun cancel(reminder: Reminders) {
         val intent = Intent(context, ReminderReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
