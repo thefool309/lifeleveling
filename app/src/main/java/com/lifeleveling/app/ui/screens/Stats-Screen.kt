@@ -298,7 +298,7 @@ fun StatsScreen(
                         width = 122.dp,
                         content = {
                             Text(
-                                stringResource(R.string.Confrim),
+                                    stringResource(R.string.confirm),
                                 style = AppTextStyles.HeadingSix,
                                 color = AppTheme.colors.Background
                             )

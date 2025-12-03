@@ -209,7 +209,7 @@
     <string name="day_calendar">Day</string>
     <string name="month_calendar">Month</string>
     <string name="my_reminders">My Reminders</string>
-    <string name="calendar_tip_jumpto">If you click the header of the calendar in day or month view, you can use our jump to function to jump to a specific day, month, or year.</string>
+    <string name="calendar_tip_jumpto">If you click the date at the top of the calendar, you can jump to other days or months to see the reminders for that date.</string>
 
 
 
@@ -310,8 +310,8 @@
     <string name="title_tooltip">In the Title section you can title your reminder.</string>
     <string name="icon_tooltip">In the Icon, you can choose an icon for your reminder.</string>
     <string name="starting_at_tooltip">In Starting at, you will select the time for the reminder to alert.</string>
-    <string name="remind_me_every_tooltip">In Remind me, you will select how many reminders you want and how often. You can also set as daily or only week day reminders.</string>
-    <string name="repeat_for_tooltip">In Repeat for, you can choose how often you want this reminder to alert. You can also select for a indefinite (fancy word forever) repeat or for it not to repeat (one time reminder).</string>
+    <string name="remind_me_every_tooltip">In Remind me, you can select how many reminders you want in a day and the space between them. You can also select to make it a daily or for it to be repeated on week days.</string>
+    <string name="repeat_for_tooltip">In Repeat for, you can choose how long you want the reminder repeated for in the future. You can make it repeated indefinitely(forever), repeated for a certain period of time such as for one month, or is it not repeated and only a one time reminder.</string>
 
     <!-- MyReminders Screen -->
     <string name="myReminders_title">My Reminders</string>
@@ -319,7 +319,7 @@
     <string name="enable_or_disable">Enable/Disable</string>
     <string name="myReminders_tooltip1">Here in My Reminders you will see a list of all reminders you created.</string>
     <string name="myReminders_tooltip2">You can choose to enable or disable them with the checkbox.</string>
-    <string name="myReminders_tooltip3">If you want to delete the reminder, just tap it and you will be given the option to delete.</string>
+    <string name="myReminders_tooltip3">Taping on a reminder will display its repeat information and give you the option to delete it.</string>
 
     <!-- FCM/androidSettings -->
     <string name="reminder_channel">Reminders</string>
