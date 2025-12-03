@@ -10,9 +10,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -35,7 +40,6 @@ import com.lifeleveling.app.auth.AuthViewModel
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.CustomNavBar
-import com.lifeleveling.app.navigation.NavHostContainer
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
