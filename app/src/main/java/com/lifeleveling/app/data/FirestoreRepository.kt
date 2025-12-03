@@ -809,6 +809,7 @@ class FirestoreRepository {
             logger.e("Reminders", "createReminder failed", e)
             null
         }
+        // TODO: implement notifTimestamp calculation
     }
 
     // Update a reminder by id
@@ -833,6 +834,7 @@ class FirestoreRepository {
             logger.e("Reminders", "updateReminder failed", e)
             false
         }
+        //TODO: implement notifTimestamp recalculation
     }
 
     // Mark a reminder complete/incomplete and set/unset completedAt automatically.
