@@ -63,6 +63,7 @@ data class Reminders(
     val timesPerMonth: Long = 0,         // How many times per month
     val colorToken: String? = null,      // nullable like enumColor? in TestUser
     val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val notifTimestamps: List<Timestamp> = emptyList(), // a list of Timestamps of when the notifications should go off.
 )
 
 // Player stat block (Stats Screen)
