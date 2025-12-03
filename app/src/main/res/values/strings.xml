@@ -38,7 +38,7 @@
     <string name="fight">Fight</string>
     <string name="meditate">Meditate</string>
     <!-- Button Titles -->
-    <string name="Confrim">Confirm</string>
+    <string name="Confirm">Confirm</string>
     <string name="Cancel">Cancel</string>
 
     <!-- SignIn Screen -->
