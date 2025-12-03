@@ -53,6 +53,15 @@
     <string name="signin_error">Sign-in error</string>
     <string name="google_G">G</string>
     <string name="use_gmail_address">Use Login using Google for Gmail addresses.</string>
+    <string name="resetPasswordGoogleAccount">If your email is a gmail account, use the password reset found in the google account login.</string>
+    <string name="resetPasswordMissingEmail">Enter your email address. A message will be sent to this address with a link to reset your password.</string>
+    <string name="return_to_login">Return to Login</string>
+    <string name="resetPasswordEmailSent">An account was found for the email %1$s and an email has been sent with a link to reset the password.</string>
+    <string name="resetPasswordEmailError">An email could not be sent. Please try again.</string>
+    <string name="resetPasswordNoAccountFoundError">No account found for the email %1$s. Please try again.</string>
+    <string name="resetPasswordFirebaseAuthError">We could not send a reset email right now. Please try your request again later.</string>
+    <string name="login_gmail">Use \'Login using Google\' for Gmail addresses.</string>
+
 
     <!-- Create Account Screen -->
     <string name="createAccountTitle">Create An Account</string>
@@ -171,6 +180,8 @@
     <string name="deleteAccountQuestion">Delete Account?</string>
     <string name="deleteDialogBoxWarning">This will permanently delete your account and all saved data. This action cannot be undone.</string>
     <string name="about_life_leveling">About Life Leveling</string>
+    <string name="reset">Reset</string>
+    <string name="resetLifePointsWarning">Resetting your life points will set all stats back to 0. You will not lose any points. All points will be refunded so you can reassign them as you wish.</string>
 
     <!-- Self Care Screen -->
     <string name="selfCare">Self Care Tips</string>

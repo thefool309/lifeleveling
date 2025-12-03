@@ -6,7 +6,6 @@ import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -167,7 +166,7 @@ class FirestoreRepository {
 
     /**
      * This function is designed for specifically updating the users displayName.
-     * The displayName field is synonomous with a "username."
+     * The displayName field is synonyms with a "username."
      * This will take the new userName string and replace the value of the "displayName" field.
      * @param userName A string representing the new display name for the user
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
@@ -911,6 +910,66 @@ class FirestoreRepository {
             true
         } catch (e: Exception) {
             logger.e("Firestore", "Error updating lifePoints", e)
+            false
+        }
+    }
+
+    /**
+     * Resets the current user’s stats back to 0 and refunds all spent points into their lifePoints pool.
+     *
+     * Flow:
+     * 1. Look up the currently signed-in user’s ID.
+     * 2. Load their user document and read the current stats + lifePoints.
+     * 3. Sum all points spent across Health, Agility, Intelligence, Defense, and Strength.
+     * 4. Add those spent points back into lifePoints.
+     * 5. Write zeroed-out stats and the new lifePoints total back to Firestore.
+     * 6. Update the user’s timestamp so other parts of the app know the data changed.
+     *
+     * Example:
+     *  Stats: H=5, A=7, I=3, D=8, S=17  (total 40)
+     *  lifePoints = 5
+     *  After reset → all stats = 0, lifePoints = 45.
+     *
+     * @param logger Used to log any errors while resetting life points.
+     * @return true if the Firestore update succeeds, false otherwise.
+     * @author fdesouza1992
+     */
+    suspend fun resetLifePoints(logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+
+        // Loads current user
+        val user = getUser(uid, logger) ?: return false
+        val stats = user.stats
+
+        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
+        val currentLifePointsPool = user.lifePoints
+        val newLifePointsPool = usedLifePoint+currentLifePointsPool
+
+        val docRef = db.collection("users").document(uid)
+        return try {
+            val resetStats = Stats(
+                agility = 0L,
+                defense = 0L,
+                intelligence = 0L,
+                strength = 0L,
+                health = 0L
+            )
+
+            docRef.update(
+                mapOf(
+                    "stats" to resetStats,
+                    "lifePoints" to newLifePointsPool,
+                )
+            ).await()
+
+            updateTimestamp(uid, logger)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error resetting life points", e)
             false
         }
     }

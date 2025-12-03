@@ -15,9 +15,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,44 +37,40 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.auth.AuthViewModel
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
-import com.lifeleveling.app.navigation.Constants
+import com.lifeleveling.app.navigation.CustomNavBar
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
-
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
-import com.lifeleveling.app.ui.screens.CreateReminderScreen
-
-
 import com.lifeleveling.app.ui.screens.HomeScreen
-import com.lifeleveling.app.ui.screens.MyRemindersScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
+import com.lifeleveling.app.ui.screens.PasswordResetScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
-
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
+import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
+import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
-// Temp Check to ensure firebase connection
-import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
-import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.util.ILogger
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import com.lifeleveling.app.services.LLFirebaseMessagingService
 
+
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -172,7 +166,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private lateinit var googleLauncher: ActivityResultLauncher<Intent>
-    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
+    private val authVm: AuthViewModel by viewModels()
 
     /**
      *  When the activity enters the Resumed state, it comes to the foreground, and the system invokes the onResume() callback. This is the state in which the app interacts with the user. The app stays in this state until something happens to take focus away from the app, such as the device receiving a phone call, the user navigating to another activity, or the device screen turning off.
@@ -269,7 +263,7 @@ class MainActivity : ComponentActivity() {
                 if (isInitialized) {
                     val elapsed = System.currentTimeMillis() - startTime
                     val remaining = minSplashTime - elapsed
-                    if (remaining > 0) kotlinx.coroutines.delay(remaining)
+                    if (remaining > 0) delay(remaining)
                     appReady = true
                 }
             }
@@ -287,6 +281,7 @@ class MainActivity : ComponentActivity() {
                         if (authState.user == null) {
 
                             val preAuthNav = rememberNavController()
+
                             NavHost(navController = preAuthNav, startDestination = "signIn") {
                                 composable("signIn") {
                                     // -------- Sign In UI --------
@@ -308,27 +303,22 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 }
                                             }
-
-                                            /* email/password auth */
                                         },
-
                                         // Auth with Google Sign In
                                         onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
                                             googleLauncher.launch(intent)
                                         },
-
                                         // Create account screen
                                         onCreateAccount = {
-                                            preAuthNav.navigate("createAccount") {
-                                                //launchSingleTop = false
-                                            }
+                                            preAuthNav.navigate("createAccount")
                                         },
                                         email,
                                         password,
                                         authState = authState,
-                                        onDismissError = {authVm.clearError()}
+                                        onDismissError = {authVm.clearError()},
+                                        onForgotPassword = { preAuthNav.navigate("passwordReset") },
                                     )
                                 }
                                 composable("createAccount") {
@@ -359,23 +349,42 @@ class MainActivity : ComponentActivity() {
                                         password
                                     )
                                 }
+                                composable("passwordReset") {
+                                    val email = remember { mutableStateOf("") }
+                                    val logger : ILogger = AndroidLogger()
+                                    PasswordResetScreen(
+                                        email = email,
+                                        onReset = { email, callback ->
+                                            authVm.sendPasswordResetEmail(email, logger) { ok, message ->
+                                                callback(ok, message)
+                                            }
+                                        },
+                                        backToLogin = { preAuthNav.navigate("signIn") }
+                                    )
+                                }
                             }
                         } else {
 
                             // Main App UI
                             val navController = rememberNavController()
+                            val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
+                            val logger = remember { AndroidLogger() }
+                            val scope = rememberCoroutineScope()
                             Surface(color = AppTheme.colors.Background) {
                                 Scaffold(
-                                    bottomBar = { BottomNavigationBar(navController = navController) },
+                                    bottomBar = { CustomNavBar(navController = navController) },
                                 ) { padding ->
                                     NavHostContainer(
                                         navController = navController,
                                         padding = padding,
                                         isDarkThemeState = isDarkThemeState,
                                         onSignOut = {authVm.signOut(this@MainActivity)},
-                                        onDeleteAccount = {
-                                            val logger = AndroidLogger()
-                                            authVm.deleteAccount(logger)}
+                                        onDeleteAccount = {authVm.deleteAccount(logger)},
+                                        onResetLifePoints = {
+                                            scope.launch {
+                                                val ok = repo.resetLifePoints(logger)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -392,6 +401,7 @@ fun NavHostContainer(
     navController: NavHostController,
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
+    onResetLifePoints: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
 ) {
@@ -401,9 +411,7 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable("calendar") {
-                CalendarScreen(
-                    navController = navController,
-                )
+                CalendarScreen()
             }
             composable("stats") {
                 StatsScreenRoute()
@@ -422,7 +430,8 @@ fun NavHostContainer(
                         isDarkThemeState.value = newIsDark
                     },
                     onSignOut = onSignOut,
-                    onDeleteAccount = onDeleteAccount
+                    onDeleteAccount = onDeleteAccount,
+                    onResetLifePoints = onResetLifePoints
                 )
             }
             composable ("notifications"){
@@ -437,44 +446,6 @@ fun NavHostContainer(
             composable ("journey_stats") {
                 UserJourneyScreen(navController = navController)
             }
-            composable("createReminderScreen") {
-                CreateReminderScreen(navController = navController)
-            }
-            composable("MyReminders") {
-                MyRemindersScreen(navController = navController)
-            }
-
-
         }
     )
-}
-
-@Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    NavigationBar(
-        containerColor = AppTheme.colors.DarkerBackground,
-        modifier = Modifier.height(80.dp)
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
-        Constants.BottomNavItems.forEach { navItem ->
-            NavigationBarItem(
-                selected = currentRoute == navItem.route,
-                onClick = { navController.navigate(navItem.route) },
-                icon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(navItem.icon),
-                        contentDescription = navItem.route,
-                        modifier = Modifier.size(40.dp),
-                    )
-                },
-                alwaysShowLabel = false,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = AppTheme.colors.BrandOne,
-                    unselectedIconColor = AppTheme.colors.BrandTwo,
-                )
-            )
-        }
-    }
 }

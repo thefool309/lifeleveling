@@ -27,7 +27,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -35,6 +34,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.EquipmentDisplay
+import com.lifeleveling.app.ui.components.HealthDisplay
 import com.lifeleveling.app.ui.components.HealthToolTip
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.LevelAndProgress
@@ -43,6 +43,7 @@ import com.lifeleveling.app.ui.components.ProgressBar
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
 import com.lifeleveling.app.ui.models.StatsUi
+
 
 //@Preview
 @Composable
@@ -80,6 +81,7 @@ fun HomeScreen() {
                     modifier = Modifier
                         .matchParentSize(),
                 ) {
+                    // Background Image
                     if (fightMeditateSwitch.value == 0){
                         Image(
                             painter = painterResource(R.drawable.dungeon_door),
@@ -87,9 +89,9 @@ fun HomeScreen() {
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
                                 .offset(x = 70.dp, y = (-10).dp)
-                                .fillMaxWidth(1.5f)
+                                .fillMaxWidth(1f)
                                 .aspectRatio(1f)
-                                .alpha(0.7f),
+                                .alpha(0.9f),
                             contentScale = ContentScale.Crop
                         )
                     } else {
@@ -101,7 +103,7 @@ fun HomeScreen() {
                                 .offset(x = 0.dp, y = 40.dp)
                                 .fillMaxWidth(1f)
                                 .aspectRatio(1f)
-                                .alpha(0.8f),
+                                .alpha(0.9f),
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -188,57 +190,63 @@ fun HomeScreen() {
             }
 
             // Bottom health and switch
-            Column(
-                modifier = Modifier
-//                    .weight(.2f)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {// This line of health display
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    // Heart
-                    ShadowedIcon(
-                        modifier = Modifier
-                            .size(20.dp),
-                        imageVector = ImageVector.vectorResource(R.drawable.heart),
-                        tint = AppTheme.colors.SecondaryThree,
-                        shadowOffset = Offset(4f, 4f)
-                    )
-                    // Health Text
-                    Text(
-                        text = stringResource(R.string.health_display, TestUser.currentHealth, TestUser.maxHealth),
-                        style = AppTheme.textStyles.Default,
-                        color = AppTheme.colors.Gray
-                    )
-                    // Info Pop-up Button
-                    ShadowedIcon(
-                        imageVector = ImageVector.vectorResource(R.drawable.info),
-                        tint = AppTheme.colors.FadedGray,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
-                            }
-                    )
-                }
-
-                // Progress bar
-                ProgressBar(
-                    progress = TestUser.currentHealth.toFloat() / TestUser.maxHealth,
-                    progressColor = AppTheme.colors.SecondaryThree
-                )
-
-                // Fight to Meditate Switch
-                SlidingSwitch(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                    options = listOf(stringResource(R.string.fight), stringResource(R.string.meditate)),
-                    selectedIndex = fightMeditateSwitch.value,
-                    onOptionSelected = { fightMeditateSwitch.value = it },
-                )
-            }
+//            Column(
+//                modifier = Modifier
+////                    .weight(.2f)
+//                    .fillMaxWidth(),
+//                verticalArrangement = Arrangement.spacedBy(8.dp),
+//            ) {// This line of health display
+//                Row(
+//                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ) {
+//                    // Heart
+//                    ShadowedIcon(
+//                        modifier = Modifier
+//                            .size(20.dp),
+//                        imageVector = ImageVector.vectorResource(R.drawable.heart),
+//                        tint = AppTheme.colors.SecondaryThree,
+//                        shadowOffset = Offset(4f, 4f)
+//                    )
+//                    // Health Text
+//                    Text(
+//                        text = stringResource(R.string.health_display, TestUser.currentHealth, TestUser.maxHealth),
+//                        style = AppTheme.textStyles.Default,
+//                        color = AppTheme.colors.Gray
+//                    )
+//                    // Info Pop-up Button
+//                    ShadowedIcon(
+//                        imageVector = ImageVector.vectorResource(R.drawable.info),
+//                        tint = AppTheme.colors.FadedGray,
+//                        modifier = Modifier
+//                            .size(20.dp)
+//                            .clickable {
+//                                if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
+//                            }
+//                    )
+//                }
+//
+//                // Progress bar
+//                ProgressBar(
+//                    progress = TestUser.currentHealth.toFloat() / TestUser.maxHealth,
+//                    progressColor = AppTheme.colors.SecondaryThree
+//                )
+//
+//                // Fight to Meditate Switch
+//                SlidingSwitch(
+//                    modifier = Modifier
+//                        .align(Alignment.CenterHorizontally),
+//                    options = listOf(stringResource(R.string.fight), stringResource(R.string.meditate)),
+//                    selectedIndex = fightMeditateSwitch.value,
+//                    onOptionSelected = { fightMeditateSwitch.value = it },
+//                )
+//            }
+//       }
+            // Bottom health and switch (now comes from Firestore)
+            HealthDisplay(
+                showHealthTip = showHealthTip,
+                fightMeditateSwitch = fightMeditateSwitch
+            )
         }
     }
 

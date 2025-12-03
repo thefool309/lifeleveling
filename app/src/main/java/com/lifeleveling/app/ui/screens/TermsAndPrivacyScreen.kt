@@ -28,6 +28,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.SeparatorLine
 
 @Preview
 @Composable
@@ -50,13 +51,13 @@ fun TermsAndPrivacyScreen(
                     .fillMaxWidth(),
             ){
                 Text(
-                    text = stringResource(R.string.termsAnd)+"\n"+stringResource(R.string.privacy),
+                    text = stringResource(R.string.about_life_leveling),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
                             color = AppTheme.colors.DropShadow,
-                            offset = Offset(3f, 4f),
-                            blurRadius = 6f,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 2f,
                         )
                     ),
                     modifier = Modifier
@@ -81,83 +82,46 @@ fun TermsAndPrivacyScreen(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                    ) {
-                        Text(
-                            text = stringResource(R.string.termsAndConditions),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(3f, 4f),
-                                    blurRadius = 6f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
 
-                        )
-                    }
-
-
-
-                    Row(modifier = Modifier) {
-
-
-                        Spacer(modifier = Modifier.size(16.dp))
-                        Text(
-                            text = stringResource(R.string.privacyPolicy),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(3f, 4f),
-                                    blurRadius = 6f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(AppTheme.colors.Gray)
-                            .padding(horizontal = 8.dp)
+                    Text(
+                        text = stringResource(R.string.termsAndConditions),
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.HeadingSix.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(2f, 2f),
+                                blurRadius = 2f,
+                            )
+                        ),
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SeparatorLine()
 
-                    Row(modifier = Modifier) {
+                    Text(
+                        text = stringResource(R.string.privacyPolicy),
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.HeadingSix.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(2f, 2f),
+                                blurRadius = 2f,
+                            )
+                        ),
+                    )
 
+                    SeparatorLine()
 
-                        Spacer(modifier = Modifier.size(16.dp))
-                        Text(
-                            text = stringResource(R.string.extra),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(3f, 4f),
-                                    blurRadius = 6f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-
+                    Text(
+                        text = stringResource(R.string.extra),
+                        color = AppTheme.colors.Gray,
+                        style = AppTheme.textStyles.HeadingSix.copy(
+                            shadow = Shadow(
+                                color = AppTheme.colors.DropShadow,
+                                offset = Offset(2f, 2f),
+                                blurRadius = 2f,
+                            )
+                        ),
+                    )
                 }
             }
         }
