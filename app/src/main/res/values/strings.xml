@@ -299,4 +299,11 @@
     </string-array>
     <string name="no_reminders_for_day">No reminders for this day yet.</string>
 
+    <!-- FCM/androidSettings -->
+    <string name="reminder_channel">Reminders</string>
+    <string name="reminder_channel_description">The default channel for all reminders</string>
+    <string name="permission_denied_notif">"Notification Permission Denied. You will not receive notifications from FCM"</string>
+    <string name="default_notification_channel_id">LifeLeveling</string>
+    <string name="default_notification_channel_name">Life Leveling Notifications</string>
+
 </resources>

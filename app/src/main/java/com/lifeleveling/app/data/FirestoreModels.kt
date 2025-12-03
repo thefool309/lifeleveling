@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
 data class Users(
@@ -104,4 +105,10 @@ data class Streak(
     val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
+)
+
+data class FcmTokens(
+    val uID: String = "",
+    val token: String = "",
+    val lastUpdate: Timestamp? = null
 )

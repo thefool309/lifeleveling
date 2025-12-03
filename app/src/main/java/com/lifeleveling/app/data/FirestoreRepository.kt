@@ -1,6 +1,8 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -10,6 +12,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
+import java.util.HashMap
+import java.util.Hashtable
 import kotlin.Long
 import com.google.firebase.firestore.ktx.toObject
 import java.time.LocalDate
@@ -21,23 +25,27 @@ import java.util.Date
  * This is instantiated as an object, then the functions are called from the object.
  * This is for access to private member variables(properties),
  * to simplify the use of `Firebase.firestore` and `Firebase.auth`.
- * @author Felipe
+ * @author fdesouza1992
  * @author thefool309
  * @property db a shortened alias for `Firebase.firestore`
  * @property auth a shortened alias for `Firebase.auth`
+ * @property logTag a tag added by thefool309 for debugging purposes. I chose a centralized tag so we could quickly identify what file any log is coming from
  */
 class FirestoreRepository {
-    private val db = Firebase.firestore
     private val auth = Firebase.auth
 
-    /**
-     * Velma wuz here :3
-     */
+    private val db = Firebase.firestore
+
+    private val logTag = "FirestoreRepository"
+
     // Helper functions
     private fun getUserId() : String? {
         return auth.currentUser?.uid
     }
 
+    /**
+     * a function for updating the "lastUpdate" property of the users data class in the firestore data
+     */
     private fun updateTimestamp(userId: String, logger: ILogger) {
         try {
             db.collection("users")
@@ -45,12 +53,9 @@ class FirestoreRepository {
                 .update("lastUpdate", Timestamp.now())
         }
         catch (e: Exception) {
-            logger.e("Firestore", "Error Updating Timestamp", e)
+            logger.e(logTag, "Error Updating Timestamp", e)
         }
     }
-    /**
-     * >^w^<
-     */
 
     suspend fun ensureUserCreated(user: FirebaseUser): Boolean {
         val uid = user.uid
@@ -84,6 +89,7 @@ class FirestoreRepository {
             currHealth = 10,
             badgesLocked = emptyList(),
             badgesUnlocked = emptyList(),
+
         )
 
         val data = mutableMapOf<String, Any?>(
@@ -124,7 +130,7 @@ class FirestoreRepository {
      * We use a suspend function because FirebaseFirestore is async
      * @param userData a map of userData, with the key being the name of the field to be filled
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @author thefool309
+     * @author thefool309, fdesouza1992
      * @return Users?
      * @see ILogger
      */
@@ -150,52 +156,18 @@ class FirestoreRepository {
             }
             catch (e: Exception) {
                 // unknown error saving user to Firebase
-                logger.e("Firestore", "Error Saving User: ", e)
+                logger.e(logTag, "Error Saving User: ", e)
                 null
             }
 
         } else {
             // No user is signed in
-            logger.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
+            logger.e(logTag, "UID is null. Please authenticate user before calling CreateUser...")
             null
         }
 
     }
 
-    // function to edit user in firebase this function is unsafe and can
-    // make dangerous type mismatches between the database and the code
-    // Use at your own peril
-    /**
-     * This Function is now defunct and deprecated in favor of the more specific functions for updating specific fields.
-     * If you really feel you want to use this function, use it with caution, because storing the wrong data type,
-     * can actually cause a cascading failure in the getUser function, causing fields to be blank in the user object
-     * @param userData a map of userData, with the key being the name of the field to be filled
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @author thefool309
-     * @return Boolean
-     * @see ILogger
-     */
-    suspend fun editUser(userData: Map<String, Any>, logger: ILogger) : Boolean {
-        // the !! throws a null pointer exception if the currentUser is null
-        // if the user is not authenticated then authenticate before calling this function
-        val userId: String = auth.currentUser!!.uid
-        var result: Boolean
-        try {
-            db.collection("users")
-                .document(userId)
-                .update(userData)
-                .await()
-            result = true
-            updateTimestamp(userId, logger)
-        }
-        catch (e: Exception) {
-            logger.e("Auth", "Error Updating User: ", e)
-            result = false
-        }
-        return result
-    }
-
-    // User information
     /**
      * This function is designed for specifically updating the users displayName.
      * The displayName field is synonyms with a "username."
@@ -209,13 +181,13 @@ class FirestoreRepository {
     suspend fun editDisplayName(userName: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
         if(userName.isBlank()) {
-            logger.e("Invalid Parameter","User name is empty. Please add user name...")
+            logger.e(logTag,"User name is empty. Please add user name...")
             return false
         }
         try {
@@ -225,12 +197,12 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e("Auth", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
     }
     /**
-     * A function for editing the Users "email" field.
+     * A function for editing the Users "email" field in the firestore data.
      * This will take the new email and update the field in Firestore Cloud storage.
      * @param email A string containing the updated email.
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
@@ -241,13 +213,13 @@ class FirestoreRepository {
     suspend fun editEmail(email: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
         if(email.isBlank()) {
-            logger.e("Invalid Parameter","User email is empty. Please add user email.")
+            logger.e(logTag,"User email is empty. Please add user email.")
             return false
         }
         try {
@@ -256,14 +228,14 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
 
     }
 
     /**
-     * A function for editing the value stored as the URL for the users photo they choose to represent themselves.
+     * A function for editing the value stored as the URL for the users photo they choose to represent themselves in the firestore data.
      * @param url A string representing the URL of the user's photo they choose to represent themselves
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309
@@ -273,13 +245,13 @@ class FirestoreRepository {
     suspend fun editPhotoUrl(url: String, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
             .document(userId)
         if(url.isBlank()) {
-            logger.e("Invalid Parameter","Photo url is empty. Please add Photo url.")
+            logger.e(logTag,"Photo url is empty. Please add Photo url.")
             return false
         }
         try {
@@ -288,15 +260,21 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e("Auth", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
     }
 
+
+    /**
+     * increment the streaks property of the users data class in the firestore data
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     * @return Boolean
+     */
     suspend fun incrementStreaks( logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
-            logger.e("Auth","User ID is empty. Please make sure you're signed in.")
+            logger.e(logTag,"User ID is empty. Please make sure you're signed in.")
             return false
         }
         val docRef = db.collection("users")
@@ -310,17 +288,22 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
     }
 
-      //functions for modifying stats below
+    /**
+     * set the number coins to the Users firebase balance
+     * @return Boolean
+     * @param health  a long that contains the new balance
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     */
 
     suspend fun setStats(stats: Stats, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if (userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -331,16 +314,21 @@ class FirestoreRepository {
             return true
         }
         catch (e: Exception){
-            logger.e("Firestore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
 
     }
-
+    /**
+     * set the currHealth value in the firestore data
+     * @return Boolean
+     * @param health  a long that contains the new balance
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     */
     suspend fun setCurrHealth(health: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -352,15 +340,20 @@ class FirestoreRepository {
             return true
         }
         catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
     }
-
+    /**
+     * set the coins value in the Users firebase balance
+     * @return Boolean
+     * @param coins  a long that contains the new balance
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     */
     suspend fun setCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -371,15 +364,21 @@ class FirestoreRepository {
             return true
         }
         catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
     }
 
+    /**
+     * add coins to the Users firebase balance
+     * @return Boolean
+     * @param coins  a long that contains the amount of coins to add
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     */
     suspend fun addCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -393,15 +392,20 @@ class FirestoreRepository {
             return true
         }
         catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             return false
         }
     }
-
+    /**
+     * a method to subtract coins from the users firebase balance
+     * @return Boolean
+     * @param coins  a long that contains the amount of coins to subtract
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     */
     suspend fun subtractCoins(coins: Long, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -420,11 +424,17 @@ class FirestoreRepository {
         }
     }
 
-    // A toggler for setOnboardingComplete
+    /**
+     * A toggler for setOnboardingComplete in the firestore database. should be called after the user has walked through a tutorial
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @returns Boolean
+     * @author thefool309
+     */
+
     suspend fun setOnboardingComplete(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")  // and waste a ton of time
@@ -442,17 +452,21 @@ class FirestoreRepository {
             true
         }
         catch (e: Exception) {
-            logger.e("FireStore", "Error Updating User: ", e)
+            logger.e(logTag, "Error Updating User: ", e)
             false
         }
     }
 
-    // By Velma
-    // an overload to pass in a specific value
+    /**
+     * an overload to pass in a specific value to set for onboardingComplete
+     * @return boolean
+     * @param onboardingComplete the value that is passed in to change onboardingComplete to
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     */
     suspend fun setOnboardingComplete(onboardingComplete: Boolean, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return false
         }
         val docRef = db.collection("users")
@@ -468,6 +482,11 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Increments the players level by one in the firestore data
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @see ILogger
+     * */
     suspend fun incrementLevel(logger: ILogger) : Boolean {
         val userId: String? = getUserId()
         if(userId == null) {
@@ -490,11 +509,17 @@ class FirestoreRepository {
         }
     }
 
-    // By Velma
+    /**
+    * A function for adding Xp to the users firestore data
+    * @param xp A double representing the amount of xp to be added
+     * @param logger A double representing the amount of xp to be added
+     * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @author thefool309, fd
+     */
     suspend fun addXp(xp: Double, logger: ILogger) : Users? {
         val userId: String? = getUserId()
         if(userId == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
+            logger.e(logTag,"ID is null. Please login to firebase.")
             return null
         }
         val docRef = db.collection("users")
@@ -513,13 +538,13 @@ class FirestoreRepository {
             docRef.update("currentXp", newXp).await()
 
             var user = getUser(userId, logger) ?: run {
-                logger.e("Auth", "Error Updating User: Please make sure you're logged in")
+                logger.e(logTag, "Error Updating User: Please make sure you're logged in")
                 return null
             }
 
             if (newXp >= user.xpToNextLevel.toDouble()) {
                 if (!incrementLevel(logger)) {
-                    logger.e("Auth", "Level increment failed")
+                    logger.e(logTag, "Level increment failed")
                 }
                 user = getUser(userId, logger) ?: return null
                 user.calculateXpToNextLevel()
@@ -531,6 +556,50 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * A method to create an FcmToken for the FcmTokens field. This field is generated by firebase when the user does things like
+     * reinstall the app, log in on a new device, or wipe the data on their device.
+     * @param token the token for the users new firebaseToken
+     * @param logger
+     * @return Boolean
+     */
+    suspend fun setFirebaseToken(token: String?, logger: ILogger) : Boolean {
+
+        // get user ID
+        val uID: String? = getUserId()
+        if(uID == null) {
+            logger.e(logTag,"ID is null. Please login to firebase.")
+            return false
+        }
+        if(token == null) {
+            logger.e(logTag, "Token is null. Please login to firebase.")
+            return false
+        }
+        // document reference
+
+
+        try {
+            val docRef = db.collection("fcmTokens").document(uID)
+            docRef.update(mapOf("token" to token,
+                                        "uID" to uID,
+                                        "lastUpdate" to Timestamp.now())
+            ).await()
+            return true
+        }
+        catch (e: Exception) {
+            logger.e(logTag, "Error Updating User: ", e)
+            return false
+        }
+    }
+    /**
+     * A function for retrieving the full `Users` object from the firebase. Returns null on failure
+     * @param uID the userId you're looking for
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @returns Users?
+     * @see Users
+     * @see ILogger
+     * @see com.lifeleveling.app.util.AndroidLogger
+     */
     suspend fun getUser(uID: String?, logger: ILogger): Users? {
         if (uID.isNullOrBlank()) {
             logger.e("Auth", "User ID null/blank; sign in first.")
@@ -544,62 +613,24 @@ class FirestoreRepository {
             return null
         }
 
-        val snap = docRef.get().await()
-        if (!snap.exists()) {
+        var userDoc: Users? = null
+        val userSnap = docRef.get()
+            .await()
+        if (userSnap.exists() && userSnap != null) {
+            userDoc = userSnap.toObject(Users::class.java)
+            return userDoc
+        }
+        if (!userSnap.exists()) {
             logger.e("Firestore", "users/$uID does not exist.")
             return null
         }
 
-        val data = snap.data ?: run {
+        val data = userSnap.data ?: run {
             logger.e("Firestore", "users/$uID has no data.")
             return null
         }
 
-        fun num(key: String): Long =
-            (data[key] as? Number)?.toLong() ?: 0L
-        fun dbl(key: String): Double =
-            when (val raw = data[key]) {
-                is Number -> raw.toDouble()
-                is String -> raw.toDoubleOrNull() ?: 0.0
-                else -> 0.0
-            }
-        fun ts(key: String): Timestamp? =
-            data[key] as? Timestamp
-
-        // stats are stored as a nested map
-        val statsMap = data["stats"] as? Map<*, *> ?: emptyMap<String, Any>()
-        val stats = Stats(
-            agility       = (statsMap["agility"] as? Number)?.toLong() ?: 0L,
-            defense       = (statsMap["defense"] as? Number)?.toLong() ?: 0L,
-            intelligence  = (statsMap["intelligence"] as? Number)?.toLong() ?: 0L,
-            strength      = (statsMap["strength"] as? Number)?.toLong() ?: 0L,
-            health        = (statsMap["health"] as? Number)?.toLong() ?: 0L,
-        )
-
-        val user = Users(
-            userId             = data["userId"] as? String ?: uID,
-            displayName        = data["displayName"] as? String ?: "",
-            email              = data["email"] as? String ?: "",
-            photoUrl           = data["photoUrl"] as? String ?: "",
-            coinsBalance       = num("coinsBalance"),
-            stats              = stats,
-            streaks            = num("streaks"),
-            onboardingComplete = data["onboardingComplete"] as? Boolean ?: false,
-            createdAt          = ts("createdAt"),
-            lastUpdate         = ts("lastUpdate"),
-            level              = (data["level"] as? Number)?.toLong() ?: 1L,
-            lifePoints         = num("lifePoints"),
-            // support either "currentXp" (new) or "currXp" (legacy)
-            currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
-            currHealth         = num("currHealth"),
-            badgesLocked       = emptyList(),   // map arrays if/when needed
-            badgesUnlocked     = emptyList(),
-        )
-
-        // derive fields
-        user.calculateXpToNextLevel()
-        user.calculateMaxHealth()
-        return user
+        return null
     }
 
     // TODO: add setBadgesLocked() and setBadgesUnlocked() to the users crud

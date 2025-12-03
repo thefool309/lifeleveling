@@ -9,6 +9,14 @@ plugins {
 android {
     namespace = "com.lifeleveling.app"
     compileSdk = 36
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.keystore")
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+        }
+    }
     defaultConfig {
         applicationId = "com.lifeleveling.app"
         minSdk = 24
@@ -18,13 +26,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
     }
+    buildFeatures {
+        buildConfig = true
+    }
     buildTypes {
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("boolean", "DEBUG", "false")
+            signingConfig = signingConfigs.named("release").get()
         }
     }
     compileOptions {
@@ -104,4 +120,6 @@ dependencies {
     implementation("com.kizitonwose.calendar:compose-multiplatform:2.6.2")
 //    // Since minSDK is 24, calendar API requires 26+ due to the java.time calls that are used. Desugar allows compat on older vers. by rewriting into older java code
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // multithreading
+    implementation("androidx.work:work-runtime-ktx:2.11.0")
 }
