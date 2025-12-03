@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.lifeleveling.app.BuildConfig
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -28,9 +30,9 @@ import kotlin.Long
  * @property logTag a tag added by thefool309 for debugging purposes. I chose a centralized tag so we could quickly identify what file any log is coming from
  */
 class FirestoreRepository {
-    private val auth = Firebase.auth
+    private val auth = FirebaseAuth.getInstance()
 
-    private val db = Firebase.firestore
+    private val db = FirebaseFirestore.getInstance()
 
     private val logTag = "FirestoreRepository"
 
