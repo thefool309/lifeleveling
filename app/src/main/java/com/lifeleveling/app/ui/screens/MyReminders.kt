@@ -94,7 +94,7 @@ fun MyRemindersScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ){
                 Text(
-                    text = "My Reminders",
+                    text = stringResource(R.string.myReminders_title),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -122,7 +122,7 @@ fun MyRemindersScreen(
                 horizontalArrangement = Arrangement.End
             ){
                 Text(
-                    text = "Enable/Disable",
+                    text = stringResource(R.string.enable_or_disable),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.Small.copy(
                         shadow = Shadow(

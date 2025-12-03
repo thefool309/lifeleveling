@@ -343,34 +343,30 @@ fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
 @Composable
 fun MyRemindersToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points
-    val streaksTips = listOf(
+    val myRemindersTips = listOf(
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.streaks_tip_one))
+                append(stringResource(R.string.myReminders_tooltip1))
             }
         },
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.streaks_tip_two))
+                append(stringResource(R.string.myReminders_tooltip2))
             }
         },
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.streaks_tip_three))
+                append(stringResource(R.string.myReminders_tooltip3))
             }
         },
-        buildAnnotatedString {
-            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.streaks_tip_four))
-            }
-        }
+
     )
 
     // Dialog window
     Tooltip(
         toShow = toShow,
-        title = R.string.streaks,
-        tips = streaksTips
+        title = R.string.myReminders_tipstitle,
+        tips = myRemindersTips
     )
 }
 
@@ -381,20 +377,30 @@ fun MyRemindersToolTip(toShow: MutableState<Boolean>) {
 @Composable
 fun CreateRemindersToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points
-    val streaksTips = listOf(
+    val addRemindersTips = listOf(
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.calendar_tooptip1))
+                append(stringResource(R.string.title_tooltip))
             }
         },
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.calendar_tooptip2))
+                append(stringResource(R.string.icon_tooltip))
             }
         },
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
-                append(stringResource(R.string.calendar_tooptip3))
+                append(stringResource(R.string.starting_at_tooltip))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.remind_me_every_tooltip))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.repeat_for_tooltip))
             }
         },
     )
@@ -403,7 +409,7 @@ fun CreateRemindersToolTip(toShow: MutableState<Boolean>) {
     Tooltip(
         toShow = toShow,
         title = R.string.reminders_tooptip,
-        tips = streaksTips
+        tips = addRemindersTips
     )
 }
 
@@ -414,7 +420,7 @@ fun CreateRemindersToolTip(toShow: MutableState<Boolean>) {
 @Composable
 fun CalendarToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points
-    val streaksTips = listOf(
+    val calendarTips = listOf(
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
                 append(stringResource(R.string.calendar_tooptip1))
@@ -430,12 +436,17 @@ fun CalendarToolTip(toShow: MutableState<Boolean>) {
                 append(stringResource(R.string.calendar_tooptip3))
             }
         },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tip_jumpto))
+            }
+        },
     )
 
     // Dialog window
     Tooltip(
         toShow = toShow,
         title = R.string.calendar_tooptiptitle,
-        tips = streaksTips
+        tips = calendarTips
     )
 }

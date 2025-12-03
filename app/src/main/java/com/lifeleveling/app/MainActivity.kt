@@ -68,6 +68,8 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import com.lifeleveling.app.services.LLFirebaseMessagingService
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
+import com.lifeleveling.app.ui.screens.MyRemindersScreen
 
 
 import kotlinx.coroutines.delay
@@ -278,92 +280,92 @@ class MainActivity : ComponentActivity() {
                 } else {
                     // Show SignIn when not authenticated; show your app when signed in
                     LifelevelingTheme(darkTheme = isDarkThemeState.value) {
-                        if (authState.user == null) {
+                       // if (authState.user == null) {
 
-                            val preAuthNav = rememberNavController()
-
-                            NavHost(navController = preAuthNav, startDestination = "signIn") {
-                                composable("signIn") {
-                                    // -------- Sign In UI --------
-                                    val email = remember { mutableStateOf("") }
-                                    val password = remember { mutableStateOf("") }
-                                    val logger : ILogger = AndroidLogger()
-                                    val scope = rememberCoroutineScope()
-                                    SignIn(
-                                        // Auth using email and password
-                                        onLogin = {
-                                            scope.launch {
-                                                try {
-                                                    authVm.signInWithEmailPassword(email.value, password.value, logger)
-                                                } catch (e: FirebaseAuthInvalidCredentialsException) {
-                                                    logger.e(
-                                                        "FB",
-                                                        "createUserWithEmailAndPassword failed due to Invalid Credentials: ",
-                                                        e
-                                                    )
-                                                }
-                                            }
-                                        },
-                                        // Auth with Google Sign In
-                                        onGoogleLogin = {
-                                            authVm.beginGoogleSignIn()
-                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
-                                            googleLauncher.launch(intent)
-                                        },
-                                        // Create account screen
-                                        onCreateAccount = {
-                                            preAuthNav.navigate("createAccount")
-                                        },
-                                        email,
-                                        password,
-                                        authState = authState,
-                                        onDismissError = {authVm.clearError()},
-                                        onForgotPassword = { preAuthNav.navigate("passwordReset") },
-                                    )
-                                }
-                                composable("createAccount") {
-                                    val email = remember { mutableStateOf("") }
-                                    val password = remember {mutableStateOf("")}
-                                    val logger : ILogger = AndroidLogger()
-                                    val scope = rememberCoroutineScope()
-                                    CreateAccountScreen(
-                                        onJoin = {/*TODO: Handle sign-up logic*/
-                                            scope.launch {
-                                                try {
-                                                    authVm.createUserWithEmailAndPassword(email.value, password.value, logger)
-                                                }
-                                                catch (e: FirebaseAuthInvalidCredentialsException) {
-                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
-                                                }
-                                            }
-                                                 },
-                                        onGoogleLogin = {
-                                            authVm.beginGoogleSignIn()
-                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
-                                            googleLauncher.launch(intent)
-                                        },
-                                        onLog = {
-                                            preAuthNav.navigate("signIn") // Back to Sign-In
-                                        },
-                                        email,
-                                        password
-                                    )
-                                }
-                                composable("passwordReset") {
-                                    val email = remember { mutableStateOf("") }
-                                    val logger : ILogger = AndroidLogger()
-                                    PasswordResetScreen(
-                                        email = email,
-                                        onReset = { email, callback ->
-                                            authVm.sendPasswordResetEmail(email, logger) { ok, message ->
-                                                callback(ok, message)
-                                            }
-                                        },
-                                        backToLogin = { preAuthNav.navigate("signIn") }
-                                    )
-                                }
-                            }
-                        } else {
+//                            val preAuthNav = rememberNavController()
+//
+//                            NavHost(navController = preAuthNav, startDestination = "signIn") {
+//                                composable("signIn") {
+//                                    // -------- Sign In UI --------
+//                                    val email = remember { mutableStateOf("") }
+//                                    val password = remember { mutableStateOf("") }
+//                                    val logger : ILogger = AndroidLogger()
+//                                    val scope = rememberCoroutineScope()
+//                                    SignIn(
+//                                        // Auth using email and password
+//                                        onLogin = {
+//                                            scope.launch {
+//                                                try {
+//                                                    authVm.signInWithEmailPassword(email.value, password.value, logger)
+//                                                } catch (e: FirebaseAuthInvalidCredentialsException) {
+//                                                    logger.e(
+//                                                        "FB",
+//                                                        "createUserWithEmailAndPassword failed due to Invalid Credentials: ",
+//                                                        e
+//                                                    )
+//                                                }
+//                                            }
+//                                        },
+//                                        // Auth with Google Sign In
+//                                        onGoogleLogin = {
+//                                            authVm.beginGoogleSignIn()
+//                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+//                                            googleLauncher.launch(intent)
+//                                        },
+//                                        // Create account screen
+//                                        onCreateAccount = {
+//                                            preAuthNav.navigate("createAccount")
+//                                        },
+//                                        email,
+//                                        password,
+//                                        authState = authState,
+//                                        onDismissError = {authVm.clearError()},
+//                                        onForgotPassword = { preAuthNav.navigate("passwordReset") },
+//                                    )
+//                                }
+//                                composable("createAccount") {
+//                                    val email = remember { mutableStateOf("") }
+//                                    val password = remember {mutableStateOf("")}
+//                                    val logger : ILogger = AndroidLogger()
+//                                    val scope = rememberCoroutineScope()
+//                                    CreateAccountScreen(
+//                                        onJoin = {/*TODO: Handle sign-up logic*/
+//                                            scope.launch {
+//                                                try {
+//                                                    authVm.createUserWithEmailAndPassword(email.value, password.value, logger)
+//                                                }
+//                                                catch (e: FirebaseAuthInvalidCredentialsException) {
+//                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+//                                                }
+//                                            }
+//                                                 },
+//                                        onGoogleLogin = {
+//                                            authVm.beginGoogleSignIn()
+//                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
+//                                            googleLauncher.launch(intent)
+//                                        },
+//                                        onLog = {
+//                                            preAuthNav.navigate("signIn") // Back to Sign-In
+//                                        },
+//                                        email,
+//                                        password
+//                                    )
+//                                }
+//                                composable("passwordReset") {
+//                                    val email = remember { mutableStateOf("") }
+//                                    val logger : ILogger = AndroidLogger()
+//                                    PasswordResetScreen(
+//                                        email = email,
+//                                        onReset = { email, callback ->
+//                                            authVm.sendPasswordResetEmail(email, logger) { ok, message ->
+//                                                callback(ok, message)
+//                                            }
+//                                        },
+//                                        backToLogin = { preAuthNav.navigate("signIn") }
+//                                    )
+//                                }
+//                            }
+                       // } else {
 
                             // Main App UI
                             val navController = rememberNavController()
@@ -389,7 +391,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    }
+                    //}
                 }
             }
         }
@@ -411,7 +413,7 @@ fun NavHostContainer(
         modifier = Modifier.padding(paddingValues = padding),
         builder = {
             composable("calendar") {
-                CalendarScreen()
+                CalendarScreen(navController = navController)
             }
             composable("stats") {
                 StatsScreenRoute()
@@ -445,6 +447,12 @@ fun NavHostContainer(
             }
             composable ("journey_stats") {
                 UserJourneyScreen(navController = navController)
+            }
+            composable("createReminderScreen") {
+                CreateReminderScreen(navController = navController)
+            }
+            composable("MyReminders") {
+                MyRemindersScreen(navController = navController)
             }
         }
     )
