@@ -1,14 +1,24 @@
 package com.lifeleveling.app.data
 
 import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
 
@@ -22,9 +32,33 @@ import kotlin.Long
  * @property db a shortened alias for `Firebase.firestore`
  * @property auth a shortened alias for `Firebase.auth`
  */
-class FirestoreRepository {
-    private val db = Firebase.firestore
-    private val auth = Firebase.auth
+class FirestoreRepository(
+    private val db: FirebaseFirestore = Firebase.firestore,
+    private val auth: FirebaseAuth = Firebase.auth,
+    private val logger: ILogger = AndroidLogger()
+) : ViewModel() {
+
+    private val userData = MutableStateFlow(Users())
+    val uiState: StateFlow<Users> = userData.asStateFlow()  // Makes everything react to changes
+
+    init {
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                TODO("Set logged out status and user info to defaults and nulls")
+            } else {
+                viewModelScope.launch {
+                    try {
+                        ensureUserCreated(user) // unsure if this goes here
+                        TODO("Load in the user information and set LoggedIn to true")
+                    } catch (e: Exception) {
+                        Log.e("FirestoreRepository", "Error creating user", e)
+                    }
+                }
+            }
+        }
+        auth.addAuthStateListener(listener)
+    }
 
     /**
      * Velma wuz here :3
