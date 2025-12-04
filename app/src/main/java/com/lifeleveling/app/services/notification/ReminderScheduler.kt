@@ -31,15 +31,21 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
      */
     // @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun schedule(reminder: Reminders) {
-        val intent = Intent(context, ReminderReceiver::class.java).apply {
-            putExtra("TITLE", reminder.title)
-            putExtra("ID", reminder.reminderId)
-            putExtra("DUE_AT", reminder.dueAt)
-            putExtra("IS_DAILY", reminder.isDaily)
-            putExtra("TIMES_PER_DAY", reminder.timesPerDay)
-            putExtra("TIMES_PER_MONTH", reminder.timesPerMonth)
+        val intent: Intent
+        if(reminder.dueAt != null) {
+            intent = Intent(context, ReminderReceiver::class.java).apply {
+                putExtra("TITLE", reminder.title)
+                putExtra("ID", reminder.reminderId)
+                putExtra("DUE_AT", reminder.dueAt.toDate().time)
+                putExtra("IS_DAILY", reminder.isDaily)
+                putExtra("TIMES_PER_DAY", reminder.timesPerDay)
+                putExtra("TIMES_PER_MONTH", reminder.timesPerMonth)
+            }
         }
-
+        else {
+            logger.d(TAG, "Reminder schedule failed for ${reminder.title}")
+            throw ReminderDueDateIsNullException("Reminder schedule failed for ${reminder.title} : ${reminder.reminderId}")
+        }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             reminder.reminderId.hashCode(),
@@ -63,7 +69,7 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
 //        val triggerAt = /*calendar.timeInMillis*/ // uncomment this for the calendar defined time
 //            System.currentTimeMillis() + 10_000 // uncomment this for ten seconds from now
 
-        if(reminder.dueAt != null) {
+
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
@@ -75,11 +81,8 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
                 logger.d(TAG, "Reminder scheduled to ${reminder.title} at ${reminder.dueAt.toDate()}")
                 logger.d(TAG, "Time since Unix Epoch: ${reminder.dueAt.toDate().time}")
             }
-        }
-        else {
-            logger.d(TAG, "Reminder schedule failed for ${reminder.title}")
-            throw ReminderDueDateIsNullException("Reminder schedule failed for ${reminder.title} : ${reminder.reminderId}")
-        }
+
+
     }
 
     /**
