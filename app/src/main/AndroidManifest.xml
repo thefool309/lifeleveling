@@ -51,7 +51,7 @@
                 android:name="com.google.firebase.messaging.default_notification_color"
                 android:resource="@color/purple_700" />
         <!-- receiver for Reminder notifications -->
-        <receiver android:name="com.lifeleveling.app.services.ReminderReceiver" />
+        <receiver android:name="com.lifeleveling.app.services.notification.ReminderReceiver" />
 
     </application>
 

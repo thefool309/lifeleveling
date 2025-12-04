@@ -1,5 +1,6 @@
-package com.lifeleveling.app.services
+package com.lifeleveling.app.services.notification
 
+import android.R
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -7,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.lifeleveling.app.MainActivity
-import com.lifeleveling.app.services.LLFirebaseMessagingService.Companion.NOTIFICATION_ID
+import com.lifeleveling.app.services.LLFirebaseMessagingService
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 
@@ -41,7 +42,7 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
         if (context != null) {
             // if context isn't null, then build a notification
             builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_email)
+                .setSmallIcon(R.drawable.ic_dialog_email)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
@@ -51,7 +52,9 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
                 .setWhen(System.currentTimeMillis())
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(NOTIFICATION_ID, builder.build())
+            notificationManager.notify(LLFirebaseMessagingService.Companion.NOTIFICATION_ID, builder.build())
+
+
         }
         else {
             // otherwise inform the developers that the context is somehow null and this function is being called outside the context
