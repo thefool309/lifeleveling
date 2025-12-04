@@ -1,10 +1,12 @@
 package com.lifeleveling.app.services
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
+import androidx.annotation.RequiresPermission
 import com.lifeleveling.app.BuildConfig
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.util.AndroidLogger
@@ -28,6 +30,7 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
      * can be used to Schedule a new reminder, or to
      * @param reminder the reminder to have a notification scheduled for it
      */
+    // @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun schedule(reminder: Reminders) {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("title", reminder.title)
@@ -57,19 +60,19 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
 //        val triggerAt = /*calendar.timeInMillis*/ // uncomment this for the calender defined time
 //            System.currentTimeMillis() + 10_000 // uncomment this for ten seconds from now
 
-        for(timestamp in reminder.notifTimestamps) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
-                // Millis since the Unix epoch (Unix Standard Time in milliseconds)
-                timestamp.toDate().time, // TODO: find out how to get the timestamps we need to remindAt
-                pendingIntent
-            )
-            if (BuildConfig.DEBUG) {
-                logger.d(TAG, "Reminder scheduled to ${reminder.title} at ${timestamp.toDate()}")
-                logger.d(TAG, "Time since Unix Epoch: ${timestamp.toDate().time}")
-            }
-        }
+//        for(timestamp in reminder.notifTimestamps) {
+//            alarmManager.setExactAndAllowWhileIdle(
+//                AlarmManager.RTC_WAKEUP,
+//                // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
+//                // Millis since the Unix epoch (Unix Standard Time in milliseconds)
+//                timestamp.toDate().time, // TODO: find out how to get the timestamps we need to remindAt
+//                pendingIntent
+//            )
+//            if (BuildConfig.DEBUG) {
+//                logger.d(TAG, "Reminder scheduled to ${reminder.title} at ${timestamp.toDate()}")
+//                logger.d(TAG, "Time since Unix Epoch: ${timestamp.toDate().time}")
+//            }
+//        }
     }
 
     /**
