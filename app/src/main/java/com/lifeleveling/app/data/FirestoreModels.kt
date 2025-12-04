@@ -8,20 +8,29 @@ data class Users(
     val email: String = "",
     val photoUrl: String = "",
     val coinsBalance: Long = 0,
+    val allCoinsEarned: Long = 0,
     // Update from inline map to now use Stats data class
     val stats: Stats = Stats(),
-    val streaks: Long = 0,
+    val streaks: List<Streak> = emptyList(),
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
     // variables that were missing during our first introduction of the Users collection
     var level: Long = 1,
-    val lifePoints: Long = 0,           // unused lifePoints
+    val lifePointsUsed: Long = 0,           // used lifePoints
+    val lifePointsTotal: Long = 0,      // all lifePoints - saving the total in case we want to add to the total for badge completion
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
-    val currHealth: Long = 0,
+    val currHealth: Long = 60,          // Default 60 at start
     // Badges can be stored in arrays of Badge objects on user doc.
-    val badgesLocked: List<Badge> = emptyList(),       // greyed out badges/ secret badges
-    val badgesUnlocked: List<Badge> = emptyList(),     // completed badges
+    val badges: List<Badge> = emptyList(),       // greyed out badges/ secret badges
+    val reminders: List<Reminder> = emptyList(),
+    val fightOrMeditate: Int = 0,
+    // User Journey Stats to be saved
+    val weekStreaksCompleted: Long = 0,
+    val monthStreaksCompleted: Long = 0,
+    var mostCompletedReminder: Pair<String, Long> = Pair("", 0L),
+    // Settings to be saved
+    val isDarkTheme: Boolean = true,
     ) {
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
@@ -29,9 +38,37 @@ data class Users(
     var xpToNextLevel: Long = 0L
     var maxHealth: Long = 0L
     val baseHealth: Long = 60L
+    var lifePointsNotUsed: Long = 0L
+    //Lists
+    var enabledReminders: List<Reminder> = emptyList()
+    // User Journey Stats
+    var totalStreaksCompleted: Long = 0L
+    var badgesEarned: Long = 0L
+    var allExpEver: Double = 0.0
+    var coinsSpent: Long = 0L
+
+    // For use in functions
+    val isLoading: Boolean = false
+    val isLoggedIn: Boolean = false
+
     init {
         calculateXpToNextLevel()
         calculateMaxHealth()
+        calculateUnusedLifePoints()
+        calculateEnabledReminders()
+        calculateTotalStreaks()
+        calculateBadgesEarned()
+        calculateAllExp()
+        calculateCoinsSpent()
+        calculateMostCompletedReminder()
+    }
+
+    fun recalculatingUserJourney() {
+        calculateTotalStreaks()
+        calculateBadgesEarned()
+        calculateAllExp()
+        calculateCoinsSpent()
+        calculateMostCompletedReminder()
     }
 
     fun calculateXpToNextLevel() {
@@ -42,62 +79,41 @@ data class Users(
         val healthStat = stats.health
         maxHealth = baseHealth + (healthStat * 5)
     }
+
+    fun calculateUnusedLifePoints() {
+        lifePointsNotUsed = lifePointsTotal - lifePointsUsed
+    }
+
+    fun calculateEnabledReminders() {
+        enabledReminders = reminders.filter { it.enabled }
+    }
+
+    fun calculateTotalStreaks() {
+        totalStreaksCompleted = weekStreaksCompleted + monthStreaksCompleted
+    }
+
+    fun calculateBadgesEarned() {
+        badgesEarned = (badges.filter { it.completed }).size.toLong()
+    }
+
+    fun calculateAllExp() {
+        val exp = 100L * level * (level + 1) / 2
+        allExpEver = currentXp + exp
+    }
+
+    fun calculateCoinsSpent() {
+        coinsSpent = allCoinsEarned - coinsBalance
+    }
+
+    fun calculateMostCompletedReminder() {
+        val highest = reminders.maxByOrNull { it.completedTally }
+        if (highest != null) {
+            if (mostCompletedReminder.second < highest.completedTally) {
+                mostCompletedReminder = Pair(highest.title, highest.completedTally)
+            }
+        }
+    }
 }
 
 
 
-// Nested Models
-// A user's "reminder template" (the base CRUD)
-data class Reminders(
-    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
-    val title: String = "",
-    val notes: String = "",
-    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
-    val isCompleted: Boolean = false,
-    val completedAt: Timestamp? = null,  // set when marked complete
-    val createdAt: Timestamp? = null,    // serverTimestamp on create
-    val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
-    val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
-    val timesPerDay: Long = 0,           // How many times per day
-    val timesPerMonth: Long = 0,         // How many times per month
-    val colorToken: String? = null,      // nullable like enumColor? in TestUser
-    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
-)
-//
-//// Player stat block (Stats Screen)
-//data class Stats (
-//    val agility: Long = 0,
-//    val defense: Long = 0,
-//    val intelligence: Long = 0,
-//    val strength: Long = 0,
-//    val health: Long = 0,
-//)
-//
-//// Badge the user can earn
-//data class Badge(
-//    val badgeId: String = "",
-//    val badgeName: String = "",
-//    val badgeDescription: String = "",
-//    val iconName: String = "",           // Stores the name, not the R.drawable
-//    val colorToken: String = "",
-//    val completed: Boolean = false,
-//    val unlockedAt: Timestamp? = null,   // When badge was earned
-//)
-//
-//// One active streak the user is tracking
-///* Figma concept:
-//   - Add a Week or Add a Month Streak
-//   - Choose an existing reminder
-//   - Track how many times they've completed it */
-//data class Streak(
-//    val streakId: String = "",                  // doc id inside streaks subcollection
-//    val reminderId: String = "",                // link to Reminders.reminderId
-//    val periodType: String = "weekly",          // "weekly" or "monthly"
-//    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
-//    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
-//    val repeatIndefinitely: Boolean = false,
-//    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
-//    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
-//    val createdAt: Timestamp? = null,
-//    val lastUpdate: Timestamp? = null,
-//)

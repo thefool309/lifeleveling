@@ -1,11 +1,9 @@
 package com.lifeleveling.app.data
 
 import android.content.Intent
-import android.icu.util.Calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.lifeleveling.app.ui.components.TestUser.profileCreatedDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -175,7 +173,7 @@ class UserManager(
                 badgesEarned = calcBadgesEarned(userData.badges),
                 allExpEver = calcAllExp(userData.currentExp, userData.level),
                 coinsSpend = calcCoinsSpent(userData.coins, userData.allCoinsEarned),
-                mostCompletedRemind = calcMostCompletedReminder(userData.reminders),
+//                mostCompletedRemind = calcMostCompletedReminder(userData.reminders),
             )
         }
     }
@@ -191,14 +189,14 @@ class UserManager(
         return currentExp + exp
     }
     private fun calcCoinsSpent(current: Long, total: Long) = total - current
-    private fun calcMostCompletedReminder(reminders: List<Reminder>): Pair<String, Long> {
-        val highest = reminders.maxByOrNull { it.completedTally }
-        var result = Pair("", 0L)
-        if (highest != null) {
-            result = Pair(highest.name, highest.completedTally)
-        }
-        return result
-    }
+//    private fun calcMostCompletedReminder(reminders: List<Reminder>): Pair<String, Long> {
+//        val highest = reminders.maxByOrNull { it.completedTally }
+//        var result = Pair("", 0L)
+//        if (highest != null) {
+//            result = Pair(highest.name, highest.completedTally)
+//        }
+//        return result
+//    }
 
 
     // ============ Functions for changing variables =================

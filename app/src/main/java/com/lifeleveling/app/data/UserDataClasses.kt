@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import com.google.firebase.Timestamp
 import com.lifeleveling.app.ui.components.Reminder
 import com.lifeleveling.app.ui.theme.enumColor
 
@@ -11,34 +12,51 @@ data class Stats (
     val health: Long = 0,
 )
 
-data class Reminder (
-    val id: Int,
-    val name: String,
-    val icon: String,
-    val color: enumColor?,
-    val daily: Boolean,
-    val timesPerDay: Int,
-    val timesPerMonth: Int,
-    val completedTally: Long,
-    val enabled: Boolean,
+// Nested Models
+// A user's "reminder template" (the base CRUD)
+data class Reminder(
+    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
+    val title: String = "",
+    val notes: String = "",
+    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val isCompleted: Boolean = false,
+    val completedAt: Timestamp? = null,  // set when marked complete
+    val createdAt: Timestamp? = null,    // serverTimestamp on create
+    val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
+    val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
+    val timesPerDay: Long = 0,           // How many times per day
+    val timesPerMonth: Long = 0,         // How many times per month
+    val colorToken: enumColor?,      // nullable like enumColor? in TestUser
+    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val completedTally: Long,           // Used for calculating the most completed reminders for the user journey stats
+    val enabled: Boolean,               // If the reminder is active or just saved
 )
 
-data class Streak (
-    val reminderId: Int,
-    val totalAmount: Int,
-    var numberCompleted: Int = 0,
-    var repeat: Boolean = false,
-    var repeatIndefinitely: Boolean = false,
-    var repeatNumber: Int = 0,
-    var repeatInterval: String = "",
+// One active streak the user is tracking
+/* Figma concept:
+   - Add a Week or Add a Month Streak
+   - Choose an existing reminder
+   - Track how many times they've completed it */
+data class Streak(
+    val streakId: String = "",                  // doc id inside streaks subcollection
+    val reminderId: String = "",                // link to Reminders.reminderId
+    val periodType: String = "weekly",          // "weekly" or "monthly"
+    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
+    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
+    val repeatIndefinitely: Boolean = false,
+    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
+    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
+    val createdAt: Timestamp? = null,
+    val lastUpdate: Timestamp? = null,
 )
 
-data class Badge (
-    val id: Int,
-    val icon: Int,
-    val color: enumColor,
-    val title: String,
-    val description: String,
+// Badge the user can earn
+data class Badge(
+    val badgeId: String = "",
+    val badgeName: String = "",
+    val badgeDescription: String = "",
+    val iconName: String = "",           // Stores the name, not the R.drawable
+    val colorToken: enumColor,
     val completed: Boolean = false,
-    val completedOn: Long? = null,
+    val unlockedAt: Timestamp? = null,   // When badge was earned
 )

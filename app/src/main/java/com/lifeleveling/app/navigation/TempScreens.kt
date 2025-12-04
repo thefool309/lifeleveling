@@ -33,6 +33,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.CustomButton
 import kotlinx.coroutines.launch
 
@@ -195,7 +196,7 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
         Button(onClick = {
             scope.launch {
                 val id = repo.createReminder(
-                    reminders = com.lifeleveling.app.data.Reminders(
+                    reminders = Reminders(
                         title = "Hydrate",
                         notes = "Drink water"
                     ),
