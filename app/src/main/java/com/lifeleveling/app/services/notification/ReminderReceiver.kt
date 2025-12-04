@@ -16,15 +16,17 @@ import com.lifeleveling.app.util.ILogger
 import java.util.Calendar
 import java.util.Date
 
+
+/**
+ * an exception for if the Next Occurrence calculation fails
+ */
+class NextOccurrenceCalcException(message: String) : Exception(message)
 /**
  * A `BroadcastReceiver` that triggers scheduled reminder notifications.
  * When the user-defined reminder time occurs, this receiver builds and displays a local notification.
  * The notification’s intent typically opens the app or a specific screen related to the
  * reminder when tapped.
  */
-
-
-class NextOccurrenceCalcException(message: String) : Exception(message)
 
 class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceiver() {
 

@@ -9,16 +9,18 @@ import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 
+
 /**
- * an object for taking the `Reminders` data and scheduling notifications for it.
+ * and exception for if the DueDate comes back as null
+ */
+class ReminderDueDateIsNullException(message: String) : Exception(message)
+/**
+ * a class for taking the `Reminders` data and scheduling notifications for it.
  * @param context the application context
  * @param logger an interface typed object for modifying the logging behavior in this class. Defaults to an `AndroidLogger`
  * @see ILogger
  * @see AndroidLogger
  */
-
-class ReminderDueDateIsNullException(message: String) : Exception(message)
-
 class ReminderScheduler(private val context: Context, val logger: ILogger = AndroidLogger()) {
 
     companion object {
