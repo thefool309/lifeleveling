@@ -20,7 +20,7 @@ import kotlin.Long
  * @author thefool309
  * @property db a shortened alias for `Firebase.firestore`
  * @property auth a shortened alias for `Firebase.auth`
- * @property TAG a tag added by thefool309 for debugging purposes. I chose a centralized tag so we could quickly identify what file any log is coming from
+ * @property TAG a tag added for debugging purposes. we chose a centralized tag so we could quickly identify what file any log is coming from
  */
 class FirestoreRepository {
     private val auth = FirebaseAuth.getInstance()
