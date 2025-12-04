@@ -13,6 +13,7 @@ import com.lifeleveling.app.MainActivity
 import com.lifeleveling.app.services.FirebaseCloudMessaging.LLFirebaseMessagingService
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
+import java.util.Calendar
 import java.util.Date
 
 /**
@@ -22,6 +23,8 @@ import java.util.Date
  * reminder when tapped.
  */
 
+
+class NextOccurrenceCalcException(message: String) : Exception(message)
 
 class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceiver() {
 
@@ -38,21 +41,17 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
     override fun onReceive(context: Context?, intent: Intent?) {
         val title = intent?.getStringExtra("TITLE") ?: "Reminder"
         val message = intent?.getStringExtra("message") ?: "Reminder"
-        val isDaily = intent?.getBooleanExtra("IS_DAILY", false)
-        val timesPerDay = intent?.getLongExtra("TIMES_PER_DAY", 0)
-        val timesPerMonth = intent?.getLongExtra("TIMES_PER_MONTH", 0)
+        val isDaily = intent?.getBooleanExtra("IS_DAILY", false) ?: false
+        val timesPerDay = intent?.getLongExtra("TIMES_PER_DAY", 0) ?: 0
+        val timesPerMonth = intent?.getLongExtra("TIMES_PER_MONTH", 0) ?: 0
         val dueAt = intent?.getLongExtra("DUE_AT", 0) ?: 0
-        val interval: Long
-        val intervalDays: Long
-        if(isDaily!! && isDaily && timesPerDay != null) {
-            interval = AlarmManager.INTERVAL_DAY / timesPerDay
+
+        val nextOccurrence = calculateNextOccurrence(dueAt, isDaily, timesPerDay, timesPerMonth)
+
+        if(nextOccurrence == -1L) {
+            throw NextOccurrenceCalcException("No next occurrence found")
         }
-        else if(!isDaily && timesPerMonth != null) {
-            TODO("Implement weekly reminder notif calculation")
-        }
-        else {
-            interval = AlarmManager.INTERVAL_DAY // defaults to once a day
-        }
+
         // defines what activity opens when the user taps the notification
         val onClickIntent = Intent(context, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(context, 0, onClickIntent, PendingIntent.FLAG_IMMUTABLE)
@@ -77,7 +76,7 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
                 AlarmManager.RTC_WAKEUP,
                 // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
                 // Millis since the Unix epoch (Unix Standard Time in milliseconds)
-                dueAt + interval,
+                dueAt + nextOccurrence,
                 pendingIntent
             )
             if (BuildConfig.DEBUG) {
@@ -92,4 +91,45 @@ class ReminderReceiver(val logger: ILogger = AndroidLogger()) : BroadcastReceive
             logger.e(TAG, "context is null!")
         }
     }
+    fun calculateNextOccurrence(
+        currentDueAtMillis: Long,
+        isDaily: Boolean,
+        timesPerDay: Long,
+        timesPerMonth: Long
+    ) : Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = currentDueAtMillis
+        val interval: Long
+        if(timesPerDay > 0 || timesPerMonth > 0) {
+            if (isDaily) {
+                interval = AlarmManager.INTERVAL_DAY / timesPerDay
+                calendar.add(Calendar.MILLISECOND, interval.toInt())
+            }
+            else {
+                interval = when (timesPerMonth.toInt()) {
+                    10 -> 3
+                    9 -> 3
+                    8 -> 3
+                    7 -> 4
+                    6 -> 5
+                    5 -> 6
+                    4 -> 7
+                    3 -> 10
+                    2 -> 14
+                    1 -> 30
+                    else -> 3 // default to once every 3 days if set any higher.
+                             // If it's higher than this the user will pick daily
+                }
+                calendar.add(Calendar.DAY_OF_MONTH, interval.toInt())
+            }
+            return calendar.timeInMillis
+        }
+        else {
+            logger.e(TAG, "current due at $currentDueAtMillis at ${calendar.timeInMillis}")
+            logger.e(TAG, "either timesPerDay: $timesPerDay, timesPerMonth: $timesPerMonth")
+            return -1
+        }
+
+    }
 }
+
