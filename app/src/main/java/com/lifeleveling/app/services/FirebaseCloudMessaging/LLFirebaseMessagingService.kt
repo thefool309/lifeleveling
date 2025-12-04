@@ -1,19 +1,21 @@
-package com.lifeleveling.app.services
+package com.lifeleveling.app.services.FirebaseCloudMessaging
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.lifeleveling.app.BuildConfig
 import com.lifeleveling.app.MainActivity
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.services.FirebaseCloudMessaging.LLWorker
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.runBlocking
@@ -25,9 +27,9 @@ import kotlinx.coroutines.runBlocking
  * @property CHANNEL_ID and arbitrary channelID I selected for the notification channel
  * @property TAG the tag for the logger to point you back to this file
  * @property repo a `FirestoreRepository()` object for saving FcmTokens
- * @see FirebaseMessagingService
+ * @see com.google.firebase.messaging.FirebaseMessagingService
  * @see android.app.Service
- * @see NotificationCompat
+ * @see androidx.core.app.NotificationCompat
  * @author thefool309
  */
 class LLFirebaseMessagingService() : FirebaseMessagingService() {
@@ -62,12 +64,12 @@ companion object {
      */
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        if(com.lifeleveling.app.BuildConfig.DEBUG) {
+        if(BuildConfig.DEBUG) {
             logger.d(TAG, "Message ID: " + message.messageId)
         }
         if (message.data.isNotEmpty()) {
 
-            if(com.lifeleveling.app.BuildConfig.DEBUG) {
+            if(BuildConfig.DEBUG) {
                 logger.d(TAG, "Message data payload: " + message.data)
             }
             // this section is for handling any other operations that may need to be carried out upon receiving a notification
@@ -108,7 +110,7 @@ companion object {
      */
     private fun sendRegistrationToServer(token: String?) {
         // send token to the Firestore.
-        runBlocking {   repo.setFirebaseToken(token, logger) }
+        runBlocking { repo.setFirebaseToken(token, logger) }
         logger.d(TAG, "sendRegistrationTokenToServer($token)")
     }
 
@@ -121,7 +123,7 @@ companion object {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        
+
         val channelId = CHANNEL_ID
         val notificationBuilder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_name)
@@ -131,9 +133,9 @@ companion object {
             .setContentIntent(pendingIntent)
             .setContentTitle("Life Leveling") // TODO: put string in R.strings
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, channelId, NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
@@ -147,7 +149,7 @@ companion object {
     private fun scheduleJob() {
         // [START dispatch_job]
         val work = OneTimeWorkRequest.Builder(LLWorker::class.java).build()
-        WorkManager.getInstance(this).beginWith(work).enqueue()
+        WorkManager.Companion.getInstance(this).beginWith(work).enqueue()
         // [END dispatch_job]
     }
 
@@ -159,5 +161,3 @@ companion object {
     }
 
 }
-
-

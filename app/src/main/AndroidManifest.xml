@@ -36,7 +36,7 @@
 
         </activity>
         <service
-                android:name="com.lifeleveling.app.services.LLFirebaseMessagingService"
+                android:name="com.lifeleveling.app.services.FirebaseCloudMessaging.LLFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

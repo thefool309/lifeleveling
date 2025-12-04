@@ -8,7 +8,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.lifeleveling.app.MainActivity
-import com.lifeleveling.app.services.LLFirebaseMessagingService
+import com.lifeleveling.app.services.FirebaseCloudMessaging.LLFirebaseMessagingService
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 
