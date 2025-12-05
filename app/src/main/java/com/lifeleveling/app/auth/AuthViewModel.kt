@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Users
+import com.lifeleveling.app.data.UsersData
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
@@ -31,25 +33,26 @@ import kotlinx.coroutines.tasks.await
  *
  * @author fdesouza1992
  * **/
-data class AuthUiState(
-    val user: FirebaseUser? = null,
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
+//data class AuthUiState(
+//    val user: FirebaseUser? = null,
+//    val isLoading: Boolean = false,
+//    val error: String? = null
+//)
 
 /**
  * ViewModel that owns all of our Firebase/Google sign-in logic and exposes a simple UI state (AuthUiState) that screens can observe.
  *
  * @author fdesouza1992
  * **/
-class AuthViewModel : ViewModel() {
+class AuthViewModel(
     // Firebase auth and Firestore repository instance
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val repo = FirestoreRepository()
+) {
+//    private val repo = FirestoreRepository()
 
     // Backing field for authentication UI state
-    private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
-    val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
+//    private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
+//    val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
 
     /**
      * Clears any current auth error message from the UI state.
@@ -58,19 +61,26 @@ class AuthViewModel : ViewModel() {
      *
      * @author fdesouza1992
      */
-    fun clearError() {
-        _ui.value = _ui.value.copy(error = null)
+    fun clearError(user: UsersData) {
+        user.error = null
+//        _ui.value = _ui.value.copy(error = null)
     }
 
 
     // Listener to monitor Firebase authentication state changes
-    private val listener = FirebaseAuth.AuthStateListener { fb ->
-        _ui.value = _ui.value.copy(user = fb.currentUser, isLoading = false, error = null)
+//    private val listener = FirebaseAuth.AuthStateListener { fb ->
+//        _ui.value = _ui.value.copy(user = fb.currentUser, isLoading = false, error = null)
+//    }
+    fun addAuthStateListener(listener: FirebaseAuth.AuthStateListener) {
+        auth.addAuthStateListener(listener)
     }
 
     // Initialization/ Cleanup
-    init { auth.addAuthStateListener(listener) }
-    override fun onCleared() { auth.removeAuthStateListener(listener) }
+//    init { auth.addAuthStateListener(listener) }
+//    override fun onCleared() { auth.removeAuthStateListener(listener) }
+    fun removeAuthStateListener(listener: FirebaseAuth.AuthStateListener) {
+        auth.removeAuthStateListener(listener)
+    }
 
     /**
      * Builds and returns a GoogleSignInClient configured for our app.
