@@ -192,11 +192,7 @@ fun CalendarScreen(
                             val currentDay = LocalDate.now()
                             val isToday = dayInfo == currentDay
 
-                            HighlightCard(
-                                modifier = Modifier,
-                                innerPadding = 0.dp,
-                                outerPadding = 0.dp,
-                            ) {
+
                                 Column(
 
                                 ) {
@@ -272,7 +268,7 @@ fun CalendarScreen(
                                     // Todo add in display of daily reminders
 
                                 }
-                            }
+
                         }
                     }
                 }
