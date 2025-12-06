@@ -38,7 +38,7 @@
     <string name="fight">Fight</string>
     <string name="meditate">Meditate</string>
     <!-- Button Titles -->
-    <string name="Confrim">Confirm</string>
+    <string name="Confirm">Confirm</string>
     <string name="Cancel">Cancel</string>
 
     <!-- SignIn Screen -->
@@ -202,10 +202,20 @@
     <string name="whenToNotify">When to Notify:</string>
 
     <!-- Calendar -->
+    <string name="calendar_tooptiptitle">Calendar View</string>
+    <string name="calendar_tooptip1">Day View will show you your daily reminders.</string>
+    <string name="calendar_tooptip2">Month view will show weekly and month reminders.</string>
+    <string name="calendar_tooptip3">Add Reminder will let you add a new one to your calendar.</string>
+    <string name="day_calendar">Day</string>
+    <string name="month_calendar">Month</string>
     <string name="my_reminders">My Reminders</string>
+    <string name="calendar_tip_jumpto">If you click the date at the top of the calendar, you can jump to other days or months to see the reminders for that date.</string>
+
+
 
     <!-- CreateReminders Screen -->
     <string name="add_reminders">Add Reminders</string>
+    <string name="reminders_tooptip">Add Reminders</string>
     <string name="title_colon">Title:</string>
     <string name="reminder_title">Reminder Title</string>
     <string name="icon">Icon</string>
@@ -297,6 +307,20 @@
         <item>58</item>
         <item>59</item>
     </string-array>
+    <string name="title_tooltip">In the Title section you can title your reminder.</string>
+    <string name="icon_tooltip">In the Icon, you can choose an icon for your reminder.</string>
+    <string name="starting_at_tooltip">In Starting at, you will select the time for the reminder to alert.</string>
+    <string name="remind_me_every_tooltip">In Remind me, you can select how many reminders you want in a day and the space between them. You can also select to make it a daily or for it to be repeated on week days.</string>
+    <string name="repeat_for_tooltip">In Repeat for, you can choose how long you want the reminder repeated for in the future. You can make it repeated indefinitely(forever), repeated for a certain period of time such as for one month, or is it not repeated and only a one time reminder.</string>
+
+    <!-- MyReminders Screen -->
+    <string name="myReminders_title">My Reminders</string>
+    <string name="myReminders_tipstitle">My Reminders Tips</string>
+    <string name="enable_or_disable">Enable/Disable</string>
+    <string name="myReminders_tooltip1">Here in My Reminders you will see a list of all reminders you created.</string>
+    <string name="myReminders_tooltip2">You can choose to enable or disable them with the checkbox.</string>
+    <string name="myReminders_tooltip3">Taping on a reminder will display its repeat information and give you the option to delete it.</string>
+    <string name="no_reminders_for_day">No reminders for this day yet.</string>
 
     <!-- FCM/androidSettings -->
     <string name="reminder_channel">Reminders</string>

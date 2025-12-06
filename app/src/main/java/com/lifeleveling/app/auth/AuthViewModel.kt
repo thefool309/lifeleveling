@@ -2,7 +2,6 @@ package com.lifeleveling.app.auth
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lifeleveling.app.R
@@ -128,7 +127,7 @@ class AuthViewModel : ViewModel() {
         Firebase.firestore.collection("authLogs")
             .add(
                 mapOf(
-                    "ts" to com.google.firebase.Timestamp.now(),
+                    "ts" to Timestamp.now(),
                     "source" to "emailPasswordLogin",
                     "provider" to provider,
                     "uid" to user.uid,
@@ -240,7 +239,7 @@ class AuthViewModel : ViewModel() {
      *
      * @author thefool309, fdesouza1992
      */
-    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
+    fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
@@ -291,7 +290,7 @@ class AuthViewModel : ViewModel() {
      * @param logger Used to log any issues during sign-up.
      * @author thefool309, fdesouza1992
      */
-    suspend fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
+    fun createUserWithEmailAndPassword(email: String, password: String, logger: ILogger)
     {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)

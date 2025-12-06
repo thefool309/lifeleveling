@@ -1,6 +1,7 @@
 package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -43,9 +46,13 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.MyRemindersToolTip
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
+import com.lifeleveling.app.ui.components.ShowReminder
 import com.lifeleveling.app.ui.components.TestUser
+import com.lifeleveling.app.ui.components.TestUser.calendarReminders
+import com.lifeleveling.app.ui.components.calReminder
 import com.lifeleveling.app.ui.theme.AppTheme
 import kotlin.collections.forEach
 
@@ -54,6 +61,10 @@ import kotlin.collections.forEach
 fun MyRemindersScreen(
     navController: NavController? = null
 ){
+    var toShowReminderInfo = remember { mutableStateOf(false) }
+    val reminderToShow = remember { mutableStateOf(TestUser.calendarReminders.value[0]) }
+
+    val showMyRemindersToolTip = remember { mutableStateOf(false) }
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
     val amOrPmOptions = listOf(
@@ -86,26 +97,39 @@ fun MyRemindersScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
 
             ) {
-            Text(
-                text = "My Reminders",
-                color = AppTheme.colors.SecondaryOne,
-                style = AppTheme.textStyles.HeadingThree.copy(
-                    shadow = Shadow(
-                        color = AppTheme.colors.DropShadow,
-                        offset = Offset(3f, 4f),
-                        blurRadius = 6f,
-                    )
-                ),
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+                Text(
+                    text = stringResource(R.string.myReminders_title),
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingThree.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    ),
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                )
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.info),
+                    tint = AppTheme.colors.FadedGray,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .offset(y = 9.74.dp)
+                        .clickable { showMyRemindersToolTip.value = !showMyRemindersToolTip.value }
+                )
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ){
                 Text(
-                    text = "Enable/Disable",
+                    text = stringResource(R.string.enable_or_disable),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.Small.copy(
                         shadow = Shadow(
@@ -123,9 +147,10 @@ fun MyRemindersScreen(
                     .height(450.dp),
                 outerPadding = 0.dp
             ) {
+                val remindersList = TestUser.calendarReminders.value
                 val isEnabled = remember {
                     mutableStateListOf<Boolean>().apply {
-                        addAll(List(TestUser.calendarReminders.size) { true })
+                        addAll(List(remindersList.size) { true })
                     }
                 }
 
@@ -136,13 +161,18 @@ fun MyRemindersScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ){
-                    TestUser.calendarReminders.forEachIndexed { index ,calReminder ->
+
+                    remindersList.forEachIndexed { index ,calReminder ->
                         val hour = hourOptions[calReminder.selectedHours]
                         val minutes = minutesOptions[calReminder.selectedMinutes]
                         val ampm = amOrPmOptions[calReminder.amOrPm]
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .clickable {
+                                    toShowReminderInfo.value = true
+                                    reminderToShow.value = calReminder
+                                },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
 
@@ -184,7 +214,7 @@ fun MyRemindersScreen(
 
                         }
 
-                        if (index < TestUser.calendarReminders.lastIndex) {
+                        if (index < remindersList.lastIndex) {
                             SeparatorLine()
                         }
                     }
@@ -192,6 +222,20 @@ fun MyRemindersScreen(
                 }
             }
         }
+    }
+
+    if(showMyRemindersToolTip.value){
+        MyRemindersToolTip(showMyRemindersToolTip)
+    }
+
+    if (toShowReminderInfo.value) {
+        ShowReminder(
+            toShow = toShowReminderInfo,
+            passedReminder = reminderToShow,
+            hourOptions = hourOptions,
+            minutesOptions = minutesOptions,
+            amOrPmOptions = amOrPmOptions
+        )
     }
 }
 
