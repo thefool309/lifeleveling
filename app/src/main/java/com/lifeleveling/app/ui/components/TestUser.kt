@@ -76,7 +76,7 @@ object TestUser {
         Reminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0, 9),
     )
     // ================================= My Reminders Test stuff =================================
-    val calendarReminders by mutableStateOf(listOf(
+    val calendarReminders = mutableStateOf(listOf(
         calReminder(1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
         calReminder(2,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
         calReminder(3,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0),

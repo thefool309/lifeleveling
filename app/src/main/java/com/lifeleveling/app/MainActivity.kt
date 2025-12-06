@@ -29,12 +29,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -47,8 +51,10 @@ import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateReminderScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
+import com.lifeleveling.app.ui.screens.PasswordResetScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
+import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
@@ -57,7 +63,13 @@ import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
+import com.lifeleveling.app.util.ILogger
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import com.lifeleveling.app.services.LLFirebaseMessagingService
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
+import com.lifeleveling.app.ui.screens.MyRemindersScreen
 import com.lifeleveling.app.ui.screens.MyRemindersScreen
 
 
