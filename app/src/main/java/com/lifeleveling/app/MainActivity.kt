@@ -35,7 +35,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -45,14 +44,11 @@ import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.CustomNavBar
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.CalendarScreen
-import com.lifeleveling.app.ui.screens.CreateAccountScreen
 import com.lifeleveling.app.ui.screens.CreateReminderScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
-import com.lifeleveling.app.ui.screens.PasswordResetScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
-import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
@@ -61,7 +57,6 @@ import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.launch
-import com.lifeleveling.app.util.ILogger
 import android.Manifest
 import com.lifeleveling.app.ui.screens.MyRemindersScreen
 
@@ -400,8 +395,6 @@ fun NavHostContainer(
     onResetLifePoints: () -> Unit,
     padding: PaddingValues,
     isDarkThemeState: MutableState<Boolean>,
-//    repo: com.lifeleveling.app.data.FirestoreRepository,
-//    logger: AndroidLogger,
 ) {
     NavHost(
         navController = navController,
@@ -446,8 +439,6 @@ fun NavHostContainer(
             }
             composable("createReminderScreen") {
                 CreateReminderScreen(navController = navController)
-//                    repo = repo,
-//                    logger = logger)
             }
             composable("MyReminders") {
                 MyRemindersScreen(navController = navController)
