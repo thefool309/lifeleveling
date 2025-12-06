@@ -1,6 +1,7 @@
 package com.lifeleveling.app.services.notification
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -33,6 +34,7 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
      * can be used to Schedule a new reminder, or to
      * @param reminder the reminder to have a notification scheduled for it
      */
+    @SuppressLint("SuspiciousIndentation")
     @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun schedule(reminder: Reminders) {
         val intent: Intent
@@ -57,6 +59,7 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
              PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         if (BuildConfig.DEBUG) { logger.d(TAG, "Reminder intent created for ${reminder.title}") }
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         // an example of how to set it to go off at a specific date.
         // uncomment this block and change triggerAtMillis parameter
