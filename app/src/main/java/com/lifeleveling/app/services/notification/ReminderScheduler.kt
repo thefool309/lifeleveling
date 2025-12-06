@@ -1,9 +1,11 @@
 package com.lifeleveling.app.services.notification
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.RequiresPermission
 import com.lifeleveling.app.BuildConfig
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.util.AndroidLogger
@@ -11,7 +13,7 @@ import com.lifeleveling.app.util.ILogger
 
 
 /**
- * and exception for if the DueDate comes back as null
+ * an exception for if the DueDate comes back as null
  */
 class ReminderDueDateIsNullException(message: String) : Exception(message)
 /**
@@ -31,7 +33,7 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
      * can be used to Schedule a new reminder, or to
      * @param reminder the reminder to have a notification scheduled for it
      */
-    // @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
+    @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun schedule(reminder: Reminders) {
         val intent: Intent
         if(reminder.dueAt != null) {
