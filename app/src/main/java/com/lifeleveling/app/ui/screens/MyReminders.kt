@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
@@ -101,7 +102,7 @@ fun MyRemindersScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ){
                 Text(
-                    text = stringResource(R.string.myReminders_title),
+                    text = stringResource(R.string.myReminders_title) +"\n"+ stringResource(R.string.myReminders_title2),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -120,6 +121,13 @@ fun MyRemindersScreen(
                         .size(20.dp)
                         .offset(y = 9.74.dp)
                         .clickable { showMyRemindersToolTip.value = !showMyRemindersToolTip.value }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+                CircleButton(
+                    modifier = Modifier,
+                    onClick = {navController?.popBackStack()},
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
                 )
             }
 
@@ -148,11 +156,7 @@ fun MyRemindersScreen(
                 outerPadding = 0.dp
             ) {
                 val remindersList = TestUser.calendarReminders.value
-                val isEnabled = remember {
-                    mutableStateListOf<Boolean>().apply {
-                        addAll(List(remindersList.size) { true })
-                    }
-                }
+
 
                 Column(
                     modifier = Modifier
@@ -203,9 +207,12 @@ fun MyRemindersScreen(
 
                             ){
                                 CustomCheckbox(
-                                    checked = isEnabled[index],
+                                    checked = calReminder.isEnabled,
                                     onCheckedChange = { newValue ->
-                                        isEnabled[index] = newValue
+                                        TestUser.calendarReminders.value =
+                                            TestUser.calendarReminders.value.toMutableList().also { list ->
+                                                list[index] = list[index].copy(isEnabled = newValue)
+                                            }
                                     }
                                 )
                             }

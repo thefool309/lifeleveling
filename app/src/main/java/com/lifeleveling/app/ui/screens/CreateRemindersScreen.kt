@@ -32,9 +32,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.kizitonwose.calendar.core.YearMonth
+import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.theme.AppTheme
+import java.time.LocalDate
+import java.time.Month
+import java.time.format.TextStyle
+import java.util.Locale
 
 
 @Preview
@@ -93,6 +99,27 @@ fun CreateReminderScreen(
         stringResource(R.string.months),
         stringResource(R.string.years)
     )
+
+    val today = LocalDate.now()                                                             // Current date
+    val monthList = (1..12).map { monthNumber ->
+        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())   // Months list
+    }
+    val startYear = today.year                                                               // Years list (current year + 5)
+    val endYear = startYear + 5
+    val yearList = (startYear..endYear).toList()
+    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
+    var selectedMonth by remember { mutableStateOf(today.monthValue - 1) }
+    var selectedYear by remember { mutableStateOf(0) }
+    val actualYear = yearList[selectedYear]                                                 // Actual selected values
+    val actualMonth = selectedMonth + 1
+    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
+    val dayList = (1..daysInMonth).map { day ->                                     // days list with suffix and day name
+        val date = LocalDate.of(actualYear, actualMonth, day)
+        SuffixForDays(day)
+    }
+    val selectedMonthMenu = remember { mutableStateOf(false) }
+    val selectedDayMenu = remember { mutableStateOf(false) }
+    val selectedYearMenu = remember { mutableStateOf(false) }
 
     Surface(
 
@@ -186,6 +213,36 @@ fun CreateReminderScreen(
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ){
+                                DropDownTextMenu(
+                                    options = monthList,
+                                    selectedIndex = selectedMonth,
+                                    onSelectedChange = {selectedMonth = it },
+                                    expanded = selectedMonthMenu,
+                                    modifier = Modifier
+                                        .weight(1f),
+                                )
+                                DropDownTextMenu(
+                                    options = dayList,
+                                    selectedIndex = selectedDay,
+                                    onSelectedChange = {selectedDay = it },
+                                    expanded = selectedDayMenu,
+                                    modifier = Modifier
+                                        .weight(1f),
+                                )
+                                DropDownTextMenu(
+                                    options = yearList.map {it.toString()},
+                                    selectedIndex = selectedYear,
+                                    onSelectedChange = {selectedYear = it },
+                                    expanded = selectedYearMenu,
+                                    modifier = Modifier
+                                        .weight(1f),
+                                )
+                            }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,

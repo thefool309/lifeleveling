@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -56,31 +58,43 @@ import kotlin.collections.toList
 import kotlin.collections.filter
 
 @Composable
-fun Day(day: CalendarDay) {
+fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:Int) {
     val isOutDate = day.position != DayPosition.MonthDate
+    val date = day.date
+    val yearIndex = date.year - startYear
+    val monthValue = date.month.value
+    val dayValue = date.dayOfMonth
+    val hasReminder = reminders.any { r ->
+        r.isEnabled && r.year == yearIndex && r.month == monthValue && r.day == dayValue
+    }
+
     Box(
         modifier = Modifier
             .border(
-                color = AppTheme.colors.Gray, shape = RectangleShape,
+                color = AppTheme.colors.Gray,
+                shape = RectangleShape,
                 width = 0.2.dp
             )
             .fillMaxWidth()
-            .height(70.dp)
-            .clickable {
-                // Todo add click to add events to days > might be handled in Add reminders
-            },
-        contentAlignment = Alignment.TopCenter,
+            .height(70.dp),
+        contentAlignment = Alignment.TopCenter
     ) {
         Text(
-            text = day.date.dayOfMonth.toString(),
-            color = if (isOutDate) {
-                AppTheme.colors.FadedGray
-            } else {
-                AppTheme.colors.Gray
-            }
+            text = dayValue.toString(),
+            color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
         )
-    }
+        if (hasReminder) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                   .padding(bottom = 4.dp)
+                    .size(8.dp)
+                    .background(AppTheme.colors.SecondaryOne, CircleShape),
 
+            )
+
+        }
+    }
 }
 
 @Composable
@@ -478,7 +492,7 @@ fun ShowReminder(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                           delete = true
+                            delete = true
                         },
                         backgroundColor = AppTheme.colors.Error75,
                     ) {
@@ -565,3 +579,4 @@ fun ShowReminder(
         }
     }
 }
+
