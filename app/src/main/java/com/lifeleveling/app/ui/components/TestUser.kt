@@ -77,18 +77,18 @@ object TestUser {
     )
     // ================================= My Reminders Test stuff =================================
     val calendarReminders = mutableStateOf(listOf(
-        calReminder(isEnabled = true, id = 1, day = 2,month = 1, year = 1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
-        calReminder(isEnabled = true, id =2, day = 2,month = 1, year = 1,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =3, day = 3,month = 1, year = 1,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =4, day = 25,month = 3, year = 4,"TEST", false,false,true,true,R.drawable.med_bottle, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =5, day = 21,month = 4, year = 4,"Run", false,false,true,true,R.drawable.person_running, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =6, day = 12,month = 5, year = 4,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =7, day = 2,month = 6, year = 4,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =8, day = 22,month = 6, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =9, day = 21,month = 3, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =10, day = 9,month = 3, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =11, day = 8,month = 4, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(isEnabled = true, id =12, day = 3,month = 5, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        calReminder(isEnabled = true, id = 1, day = 2,month = 1, year = 1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1,2),
+        calReminder(isEnabled = true, id =2, day = 2,month = 1, year = 1,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0,4),
+        calReminder(isEnabled = true, id =3, day = 3,month = 1, year = 1,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0,3),
+        calReminder(isEnabled = true, id =4, day = 25,month = 3, year = 4,"TEST", false,false,true,true,R.drawable.med_bottle, 1, 12, 0,0,0,0,0,2),
+        calReminder(isEnabled = true, id =5, day = 21,month = 4, year = 4,"Run", false,false,true,true,R.drawable.person_running, 1, 12, 0,0,0,0,0,1),
+        calReminder(isEnabled = true, id =6, day = 12,month = 5, year = 4,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0,0),
+        calReminder(isEnabled = true, id =7, day = 2,month = 6, year = 4,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0,3),
+        calReminder(isEnabled = true, id =8, day = 22,month = 6, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0,4),
+        calReminder(isEnabled = true, id =9, day = 21,month = 3, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0,4),
+        calReminder(isEnabled = true, id =10, day = 9,month = 3, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0,6),
+        calReminder(isEnabled = true, id =11, day = 8,month = 4, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0,3),
+        calReminder(isEnabled = true, id =12, day = 3,month = 5, year = 4,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0,2),
 
         )
     )
@@ -477,5 +477,6 @@ data class calReminder(
     val reminderAmountHourDayWeek: Int,
     val repeatAmount: Int,
     val selectRepeatAmount: Int,
+    val color: Int
 )
 

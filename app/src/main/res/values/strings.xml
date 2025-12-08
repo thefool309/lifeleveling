@@ -231,6 +231,7 @@
     <string name="hours">Hours</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
+    <string name="color">Color</string>
     <string-array name="hour_array">
         <item>1</item>
         <item>2</item>

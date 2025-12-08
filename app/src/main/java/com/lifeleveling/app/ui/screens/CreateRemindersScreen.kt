@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
@@ -114,12 +115,24 @@ fun CreateReminderScreen(
     val actualMonth = selectedMonth + 1
     val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
     val dayList = (1..daysInMonth).map { day ->                                     // days list with suffix and day name
-        val date = LocalDate.of(actualYear, actualMonth, day)
+        //val date = LocalDate.of(actualYear, actualMonth, day)
         SuffixForDays(day)
     }
     val selectedMonthMenu = remember { mutableStateOf(false) }
     val selectedDayMenu = remember { mutableStateOf(false) }
     val selectedYearMenu = remember { mutableStateOf(false) }
+    var selectedColorIndex by remember { mutableStateOf(0) }
+    val colorMenu = remember { mutableStateOf(false) }
+    val colorOptions = listOf(
+        Color.Red,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow,
+        Color.Cyan,
+        Color.LightGray,
+        Color.White
+    )
 
     Surface(
 
@@ -196,12 +209,27 @@ fun CreateReminderScreen(
                             DropDownReminderMenu(
                                 modifier = Modifier
                                     .width(108.dp)
-                                    .height(32.dp)
-                                    .padding(horizontal = 16.dp),
+                                    .height(32.dp),
+
                                 options = iconOptions,
                                 selectedIndex = selectedReminderIndex,
                                 onSelectedChange = { selectedReminderIndex = it },
                                 expanded = iconMenu
+                            )
+                            Text(
+                                text = stringResource(R.string.color),
+                                color = AppTheme.colors.SecondaryOne,
+                                style = AppTheme.textStyles.HeadingFive
+                            )
+
+                            DropDownColorMenu(
+                                modifier = Modifier
+                                    .width(108.dp)
+                                    .height(32.dp),
+                                colors = colorOptions,
+                                selectedIndex = selectedColorIndex,
+                                onSelectedChange = { selectedColorIndex = it },
+                                expanded = colorMenu
                             )
                         }
                         Column(

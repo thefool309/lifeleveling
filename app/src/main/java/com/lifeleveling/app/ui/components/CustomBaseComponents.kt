@@ -688,7 +688,7 @@ fun ProgressBar(
                     top = 1.5.dp,
                     end = 1.5.dp,
                     bottom = 1.5.dp,
-                    )
+                )
                 .fillMaxHeight()
                 .fillMaxWidth(progress.coerceIn(0f, 1f))
                 .clip(RoundedCornerShape(cornerRadius - 1.dp))
@@ -1400,6 +1400,101 @@ fun LazyColumnFadeEdges(
                     )
                     .align(Alignment.BottomCenter)
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownColorMenu(
+    modifier: Modifier = Modifier,
+    colors: List<Color>,
+    selectedIndex: Int,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
+    arrowSize: Dp = 20.dp,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    textColor: Color = AppTheme.colors.Gray,
+) {
+    Box(modifier = modifier) {
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
+                value = "", // No text
+                onValueChange = { },
+                readOnly = readOnly,
+                leadingIcon = {
+                    // Small colored square
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(colors[selectedIndex])
+                            .border(1.dp, outlineColor)
+                    )
+                },
+                trailingIcon = {
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                textStyle = AppTheme.textStyles.Default,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                )
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
+            ) {
+                colors.forEachIndexed { index, color ->
+                    val isSelected = index == selectedIndex
+                    val backgroundColor =
+                        if (isSelected) selectedBackground else if (index % 2 == 0) backgroundMainColor else accentColor
+
+                    DropdownMenuItem(
+                        text = {
+
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(color)
+                                    .border(1.dp, outlineColor)
+                            )
+                        },
+                        onClick = {
+                            onSelectedChange(index)
+                            expanded.value = false
+                        },
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }
