@@ -125,28 +125,28 @@ class AuthViewModel(
      * @param logger   For logging any issues while doing post-login work.
      * @author fdesouza1992
      */
-    private fun postLoginBookkeeping(provider: String, logger: ILogger) {
-        val user = auth.currentUser ?: return
-        viewModelScope.launch {
-            try { repo.ensureUserCreated(user) } catch (e: Exception) {
-                logger.w("FB", "ensureUserCreated failed: ${e.message}")
-            }
-        }
-        Firebase.firestore.collection("authLogs")
-            .add(
-                mapOf(
-                    "ts" to com.google.firebase.Timestamp.now(),
-                    "source" to "emailPasswordLogin",
-                    "provider" to provider,
-                    "uid" to user.uid,
-                    "email" to user.email,
-                    "name" to (user.displayName ?: "")
-                )
-            )
-            .addOnFailureListener { e -> logger.w("FB", "Auth Log write failed: ${e.message}") }
-
-        _ui.value = _ui.value.copy(isLoading = false, error = null)
-    }
+//    private fun postLoginBookkeeping(provider: String, logger: ILogger) {
+//        val user = auth.currentUser ?: return
+//        viewModelScope.launch {
+//            try { repo.ensureUserCreated(user) } catch (e: Exception) {
+//                logger.w("FB", "ensureUserCreated failed: ${e.message}")
+//            }
+//        }
+//        Firebase.firestore.collection("authLogs")
+//            .add(
+//                mapOf(
+//                    "ts" to com.google.firebase.Timestamp.now(),
+//                    "source" to "emailPasswordLogin",
+//                    "provider" to provider,
+//                    "uid" to user.uid,
+//                    "email" to user.email,
+//                    "name" to (user.displayName ?: "")
+//                )
+//            )
+//            .addOnFailureListener { e -> logger.w("FB", "Auth Log write failed: ${e.message}") }
+//
+//        _ui.value = _ui.value.copy(isLoading = false, error = null)
+//    }
 
     /**
      * Handles the Google sign-in result Intent returned to the Activity.

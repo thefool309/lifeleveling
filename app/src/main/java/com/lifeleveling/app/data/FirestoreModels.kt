@@ -34,7 +34,7 @@ data class UsersBase(
     val isDarkTheme: Boolean = true,
     )
 
-class UsersData (
+data class UsersData (
     var userBase: UsersBase? = null,
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
@@ -55,7 +55,7 @@ class UsersData (
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     var error: String? = null,
-    fbUser: FirebaseUser? = null,
+    val fbUser: FirebaseUser? = null,
 ) {
 
     init {
