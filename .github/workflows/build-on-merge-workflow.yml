@@ -60,7 +60,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: 'gh-pages'
-          folder: build/dokka/html
+          folder: app/build/dokka/html
           target-folder: api
 
       - name: Build Release APK
