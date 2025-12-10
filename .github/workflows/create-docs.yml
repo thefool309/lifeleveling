@@ -1,0 +1,22 @@
+name: create-docs.yml
+on:
+  pull_request:
+
+jobs:
+  create_artifact:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4.0.0
+      with:
+        fetch-depth: '0'
+
+    - name: Generate Docs
+      run: ./gradlew dokkaHtmlMultiModule
+
+    - name: Upload Docs Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: latest-build
+        path: app/build/dokka
