@@ -26,7 +26,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
 
     - name: Generate Docs
-      run: ./gradlew dokkaHtmlMultiModule
+      run: ./gradlew dokkaHtml
 
     - name: push
       uses: JamesIves/github-pages-deploy-action@v4
