@@ -64,10 +64,19 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
     val yearIndex = date.year - startYear
     val monthValue = date.month.value
     val dayValue = date.dayOfMonth
-    val hasReminder = reminders.any { r ->
+    val hasReminder = reminders.firstOrNull { r ->
         r.isEnabled && r.year == yearIndex && r.month == monthValue && r.day == dayValue
     }
-
+    val colorOptions = listOf(
+        Color.Red,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow,
+        Color.Cyan,
+        Color.LightGray,
+        Color.White
+    )
     Box(
         modifier = Modifier
             .border(
@@ -83,13 +92,13 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
             text = dayValue.toString(),
             color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
         )
-        if (hasReminder) {
+        if (hasReminder != null) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
                    .padding(bottom = 4.dp)
                     .size(8.dp)
-                    .background(AppTheme.colors.SecondaryOne, CircleShape),
+                    .background(colorOptions[hasReminder.color], CircleShape),
 
             )
 
