@@ -363,4 +363,14 @@ class FirestoreRepositoryIntegrationTest {
         val newCoins = user!!.coinsBalance
         assert(newCoins == (oldCoins - 52L))
     }
+
+    @Test
+    fun deleteUserPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        val result = repo.deleteUser(logger)
+        assert(result)
+    }
 }
