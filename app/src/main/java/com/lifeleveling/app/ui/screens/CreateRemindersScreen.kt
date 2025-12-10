@@ -51,9 +51,9 @@ fun CreateReminderScreen(
 ){
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
-    var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
+    //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
-    var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed
+    //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed
     var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
     var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
