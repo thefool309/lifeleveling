@@ -54,7 +54,7 @@ jobs:
         run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode > app/google-services.json
 
       - name: Generate Docs
-        run: ./gradlew dokkaHtml
+        run: ./gradlew dokkaGenerateHtml
 
       - name: push Docs
         uses: JamesIves/github-pages-deploy-action@v4
