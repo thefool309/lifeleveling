@@ -166,8 +166,6 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
     }
 }
 
-private fun DayOfWeek.getDisplayName(short: Any, default: Any) {}
-
 @Composable
 fun MonthJump(
     toShow: MutableState<Boolean>,
