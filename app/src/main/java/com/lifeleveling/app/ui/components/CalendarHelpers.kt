@@ -64,8 +64,8 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
     val yearIndex = date.year - startYear
     val monthValue = date.month.value
     val dayValue = date.dayOfMonth
-    val hasReminder = reminders.firstOrNull { r ->
-        r.isEnabled && r.year == yearIndex && r.month == monthValue && r.day == dayValue
+    val hasReminder = reminders.filter { r ->
+        r.isEnabled && r.year == yearIndex && r.month == monthValue && r.day == dayValue    //filter all reminders that are enabled and match this year, month, day
     }
     val colorOptions = listOf(
         Color.Red,
@@ -77,6 +77,7 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
         Color.LightGray,
         Color.White
     )
+
     Box(
         modifier = Modifier
             .border(
@@ -92,16 +93,21 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
             text = dayValue.toString(),
             color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
         )
-        if (hasReminder != null) {
-            Box(
+        if (hasReminder.isNotEmpty()) {
+            Row(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                   .padding(bottom = 4.dp)
-                    .size(8.dp)
-                    .background(colorOptions[hasReminder.color], CircleShape),
-
-            )
-
+                    .align(Alignment.Center),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ){
+                hasReminder.take(4).forEach { reminder -> // The .take(n=4) limits how many dots will be in Day cell
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .size(8.dp)
+                            .background(colorOptions[reminder.color], CircleShape)
+                    )
+                }
+            }
         }
     }
 }
