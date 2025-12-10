@@ -63,9 +63,9 @@ fun CreateReminderScreen(
     val scope = rememberCoroutineScope()
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
-    //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
+    //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed            @Todo Stephen Commented this out as not used
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
-    //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed
+    //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed        @Todo Stephen Commented this out as not used
     var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
     var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
@@ -145,6 +145,8 @@ fun CreateReminderScreen(
         SuffixForDays(day)
     }
     val selectedMonthMenu = remember { mutableStateOf(false) }
+
+
     val selectedDayMenu = remember { mutableStateOf(false) }
     val selectedYearMenu = remember { mutableStateOf(false) }
     var selectedColorIndex by remember { mutableStateOf(0) }
@@ -521,7 +523,7 @@ fun CreateReminderScreen(
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
                                     // --- "Remind me every" section ---
-                                    val isDaily = asDaily || asWeekDay
+                                    //val isDaily = asDaily || asWeekDay @Todo Stephen Commented this out as not used
                                     var timesPerHour = 0
                                     var timesPerDay = 0
                                     var timesPerMonth = 0
@@ -548,23 +550,23 @@ fun CreateReminderScreen(
                                     }
 
                                     // --- "Repeat for" [ amount + (Days/Weeks/Months/Years) ]
-                                    val repeatForever = indefinitelyRepeat
+                                    //val repeatForever = indefinitelyRepeat
                                     var repeatCount = 0
                                     var repeatInterval: String? = null
 
-                                    if (!doNotRepeat && !repeatForever) {
-                                        val count = repeatAmount.toIntOrNull() ?: 0
-                                        if (count > 0) {
-                                            repeatCount = count
-                                            repeatInterval = when (selectedRepeatAmount) {
-                                                0 -> "days"
-                                                1 -> "weeks"
-                                                2 -> "months"
-                                                3 -> "years"
-                                                else -> null
-                                            }
-                                        }
-                                    }
+//                                    if (!doNotRepeat && !repeatForever) {                    @Todo Stephen Commented this out as not used
+//                                        val count = repeatAmount.toIntOrNull() ?: 0
+//                                        if (count > 0) {
+//                                            repeatCount = count
+//                                            repeatInterval = when (selectedRepeatAmount) {
+//                                                0 -> "days"
+//                                                1 -> "weeks"
+//                                                2 -> "months"
+//                                                3 -> "years"
+//                                                else -> null
+//                                            }
+//                                        }
+//                                    }
 
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore auto-generates
@@ -575,11 +577,11 @@ fun CreateReminderScreen(
                                         completedAt = null,
                                         createdAt = null,
                                         lastUpdate = null,
-                                        isDaily = isDaily,
+                                        //isDaily = isDaily,               @Todo Stephen Commented this out as not used
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
-                                        repeatForever = repeatForever,
+                                        //repeatForever = repeatForever, @Todo Stephen Commented this out as not used
                                         repeatCount = repeatCount,
                                         repeatInterval = repeatInterval,
                                         colorToken = null,

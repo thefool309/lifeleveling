@@ -326,7 +326,7 @@ class MainActivity : ComponentActivity() {
                                                     logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
                                                 }
                                             }
-                                                 },
+                                        },
                                         onGoogleLogin = {
                                             authVm.beginGoogleSignIn()
                                             val intent = authVm.googleClient(this@MainActivity).signInIntent
@@ -355,31 +355,6 @@ class MainActivity : ComponentActivity() {
                             }
                         } else {
 
-                        // Main App UI
-                        val navController = rememberNavController()
-                        val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
-                        val logger = remember { AndroidLogger() }
-                        val scope = rememberCoroutineScope()
-                        Surface(color = AppTheme.colors.Background) {
-                            Scaffold(
-                                bottomBar = { CustomNavBar(navController = navController) },
-                            ) { padding ->
-                                NavHostContainer(
-                                    navController = navController,
-                                    padding = padding,
-                                    isDarkThemeState = isDarkThemeState,
-                                    onSignOut = {authVm.signOut(this@MainActivity)},
-                                    onDeleteAccount = {authVm.deleteAccount(logger)},
-                                    onResetLifePoints = {
-                                        scope.launch {
-                                            val ok = repo.resetLifePoints(logger)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    }
                             // Main App UI
                             val navController = rememberNavController()
                             val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
@@ -405,11 +380,37 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                    // Main App UI
+                    val navController = rememberNavController()
+                    val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
+                    val logger = remember { AndroidLogger() }
+                    val scope = rememberCoroutineScope()
+                    Surface(color = AppTheme.colors.Background) {
+                        Scaffold(
+                            bottomBar = { CustomNavBar(navController = navController) },
+                        ) { padding ->
+                            NavHostContainer(
+                                navController = navController,
+                                padding = padding,
+                                isDarkThemeState = isDarkThemeState,
+                                onSignOut = {authVm.signOut(this@MainActivity)},
+                                onDeleteAccount = {authVm.deleteAccount(logger)},
+                                onResetLifePoints = {
+                                    scope.launch {
+                                        val ok = repo.resetLifePoints(logger)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
+
+
+
 
 @Composable
 fun NavHostContainer(
