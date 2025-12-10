@@ -384,10 +384,10 @@ fun CreateReminderScreen(
                                     checked = repeatReminder,
                                     onCheckedChange = {
                                         repeatReminder = it
-                                        if (it) {
-                                            //doNotRepeat = false
-
-                                        }
+//                                        if (it) {
+//                                            //doNotRepeat = false
+//
+//                                        }
                                     }
                                 )
                                 Text(
