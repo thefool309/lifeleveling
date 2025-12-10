@@ -225,6 +225,7 @@
     <string name="checkbox_setdaily">Set as daily</string>
     <string name="checkbox_weekdays">Set up week days</string>
     <string name="repeat_for">Repeat for:</string>
+    <string name="minutesShort">Mins</string>
     <string name="days">Days</string>
     <string name="Weeks">Weeks</string>
     <string name="Months">Months</string>
@@ -232,6 +233,7 @@
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="color">Color</string>
+    <string name="repeat_reminder">Repeat this reminder</string>
     <string-array name="hour_array">
         <item>1</item>
         <item>2</item>

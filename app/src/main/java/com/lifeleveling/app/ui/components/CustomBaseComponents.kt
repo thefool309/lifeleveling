@@ -1430,16 +1430,15 @@ fun DropDownColorMenu(
                     .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
                     .fillMaxWidth()
                     .widthIn(max = 300.dp),
-                value = "", // No text
+                value = "",
                 onValueChange = { },
                 readOnly = readOnly,
                 leadingIcon = {
-                    // Small colored square
+
                     Box(
                         modifier = Modifier
                             .size(20.dp)
-                            .background(colors[selectedIndex])
-                            .border(1.dp, outlineColor)
+                            .background(colors[selectedIndex], shape = CircleShape)
                     )
                 },
                 trailingIcon = {
@@ -1481,8 +1480,7 @@ fun DropDownColorMenu(
                             Box(
                                 modifier = Modifier
                                     .size(20.dp)
-                                    .background(color)
-                                    .border(1.dp, outlineColor)
+                                    .background(color, shape = CircleShape)
                             )
                         },
                         onClick = {
