@@ -5,7 +5,7 @@
 /build/kotlin
 /build/outputs
 /build/tmp
-
+/build
 google-services.json
 .kotlin/
 
