@@ -5,6 +5,9 @@ on:
 jobs:
   create_artifact:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write # Good practice for GitHub Pages deployments
 
     steps:
     - name: Checkout Repository
