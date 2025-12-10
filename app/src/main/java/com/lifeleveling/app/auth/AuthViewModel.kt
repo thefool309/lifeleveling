@@ -13,6 +13,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +54,14 @@ class AuthViewModel(
     // Backing field for authentication UI state
 //    private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
 //    val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
+
+    /**
+     * Velma wuz here :3
+     */
+    // Helper functions
+    private fun getUserId() : String? {
+        return auth.currentUser?.uid
+    }
 
     /**
      * Clears any current auth error message from the UI state.
@@ -394,6 +403,36 @@ class AuthViewModel(
                     error = "Failed to delete account. Please try again."
                 )
             }
+        }
+    }
+
+    /**
+     * Deletes the user from firebase auth
+     */
+    suspend fun deleteUser(logger: ILogger, uid: String?) : Boolean {
+        if (uid == null) {
+            logger.e("Auth", "User ID is null. Please login to firebase.")
+            return false
+        }
+
+        return try {
+            // Delete Firebase Auth user
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                try {
+                    currentUser.delete().await()
+                } catch (e: Exception) {
+                    // Firestore doc is already gone.
+                    logger.e("Auth", "Failed to delete Firebase Auth user for $uid", e)
+                    return false
+                }
+            } else {
+                logger.w("Auth", "No Firebase Auth user found for $uid during deleteUser.")
+            }
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "deleteUser failed for $uid", e)
+            false
         }
     }
 }

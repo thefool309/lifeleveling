@@ -1,9 +1,13 @@
 package com.lifeleveling.app.data
 
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.lifeleveling.app.auth.AuthViewModel
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,97 +15,91 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.Int
 
-/**
- * Information for the user that WILL be written into firebase
- */
-data class UserData(
-    val username: String = "",
-    val email: String = "",
-
-    val level: Int = 1,
-    val currentExp: Long = 0,
-    val coins: Long = 0,
-    val currentHealth: Int = 60,
-    val lifePointsUsed: Long = 0,
-    val lifePointsTotal: Long = 3,
-    val profileCreatedOn: Long = 0,
-    val lastUpdate: Long = 0,
-    val fightOrMeditate: Int = 0,
-
-    val stats: Stats = Stats(),
-    val reminders: List<Reminder> = listOf(),
-    val streaks: List<Streak> = listOf(),
-    val badges: List<Badge> = listOf(),
-
-    val weekStreaksCompleted: Long = 0,
-    val monthStreaksCompleted: Long = 0,
-    val allCoinsEarned: Long = 0,
-
-    val isDarkTheme: Boolean = true,
-)
-
-/**
- * Information that will NOT be written in firebase
- */
-data class UserCalculated(
-    val userData: UserData? = null,
-    val expToNextLevel: Long = 0,
-    val maxHealth: Long = 60,
-    val lifePointsNotUsed: Long = 0,
-
-    val enabledReminders: List<Reminder> = listOf(),
-
-    val totalStreaksCompleted: Long = 0,
-    val badgesEarned: Long = 0,
-    val allExpEver: Long = 0,
-    val coinsSpend: Long = 0,
-    val mostCompletedRemind: Pair<String, Long> = Pair("", 0L),
-
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-
-    val isLoggedIn: Boolean = false,
-)
+///**
+// * Information for the user that WILL be written into firebase
+// */
+//data class UserData(
+//    val username: String = "",
+//    val email: String = "",
+//
+//    val level: Int = 1,
+//    val currentExp: Long = 0,
+//    val coins: Long = 0,
+//    val currentHealth: Int = 60,
+//    val lifePointsUsed: Long = 0,
+//    val lifePointsTotal: Long = 3,
+//    val profileCreatedOn: Long = 0,
+//    val lastUpdate: Long = 0,
+//    val fightOrMeditate: Int = 0,
+//
+//    val stats: Stats = Stats(),
+//    val reminders: List<Reminder> = listOf(),
+//    val streaks: List<Streak> = listOf(),
+//    val badges: List<Badge> = listOf(),
+//
+//    val weekStreaksCompleted: Long = 0,
+//    val monthStreaksCompleted: Long = 0,
+//    val allCoinsEarned: Long = 0,
+//
+//    val isDarkTheme: Boolean = true,
+//)
+//
+///**
+// * Information that will NOT be written in firebase
+// */
+//data class UserCalculated(
+//    val userData: UserData? = null,
+//    val expToNextLevel: Long = 0,
+//    val maxHealth: Long = 60,
+//    val lifePointsNotUsed: Long = 0,
+//
+//    val enabledReminders: List<Reminder> = listOf(),
+//
+//    val totalStreaksCompleted: Long = 0,
+//    val badgesEarned: Long = 0,
+//    val allExpEver: Long = 0,
+//    val coinsSpend: Long = 0,
+//    val mostCompletedRemind: Pair<String, Long> = Pair("", 0L),
+//
+//    val isLoading: Boolean = false,
+//    val errorMessage: String? = null,
+//
+//    val isLoggedIn: Boolean = false,
+//)
 
 /**
  * Manages the local state of the user, writing to firebase, pulling from firebase, and more
  */
 class UserManager(
-    private val authRepo: AuthRepository = AuthRepository(),
-    private val userRepo: UserRepository = UserRepository()
+    private val authModel: AuthViewModel = AuthViewModel(),
+    private val logger: ILogger = AndroidLogger(),
+    private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger),
 ) : ViewModel() {
-    private val userAllData = MutableStateFlow(UserCalculated())
-    val uiState: StateFlow<UserCalculated> = userAllData.asStateFlow()
+    private val userData = MutableStateFlow(UsersData())
+    val uiState: StateFlow<UsersData> = userData.asStateFlow()  // Makes everything react to changes
 
-    // Initialization
-    init {
-        // Listens for login/logout
-        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            if (firebaseAuth.currentUser == null) {
-                userAllData.update {
-                    it.copy(
-                        isLoading = false,
-                        userData = null,
-                        isLoggedIn = false,
-                        expToNextLevel = 0,
-                        maxHealth = 60,
-                        lifePointsNotUsed = 0,
-
-                        enabledReminders = listOf(),
-
-                        totalStreaksCompleted = 0,
-                        badgesEarned = 0,
-                        allExpEver = 0,
-                        coinsSpend = 0,
-                        mostCompletedRemind = Pair("", 0L),
-                        )
+    val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        val user = firebaseAuth.currentUser
+        if (user == null) {
+            TODO("Set logged out status and user info to defaults and nulls")
+        } else {
+            viewModelScope.launch {
+                try {
+                    TODO("Load in the user information and set LoggedIn to true")
+                } catch (e: Exception) {
+                    Log.e("FirestoreRepository", "Error creating user", e)
                 }
-            } else {
-                viewModelScope.launch { loadUser() }
             }
         }
-        authRepo.addAuthStateListener(listener)
     }
+
+    // Initialization
+
+    init {
+        authModel.addAuthStateListener(listener)
+    }
+
+    override fun onCleared() { authModel.removeAuthStateListener(listener) }
 
 
     // ================== Functions =======================================================
