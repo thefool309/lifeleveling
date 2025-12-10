@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>com.lifeleveling.app.data</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
+            <a class="library-name--link" href="../../index.html">
+                    Life Leveling
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active=""
+                        data-filter=":app:dokkaHtml/release">androidJvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":app:dokkaHtml/release"
+                                       data-filter=":app:dokkaHtml/release"/>
+                                <span class="checkbox--icon"></span>
+                                androidJvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </div>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                        data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    Life Leveling
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="Life Leveling::com.lifeleveling.app.data////PointingToDeclaration//492899073">
+  <div class="breadcrumbs"><a href="../../index.html">Life Leveling</a><span class="delimiter">/</span><span class="current">com.lifeleveling.app.data</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="-692479233%2FClasslikes%2F492899073" anchor-label="Badge" id="-692479233%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-badge/index.html"><span><span>Badge</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-692479233%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-badge/index.html">Badge</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>badgeId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>badgeName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>badgeDescription<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>iconName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>colorToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>completed<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>unlockedAt<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1871112456%2FClasslikes%2F492899073" anchor-label="FcmTokens" id="-1871112456%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-fcm-tokens/index.html"><span>Fcm</span><wbr></wbr><span><span>Tokens</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1871112456%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-fcm-tokens/index.html">FcmTokens</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>uID<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>token<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>lastUpdate<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-500570355%2FClasslikes%2F492899073" anchor-label="FirestoreRepository" id="-500570355%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-firestore-repository/index.html"><span>Firestore</span><wbr></wbr><span><span>Repository</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-500570355%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">class </span><a href="-firestore-repository/index.html">FirestoreRepository</a></div><div class="brief "><p class="paragraph">A library of CRUD functions for our Firestore Cloud Database. This is instantiated as an object, then the functions are called from the object. This is for access to private member variables(properties), to simplify the use of <code class="lang-kotlin">Firebase.firestore</code> and <code class="lang-kotlin">Firebase.auth</code>.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-467237471%2FClasslikes%2F492899073" anchor-label="Reminders" id="-467237471%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-reminders/index.html"><span><span>Reminders</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-467237471%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-reminders/index.html">Reminders</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>reminderId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>title<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>notes<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>dueAt<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>isCompleted<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>completedAt<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>createdAt<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>lastUpdate<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>isDaily<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>timesPerHour<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>timesPerDay<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>timesPerMonth<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>colorToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>iconName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>repeatForever<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>repeatCount<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>repeatInterval<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="598492547%2FClasslikes%2F492899073" anchor-label="Stats" id="598492547%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-stats/index.html"><span><span>Stats</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="598492547%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-stats/index.html">Stats</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>agility<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>defense<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>intelligence<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>strength<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>health<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-661151870%2FClasslikes%2F492899073" anchor-label="Streak" id="-661151870%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-streak/index.html"><span><span>Streak</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-661151870%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-streak/index.html">Streak</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>streakId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>reminderId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>periodType<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;weekly&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>totalRequired<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>numberCompleted<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>repeatIndefinitely<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>repeatEveryAmount<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>repeatEveryUnit<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>createdAt<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>lastUpdate<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1280816186%2FClasslikes%2F492899073" anchor-label="Users" id="1280816186%2FClasslikes%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-users/index.html"><span><span>Users</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1280816186%2FClasslikes%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-users/index.html">Users</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>userId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>displayName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>email<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>photoUrl<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator"> = </span><span class="token string">&quot;&quot;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>coinsBalance<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>stats<span class="token operator">: </span><a href="-stats/index.html">Stats</a><span class="token operator"> = </span>Stats()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>streaks<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>onboardingComplete<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>createdAt<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>lastUpdate<span class="token operator">: </span><span data-unresolved-link="com.google.firebase/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">var </span>level<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">1</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>lifePoints<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>currentXp<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-double/index.html">Double</a><span class="token operator"> = </span><span class="token constant">0.0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>currHealth<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>badgesLocked<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-badge/index.html">Badge</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>badgesUnlocked<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-badge/index.html">Badge</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
