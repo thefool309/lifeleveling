@@ -350,7 +350,7 @@ fun CreateReminderScreen(
                                             reminderAmountNumber = newText
                                             if (newText.isNotEmpty()) {
                                                 repeatReminder = false
-                                                doNotRepeat = false
+                                                //doNotRepeat = false
                                             }
                                         },
                                         placeholderText = "",
@@ -385,7 +385,7 @@ fun CreateReminderScreen(
                                     onCheckedChange = {
                                         repeatReminder = it
                                         if (it) {
-                                            doNotRepeat = false
+                                            //doNotRepeat = false
 
                                         }
                                     }
@@ -412,7 +412,7 @@ fun CreateReminderScreen(
                                             repeatAmount = newText
                                             if (newText.isNotEmpty()) {
                                                 repeatReminder = false
-                                                doNotRepeat = false
+                                                //doNotRepeat = false
                                             }
                                         },
                                         placeholderText = "",
