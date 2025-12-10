@@ -324,6 +324,7 @@
     <string name="myReminders_tooltip1">Here in My Reminders you will see a list of all reminders you created.</string>
     <string name="myReminders_tooltip2">You can choose to enable or disable them with the checkbox.</string>
     <string name="myReminders_tooltip3">Taping on a reminder will display its repeat information and give you the option to delete it.</string>
+    <string name="no_reminders_for_day">No reminders for this day yet.</string>
 
     <!-- FCM/androidSettings -->
     <string name="reminder_channel">Reminders</string>

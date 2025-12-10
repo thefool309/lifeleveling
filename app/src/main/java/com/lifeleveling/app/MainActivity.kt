@@ -1,5 +1,8 @@
 package com.lifeleveling.app
 
+
+import android.app.AlarmManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -17,44 +20,30 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.auth.AuthViewModel
-import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.LifelevelingTheme
 import com.lifeleveling.app.navigation.CustomNavBar
+import com.lifeleveling.app.ui.screens.*
+import com.lifeleveling.app.ui.theme.*
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.CalendarScreen
-import com.lifeleveling.app.ui.screens.CreateAccountScreen
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
-import com.lifeleveling.app.ui.screens.PasswordResetScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
-import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
@@ -62,17 +51,16 @@ import com.lifeleveling.app.ui.screens.UserJourneyScreen
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.StartLogic
 import com.lifeleveling.app.util.AndroidLogger
-import kotlinx.coroutines.launch
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.launch
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import com.lifeleveling.app.services.LLFirebaseMessagingService
-import com.lifeleveling.app.ui.screens.CreateReminderScreen
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.lifeleveling.app.ui.screens.MyRemindersScreen
 
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
 
@@ -141,7 +129,7 @@ class MainActivity : ComponentActivity() {
 
     private fun setupEmulators() {
         //toggle this to true if you want to use firebaseEmulators.
-        val useFirebaseEmulators = false
+        val useFirebaseEmulators = true
         if (useFirebaseEmulators) {
             //separate if for separate error message
             // It is important to do this before any Firebase use
@@ -367,6 +355,31 @@ class MainActivity : ComponentActivity() {
                             }
                         } else {
 
+                        // Main App UI
+                        val navController = rememberNavController()
+                        val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
+                        val logger = remember { AndroidLogger() }
+                        val scope = rememberCoroutineScope()
+                        Surface(color = AppTheme.colors.Background) {
+                            Scaffold(
+                                bottomBar = { CustomNavBar(navController = navController) },
+                            ) { padding ->
+                                NavHostContainer(
+                                    navController = navController,
+                                    padding = padding,
+                                    isDarkThemeState = isDarkThemeState,
+                                    onSignOut = {authVm.signOut(this@MainActivity)},
+                                    onDeleteAccount = {authVm.deleteAccount(logger)},
+                                    onResetLifePoints = {
+                                        scope.launch {
+                                            val ok = repo.resetLifePoints(logger)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    }
                             // Main App UI
                             val navController = rememberNavController()
                             val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }

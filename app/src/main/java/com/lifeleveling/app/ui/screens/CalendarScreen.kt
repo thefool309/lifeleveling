@@ -48,6 +48,7 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.time.ExperimentalTime
+import com.lifeleveling.app.ui.components.DailyRemindersList
 
 
 @Preview
@@ -266,9 +267,11 @@ fun CalendarScreen(
                                     )
                                 }
 
-                                // Todo add in display of daily reminders
-
-                            }
+                                    // Todo add in display of daily reminders
+                                    DailyRemindersList(
+                                        date = dayInfo,
+                                    )
+                                }
 
                         }
                     }

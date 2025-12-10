@@ -4,7 +4,12 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <!-- The SCHEDULE_EXACT_ALARM permission requires user action to enable.
+     This felt very user unfriendly to me, and I feel like our application fits the use case for USE_EXACT_ALARM,
+     so I opted for USE_EXACT_ALARM which should automatically grant this permission on install
+      an important note, is that google play will require a policy review for us to use this-->
+    <!--    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />-->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
             android:allowBackup="true"
@@ -31,7 +36,7 @@
 
         </activity>
         <service
-                android:name="com.lifeleveling.app.services.LLFirebaseMessagingService"
+                android:name="com.lifeleveling.app.services.FirebaseCloudMessaging.LLFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -45,6 +50,9 @@
         <meta-data
                 android:name="com.google.firebase.messaging.default_notification_color"
                 android:resource="@color/purple_700" />
+        <!-- receiver for Reminder notifications -->
+        <receiver android:name="com.lifeleveling.app.services.notification.ReminderReceiver" />
+
     </application>
 
 </manifest>
