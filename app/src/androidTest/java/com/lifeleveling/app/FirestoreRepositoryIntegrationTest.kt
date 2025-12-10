@@ -388,4 +388,15 @@ class FirestoreRepositoryIntegrationTest {
         assert(newLife == 52L)
         assert(result)
     }
+
+    @Test
+    fun resetLifePointsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val result = repo.resetLifePoints(logger)
+        assert(result)
+    }
 }
