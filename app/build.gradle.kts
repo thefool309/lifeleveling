@@ -6,7 +6,9 @@ plugins {
     id("com.google.firebase.crashlytics")
     id("org.jetbrains.dokka")
 }
-
+dokka {
+    moduleName.set("Life Leveling")
+}
 android {
     namespace = "com.lifeleveling.app"
     compileSdk = 36
