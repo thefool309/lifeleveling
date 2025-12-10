@@ -61,7 +61,7 @@ jobs:
         with:
           branch: 'gh-pages'
           folder: app/build/dokka/html
-          target-folder: api
+          target-folder: docs
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
