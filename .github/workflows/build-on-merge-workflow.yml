@@ -9,6 +9,9 @@ on:
 jobs:
   build_apk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
 
     env:
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
