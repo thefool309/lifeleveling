@@ -390,6 +390,21 @@ class FirestoreRepositoryIntegrationTest {
     }
 
     @Test
+    fun addXpPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val currXp = user!!.currentXp
+        val result = repo.addXp(100.00, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newXp = user!!.currentXp
+        assert(newXp == (currXp + 100.00))
+        assert(result != null)
+    }
+
+    @Test
     fun resetLifePointsPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
