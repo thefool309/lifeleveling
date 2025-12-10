@@ -1,0 +1,25 @@
+name: create-docs.yml
+on:
+  push:
+    branches:
+      - 'dev'
+  pull_request:
+jobs:
+  create_docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - name: Decode google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode > app/google-services.json
+
+      - name: Generate Docs
+        run: ./gradlew dokkaHtml
+
+      - name: push Docs
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: 'gh-pages'
+          folder: app/build/dokka/html
+          target-folder: docs
