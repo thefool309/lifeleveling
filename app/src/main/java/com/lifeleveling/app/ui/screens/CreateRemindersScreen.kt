@@ -528,8 +528,7 @@ fun CreateReminderScreen(
                                     val rawHour = hourStr.toIntOrNull() ?: 0
                                     val minute = minuteStr.toIntOrNull() ?: 0
 
-                                    // This block converts the chosen AM/PM hour into a proper 24-hour format,
-                                    // handling the special cases for 12 AM and 12 PM.
+                                    // Converts to a 24-hr clock
                                     val hour24 = if (selectedAmOrPm == 1) {
                                         // PM
                                         if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
@@ -537,18 +536,19 @@ fun CreateReminderScreen(
                                         // AM
                                         rawHour % 12
                                     }
-                                    // --- Starting time: move to tomorrow if time already passed today ---
+
+                                    // Built a java.util.Date for the chosen year/month/day/time
                                     val now = Calendar.getInstance()
-                                    val cal = Calendar.getInstance().apply{
+                                    val cal = now.apply {
+                                        set(Calendar.YEAR, year)
+                                        set(Calendar.MONTH, month - 1) // Calendar months are 0-based
+                                        set(Calendar.DAY_OF_MONTH, day)
                                         set(Calendar.HOUR_OF_DAY, hour24)
                                         set(Calendar.MINUTE, minute)
                                         set(Calendar.SECOND, 0)
                                         set(Calendar.MILLISECOND, 0)
                                     }
-                                    // If time is earlier than "now", we will move to the next day
-                                    if (cal.before(now)){
-                                        cal.add(Calendar.DAY_OF_YEAR,1)
-                                    }
+
                                     val dueAt = Timestamp(cal.time)
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
