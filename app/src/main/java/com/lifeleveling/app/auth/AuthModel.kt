@@ -12,10 +12,12 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.data.UsersData
+import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
@@ -40,7 +42,8 @@ import kotlinx.coroutines.tasks.await
  * **/
 class AuthModel(
     // Firebase auth and Firestore repository instance
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val logger: ILogger
 ) {
 //    private val repo = FirestoreRepository()
 
@@ -114,7 +117,6 @@ class AuthModel(
 //        _ui.value = _ui.value.copy(isLoading = true, error = null)
 //    }
 
-    // Felipe said not to worry about this one
     // Moved to UserManager and FirestoreRepository
 //    /**
 //     * Runs the “after login” work once a user has successfully signed in.
@@ -207,38 +209,14 @@ class AuthModel(
      *
      * @author thefool309, fdesouza1992
      */
-    suspend fun signInWithEmailPassword(email: String, password: String, logger: ILogger)
+    suspend fun signInWithEmailPassword(email: String, password: String)
     {
-        viewModelScope.launch {
-            _ui.value = _ui.value.copy(isLoading = true, error = null)
-            try {
-                // If this email is Google-only, this call will fail with InvalidCredentials.
-                auth.signInWithEmailAndPassword(email.trim(), password).await()
-                postLoginBookkeeping(provider = "password", logger = logger)
-                _ui.value = _ui.value.copy(isLoading = false, error = null)
-            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
-                // No account exists with this email
-                logger.w("FB", "No user for ${email.trim()}")
-                _ui.value = _ui.value.copy(isLoading = false, error = "No account found for this email.")
-            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
-                // Wrong password or email malformed, or Google-only account
-                logger.e("FB", "Invalid credentials", e)
-                // Tells user if the email is federated-only
-                val methods = auth.fetchSignInMethodsForEmail(email.trim()).await().signInMethods.orEmpty()
-                val msg = if ("google.com" in methods && "password" !in methods) {
-                    "This email is registered with Google. Use 'Login using Google'."
-                } else {
-                    "Invalid email or password."
-                }
-                _ui.value = _ui.value.copy(isLoading = false, error = msg)
-            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
-                logger.e("FB", "Auth exception", e)
-                _ui.value = _ui.value.copy(isLoading = false, error = "Authentication error.")
-            } catch (e: Exception) {
-                logger.e("FB", "Unexpected sign-in error", e)
-                _ui.value = _ui.value.copy(isLoading = false, error = "Sign-in failed.")
-            }
-        }
+        // If this email is Google-only, this call will fail with InvalidCredentials.
+        auth.signInWithEmailAndPassword(email.trim(), password).await()
+    }
+
+    suspend fun fetchSignInMethods(email: String): List<String> {
+        return auth.fetchSignInMethodsForEmail(email.trim()).await().signInMethods.orEmpty()
     }
 
     /**
@@ -286,64 +264,57 @@ class AuthModel(
      * @param activity Used to sign out from the Google client *Optional*.
      * @author fdesouza1992
      */
-    fun signOut(activity: Activity? = null) {
-        _ui.value = _ui.value.copy(isLoading = true, error = null)
+    fun signOut() {
         auth.signOut()
-        if (activity != null) {
-            googleClient(activity).signOut().addOnCompleteListener {
-                _ui.value = _ui.value.copy(isLoading = false)
-            }
-        } else {
-            _ui.value = _ui.value.copy(isLoading = false)
-        }
     }
 
-    /**
-     * A full account delete for the currently signed-in user.
-     *
-     * Flow:
-     * 1. Mark the UI as loading and clear any old error.
-     * 2. Call into the FirestoreRepository to delete the user and their data.
-     * 3. If the repo call returns false or throws an error, a simple “try again” message is displayed.
-     * 4. On success, the AuthStateListener will notice that the user is now null and the rest of the app can react to that.
-     *
-     * @param logger Used to log any errors that happen during the delete process.
-     * @author fdesouza1992
-     */
-    fun deleteAccount(logger: ILogger) {
-        viewModelScope.launch {
-            _ui.value = _ui.value.copy(
-                isLoading = true,
-                error = null
-            )
-            try {
-                val ok = repo.deleteUser(logger)
-                if (!ok) {
-                    _ui.value = _ui.value.copy(
-                        isLoading = false,
-                        error = "Failed to delete account. Please try again."
-                    )
-                } else {
-                    // AuthStateListener will see user == null once delete succeeds
-                    _ui.value = _ui.value.copy(
-                        isLoading = false,
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                logger.e("Auth", "deleteAccount failed", e)
-                _ui.value = _ui.value.copy(
-                    isLoading = false,
-                    error = "Failed to delete account. Please try again."
-                )
-            }
-        }
-    }
+    // Moved to UserManager and broken apart. See deleteUser below and in FirestoreRepository
+//    /**
+//     * A full account delete for the currently signed-in user.
+//     *
+//     * Flow:
+//     * 1. Mark the UI as loading and clear any old error.
+//     * 2. Call into the FirestoreRepository to delete the user and their data.
+//     * 3. If the repo call returns false or throws an error, a simple “try again” message is displayed.
+//     * 4. On success, the AuthStateListener will notice that the user is now null and the rest of the app can react to that.
+//     *
+//     * @param logger Used to log any errors that happen during the delete process.
+//     * @author fdesouza1992
+//     */
+//    fun deleteAccount(logger: ILogger) {
+//        viewModelScope.launch {
+//            _ui.value = _ui.value.copy(
+//                isLoading = true,
+//                error = null
+//            )
+//            try {
+//                val ok = repo.deleteUser(logger)
+//                if (!ok) {
+//                    _ui.value = _ui.value.copy(
+//                        isLoading = false,
+//                        error = "Failed to delete account. Please try again."
+//                    )
+//                } else {
+//                    // AuthStateListener will see user == null once delete succeeds
+//                    _ui.value = _ui.value.copy(
+//                        isLoading = false,
+//                        error = null
+//                    )
+//                }
+//            } catch (e: Exception) {
+//                logger.e("Auth", "deleteAccount failed", e)
+//                _ui.value = _ui.value.copy(
+//                    isLoading = false,
+//                    error = "Failed to delete account. Please try again."
+//                )
+//            }
+//        }
+//    }
 
     /**
      * Deletes the user from firebase auth
      */
-    suspend fun deleteUser(logger: ILogger, uid: String?) : Boolean {
+    suspend fun deleteUser(uid: String?) : Boolean {
         if (uid == null) {
             logger.e("Auth", "User ID is null. Please login to firebase.")
             return false

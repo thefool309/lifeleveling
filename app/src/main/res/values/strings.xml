@@ -11,6 +11,7 @@
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
+    <string name="awesome">Awesome!</string>
 
     <!-- Filler words for annotated strings -->
     <string name="and">and</string>
@@ -20,6 +21,9 @@
     <string name="exp_display">Exp: %1$d/%2$d</string>
     <string name="coins">Coins:&#160;&#160;&#160;%1$d</string>
     <string name="health_display">Health:&#160;&#160;%1$d/%2$d</string>
+    <string name="level_up">Level Up!</string>
+    <string name="new_level">You reached level %1$d!</string>
+    <string name="level_coins">You received %1$d coins!</string>
 
     <!-- For equipment display -->
     <string name="helmet">Helmet</string>

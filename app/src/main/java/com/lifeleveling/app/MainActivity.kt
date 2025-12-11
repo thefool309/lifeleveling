@@ -46,6 +46,7 @@ import com.lifeleveling.app.navigation.CustomNavBar
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
 import com.lifeleveling.app.ui.screens.*
 import com.lifeleveling.app.ui.theme.HideSystemBars
+import com.lifeleveling.app.ui.theme.LevelUpOverlay
 import com.lifeleveling.app.ui.theme.LoadingOverlay
 import com.lifeleveling.app.ui.theme.StartLogic
 import com.lifeleveling.app.ui.theme.StartLogicFactory
@@ -62,8 +63,7 @@ class MainActivity : ComponentActivity() {
     private val userManager: UserManager
         get() = (application as LifeLevelingApplication).userManager
 
-//    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
-//    private val authVm: com.lifeleveling.app.auth.AuthViewModel by viewModels()
+    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +79,13 @@ class MainActivity : ComponentActivity() {
                 darkScrim = Color.Transparent.toArgb()
             )
         )
+
+        // Register the launcher and forward the result to AuthViewModel
+        googleLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            userManager.handleGoogleResultIntent(result.data)
+        }
 
         setContent {
             val navController = rememberNavController()
@@ -106,17 +113,17 @@ class MainActivity : ComponentActivity() {
                 LocalNavController provides navController,
             ) {
                 LifelevelingTheme(
-                    darkTheme = userState.userData?.isDarkTheme ?: true
+                    darkTheme = userState.userBase?.isDarkTheme ?: true
                 ) {
                     // System icon change on navigation bars to ensure they are visible when pulled
-                    LaunchedEffect(userState.userData?.isDarkTheme) {
+                    LaunchedEffect(userState.userBase?.isDarkTheme) {
                         enableEdgeToEdge(
-                            statusBarStyle = if(userState.userData?.isDarkTheme == true) {
+                            statusBarStyle = if(userState.userBase?.isDarkTheme == true) {
                                 SystemBarStyle.dark(Color.Transparent.toArgb())
                             } else {
                                 SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
                             },
-                            navigationBarStyle = if(userState.userData?.isDarkTheme == true) {
+                            navigationBarStyle = if(userState.userBase?.isDarkTheme == true) {
                                 SystemBarStyle.dark(Color.Transparent.toArgb())
                             } else {
                                 SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
@@ -138,78 +145,13 @@ class MainActivity : ComponentActivity() {
                             AppNavHost()
                             // Will show a loading wheel if the state is showing it is loading
                             if(userState.isLoading) LoadingOverlay()
+                            // Shows a popup for the player leveling
+                            if (userState.levelUpFlag) LevelUpOverlay()
                         }
                     }
                 }
             }
         }
-//
-//        // It is important to do this before any Firebase use
-//        if (BuildConfig.DEBUG) {
-//            Firebase.firestore.useEmulator("10.0.2.2", 8080)
-//            Firebase.auth.useEmulator("10.0.2.2", 9099)
-//        }
-//
-//
-//        var isDarkTheme = true  // TODO: Change to pull on saved preference
-//        enableEdgeToEdge(
-//            statusBarStyle = SystemBarStyle.auto(
-//                lightScrim = Color.Transparent.toArgb(),
-//                darkScrim = Color.Transparent.toArgb()
-//            ),
-//            navigationBarStyle = SystemBarStyle.auto(
-//                lightScrim = Color.Transparent.toArgb(),
-//                darkScrim = Color.Transparent.toArgb()
-//            )
-//        )
-//
-//
-//        // Register the launcher and forward the result to AuthViewModel
-//        googleLauncher = registerForActivityResult(
-//            ActivityResultContracts.StartActivityForResult()
-//        ) { result ->
-//            authVm.handleGoogleResultIntent(result.data)
-//        }
-//
-//        setContent {
-//            // Setting theme
-//            val isDarkThemeState = remember { mutableStateOf(isDarkTheme) }
-//
-//            // System icon change
-//            LaunchedEffect(isDarkThemeState.value) {
-//                enableEdgeToEdge(
-//                    statusBarStyle = if(isDarkThemeState.value) {
-//                        SystemBarStyle.dark(Color.Transparent.toArgb())
-//                    } else {
-//                        SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
-//                    },
-//                    navigationBarStyle = if(isDarkThemeState.value) {
-//                        SystemBarStyle.dark(Color.Transparent.toArgb())
-//                    } else {
-//                        SystemBarStyle.light(Color.Transparent.toArgb(), Color.Transparent.toArgb())
-//                    }
-//                )
-//            }
-//
-//            // Startup logic and Splash Screen values
-//            val startLogic: StartLogic = viewModel()
-//            val isInitialized by startLogic.isInitialized.collectAsState()
-//            var appReady by remember { mutableStateOf(false) }
-//            val startTime = remember { System.currentTimeMillis() }
-//            val minSplashTime = 2000L // How long Splash shows at a minimum for loading reassurance
-//
-//            // Auth state from VM
-//            val authState by authVm.ui.collectAsState()
-//
-//            // Splash Screen effect while loading
-//            LaunchedEffect(isInitialized) {
-//                if (isInitialized) {
-//                    val elapsed = System.currentTimeMillis() - startTime
-//                    val remaining = minSplashTime - elapsed
-//                    if (remaining > 0) kotlinx.coroutines.delay(remaining)
-//                    appReady = true
-//                }
-//            }
 //
 //            Box(modifier = Modifier.fillMaxSize()) {
 //                // Hide system bars

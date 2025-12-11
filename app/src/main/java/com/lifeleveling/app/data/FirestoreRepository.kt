@@ -975,4 +975,33 @@ class FirestoreRepository(
             .addOnSuccessListener { doc -> Log.d("FB", "Auth Log doc: ${doc.id}") }
             .addOnFailureListener { e -> logger.w("FB", "Auth Log write failed: ${e.message}") }
     }
+
+    /**
+     * Writes several values to Firestore
+     * Be VERY CAREFUL with your naming conventions and make sure they are within UsersBase
+     */
+    suspend fun updateMultipleParameters(
+        uid: String?,
+        params: Map<String, Any>,
+    ) : Boolean {
+        if (uid.isNullOrBlank()) {
+            logger.e("Auth", "UserId is null. Please login to Firebase.")
+            return false
+        }
+        if (params.isEmpty()) {
+            logger.e("Firestore", "No parameters provided to update for user $uid")
+            return false
+        }
+
+        val docRef = db.collection("users").document(uid)
+
+        return try {
+            docRef.update(params).await()
+            updateTimestamp(uid)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error updating user parameters for $uid", e)
+            false
+        }
+    }
 }

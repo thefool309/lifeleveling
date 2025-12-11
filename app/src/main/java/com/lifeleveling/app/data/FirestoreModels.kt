@@ -53,10 +53,14 @@ data class UsersData (
     var coinsSpent: Long = 0L,
 
     // For use in functions
-    val isLoading: Boolean = false,
-    val isLoggedIn: Boolean = false,
     var error: String? = null,
     val fbUser: FirebaseUser? = null,
+    val levelUpCoins: Long = 0L,
+
+    // Flags
+    val isLoading: Boolean = false,
+    val isLoggedIn: Boolean = false,
+    val levelUpFlag: Boolean = false,
 ) {
 
     init {

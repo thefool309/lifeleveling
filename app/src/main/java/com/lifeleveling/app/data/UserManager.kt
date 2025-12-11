@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -29,7 +30,7 @@ import kotlin.collections.orEmpty
  */
 class UserManager(
     private val logger: ILogger = AndroidLogger(),  // Put the creation of the logger here so that any function can access it if it is desired.
-    private val authModel: AuthModel = AuthModel(),
+    private val authModel: AuthModel = AuthModel(logger = logger),
     private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger),
 ) : ViewModel() {
     private val userData = MutableStateFlow(UsersData())
@@ -37,15 +38,33 @@ class UserManager(
 
     val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
         val user = firebaseAuth.currentUser
+
         if (user == null) {
-            TODO("Set logged out status and user info to defaults and nulls")
-        } else {
-            viewModelScope.launch {
-                try {
-                    TODO("Load in the user information and set LoggedIn to true")
-                } catch (e: Exception) {
-                    Log.e("FirestoreRepository", "Error creating user", e)
-                }
+            // User logged out so resets to defaults
+            userData.value = UsersData()
+            return@AuthStateListener
+        }
+
+        // User logged in
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                // create user if first time
+                fireRepo.ensureUserCreated(user)
+
+                // Load profile
+                val loaded = fireRepo.getUser(user.uid)
+
+                // Update UI
+                userData.value = loaded!!.copy(
+                    isLoggedIn = true,
+                    fbUser = user,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                Log.e("FirestoreRepository", "Error creating user", e)
+                userData.update { it.copy(isLoading = false, error = "Error creating user") }
             }
         }
     }
@@ -68,28 +87,38 @@ class UserManager(
      * Will do level up logic if needed.
      * Leveling up rolls over extra exp, gives coins, and adds 5 life points to the user.
      */
-    fun addExp(amount: Int) {
+    fun addExp(amount: Double) {
         val user = userData.value.userBase ?: return
         val next = userData.value.xpToNextLevel
         val newExp = user.currentXp + amount
+        val updated: UsersBase
+        var leveledUp = false
+        var coins = 0L
 
-        val updated = if (newExp >= next) {
+        if (newExp >= next) {
             // Level up
-            // TODO: Add a level up flag and overlay for informing the user
+            leveledUp = true
             val leftover = newExp - next
-            val coins = (user.level * 10) + calcCoinsForReminderCompletion()
-            user.copy(
+            coins = ((user.level + 1) * 10) + calcCoinsForReminderCompletion()
+
+            updated = user.copy(
                 level = user.level + 1,
                 currentXp = leftover,
-                lifePointsTotal = user.lifePointsUsed + 5,
+                lifePointsTotal = user.lifePointsTotal + 5,
                 coinsBalance = user.coinsBalance + coins,
                 allCoinsEarned = user.allCoinsEarned + coins
                 )
-            // TODO: Add a write to firebase to update level up info
         } else {
-            user.copy(currentXp = newExp)
+            updated = user.copy(currentXp = newExp)
         }
-        userData.update { it.copy(userBase = updated).recalculateAll() }
+        // Updates the state and UI
+        userData.update {
+            it.copy(
+                userBase = updated,
+                levelUpFlag = leveledUp, // If leveled up the popup will trigger
+                levelUpCoins = coins
+            ).recalculateAll()
+        }
     }
 
     fun updateTheme(isDark: Boolean) {
@@ -97,6 +126,15 @@ class UserManager(
         val updated = current.copy(isDarkTheme = isDark)
         userData.update { current ->
             current.copy(userBase = updated)
+        }
+    }
+
+    fun clearLevelUpFlag() {
+        userData.update {
+            it.copy(
+                levelUpFlag = false,
+                levelUpCoins = 0L
+            )
         }
     }
 
@@ -176,56 +214,94 @@ class UserManager(
         }
     }
 
-    fun login(email: String, password: String) = viewModelScope.launch {
-        userAllData.update { it.copy(isLoading = true, errorMessage = null) }
-        try {
-            authRepo.login(email, password)
-            loadUser()
-        } catch (e: Exception) {
-            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
-        } finally {
-            userAllData.update { it.copy(isLoading = false) }
+    /**
+     * Signs a user in using email and password and updates the UI state.
+     *
+     * Flow:
+     * 1. Mark the UI as loading.
+     * 2. Call Firebase `signInWithEmailAndPassword`.
+     * 3. Run post-login work (create user doc, log event, etc.).
+     * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc.).
+     *
+     * Note: even though this function is marked `suspend`, it uses viewModelScope.launch` so it never blocks the caller.
+     *
+     * @param email  The user’s email address.
+     * @param password The user’s password.
+     * @param logger Used to log warnings and errors during sign-in.
+     *
+     * @author thefool309, fdesouza1992
+     */
+    fun signInWithEmailPassword(email: String, password: String)
+    {
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                // If this email is Google-only, this call will fail with InvalidCredentials.
+                authModel.signInWithEmailPassword(email.trim(), password)
+                postLoginBookkeeping(provider = "password")
+                userData.update { it.copy(isLoggedIn = true, isLoading = false, error = null) }
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+                // No account exists with this email
+                logger.w("FB", "No user for ${email.trim()}")
+                userData.update { it.copy(isLoading = false, error = "No account found for this email.") }
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                // Wrong password or email malformed, or Google-only account
+                logger.e("FB", "Invalid credentials", e)
+                // Tells user if the email is federated-only
+                val methods = authModel.fetchSignInMethods(email)
+                val msg = if ("google.com" in methods && "password" !in methods) {
+                    "This email is registered with Google. Use 'Login using Google'."
+                } else {
+                    "Invalid email or password."
+                }
+                userData.update { it.copy(isLoading = false, error = msg) }
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Auth exception", e)
+                userData.update { it.copy(isLoading = false, error = "Authentication error.") }
+
+            } catch (e: Exception) {
+                logger.e("FB", "Unexpected sign-in error", e)
+                userData.update { it.copy(isLoading = false, error = "Sign-in failed.") }
+            }
         }
     }
 
-    fun register(email: String, password: String) = viewModelScope.launch {
-        userAllData.update { it.copy(isLoading = true, errorMessage = null) }
-        try {
-            authRepo.register(email, password)
-            createNewUser()
-        } catch (e: Exception) {
-            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
-        } finally {
-            userAllData.update { it.copy(isLoading = false) }
+    /**
+     * Signs the current user out of Firebase and (optionally) Google.
+     *
+     * Flow:
+     * 1. Mark the UI as loading.
+     * 2. Call Firebase `signOut()`.
+     * 3. If an Activity is passed in, also sign out of the Google client.
+     * 4. Once the Google sign-out finishes, the loading flag clears so the UI can update.
+     *
+     * @param activity Used to sign out from the Google client *Optional*.
+     * @author fdesouza1992
+     */
+    fun signOut(activity: Activity? = null) {
+        userData.update { it.copy(isLoading = true, error = null) }
+        authModel.signOut()
+        if (activity != null) {
+            authModel.googleClient(activity).signOut().addOnCompleteListener {
+                userData.update { it.copy(isLoggedIn = false, isLoading = false) }
+            }
+        } else {
+            userData.update { it.copy(isLoggedIn = false, isLoading = false) }
         }
     }
 
-    fun signInWithGoogleIntent(intent: Intent?) = viewModelScope.launch {
-        userAllData.update { it.copy(isLoading = true, errorMessage = null) }
-
-        try {
-            authRepo.handleGoogleResultIntent(intent)
-            loadUser()
-        } catch (e: Exception) {
-            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
-        } finally {
-            userAllData.update { it.copy(isLoading = false) }
-        }
-    }
-
-    fun logout() = authRepo.logout()
-
-    fun setLoggedOut() {
-        userAllData.update { it.copy(isLoggedIn = false, userData = null) }
-    }
-
-    fun sendPasswordResetEmail(email: String) = viewModelScope.launch {
-        try {
-            authRepo.sendPasswordResetEmail(email)
-        } catch (e: Exception) {
-            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
-        }
-    }
+    // I think this will be rewritten after pulling in new branches
+//    fun sendPasswordResetEmail(email: String) = viewModelScope.launch {
+//        try {
+//            authRepo.sendPasswordResetEmail(email)
+//        } catch (e: Exception) {
+//            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
+//        }
+//    }
 
     /**
      * Runs the “after login” work once a user has successfully signed in.
@@ -244,29 +320,15 @@ class UserManager(
      */
     private fun postLoginBookkeeping(provider: String) = viewModelScope.launch {
         val user = authModel.currentUser ?: return@launch
-        try { fireRepo.ensureUserCreated(user) } catch (e: Exception) {
+        try {
+            fireRepo.ensureUserCreated(user)
+        } catch (e: Exception) {
             logger.w("FB", "ensureUserCreated failed: ${e.message}")
         }
         fireRepo.writeBookkeeping(provider, user)
     }
 
     // ================== Firestore managing functions ==============================================
-    // Load user from firestore
-    suspend fun loadUser() {
-        val uid = authModel.currentUser?.uid ?: return
-        userData.update { it.copy(isLoading = true, error = null) }
-
-        try {
-            val data = fireRepo.getUser(uid)
-            if (data != null) {
-                userData.update { data.copy(isLoading = false, isLoggedIn = true) }
-            } else {
-                createNewUser()
-            }
-        } catch (e: Exception) {
-            userData.update { it.copy(isLoading = false, error = e.localizedMessage) }
-        }
-    }
 
 
     // Unsure if we want to make this function because it would require saving all the user data.
@@ -291,7 +353,7 @@ class UserManager(
 //    }
 
     // Create a new User
-    suspend fun createNewUser(email: String, password: String) {
+    fun createNewUserWithEmailAndPassword(email: String, password: String) {
         viewModelScope.launch {
             userData.update { it.copy(isLoading = true, error = null) }
 
@@ -317,6 +379,67 @@ class UserManager(
             } catch (e: Exception) {
                 logger.e("FB", "Unexpected sign-up error", e)
                 userData.update { it.copy(isLoading = false, error = "Sign-up failed.") }
+            }
+        }
+    }
+
+    fun deleteAccount() {
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            val uid = authModel.currentUser?.uid
+
+            try {
+                // Delete Firestore user data
+                val ok = fireRepo.deleteUser(uid)
+                if (!ok) {
+                    userData.update { it.copy(isLoading = false, error = "Failed to delete account data. Please try again.")}
+                    return@launch
+                }
+
+                // Delete Firebase Auth user
+                val authOk = authModel.deleteUser(uid)
+                if (!authOk) {
+                    userData.update { it.copy(isLoading = false, error = "Failed to remove authentication. Please try again.")}
+                    return@launch
+                }
+
+                // Delete successful
+                userData.update { it.copy(isLoggedIn = false, isLoading = false, error = null) }
+
+            } catch (e: Exception) {
+                logger.e("Auth", "deleteAccount failed", e)
+               userData.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to delete account. Please try again."
+                    )
+                }
+            }
+        }
+    }
+
+    fun writeLevelUp() {
+        val user = userData.value.userBase ?: return
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                fireRepo.updateMultipleParameters(
+                    uid = user.userId,
+                    params = mapOf(
+                        "level" to user.level,
+                        "currentXp" to user.currentXp,
+                        "lifePointsTotal" to user.lifePointsTotal,
+                        "coinsBalance" to user.coinsBalance,
+                        "allCoinsEarned" to user.allCoinsEarned,
+                    )
+                )
+            } catch (e: Exception) {
+                logger.e("FB", "Unable to update level up", e)
+                userData.update { it.copy(error = "Failed to update level up.") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
             }
         }
     }

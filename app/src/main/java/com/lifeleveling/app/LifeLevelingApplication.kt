@@ -22,7 +22,8 @@ class LifeLevelingApplication : Application(), DefaultLifecycleObserver {
 
     override fun onStop(owner: LifecycleOwner) {
         CoroutineScope(Dispatchers.IO).launch {
-            userManager.saveUser()
+            // Put this in if a save when the application closes is wanted
+//            userManager.saveUser()
         }
     }
 }
