@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
             // FCM handles everything here there is nothing else to do, but I added it in case we find something we wish to do here later
         }
         else {
-            // a Toast message informing the user they denied permissions and will not recieve notifications.
+            // a Toast message informing the user they denied permissions and will not receive notifications.
             // pretty much anywhere you see a Toast message, it is a filler that can be replaced if you wish
             if (BuildConfig.DEBUG) {
                 Toast.makeText(applicationContext, R.string.permission_denied_notif, Toast.LENGTH_SHORT).show()
@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
     /**
      * function for asking the user for notification permission. Will be kept at the top of whatever activity or fragment is being used
-     * This function should only be necessary in android TIRAMASU and higher so it is wrapped in a check to see the androidVersion
+     * This function should only be necessary in android TIRAMISU and higher so it is wrapped in a check to see the androidVersion
      * if using a lower version of android than 12 the phone will request notification permissions automatically the first time a notification channel is created
      * MORE INFO: https://firebase.google.com/docs/cloud-messaging/get-started?platform=android#request-permission13
      * @see androidx.core.content.ContextCompat
