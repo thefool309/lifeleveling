@@ -50,23 +50,23 @@ data class Users(
 // Nested Models
 // A user's "reminder template" (the base CRUD)
 data class Reminders(
-    val reminderId: String,         // Firestore doc id (also stored in doc for convenience)
-    val title: String,
-    val notes: String,
-    val dueAt: Timestamp?,        // when the reminder should trigger (nullable)
-    val isCompleted: Boolean,
-    val completedAt: Timestamp?,  // set when marked complete
-    val createdAt: Timestamp?,    // serverTimestamp on create
-    val lastUpdate: Timestamp?,    // serverTimestamp on any write
-    val isDaily: Boolean,         // daily = weekly streaks source, false = monthly streak source
-    val timesPerHour: Int,          // How many hour(s)
-    val timesPerDay: Int,           // How many day(s)
-    val timesPerMonth: Int,         // How many month(s)
-    val colorToken: String?,      // nullable like enumColor? in TestUser
-    val iconName: String,           // store icon key (ex: "water_drop"), not R.drawable.id
-    val repeatForever: Boolean,  // true if "Repeats indefinitely" checked
-    val repeatCount: Int,            // how many units
-    val repeatInterval: String?,  // days, weeks, months or years
+    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
+    val title: String = "",
+    val notes: String = "",
+    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val isCompleted: Boolean = false,
+    val completedAt: Timestamp? = null,  // set when marked complete
+    val createdAt: Timestamp? = null,    // serverTimestamp on create
+    val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
+    val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
+    val timesPerHour: Int = 0,          // How many hour(s)
+    val timesPerDay: Int = 0,           // How many day(s)
+    val timesPerMonth: Int = 0,         // How many month(s)
+    val colorToken: String? = null,      // nullable like enumColor? in TestUser
+    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
+    val repeatCount: Int = 0,            // how many units
+    val repeatInterval: String? = null,  // days, weeks, months or years
 )
 
 // Player stat block (Stats Screen)
