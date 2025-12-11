@@ -387,12 +387,16 @@ fun CreateReminderScreen(
                                     CustomTextField(
                                         value = reminderAmountNumber,
                                         onValueChange = { newText ->
-                                            reminderAmountNumber = newText
-                                            if (newText.isNotEmpty()) {
-                                                repeatReminder = false
-                                                //doNotRepeat = false
-                                            }
+                                            // Only allow digits
+                                            reminderAmountNumber = newText.filter { it.isDigit() }
                                         },
+//                                        onValueChange = { newText ->
+////                                            reminderAmountNumber = newText
+////                                            if (newText.isNotEmpty()) {
+////                                                repeatReminder = false
+//                                                //doNotRepeat = false
+//                                            }
+//                                        },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
@@ -449,12 +453,15 @@ fun CreateReminderScreen(
                                     CustomTextField(
                                         value = repeatAmount,
                                         onValueChange = { newText ->
-                                            repeatAmount = newText
-                                            if (newText.isNotEmpty()) {
-                                                repeatReminder = false
-                                                //doNotRepeat = false
-                                            }
+                                            repeatAmount = newText.filter { it.isDigit() }
                                         },
+//                                        onValueChange = { newText ->
+//                                            repeatAmount = newText
+//                                            if (newText.isNotEmpty()) {
+//                                                repeatReminder = false
+//                                                //doNotRepeat = false
+//                                            }
+//                                        },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
