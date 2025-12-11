@@ -2,7 +2,6 @@ package com.lifeleveling.app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -35,7 +33,6 @@ import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalUserManager
-import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.EquipmentDisplay
 import com.lifeleveling.app.ui.components.HealthDisplay
@@ -43,12 +40,9 @@ import com.lifeleveling.app.ui.components.HealthToolTip
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
-import com.lifeleveling.app.ui.components.ProgressBar
-import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
-import com.lifeleveling.app.ui.models.StatsUi
 
-//@Preview
+@Preview
 @Composable
 fun HomeScreen() {
     val userManager = LocalUserManager.current
@@ -56,7 +50,7 @@ fun HomeScreen() {
 
     val showLevelTip = remember { mutableStateOf(false) }
     val showHealthTip = remember { mutableStateOf(false) }
-    var fightMeditateSwitch = userState.userData?.fightOrMeditate ?: 0
+    val fightMeditateSwitch = userState.userBase?.fightOrMeditate ?: 0
 
     // Main screen pulling everything in 16.dp from edge
     Box(
@@ -155,7 +149,7 @@ fun HomeScreen() {
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = stringResource(R.string.coins, userState.userData?.coins ?: 0),
+                                    text = stringResource(R.string.coins, userState.userBase?.coinsBalance ?: 0),
                                     style = AppTheme.textStyles.Default,
                                     color = AppTheme.colors.Gray
                                 )
@@ -210,7 +204,9 @@ fun HomeScreen() {
                         .align(Alignment.CenterHorizontally),
                     options = listOf(stringResource(R.string.fight), stringResource(R.string.meditate)),
                     selectedIndex = fightMeditateSwitch,
-                    onOptionSelected = { fightMeditateSwitch = it },
+                    onOptionSelected = { newValue ->
+                        userManager.setFightOrMeditate(newValue)
+                    },
                 )
             }
         }

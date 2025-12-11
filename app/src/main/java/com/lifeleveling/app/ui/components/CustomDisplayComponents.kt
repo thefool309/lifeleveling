@@ -116,9 +116,10 @@ fun LevelAndProgress(
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
 
-    val level = userState.userData?.level ?: 0
-    val currentExp = userState.userData?.currentExp ?: 0
-    val expToNextLevel = userState.expToNextLevel
+    val level = userState.userBase?.level ?: 0
+    val currentExp = userState.userBase?.currentXp ?: 0.0
+    val formattedExp = String.format("%.2f", currentExp)
+    val expToNextLevel = userState.xpToNextLevel
 
             Column(
                 modifier = modifier
@@ -166,7 +167,7 @@ fun LevelAndProgress(
                 // Experience Display
                 Text(
 //                    text = stringResource(R.string.exp_display, data.currentXp, data.xpToNextLevel),
-                    text = stringResource(R.string.exp_display, currentExp, expToNextLevel),
+                    text = stringResource(R.string.exp_display, formattedExp, expToNextLevel),
                     color = AppTheme.colors.Gray,
                     style = AppTheme.textStyles.Default,
                     modifier = Modifier.align(Alignment.End)
@@ -186,6 +187,9 @@ fun LevelAndProgress(
 fun EquipmentDisplay(
     modifier: Modifier = Modifier,
 ) {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -332,7 +336,7 @@ fun HealthDisplay(
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
 
-    val currentHealth = userState.userData?.currentHealth ?: 0
+    val currentHealth = userState.userBase?.currHealth ?: 0
     val maxHealth = userState.maxHealth
 
     Column(

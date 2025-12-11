@@ -121,6 +121,10 @@ class UserManager(
         }
     }
 
+    /**
+     * Is a call to update the theme saved for the user
+     * Light mode or dark mode
+     */
     fun updateTheme(isDark: Boolean) {
         val current = userData.value.userBase ?: return
         val updated = current.copy(isDarkTheme = isDark)
@@ -129,6 +133,9 @@ class UserManager(
         }
     }
 
+    /**
+     * Clears the level up flag so the overlay will stop showing
+     */
     fun clearLevelUpFlag() {
         userData.update {
             it.copy(
@@ -136,6 +143,15 @@ class UserManager(
                 levelUpCoins = 0L
             )
         }
+    }
+
+    /**
+     * Switches for if the user is in Fight or Meditate mode
+     */
+    fun setFightOrMeditate(value: Int) {
+        val user = userData.value.userBase ?: return
+        val updatedUser = user.copy(fightOrMeditate = value)
+        userData.update { it.copy(userBase = updatedUser) }
     }
 
     // ============ Calculation Functions ===============================================
@@ -178,6 +194,13 @@ class UserManager(
                 )
                 )
         return exp
+    }
+
+    /**
+     * Recalculates some data for most accurate representation in UserJourney screen
+     */
+    fun userJourneyCalculations() {
+        userData.update { it.copy().recalculatingUserJourney() }
     }
 
     // ================== Auth Functions ==========================================================

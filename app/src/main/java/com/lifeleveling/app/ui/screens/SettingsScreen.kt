@@ -27,8 +27,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ShadowedIcon
@@ -37,7 +35,6 @@ import com.lifeleveling.app.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
@@ -46,7 +43,7 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomDialog
 
-
+@Preview
 @Composable
 fun SettingScreen(){
     val userManager = LocalUserManager.current
@@ -95,9 +92,11 @@ fun SettingScreen(){
                         contentAlignment = Alignment.Center
                     ){
                         Spacer(modifier = Modifier.height(8.dp))
+
+                        // Controls theme between light and dark mode
                         SlidingSwitch(
                             options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
-                            selectedIndex = if (userState.userData?.isDarkTheme ?: true) 0 else 1,
+                            selectedIndex = if (userState.userBase?.isDarkTheme ?: true) 0 else 1,
                             onOptionSelected = { index ->
                                 val newIsDark = index == 0
                                 userManager.updateTheme(newIsDark)
@@ -114,6 +113,8 @@ fun SettingScreen(){
                     }
 
                     SeparatorLine()
+
+                    // TODO: Add in another option to edit user information: email, username, so on
 
                     // Notification Settings
                     Row(
@@ -140,7 +141,6 @@ fun SettingScreen(){
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .clickable { navController.navigate("notifications") }
-
                         )
                     }
 
@@ -200,7 +200,10 @@ fun SettingScreen(){
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController.navigate("journeyStats") }
+                                .clickable {
+                                    userManager.userJourneyCalculations()
+                                    navController.navigate("journeyStats")
+                                }
                         )
                     }
 
@@ -230,7 +233,9 @@ fun SettingScreen(){
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-
+                                .clickable {
+                                    // TODO: Add reset logic in here.
+                                }
                         )
                     }
 
@@ -297,6 +302,7 @@ fun SettingScreen(){
                     SeparatorLine()
 
                     // Delete Account
+                    // TODO: Move into the control of account edits
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ){
@@ -321,13 +327,13 @@ fun SettingScreen(){
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .clickable { showDeleteDialog.value = true }
-
                         )
                     }
 
                     SeparatorLine()
 
                     // Logout
+                    // TODO: Add a confirmation dialogue for logging out
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ){
@@ -353,7 +359,7 @@ fun SettingScreen(){
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { userManager.logout() }
+                                .clickable { userManager.signOut() }
                         )
                     }
                 }
@@ -417,7 +423,7 @@ fun SettingScreen(){
                     CustomButton(
                         onClick = {
                             showDeleteDialog.value = false
-//                            onDeleteAccount()
+                            userManager.deleteAccount()
                         },
                         width = 120.dp,
                         backgroundColor = AppTheme.colors.Error75
@@ -432,17 +438,4 @@ fun SettingScreen(){
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-
-@Composable
-fun PreviewSettingScreen() {
-    // Create a mock navController
-    val navController = rememberNavController()
-
-    // Create a state variable for the theme toggle
-    var isDarkTheme by remember { mutableStateOf(false) }
-
-    SettingScreen()
 }
