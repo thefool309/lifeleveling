@@ -4,8 +4,13 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
-import com.lifeleveling.app.auth.AuthViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.lifeleveling.app.auth.AuthModel
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,66 +18,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlin.Int
-
-///**
-// * Information for the user that WILL be written into firebase
-// */
-//data class UserData(
-//    val username: String = "",
-//    val email: String = "",
-//
-//    val level: Int = 1,
-//    val currentExp: Long = 0,
-//    val coins: Long = 0,
-//    val currentHealth: Int = 60,
-//    val lifePointsUsed: Long = 0,
-//    val lifePointsTotal: Long = 3,
-//    val profileCreatedOn: Long = 0,
-//    val lastUpdate: Long = 0,
-//    val fightOrMeditate: Int = 0,
-//
-//    val stats: Stats = Stats(),
-//    val reminders: List<Reminder> = listOf(),
-//    val streaks: List<Streak> = listOf(),
-//    val badges: List<Badge> = listOf(),
-//
-//    val weekStreaksCompleted: Long = 0,
-//    val monthStreaksCompleted: Long = 0,
-//    val allCoinsEarned: Long = 0,
-//
-//    val isDarkTheme: Boolean = true,
-//)
-//
-///**
-// * Information that will NOT be written in firebase
-// */
-//data class UserCalculated(
-//    val userData: UserData? = null,
-//    val expToNextLevel: Long = 0,
-//    val maxHealth: Long = 60,
-//    val lifePointsNotUsed: Long = 0,
-//
-//    val enabledReminders: List<Reminder> = listOf(),
-//
-//    val totalStreaksCompleted: Long = 0,
-//    val badgesEarned: Long = 0,
-//    val allExpEver: Long = 0,
-//    val coinsSpend: Long = 0,
-//    val mostCompletedRemind: Pair<String, Long> = Pair("", 0L),
-//
-//    val isLoading: Boolean = false,
-//    val errorMessage: String? = null,
-//
-//    val isLoggedIn: Boolean = false,
-//)
+import kotlin.collections.orEmpty
 
 /**
- * Manages the local state of the user, writing to firebase, pulling from firebase, and more
+ * Manages the local state of the user.
+ * Calls outside functions to write to firebase.
+ * Calls outside functions for authenticating the user.
  */
 class UserManager(
-    private val authModel: AuthViewModel = AuthViewModel(),
-    private val logger: ILogger = AndroidLogger(),
+    private val logger: ILogger = AndroidLogger(),  // Put the creation of the logger here so that any function can access it if it is desired.
+    private val authModel: AuthModel = AuthModel(),
     private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger),
 ) : ViewModel() {
     private val userData = MutableStateFlow(UsersData())
@@ -102,133 +59,123 @@ class UserManager(
     override fun onCleared() { authModel.removeAuthStateListener(listener) }
 
 
-    // ================== Functions =======================================================
-
-    // ================== Firestore managing functions ==========
-    // Load user from firestore
-    suspend fun loadUser() {
-        val uid = authRepo.currentUser?.uid ?: return
-        userAllData.update { it.copy(isLoading = true, errorMessage = null) }
-
-        try {
-            val data = userRepo.loadUser(uid)
-            if (data != null) {
-                updateLocalVariables(data)
-                userAllData.update { it.copy(isLoading = false, isLoggedIn = true) }
-            } else {
-                createNewUser()
-            }
-        } catch (e: Exception) {
-            userAllData.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
-        }
-    }
-
-    // Write user into firestore
-    suspend fun saveUser() {
-        val user = userAllData.value.userData ?: return
-        val uid = authRepo.currentUser?.uid ?: return
-
-        try {
-            userRepo.saveUser(uid, user)
-        } catch (e: Exception) {
-            userAllData.update { it.copy(errorMessage = e.localizedMessage) }
-        }
-    }
-
-    fun saveOnPause() {
-        viewModelScope.launch { saveUser() }
-    }
-
-    // Create a new User
-    suspend fun createNewUser() {
-        val user = UserData()
-        val uid = authRepo.currentUser?.uid ?: return
-
-        updateLocalVariables(user)
-        userAllData.update { it.copy(isLoading = true, errorMessage = null) }
-        try {
-            userRepo.createNewUser(uid, user)
-            userAllData.update { it.copy(isLoading = false, isLoggedIn = true) }
-        } catch (e: Exception) {
-            userAllData.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
-        }
-    }
-
-    // ========= Calculating Local Logic Variable Functions ==========
-    // Broad function for any smaller ones so they all get loaded at once
-    // Used after reading from firebase
-    private fun updateLocalVariables(userData: UserData) {
-        userAllData.update { current ->
-            current.copy(
-                userData = userData,
-                expToNextLevel = calcLevelExp(userData.level),
-                maxHealth = calcMaxHealth(userData.stats.health),
-                lifePointsNotUsed = calcNotUsedLifePoints(userData.lifePointsTotal, userData.lifePointsUsed),
-
-                enabledReminders = calcEnabledReminders(userData.reminders),
-
-                totalStreaksCompleted = calcTotalStreaks(userData.weekStreaksCompleted, userData.monthStreaksCompleted),
-                badgesEarned = calcBadgesEarned(userData.badges),
-                allExpEver = calcAllExp(userData.currentExp, userData.level),
-                coinsSpend = calcCoinsSpent(userData.coins, userData.allCoinsEarned),
-//                mostCompletedRemind = calcMostCompletedReminder(userData.reminders),
-            )
-        }
-    }
-
-    private fun calcLevelExp(level: Int) = (100 * level).toLong()
-    private fun calcMaxHealth(healthPoints: Long) = 60 + ( 5 * healthPoints)
-    private fun calcNotUsedLifePoints(total: Long, used: Long) = total - used
-    private fun calcEnabledReminders(reminders: List<Reminder>) = reminders.filter { it.enabled }
-    private fun calcTotalStreaks(dailyStreaks: Long, monthlyStreaks: Long) = dailyStreaks + monthlyStreaks
-    private fun calcBadgesEarned(badges: List<Badge>) = (badges.filter { it.completed }).size.toLong()
-    private fun calcAllExp(currentExp: Long, level: Int): Long {
-        val exp = 100L * level * (level + 1) / 2
-        return currentExp + exp
-    }
-    private fun calcCoinsSpent(current: Long, total: Long) = total - current
-//    private fun calcMostCompletedReminder(reminders: List<Reminder>): Pair<String, Long> {
-//        val highest = reminders.maxByOrNull { it.completedTally }
-//        var result = Pair("", 0L)
-//        if (highest != null) {
-//            result = Pair(highest.name, highest.completedTally)
-//        }
-//        return result
-//    }
+    // ========================================== Functions =======================================================
 
 
-    // ============ Functions for changing variables =================
+    // ============ Functions for changing variables ===============================================
+    /**
+     * Handles adding experience to the user.
+     * Will do level up logic if needed.
+     * Leveling up rolls over extra exp, gives coins, and adds 5 life points to the user.
+     */
     fun addExp(amount: Int) {
-        val user = userAllData.value.userData ?: return
-        val next = userAllData.value.expToNextLevel
-        val newExp = user.currentExp + amount
+        val user = userData.value.userBase ?: return
+        val next = userData.value.xpToNextLevel
+        val newExp = user.currentXp + amount
 
         val updated = if (newExp >= next) {
             // Level up
+            // TODO: Add a level up flag and overlay for informing the user
             val leftover = newExp - next
-            val coins = user.level * 25
+            val coins = (user.level * 10) + calcCoinsForReminderCompletion()
             user.copy(
                 level = user.level + 1,
-                currentExp = leftover,
-                lifePointsUsed = user.lifePointsUsed + 3,
-                coins = user.coins + coins,
+                currentXp = leftover,
+                lifePointsTotal = user.lifePointsUsed + 5,
+                coinsBalance = user.coinsBalance + coins,
                 allCoinsEarned = user.allCoinsEarned + coins
                 )
+            // TODO: Add a write to firebase to update level up info
         } else {
-            user.copy(currentExp = newExp)
+            user.copy(currentXp = newExp)
         }
-        updateLocalVariables(updated)
+        userData.update { it.copy(userBase = updated).recalculateAll() }
     }
 
-    fun updateTheme(isDark: Boolean) = viewModelScope.launch {
-        val current = userAllData.value.userData ?: return@launch
+    fun updateTheme(isDark: Boolean) {
+        val current = userData.value.userBase ?: return
         val updated = current.copy(isDarkTheme = isDark)
-        userAllData.update { current ->
-            current.copy(userData = updated)
+        userData.update { current ->
+            current.copy(userBase = updated)
         }
     }
 
-    // ================== Auth Functions =========================
+    // ============ Calculation Functions ===============================================
+    /**
+     * Calculates the number of coins to give the user for completing a reminder.
+     * Uses 10 coins as the base value.
+     * Defense gives an extra 2% per point
+     * Intelligence gives an extra 5% per point
+     * Agility gives an extra 3% per point
+     */
+    fun calcCoinsForReminderCompletion() : Long {
+        val user = userData.value.userBase ?: return 0
+        val coins = 10 +
+                (10 *
+                (
+                        (user.stats.defense * .02) +
+                        (user.stats.intelligence * .05) +
+                        (user.stats.agility * .03)
+                )
+                )
+        return coins.toLong()
+    }
+
+    // TODO: Adjust how many decimals for the double
+    /**
+     * Calculates the amount of exp to give the user for completing a reminder.
+     * Uses 15 exp as the base value
+     * Strength gives an extra 5% per point
+     * Defense gives an extra 3% per point
+     * Agility gives an extra 2% per point
+     */
+    fun calcExpForReminderCompletion() : Double {
+        val user = userData.value.userBase ?: return 0.0
+        val exp = 15 +
+                (15 *
+                (
+                        (user.stats.strength * .05) +
+                        (user.stats.defense * .03) +
+                        (user.stats.agility * .02)
+                )
+                )
+        return exp
+    }
+
+    // ================== Auth Functions ==========================================================
+
+    /**
+     * Handles the Google sign-in result Intent returned to the Activity.
+     *
+     * Flow:
+     * 1. Try to pull the Google account and ID token out of the intent.
+     * 2. If the token is there, pass it down to Firebase to finish sign-in.
+     * 3. If anything fails, log it and update the UI with an error message.
+     *
+     * @param data The Intent returned from the Google sign-in Activity result.
+     * @author fdesouza1992
+     */
+    fun handleGoogleResultIntent(data: android.content.Intent?) {
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                val idToken = authModel.handleGoogleResultIntent(data)
+                val user = authModel.firebaseAuthWithGoogle(idToken)
+                    ?: throw Exception("Firebase user null")
+                Log.d("FB", "Google sign-in success: uid=${user.uid}")
+                postLoginBookkeeping("google")
+                userData.update { it.copy(isLoggedIn = true, isLoading = false, error = null) }
+            } catch (e: ApiException) {
+                Log.e("FB", "Google sign-in failed", e)
+                userData.update { it.copy(isLoading = false, error = "Google sign-in failed: ${e.message}") }
+            } catch (e: Exception) {
+                Log.e("FB", "Google sign-in failed", e)
+                userData.update { it.copy(isLoading = false, error = "Firebase sign-in failed: ${e.message}") }
+            }
+        }
+    }
+
     fun login(email: String, password: String) = viewModelScope.launch {
         userAllData.update { it.copy(isLoading = true, errorMessage = null) }
         try {
@@ -277,6 +224,100 @@ class UserManager(
             authRepo.sendPasswordResetEmail(email)
         } catch (e: Exception) {
             userAllData.update { it.copy(errorMessage = e.localizedMessage) }
+        }
+    }
+
+    /**
+     * Runs the “after login” work once a user has successfully signed in.
+     *
+     * Flow:
+     * 1. Grab the current Firebase user.
+     * 2. In the background, make sure they have a user document in Firestore.
+     * 3. Log an auth event to `authLogs` for basic monitoring.
+     * 4. Clear out loading and error state in the UI.
+     *
+     * If the Firestore work fails, we log a warning but don’t block sign-in.
+     *
+     * @param provider The auth provider string (e.g., "password" or "google").
+     * @param logger   For logging any issues while doing post-login work.
+     * @author fdesouza1992
+     */
+    private fun postLoginBookkeeping(provider: String) = viewModelScope.launch {
+        val user = authModel.currentUser ?: return@launch
+        try { fireRepo.ensureUserCreated(user) } catch (e: Exception) {
+            logger.w("FB", "ensureUserCreated failed: ${e.message}")
+        }
+        fireRepo.writeBookkeeping(provider, user)
+    }
+
+    // ================== Firestore managing functions ==============================================
+    // Load user from firestore
+    suspend fun loadUser() {
+        val uid = authModel.currentUser?.uid ?: return
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        try {
+            val data = fireRepo.getUser(uid)
+            if (data != null) {
+                userData.update { data.copy(isLoading = false, isLoggedIn = true) }
+            } else {
+                createNewUser()
+            }
+        } catch (e: Exception) {
+            userData.update { it.copy(isLoading = false, error = e.localizedMessage) }
+        }
+    }
+
+
+    // Unsure if we want to make this function because it would require saving all the user data.
+    // Can always be split into a smaller save for app closing saves
+//    // Write user into firestore
+//    suspend fun saveUser() {
+//        val user = userData.value.userBase ?: return
+//        val uid = authModel.currentUser?.uid ?: return
+//        userData.update { it.copy(isLoading = true, error = null) }
+//
+//        try {
+//            fireRepo.saveUser(uid, user)
+//        } catch (e: Exception) {
+//            userData.update { it.copy(isLoading = false, error = e.localizedMessage) }
+//        }
+//    }
+
+    // This function would be passed to the application layer to save user data when the app is paused or closed.
+    // Can call above function or any new ones made
+//    fun saveOnPause() {
+//        viewModelScope.launch { saveUser() }
+//    }
+
+    // Create a new User
+    suspend fun createNewUser(email: String, password: String) {
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                authModel.createUserWithEmailAndPassword(email.trim(), password)
+                postLoginBookkeeping(provider = "password")
+                userData.update { it.copy(isLoading = false, error = null) }
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthUserCollisionException) {
+                // Email already in use.
+                val msg = authModel.checkIfEmailInUse(email)
+                logger.w("FB", msg)
+                userData.update { it.copy(isLoading = false, error = msg) }
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                logger.e("FB", "Invalid email/password", e)
+                userData.update { it.copy(isLoading = false, error = "Invalid email or password format.") }
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Auth exception", e)
+                userData.update { it.copy(isLoading = false, error = "Could not create account.") }
+
+            } catch (e: Exception) {
+                logger.e("FB", "Unexpected sign-up error", e)
+                userData.update { it.copy(isLoading = false, error = "Sign-up failed.") }
+            }
         }
     }
 }

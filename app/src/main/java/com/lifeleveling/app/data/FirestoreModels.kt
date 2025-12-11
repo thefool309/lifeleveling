@@ -2,6 +2,7 @@ package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
+import com.lifeleveling.app.ui.components.TestUser.mostCompletedReminder
 
 data class UsersBase(
     val userId: String = "",
@@ -59,67 +60,93 @@ data class UsersData (
 ) {
 
     init {
-        calculateXpToNextLevel()
-        calculateMaxHealth()
-        calculateUnusedLifePoints()
-        calculateEnabledReminders()
-        calculateTotalStreaks()
-        calculateBadgesEarned()
-        calculateAllExp()
-        calculateCoinsSpent()
-        calculateMostCompletedReminder()
+        recalculateAll()
     }
 
-    fun recalculatingUserJourney() {
-        calculateTotalStreaks()
-        calculateBadgesEarned()
-        calculateAllExp()
-        calculateCoinsSpent()
-        calculateMostCompletedReminder()
+    /**
+     * Calculates all the derived values
+     */
+    fun recalculateAll() : UsersData {
+        return this.copy(
+            userBase = userBase?.copy(
+                mostCompletedReminder = calculateMostCompletedReminder(),
+            ),
+            xpToNextLevel = calculateXpToNextLevel(),
+            maxHealth = calculateMaxHealth(),
+            lifePointsNotUsed = calculateUnusedLifePoints(),
+            enabledReminders = calculateEnabledReminders(),
+            totalStreaksCompleted = calculateTotalStreaks(),
+            badgesEarned = calculateBadgesEarned(),
+            allExpEver = calculateAllExp(),
+            coinsSpent = calculateCoinsSpent(),
+        )
     }
 
-    fun calculateXpToNextLevel() {
-        xpToNextLevel = (userBase?.level ?: 1) * 100L
+    /**
+     * Recalculates the derived values that are used in the UserJourney screen
+     */
+    fun recalculatingUserJourney() : UsersData {
+        return this.copy(
+            userBase = userBase?.copy(
+                mostCompletedReminder = calculateMostCompletedReminder(),
+            ),
+            totalStreaksCompleted = calculateTotalStreaks(),
+            badgesEarned = calculateBadgesEarned(),
+            allExpEver = calculateAllExp(),
+            coinsSpent = calculateCoinsSpent(),
+        )
     }
 
-    fun calculateMaxHealth() {
+    fun recalculateAfterLevelUp() : UsersData {
+        return this.copy(
+            xpToNextLevel = calculateXpToNextLevel(),
+            lifePointsNotUsed = calculateUnusedLifePoints(),
+        )
+    }
+
+    fun calculateXpToNextLevel() : Long {
+        return (userBase?.level ?: 1) * 100L
+    }
+
+    fun calculateMaxHealth() : Long {
         val healthStat = userBase?.stats?.health
-        maxHealth = baseHealth + ((healthStat ?: 0) * 5)
+        return baseHealth + ((healthStat ?: 0) * 5)
     }
 
-    fun calculateUnusedLifePoints() {
-        lifePointsNotUsed = (userBase?.lifePointsTotal ?: 0) - (userBase?.lifePointsUsed ?: 0)
+    fun calculateUnusedLifePoints() : Long{
+        return (userBase?.lifePointsTotal ?: 0) - (userBase?.lifePointsUsed ?: 0)
     }
 
-    fun calculateEnabledReminders() {
-        enabledReminders = userBase?.reminders?.filter { it.enabled } ?: emptyList()
+    fun calculateEnabledReminders() : List<Reminder> {
+        return userBase?.reminders?.filter { it.enabled } ?: emptyList()
     }
 
-    fun calculateTotalStreaks() {
-        totalStreaksCompleted = (userBase?.weekStreaksCompleted ?: 0) + (userBase?.monthStreaksCompleted ?: 0)
+    fun calculateTotalStreaks() : Long {
+        return (userBase?.weekStreaksCompleted ?: 0) + (userBase?.monthStreaksCompleted ?: 0)
     }
 
-    fun calculateBadgesEarned() {
-        badgesEarned = (userBase?.badges?.filter { it.completed })?.size?.toLong() ?: 0
+    fun calculateBadgesEarned() : Long {
+        return (userBase?.badges?.filter { it.completed })?.size?.toLong() ?: 0
     }
 
-    fun calculateAllExp() {
+    fun calculateAllExp() : Double {
         val level = userBase?.level ?: 1
         val exp = 100L * (level - 1) * level / 2
-        allExpEver = (userBase?.currentXp ?: 0.0) + exp
+        return (userBase?.currentXp ?: 0.0) + exp
     }
 
-    fun calculateCoinsSpent() {
-        coinsSpent = (userBase?.allCoinsEarned ?: 0) - (userBase?.coinsBalance ?: 0)
+    fun calculateCoinsSpent() : Long {
+        return (userBase?.allCoinsEarned ?: 0) - (userBase?.coinsBalance ?: 0)
     }
 
-    fun calculateMostCompletedReminder() {
+    fun calculateMostCompletedReminder() : Pair<String, Long> {
         val highest = userBase?.reminders?.maxByOrNull { it.completedTally }
         if (highest != null) {
             if (userBase!!.mostCompletedReminder.second < highest.completedTally) {
-                userBase!!.mostCompletedReminder = Pair(highest.title, highest.completedTally)
+                return Pair(highest.title, highest.completedTally)
             }
         }
+        return userBase!!.mostCompletedReminder
     }
 }
 

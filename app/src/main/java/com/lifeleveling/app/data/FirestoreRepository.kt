@@ -592,6 +592,9 @@ class FirestoreRepository(
 //        }
 //    }
 
+    /**
+     * Pulls the user's information from the database and puts it into a UsersData object for local use
+     */
     suspend fun getUser(uID: String?): UsersData? {
         if (uID.isNullOrBlank()) {
             logger.e("Auth", "User ID null/blank; sign in first.")
@@ -955,4 +958,21 @@ class FirestoreRepository(
 //            false
 //        }
 //    }
+
+    // Firebase section of Felipe's bookkeeping function
+    fun writeBookkeeping(provider: String, user: FirebaseUser) {
+        Firebase.firestore.collection("authLogs")
+            .add(
+                mapOf(
+                    "ts" to com.google.firebase.Timestamp.now(),
+                    "source" to "emailPasswordLogin",
+                    "provider" to provider,
+                    "uid" to user.uid,
+                    "email" to user.email,
+                    "name" to (user.displayName ?: "")
+                )
+            )
+            .addOnSuccessListener { doc -> Log.d("FB", "Auth Log doc: ${doc.id}") }
+            .addOnFailureListener { e -> logger.w("FB", "Auth Log write failed: ${e.message}") }
+    }
 }

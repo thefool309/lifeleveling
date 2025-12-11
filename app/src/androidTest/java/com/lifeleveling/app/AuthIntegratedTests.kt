@@ -10,7 +10,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
-import com.lifeleveling.app.auth.AuthViewModel
+import com.lifeleveling.app.auth.AuthModel
 import com.lifeleveling.app.util.AndroidLogger
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
@@ -69,7 +69,7 @@ class AuthIntegratedTests {
 
     @Test
     fun createUserPositiveTest() = runTest {
-        val model = AuthViewModel()
+        val model = AuthModel()
         val logger = AndroidLogger()
         model.createUserWithEmailAndPassword(testEmail, testPassword, logger)
         assert(auth.currentUser != null)
@@ -77,7 +77,7 @@ class AuthIntegratedTests {
 
     @Test
     fun signInPositiveTest() = runTest {
-        val model = AuthViewModel()
+        val model = AuthModel()
         val logger = AndroidLogger()
         model.signInWithEmailPassword(testEmail, testPassword, logger)
         assert(auth.currentUser != null)
