@@ -277,7 +277,7 @@ class MainActivity : ComponentActivity() {
                                     // -------- Sign In UI --------
                                     val email = remember { mutableStateOf("") }
                                     val password = remember { mutableStateOf("") }
-                                    val logger : ILogger = AndroidLogger()
+                                    val logger: ILogger = AndroidLogger()
                                     val scope = rememberCoroutineScope()
                                     SignIn(
                                         // Auth using email and password
@@ -307,23 +307,30 @@ class MainActivity : ComponentActivity() {
                                         email,
                                         password,
                                         authState = authState,
-                                        onDismissError = {authVm.clearError()},
+                                        onDismissError = { authVm.clearError() },
                                         onForgotPassword = { preAuthNav.navigate("passwordReset") },
                                     )
                                 }
                                 composable("createAccount") {
                                     val email = remember { mutableStateOf("") }
-                                    val password = remember {mutableStateOf("")}
-                                    val logger : ILogger = AndroidLogger()
+                                    val password = remember { mutableStateOf("") }
+                                    val logger: ILogger = AndroidLogger()
                                     val scope = rememberCoroutineScope()
                                     CreateAccountScreen(
                                         onJoin = {/*TODO: Handle sign-up logic*/
                                             scope.launch {
                                                 try {
-                                                    authVm.createUserWithEmailAndPassword(email.value, password.value, logger)
-                                                }
-                                                catch (e: FirebaseAuthInvalidCredentialsException) {
-                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
+                                                    authVm.createUserWithEmailAndPassword(
+                                                        email.value,
+                                                        password.value,
+                                                        logger
+                                                    )
+                                                } catch (e: FirebaseAuthInvalidCredentialsException) {
+                                                    logger.e(
+                                                        "FB",
+                                                        "createUserWithEmailAndPassword failed due to Invalid Credentials: ",
+                                                        e
+                                                    )
                                                 }
                                             }
                                         },
@@ -341,7 +348,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 composable("passwordReset") {
                                     val email = remember { mutableStateOf("") }
-                                    val logger : ILogger = AndroidLogger()
+                                    val logger: ILogger = AndroidLogger()
                                     PasswordResetScreen(
                                         email = email,
                                         onReset = { email, callback ->
@@ -368,8 +375,8 @@ class MainActivity : ComponentActivity() {
                                         navController = navController,
                                         padding = padding,
                                         isDarkThemeState = isDarkThemeState,
-                                        onSignOut = {authVm.signOut(this@MainActivity)},
-                                        onDeleteAccount = {authVm.deleteAccount(logger)},
+                                        onSignOut = { authVm.signOut(this@MainActivity) },
+                                        onDeleteAccount = { authVm.deleteAccount(logger) },
                                         onResetLifePoints = {
                                             scope.launch {
                                                 val ok = repo.resetLifePoints(logger)
@@ -378,29 +385,6 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
-                        }
-                    }
-                    // Main App UI
-                    val navController = rememberNavController()
-                    val repo = remember { com.lifeleveling.app.data.FirestoreRepository() }
-                    val logger = remember { AndroidLogger() }
-                    val scope = rememberCoroutineScope()
-                    Surface(color = AppTheme.colors.Background) {
-                        Scaffold(
-                            bottomBar = { CustomNavBar(navController = navController) },
-                        ) { padding ->
-                            NavHostContainer(
-                                navController = navController,
-                                padding = padding,
-                                isDarkThemeState = isDarkThemeState,
-                                onSignOut = {authVm.signOut(this@MainActivity)},
-                                onDeleteAccount = {authVm.deleteAccount(logger)},
-                                onResetLifePoints = {
-                                    scope.launch {
-                                        val ok = repo.resetLifePoints(logger)
-                                    }
-                                }
-                            )
                         }
                     }
                 }
