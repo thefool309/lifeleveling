@@ -504,7 +504,7 @@ fun CreateReminderScreen(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            // Basic validation that we can build upon if needed
+                            // Basic validation - title required
                             if (createdReminderTitle.isBlank()){
                                 logger.w("Reminders", "CreateReminderScreen: title is blank, not saving.")
                                 return@CustomButton
@@ -512,6 +512,17 @@ fun CreateReminderScreen(
 
                             scope.launch {
                                 try {
+                                    // ---1. Resolve date and time into a Timestamp
+
+                                    // From Date Pickers
+                                    // From your date pickers:
+                                    val year = yearList.getOrNull(selectedYear) ?: today.year
+                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
+                                    val day = (selectedDay + 1).coerceAtMost(
+                                        YearMonth(year, month).lengthOfMonth()
+                                    )
+
+                                    // From your time pickers:
                                     val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
                                     val minuteStr = minutesOptions.getOrNull(selectedMinute) ?: "0"
                                     val rawHour = hourStr.toIntOrNull() ?: 0
