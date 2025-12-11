@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     *  setup emulators is a helper function for the MainActivity to check and see if we need to setup firebase emulators or run on prod
+     *  setup emulators is a helper function for the MainActivity to check and see if we need to set up firebase emulators or run on prod
      *  toggle Property useFirebaseEmulators to true to enable the firebase emulators.
      */
 
