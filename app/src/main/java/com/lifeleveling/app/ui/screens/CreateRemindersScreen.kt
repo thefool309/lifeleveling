@@ -162,6 +162,18 @@ fun CreateReminderScreen(
         Color.White
     )
 
+    // Strings that we actually store in Firestore
+    val colorTokenOptions = listOf(
+        "red",
+        "blue",
+        "green",
+        "magenta",
+        "yellow",
+        "cyan",
+        "light_gray",
+        "white"
+    )
+
     Surface(
 
     ){
