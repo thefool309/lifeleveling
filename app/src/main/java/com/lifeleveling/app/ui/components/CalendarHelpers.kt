@@ -2,7 +2,6 @@ package com.lifeleveling.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -29,7 +27,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -37,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
@@ -46,7 +42,6 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.resolveEnumColor
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Month
@@ -457,9 +452,13 @@ fun ShowReminder(
     var delete by remember { mutableStateOf(false) }
 
     // == below is safe access to the list - if somehow the index is messed up, it will just return null - if null is returned it uses the value in the quotations
-    val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
-    val minutes = minutesOptions.getOrNull(reminder.selectedMinutes) ?: "00"
-    val amOrPm = amOrPmOptions.getOrNull(reminder.amOrPm) ?: "AM"
+//    val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
+//    val minutes = minutesOptions.getOrNull(reminder.selectedMinutes) ?: "00"
+//    val amOrPm = amOrPmOptions.getOrNull(reminder.amOrPm) ?: "AM"
+    val timeLabel = reminder.startingAt?.toDate()?.let { date ->
+        val zoned = date.toInstant().atZone(java.time.ZoneId.systemDefault())
+        java.time.format.DateTimeFormatter.ofPattern("h:mm a").format(zoned)
+    } ?: "--:--"
 
     CustomDialog(
         toShow = toShow,
@@ -477,19 +476,20 @@ fun ShowReminder(
                 ) {
                     ShadowedIcon(
                         modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(reminder.icon),
+                        imageVector = ImageVector.vectorResource(id = iconResForNameCalendar(reminder.iconName)),
                         tint =  Color.Unspecified
 
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = reminder.name,
+                        text = reminder.title,
                         style = AppTheme.textStyles.HeadingFour,
                         color = AppTheme.colors.SecondaryThree
                     )
                 }
                 Text(
-                    text = "Remind me at: $hour:$minutes $amOrPm",
+//                    text = "Remind me at: $hour:$minutes $amOrPm",
+                    text = "Remind me at: $timeLabel",
                     style = AppTheme.textStyles.Default,
                     color = AppTheme.colors.Gray
                 )
@@ -507,9 +507,7 @@ fun ShowReminder(
                 ) {
                     CustomButton(
                         width = 120.dp,
-                        onClick = {
-                            delete = true
-                        },
+                        onClick = { delete = true },
                         backgroundColor = AppTheme.colors.Error75,
                     ) {
                         Text(
@@ -547,7 +545,7 @@ fun ShowReminder(
                                     append("Are you sure you want to delete the reminder ")
                                 }
                                 withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.SecondaryThree, textDecoration = TextDecoration.Underline)) {
-                                    append(reminder.name)
+                                    append(reminder.title)
                                 }
                                 withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
                                     append(stringResource(R.string.streak_delete_two))
@@ -596,3 +594,28 @@ fun ShowReminder(
     }
 }
 
+
+
+fun formatReminderTime(reminder: Reminders): String {
+    val date = reminder.startingAt?.toDate() ?: return "--:--"
+    val zoned = date.toInstant().atZone(java.time.ZoneId.systemDefault())
+    return java.time.format.DateTimeFormatter.ofPattern("h:mm a").format(zoned)
+}
+
+fun iconResForNameCalendar(iconName: String?): Int {
+    return when (iconName) {
+        "water_drop"     -> R.drawable.water_drop
+        "bed_color"      -> R.drawable.bed_color
+        "shirt_color"    -> R.drawable.shirt_color
+        "med_bottle"     -> R.drawable.med_bottle
+        "shower_bath"    -> R.drawable.shower_bath
+        "shop_color"     -> R.drawable.shop_color
+        "person_running" -> R.drawable.person_running
+        "heart"          -> R.drawable.heart
+        "bell"           -> R.drawable.bell
+        "brain"          -> R.drawable.brain
+        "document"       -> R.drawable.document
+        "doctor"         -> R.drawable.doctor
+        else             -> R.drawable.bell
+    }
+}
