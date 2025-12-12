@@ -290,12 +290,11 @@ class FirestoreRepository {
         }
     }
 
-//    /**
-//     * set the number coins to the Users firebase balance
-//     * @return Boolean
-//     * @param health  a long that contains the new balance
-//     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
-//     */
+    /**
+     * set the number coins to the Users firebase balance
+     * @return Boolean
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     */
 
     suspend fun setStats(stats: Stats, logger: ILogger) : Boolean {
         val userId: String? = getUserId()
