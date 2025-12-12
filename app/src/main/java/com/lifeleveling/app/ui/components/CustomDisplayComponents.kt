@@ -549,12 +549,32 @@ private fun DailyReminderRow(
 }
 
 /**
- * Decide how many checkboxes to show for a reminder on a given day.
+ * Calculates how many "time slots" (checkboxes) should be shown for a reminder on a single day in the calendar view.
  *
- * • Every N hours → 24 / N slots (so every 6 hours = 4 checkboxes)
- * • Every N days → N checkboxes (simple mapping for now)
- * • Every N weeks / months → N checkboxes (we can refine this to a bit more specific later)
- * • One-off / simple daily → 1 checkbox.
+ * The count is based on how often the reminder repeats:
+ *
+ * - Times per minute:
+ *   → (24 * 60) / minutes
+ *   → Example: every 30 minutes = 48 slots
+ *   → Hard-capped at 24 to avoid creating an insane amount of checkboxes.
+ *
+ * - Times per hour:
+ *   → 24 / hours
+ *   → Example: every 6 hours = 4 slots.
+ *
+ * - Times per day:
+ *   → Uses the value directly (minimum of 1).
+ *   → Example: 3 times per day = 3 slots.
+ *
+ * - Times per month:
+ *   → Uses the value directly (minimum of 1).
+ *
+ * - Fallback:
+ *   → If no repeat values are set, default to 1 slot.
+ *
+ * @param reminder The reminder containing repeat frequency values.
+ * @return The number of daily slots (checkboxes) to render.
+ * @author fdesouza1992
  */
 private fun calculateDailySlots(reminder: Reminders): Int {
     val mins = reminder.timesPerMinute
