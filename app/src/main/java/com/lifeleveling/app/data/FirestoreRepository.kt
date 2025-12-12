@@ -1133,7 +1133,23 @@ class FirestoreRepository {
         return true
     }
 
-    // Get all the sign in user's reminders
+    /**
+    * Returns **all reminders** for the currently signed-in user.
+    *
+    * 1. Retrieves the currently authenticated user's uid.
+    * 2. If the user is not signed in, logs the issue and returns an empty list.
+    * 3. Fetches all documents from `users/{uid}/reminders`.
+    * 4. Maps each Firestore document into a [Reminders] object and injects the document id into `reminderId` for easy reference in updates and deletes.
+    * 5. Sorts the results by `startingAt` so reminders appear in chronological order.
+    *
+    * Edge cases:
+    * - If the user is not authenticated → logs + returns `emptyList()`.
+    * - If the Firestore read fails → logs the exception + returns `emptyList()`.
+    *
+    * @param logger Logger used for debug/error messaging.
+    * @return A chronologically sorted list of all reminders belonging to the signed-in user.
+    * @author fdesouza1992
+    */
     suspend fun getAllReminders(logger: ILogger): List<Reminders> {
         val uid = getUserId()
         if (uid.isNullOrBlank()) {
