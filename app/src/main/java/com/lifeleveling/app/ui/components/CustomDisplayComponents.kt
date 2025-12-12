@@ -557,14 +557,16 @@ private fun DailyReminderRow(
  * • One-off / simple daily → 1 checkbox.
  */
 private fun calculateDailySlots(reminder: Reminders): Int {
+    val mins = reminder.timesPerMinute
     val hours = reminder.timesPerHour
     val perDay = reminder.timesPerDay
     val perMonth = reminder.timesPerMonth
 
     return when {
+        mins > 0 -> ((24*60)/mins).coerceAtLeast(1).coerceAtMost(24)        // adding a cap to avoid the creation of 144 checkboxes
         hours > 0 -> (24 / hours).coerceAtLeast(1)
-        perDay > 0 -> perDay
-        perMonth > 0 -> perMonth
+        perDay > 0 -> perDay.coerceAtLeast(1)
+        perMonth > 0 -> perMonth.coerceAtLeast(1)
         else -> 1
     }
 }
