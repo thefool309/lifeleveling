@@ -38,11 +38,11 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
     @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun schedule(reminder: Reminders) {
         val intent: Intent
-        if(reminder.dueAt != null) {
+        if(reminder.startingAt != null) {
             intent = Intent(context, ReminderReceiver::class.java).apply {
                 putExtra("TITLE", reminder.title)
                 putExtra("ID", reminder.reminderId)
-                putExtra("DUE_AT", reminder.dueAt.toDate().time)
+                putExtra("DUE_AT", reminder.startingAt.toDate().time)
                 putExtra("IS_DAILY", reminder.daily)
                 putExtra("TIMES_PER_DAY", reminder.timesPerDay)
                 putExtra("TIMES_PER_MONTH", reminder.timesPerMonth)
@@ -81,12 +81,12 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
                 AlarmManager.RTC_WAKEUP,
                 // triggerAtMillis uses the same time format as Java/Kotlin timestamps us everywhere.
                 // Millis since the Unix epoch (Unix Standard Time in milliseconds)
-                reminder.dueAt.toDate().time,
+                reminder.startingAt.toDate().time,
                 pendingIntent
             )
             if (BuildConfig.DEBUG) {
-                logger.d(TAG, "Reminder scheduled to ${reminder.title} at ${reminder.dueAt.toDate()}")
-                logger.d(TAG, "Time since Unix Epoch: ${reminder.dueAt.toDate().time}")
+                logger.d(TAG, "Reminder scheduled to ${reminder.title} at ${reminder.startingAt.toDate()}")
+                logger.d(TAG, "Time since Unix Epoch: ${reminder.startingAt.toDate().time}")
             }
 
 

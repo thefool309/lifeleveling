@@ -511,7 +511,7 @@ private fun DailyReminderRow(
                     color = AppTheme.colors.Gray
                 )
 
-                val dueText = reminder.dueAt?.toDate()?.let { date ->
+                val dueText = reminder.startingAt?.toDate()?.let { date ->
                     // Use whatever formatting style you prefer
                     val local = date.toInstant()
                         .atZone(java.time.ZoneId.systemDefault())

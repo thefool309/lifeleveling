@@ -607,7 +607,7 @@ fun CreateReminderScreen(
                                         reminderId = "",                    // Firestore will generate ID
                                         title = createdReminderTitle.trim(),
                                         notes = "",
-                                        dueAt = dueAt,
+                                        startingAt = dueAt,
                                         completed = false,
                                         completedAt = null,
                                         createdAt = null,

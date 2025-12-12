@@ -52,7 +52,7 @@ data class Reminders(
     val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
     val title: String = "",
     val notes: String = "",
-    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val startingAt: Timestamp? = null,        // when the reminder should trigger (nullable)
     val completed: Boolean = false,
     val completedAt: Timestamp? = null,  // set when marked complete
     val createdAt: Timestamp? = null,    // serverTimestamp on create

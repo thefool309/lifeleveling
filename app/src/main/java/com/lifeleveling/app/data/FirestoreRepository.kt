@@ -782,7 +782,7 @@ class FirestoreRepository {
             "reminderId" to (reminders.reminderId.ifBlank { null }),
             "title" to reminders.title,
             "notes" to reminders.notes,
-            "dueAt" to reminders.dueAt,
+            "dueAt" to reminders.startingAt,
             "isCompleted" to reminders.completed,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
@@ -974,7 +974,7 @@ class FirestoreRepository {
 
             all
                 .filter { it.occursOn(date, zone) }
-                .sortedBy { it.dueAt?.toDate() } // keeps a nice ordering
+                .sortedBy { it.startingAt?.toDate() } // keeps a nice ordering
         } catch (e: Exception) {
             logger.e("Reminders", "getRemindersForDate failed for $date", e)
             emptyList()
@@ -1096,7 +1096,7 @@ class FirestoreRepository {
      */
 
     private fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
-        val start = this.dueAt?.toDate() ?: return false
+        val start = this.startingAt?.toDate() ?: return false
         val startDate = start.toInstant().atZone(zone).toLocalDate()
 
         // Don’t show before the reminder starts.
