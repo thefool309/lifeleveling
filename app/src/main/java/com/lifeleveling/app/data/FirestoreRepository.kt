@@ -1081,20 +1081,19 @@ class FirestoreRepository {
     }
 
     /**
-     * Determines whether this reminder should appear on the given calendar date.
+     * Checks if this reminder should be shown on a specific day.
      *
-     * Helper method used by the Day View to decide if a reminder applies to a specific day based on its start date and repeat settings.
+     * This is mainly used by the Day View to figure out which reminders belong
+     * on the selected date.
      *
-     * Behavior:
-     * - One-time reminders only appear on their original start date.
-     * - Daily reminders appear every day starting from their start date.
-     * - Repeating reminders appear within their allowed repeat window
-     *   (days, weeks, months, or years).
-     * - Reminders never appear before their start date.
-     *
+     * It takes into account:
+     * - When the reminder starts
+     * - Whether it is daily
+     * - Whether it repeats (and for how long)
+     * 
      * @param date The calendar day being evaluated.
      * @param zone The device time zone used to safely convert timestamps to dates.
-     * @return true if the reminder should be shown on the given date, false otherwise.
+     * @return true if the reminder applies to the given date, false if it does not.
      * @author fdesouza1992
      */
 
