@@ -3,6 +3,9 @@ package com.lifeleveling.app.data
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 
+/**
+ * The base of the user information. Everything inside of this are values that can be written into firestore
+ */
 data class UsersBase(
     val userId: String = "",
     val displayName: String = "",
@@ -34,6 +37,16 @@ data class UsersBase(
     val isDarkTheme: Boolean = true,
     )
 
+/**
+ * An extension of the UsersBase
+ * Contains variables that are derived from the base class and the functions to calculate them.
+ * Holds flags to be observed by the state.
+ * @param error Used to save error messages to pass to loggers
+ * @param levelUpCoins To hold an amount of coins to be added during level up logic
+ * @param isLoading A local value that triggers a spinner wheel to display on the UI
+ * @param isLoggedIn A flag the application listens for to navigate the user to authentication screens versus main screens
+ * @param levelUpFlag A flag that triggers an overlay congratulations message to the user for their level up.
+ */
 data class UsersData (
     var userBase: UsersBase? = null,
     // for a derived property like this it is not necessary to include in firebase
@@ -91,6 +104,8 @@ data class UsersData (
 
     /**
      * Recalculates the derived values that are used in the UserJourney screen
+     * @return A UsersData object for updating the state
+     * @author Elyseia
      */
     fun recalculatingUserJourney() : UsersData {
         return this.copy(
@@ -104,6 +119,11 @@ data class UsersData (
         )
     }
 
+    /**
+     * Recalculates the derived values effected by the level up change in UsersBase
+     * @return A whole UsersData object for updating the state
+     * @author Elyseia
+     */
     fun recalculateAfterLevelUp() : UsersData {
         return this.copy(
             xpToNextLevel = calculateXpToNextLevel(),
@@ -113,6 +133,11 @@ data class UsersData (
         )
     }
 
+    /**
+     * Separates the streaks pulled from firestore into two lists of weekly and monthly.
+     * @return A UsersData object for updating the state
+     * @author Elyseia
+     */
     fun separateStreaks(): UsersData {
         return this.copy(
             weeklyStreaks = calcWeeklyStreaks(),
@@ -120,41 +145,86 @@ data class UsersData (
         )
     }
 
+    /**
+     * Calculated the experience needed to reach the next level
+     * @return A long value to pass into the UsersData
+     * @author Elyseia
+     */
     fun calculateXpToNextLevel() : Long {
         return (userBase?.level ?: 1) * 100L
     }
 
+    /**
+     * Calculated the max health from the health stat.
+     * @return A long value to pass into the UsersData
+     * @author Elyseia
+     */
     fun calculateMaxHealth() : Long {
         val healthStat = userBase?.stats?.health
         return baseHealth + ((healthStat ?: 0) * 5)
     }
 
+    /**
+     * Calculates the amount of life points that have not been assigned yet.
+     * @return A long to pass into UsersData
+     * @author Elyseia
+     */
     fun calculateUnusedLifePoints() : Long{
         return (userBase?.lifePointsTotal ?: 0) - (userBase?.lifePointsUsed ?: 0)
     }
 
+    /**
+     * Calculates a list of enabled reminders out of all the saved reminders the user has
+     * @return A list of reminders to pass into UsersData
+     * @author Elyseia
+     */
     fun calculateEnabledReminders() : List<Reminder> {
         return userBase?.reminders?.filter { it.enabled } ?: emptyList()
     }
 
+    /**
+     * Calculates the total number of streaks completed.
+     * @return A long to pass into UsersData
+     * @author Elyseia
+     */
     fun calculateTotalStreaks() : Long {
         return (userBase?.weekStreaksCompleted ?: 0) + (userBase?.monthStreaksCompleted ?: 0)
     }
 
+    /**
+     * Calculates how many badges have been earned out of the badge list.
+     * @return A long to pass into UsersData
+     * @author Elyseia
+     */
     fun calculateBadgesEarned() : Long {
         return (userBase?.badges?.filter { it.completed })?.size?.toLong() ?: 0
     }
 
+    /**
+     * Calculates all the experience a user has received up to this point.
+     * @return A double to pass into UsersData
+     * @author Elyseia
+     */
     fun calculateAllExp() : Double {
         val level = userBase?.level ?: 1
         val exp = 100L * (level - 1) * level / 2
         return (userBase?.currentXp ?: 0.0) + exp
     }
 
+    /**
+     * Calculates the amount of coins that have been spent.
+     * @return A long to pass into UsersData
+     * @author Elyseia
+     */
     fun calculateCoinsSpent() : Long {
         return (userBase?.allCoinsEarned ?: 0) - (userBase?.coinsBalance ?: 0)
     }
 
+    /**
+     * Calculates which reminder has been completed the most.
+     * @return A Pair that has the name of the reminder and the number of times it was completed.
+     * @author Elyseia
+     */
     fun calculateMostCompletedReminder() : Pair<String, Long> {
         val highest = userBase?.reminders?.maxByOrNull { it.completedTally }
         if (highest != null) {
@@ -166,11 +236,22 @@ data class UsersData (
     }
 
     // TODO: Separate Streak list into week and month
+    /**
+     * Separates the list of streaks into a list of the weekly streaks.
+     * @return A list of streaks that run for a week.
+     * @author Elyseia
+     */
     fun calcWeeklyStreaks() : List<Streak> {
-        return userBase?.streaks?.filter { it.isWeekly } ?: emptyList()
+        return userBase?.streaks?.filter { it.weekly } ?: emptyList()
     }
+
+    /**
+     * Separates the list of streaks into a list of monthly streaks.
+     * @return A list of streaks that run for a month.
+     * @author Elyseia
+     */
     fun calcMonthlyStreaks() : List<Streak> {
-        return userBase?.streaks?.filter { !it.isWeekly } ?: emptyList()
+        return userBase?.streaks?.filter { !it.weekly } ?: emptyList()
     }
 }
 

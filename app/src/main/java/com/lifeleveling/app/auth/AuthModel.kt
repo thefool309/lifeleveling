@@ -21,14 +21,15 @@ import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
-/**
- * Simple container for what the auth screen needs to know:
- * - who the current user is (if any)
- * - whether we're busy doing an auth call
- * - any error message to show
- *
- * @author fdesouza1992
- * **/
+// These flags were moved into the UsersData object
+///**
+// * Simple container for what the auth screen needs to know:
+// * - who the current user is (if any)
+// * - whether we're busy doing an auth call
+// * - any error message to show
+// *
+// * @author fdesouza1992
+// * **/
 //data class AuthUiState(
 //    val user: FirebaseUser? = null,
 //    val isLoading: Boolean = false,
@@ -36,8 +37,9 @@ import kotlinx.coroutines.tasks.await
 //)
 
 /**
- * ViewModel that owns all of our Firebase/Google sign-in logic and exposes a simple UI state (AuthUiState) that screens can observe.
- *
+ * Class that owns all of our Firebase/Google sign-in logic.
+ * @property auth The FirebaseAuth object to call to
+ * @property logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
  * @author fdesouza1992
  * **/
 class AuthModel(
@@ -77,6 +79,11 @@ class AuthModel(
 //    private val listener = FirebaseAuth.AuthStateListener { fb ->
 //        _ui.value = _ui.value.copy(user = fb.currentUser, isLoading = false, error = null)
 //    }
+    /**
+     * Add the listener to monitor the Firebase authentication state changes
+     * @param listener The listener to register
+     * @author fdesouza1992
+     */
     fun addAuthStateListener(listener: FirebaseAuth.AuthStateListener) {
         auth.addAuthStateListener(listener)
     }
@@ -84,6 +91,11 @@ class AuthModel(
     // Initialization/ Cleanup
 //    init { auth.addAuthStateListener(listener) }
 //    override fun onCleared() { auth.removeAuthStateListener(listener) }
+    /**
+     *  Removes the listener that is observing the Firebase authentication state
+     *  @param listener The listener to remove
+     *  @author fdesouza1992
+     */
     fun removeAuthStateListener(listener: FirebaseAuth.AuthStateListener) {
         auth.removeAuthStateListener(listener)
     }
@@ -162,9 +174,9 @@ class AuthModel(
      * Flow:
      * 1. Try to pull the Google account and ID token out of the intent.
      * 2. If the token is there, pass it down to Firebase to finish sign-in.
-     * 3. If anything fails, log it and update the UI with an error message.
      *
      * @param data The Intent returned from the Google sign-in Activity result.
+     * @return Returns the Google ID of the logged-in user
      * @author fdesouza1992
      */
     suspend fun handleGoogleResultIntent(data: android.content.Intent?) : String {
@@ -178,13 +190,10 @@ class AuthModel(
      *
      * Flow:
      * 1. Exchange the Google ID token for Firebase credentials.
-     * 2. On success, make sure the user has a Firestore document.
-     * 3. Log an auth event to `authLogs` for monitoring.
-     * 4. Clear loading/error state so the UI can move on.
-     *
-     * If anything fails, we log the exception and show a simple error message to the user.
+     * 2. Log an auth event to `authLogs` for monitoring.
      *
      * @param idToken The Google ID token returned from the Google sign-in flow.
+     * @return Returns the FirebaseUser created from the Google token
      * @author fdesouza1992
      */
     suspend fun firebaseAuthWithGoogle(idToken: String) : FirebaseUser? {
@@ -194,18 +203,10 @@ class AuthModel(
 
     /**
      * Signs a user in using email and password and updates the UI state.
-     *
-     * Flow:
-     * 1. Mark the UI as loading.
-     * 2. Call Firebase `signInWithEmailAndPassword`.
-     * 3. Run post-login work (create user doc, log event, etc.).
-     * 4. On different error types, logger logs what happened and sets a friendly message in the UI (no account, wrong password, Google-only, etc.).
-     *
-     * Note: even though this function is marked `suspend`, it uses viewModelScope.launch` so it never blocks the caller.
+     * Calls Firebase `signInWithEmailAndPassword`.
      *
      * @param email  The user’s email address.
      * @param password The user’s password.
-     * @param logger Used to log warnings and errors during sign-in.
      *
      * @author thefool309, fdesouza1992
      */
@@ -223,17 +224,11 @@ class AuthModel(
      * Creates a new Firebase user with email and password, then signs them in.
      *
      * Flow:
-     * 1. Mark the UI as loading.
-     * 2. Call `createUserWithEmailAndPassword`.
-     * 3. Immediately sign the user in with the same credentials.
-     * 4. Run the shared post-login work (create user doc, log, etc.).
-     * 5. Handle common error cases (email already used, bad format, etc.) with user-friendly messages.
-     *
-     * As with signIn, this is marked `suspend` but internally uses `viewModelScope.launch` so it won’t block the caller.
+     * 1. Call `createUserWithEmailAndPassword`.
+     * 2. Immediately sign the user in with the same credentials.
      *
      * @param email  The email for the new account.
      * @param password The password for the new account.
-     * @param logger Used to log any issues during sign-up.
      * @author thefool309, fdesouza1992
      */
     suspend fun createUserWithEmailAndPassword(email: String, password: String)
@@ -256,7 +251,6 @@ class AuthModel(
      * Signs the current user out of Firebase and (optionally) Google.
      *
      * Flow:
-     * 1. Mark the UI as loading.
      * 2. Call Firebase `signOut()`.
      * 3. If an Activity is passed in, also sign out of the Google client.
      * 4. Once the Google sign-out finishes, the loading flag clears so the UI can update.
@@ -264,8 +258,11 @@ class AuthModel(
      * @param activity Used to sign out from the Google client *Optional*.
      * @author fdesouza1992
      */
-    fun signOut() {
+    fun signOut(activity: Activity? = null) {
         auth.signOut()
+        if (activity != null) {
+            googleClient(activity).signOut()
+        }
     }
 
     // Moved to UserManager and broken apart. See deleteUser below and in FirestoreRepository
@@ -313,6 +310,9 @@ class AuthModel(
 
     /**
      * Deletes the user from firebase auth
+     * @param uid The ID of the user to delete
+     * @return Returns a boolean for a success check
+     * @author fdesouza1992
      */
     suspend fun deleteUser(uid: String?) : Boolean {
         if (uid == null) {

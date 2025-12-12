@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -43,7 +42,6 @@ import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.data.Streak
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.enumColor
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -111,7 +109,7 @@ fun ShowStreak(
                     style = AppTheme.textStyles.Default,
                     color = AppTheme.colors.Gray
                 )
-                if (reminder.isDaily) {
+                if (reminder.daily) {
                     Text(
                         text = stringResource(R.string.streak_daily_count, reminder.timesPerDay),
                         style = AppTheme.textStyles.Default,
@@ -222,7 +220,7 @@ fun ShowStreak(
 /**
  * Add a streak to streak containers and UI
  * @param toShow Boolean needed to show screen because it is a dialog
- * @param daily Determines if it shows daily reminders or monthly reminders
+ * @param daily Determines if it shows daily reminders or other reminders
  *
  * @author Elyseia
  */
@@ -231,28 +229,25 @@ fun AddStreak(
     toShow: MutableState<Boolean>,
     daily: Boolean = true
 ) {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
     var selectedReminderIndex by remember { mutableStateOf(0) }
-    val reminders =  if (daily) {
-        TestUser.weeklyReminders.filter { reminder ->
-            reminder.id !in TestUser.weeklyStreaks.map { it.reminder.id }
+    val remindersForWeekly = userState.enabledReminders.filter { it.daily }
+    val remindersForMonthly = userState.enabledReminders.filter { !it.daily }
+    val remindersAvailableToUse =  if (daily) {
+        val usedIDs = userState.weeklyStreaks.map { it.reminderId }.toSet()
+        remindersForWeekly.filter { reminder ->
+            reminder.reminderId !in usedIDs
         }
     } else {
-        TestUser.monthlyReminders.filter { reminder ->
-            reminder.id !in TestUser.monthlyStreaks.map { it.reminder.id }
+        val usedIDs = userState.monthlyStreaks.map { it.reminderId }.toSet()
+        remindersForMonthly.filter { reminder ->
+            reminder.reminderId !in usedIDs
         }
     }
-    var selectedRepeatIndex by remember { mutableStateOf(0) }
-    var repeatNumber by remember { mutableStateOf(0) }
-    var repeatInput by remember { mutableStateOf("") }
-    var indefinitely by remember { mutableStateOf(false) }
     var repeat by remember { mutableStateOf(true) }
-    val repeatIntervalOptions = listOf(
-        stringResource(R.string.weeks),
-        stringResource(R.string.months),
-        stringResource(R.string.years),
-    )
-    var doNotRepeat by remember { mutableStateOf(false) }
-    val timeIntervalMenu = remember { mutableStateOf(false) }
     val reminderMenu = remember { mutableStateOf(false) }
 
     CustomDialog(
@@ -260,15 +255,15 @@ fun AddStreak(
         dismissOnInsideClick = false,
         dismissOnOutsideClick = false,
     ) {
-        if (reminders.isEmpty()) {
+        if (remindersAvailableToUse.isEmpty()) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
                 val empty = if (daily) {
-                    TestUser.weeklyReminders.isEmpty()
+                    remindersForWeekly.isEmpty()
                 } else {
-                    TestUser.monthlyReminders.isEmpty()
+                    remindersForMonthly.isEmpty()
                 }
                 Text(
                     text = if (empty) stringResource(R.string.no_reminders_for_streaks)
@@ -323,7 +318,7 @@ fun AddStreak(
                         color = AppTheme.colors.SecondaryThree
                     )
                     DropDownReminderMenu(
-                        options = reminders,
+                        options = remindersAvailableToUse,
                         selectedIndex = selectedReminderIndex,
                         onSelectedChange = { selectedReminderIndex = it },
                         textStyle = AppTheme.textStyles.HeadingSix,
@@ -332,7 +327,9 @@ fun AddStreak(
                         backgroundMainColor = AppTheme.colors.DarkerBackground,
                     )
                     Text(
-                        modifier = Modifier.clickable {},
+                        modifier = Modifier.clickable {
+                            // TODO: Close this window, add a navigation to the add reminders screen.
+                        },
                         text = stringResource(R.string.need_a_new_reminder),
                         style = AppTheme.textStyles.DefaultUnderlined,
                         color = AppTheme.colors.Gray
@@ -344,107 +341,21 @@ fun AddStreak(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     // Repeat
-                    Text(
-                        text = stringResource(R.string.repeat_options),
-                        style = AppTheme.textStyles.HeadingFive,
-                        color = AppTheme.colors.SecondaryThree
-                    )
-                    // Choosing options
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        // Enter number
-                        CustomTextField(
+                        Text(
                             modifier = Modifier.weight(1f),
-                            value = repeatInput,
-                            onValueChange = { newText ->
-                                repeatInput = newText
-                                repeatNumber = newText.toIntOrNull() ?: 0
-                                if (newText.isNotEmpty()) {
-                                    repeat = true
-                                    indefinitely = false
-                                    doNotRepeat = false
-                                }
-                            },
-                            inputFilter = { it.all { char -> char.isDigit() } },
-                            textStyle = AppTheme.textStyles.HeadingSix,
-                            placeholderText = "#",
+                            text = stringResource(R.string.ask_repeat),
+                            style = AppTheme.textStyles.Default,
+                            color = AppTheme.colors.Gray
                         )
-                        // Time interval menu
-                        DropDownTextMenu(
-                            modifier = Modifier.weight(1f),
-                            options = repeatIntervalOptions,
-                            selectedIndex = selectedRepeatIndex,
-                            onSelectedChange = { selectedRepeatIndex = it },
-                            textStyle = AppTheme.textStyles.HeadingSix,
-                            arrowSize = 25.dp,
-                            expanded = timeIntervalMenu,
-                            backgroundMainColor = AppTheme.colors.DarkerBackground,
+                        CustomCheckbox(
+                            checked = repeat,
+                            onCheckedChange = { repeat = it },
                         )
-                    }
-
-                    // Checkboxes
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        // Indefinitely repeat
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            CustomCheckbox(
-                                checked = indefinitely,
-                                onCheckedChange = {
-                                    indefinitely = it
-                                    repeat = it
-                                    doNotRepeat = false
-                                    if (it) {
-                                        repeatInput = ""
-                                        repeatNumber = 0
-                                    }
-                                },
-                            )
-                            Text(
-                                text = stringResource(R.string.indefinitely),
-                                style = AppTheme.textStyles.Default,
-                                color = AppTheme.colors.Gray
-                            )
-                        }
-                        // Do not repeat
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                CustomCheckbox(
-                                    checked = doNotRepeat,
-                                    onCheckedChange = {
-                                        doNotRepeat = it
-                                        repeat = !it
-                                        indefinitely = false
-                                        if (it) {
-                                            repeatInput = ""
-                                            repeatNumber = 0
-                                        }
-                                    },
-                                )
-                                Text(
-                                    text = stringResource(R.string.do_not_repeat),
-                                    style = AppTheme.textStyles.Default,
-                                    color = AppTheme.colors.Gray
-                                )
-                            }
-                        }
                     }
                 }
 
@@ -472,7 +383,7 @@ fun AddStreak(
                             repeat = !(repeatNumber == 0 || repeatInput == "0" && !indefinitely)
                             if (indefinitely) repeat = true
                             TestUser.addStreak(
-                                reminder = reminders[selectedReminderIndex],
+                                reminder = remindersAvailableToUse[selectedReminderIndex],
                                 repeat = repeat,
                                 repeatIndefinitely = indefinitely,
                                 repeatNumber = repeatNumber,

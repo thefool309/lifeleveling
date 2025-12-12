@@ -17,41 +17,16 @@ import kotlin.String
 /**
  * A library of CRUD functions for our Firestore Cloud Database.
  * This is instantiated as an object, then the functions are called from the object.
- * This is for access to private member variables(properties),
- * to simplify the use of `Firebase.firestore` and `Firebase.auth`.
+ * This is for functions that do direct writes and reads from the firestore database.
  * @author Felipe
  * @author thefool309
  * @property db a shortened alias for `Firebase.firestore`
- * @property auth a shortened alias for `Firebase.auth`
+ * @property logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
  */
 class FirestoreRepository(
     private val db: FirebaseFirestore = Firebase.firestore,
     private val logger: ILogger
 ) {
-//
-//    private val userData = MutableStateFlow(UsersData())
-//    val uiState: StateFlow<UsersData> = userData.asStateFlow()  // Makes everything react to changes
-//
-//    val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-//        val user = firebaseAuth.currentUser
-//        if (user == null) {
-//            TODO("Set logged out status and user info to defaults and nulls")
-//        } else {
-//            viewModelScope.launch {
-//                try {
-//                    TODO("Load in the user information and set LoggedIn to true")
-//                } catch (e: Exception) {
-//                    Log.e("FirestoreRepository", "Error creating user", e)
-//                }
-//            }
-//        }
-//    }
-//
-//    init {
-//        authModel.addAuthStateListener(listener)
-//    }
-//
-//    override fun onCleared() { authModel.removeAuthStateListener(listener) }
 
     // Moved to Auth
 //    /**
@@ -62,6 +37,9 @@ class FirestoreRepository(
 //        return auth.currentUser?.uid
 //    }
 
+    /**
+     * Updates the timestamp for when the last time the user's firestore data was updated
+     */
     private fun updateTimestamp(userId: String) {
         try {
             db.collection("users")
@@ -72,10 +50,11 @@ class FirestoreRepository(
             logger.e("Firestore", "Error Updating Timestamp", e)
         }
     }
-    /**
-     * >^w^<
-     */
 
+    /**
+     * Checks if the user has been created and makes an initial UsersData object
+     * @param user A firebase user to check the information for.
+     */
     suspend fun ensureUserCreated(user: FirebaseUser): Boolean {
         val uid = user.uid
         val docRef = db.collection("users").document(uid)
@@ -102,7 +81,7 @@ class FirestoreRepository(
 //            createdAt = null,
 //            lastUpdate = null,
 //            level = 1L,
-            lifePointsTotal = 4L,        // Adding some life points to demo
+//            lifePointsTotal = 4L,        // Adding some life points to demo
 //            currentXp = 0.0,
 //            // xpToNextLevel is derived in Users, and we are not storing it
 //            currHealth = 10,
@@ -148,14 +127,12 @@ class FirestoreRepository(
 
     /**
      * This function creates a user data store in the Firestore Cloud Storage section of the project.
-     * It takes a map of userData, with the key being the name of the field to be filled,
-     * and an ILogger, which is an interface defined in this project to make the code more detachable.
+     * It takes a map of userData, with the key being the name of the field to be filled.
      * We use a suspend function because FirebaseFirestore is async
      * @param userData a map of userData, with the key being the name of the field to be filled
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @param currentUser The user that will be updated in firestore
      * @author thefool309
-     * @return Users?
-     * @see ILogger
+     * @return UsersData?
      */
     suspend fun createUser(userData: Map<String, Any>, currentUser: FirebaseUser?): UsersData? {
 //        val currentUser = auth.currentUser
@@ -199,10 +176,9 @@ class FirestoreRepository(
      * If you really feel you want to use this function, use it with caution, because storing the wrong data type,
      * can actually cause a cascading failure in the getUser function, causing fields to be blank in the user object
      * @param userData a map of userData, with the key being the name of the field to be filled
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+     * @param userId The firebase id of the user to write to
      * @author thefool309
-     * @return Boolean
-     * @see ILogger
+     * @return Boolean for a success check
      */
     suspend fun editUser(userData: Map<String, Any>, userId: String) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
@@ -228,11 +204,10 @@ class FirestoreRepository(
     /**
      * Combines several methods from below.
      * Made to write over a single part of the user's information in firestore.
-     * Use for small writes like changing userName, displayName, so on.
+     * Use for small writes of changing one value inside the UsersBase that is stored in the database.
      * Can even be used to update Stats.
      * @param parameterName The name of the parameter in firebase
      * @param value What the new information stored there will be
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @param userId The userId of the current user.
      */
     suspend fun editUserParameter(parameterName: String, value: Any?, userId: String?) : Boolean {
@@ -594,6 +569,8 @@ class FirestoreRepository(
 
     /**
      * Pulls the user's information from the database and puts it into a UsersData object for local use
+     * @param uID The ID of the user
+     * @return A UsersData object for updating the state
      */
     suspend fun getUser(uID: String?): UsersData? {
         if (uID.isNullOrBlank()) {
@@ -719,14 +696,14 @@ class FirestoreRepository(
      * Tries to fully delete the currently signed-in user and their data.
      *
      * Method Flow:
-     * 1. Grabs the current user ID. If we don't have one, it will log it and stop.
+     * 1. Checks for the user's ID. If there is not a user file associated with it, it will log it and stop.
      * 2. Delete any existing subcollections and logs errors but keeps going
      * 3. Delete the user document from the 'users' collection in Firestore Database
-     * 4. Delete the Firebase Auth user account.
+//     * 4. Delete the Firebase Auth user account.
      *
      * If any of the steps fail, method will log the problem and return false so the caller knows delete didn't fully complete
      *
-     * @param logger Used to log errors and warnings during the delete process
+     * @param uid The ID of the user to look for in firestore
      * @return 'true' If we made it through the delete steps without a major failure, 'false' otherwise.
      * @author fdesouza1992
      * **/
@@ -809,7 +786,7 @@ class FirestoreRepository(
      * On failure, we log the error and return null so the caller can handle it.
      *
      * @param reminders The reminder data we want to store.
-     * @param logger Used to log success or failures during write.
+     * @param uid The ID of the user to search for
      * @return The Firestore document ID for this reminder, or `null` if something went wrong.
      * @author fdesouza1992
      * **/
@@ -828,8 +805,8 @@ class FirestoreRepository(
             "reminderId" to (if (reminders.reminderId.isNotBlank()) reminders.reminderId else null),
             "title" to reminders.title,
             "notes" to reminders.notes,
-            "dueAt" to reminders.dueAt,
-            "isCompleted" to reminders.isCompleted,
+            "dueAt" to reminders.startingAt,
+            "isCompleted" to reminders.completed,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp()
@@ -857,6 +834,13 @@ class FirestoreRepository(
     }
 
     // Update a reminder by id
+    /**
+     * Updates the information stored for a specific reminder in the user's database
+     * @param reminderId The id of the reminder to update
+     * @param updates The value changes needed for the reminder object
+     * @param uid The ID of the user to write to
+     * @return A boolean for a success check of the write
+     */
     suspend fun updateReminder(
         reminderId: String,
         updates: Map<String, Any?>,
@@ -960,6 +944,12 @@ class FirestoreRepository(
 //    }
 
     // Firebase section of Felipe's bookkeeping function
+    /**
+     * Writes to the firestore logs for bookkeeping timestamps of different actions taken
+     * @param provider The way that a user logged in. Usually saved as "password" or "google"
+     * @param user The firebase user that logged in.
+     * @author fdesouza1992
+     */
     fun writeBookkeeping(provider: String, user: FirebaseUser) {
         Firebase.firestore.collection("authLogs")
             .add(
@@ -979,6 +969,10 @@ class FirestoreRepository(
     /**
      * Writes several values to Firestore
      * Be VERY CAREFUL with your naming conventions and make sure they are within UsersBase
+     * @param uid The ID of the user to write to
+     * @param params A map of the parameters to write. The String should be the UsersBase name of the parameter. The following Any is the value to write for that parameter.
+     * @return A boolean for a success check
+     * @author Elyseia
      */
     suspend fun updateMultipleParameters(
         uid: String?,

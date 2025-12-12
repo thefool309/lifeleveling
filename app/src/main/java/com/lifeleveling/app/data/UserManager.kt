@@ -25,8 +25,11 @@ import kotlin.collections.orEmpty
 
 /**
  * Manages the local state of the user.
- * Calls outside functions to write to firebase.
- * Calls outside functions for authenticating the user.
+ * Is a viewModel to be able to be called from the UI
+ * @param fireRepo Creates outside class to write to firebase.
+ * @param authModel Creates outside class for authenticating the user.
+ * @param logger Creates an instance of a logger that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
+ * @author Elyseia
  */
 class UserManager(
     private val logger: ILogger = AndroidLogger(),  // Put the creation of the logger here so that any function can access it if it is desired.
@@ -86,6 +89,9 @@ class UserManager(
      * Handles adding experience to the user.
      * Will do level up logic if needed.
      * Leveling up rolls over extra exp, gives coins, and adds 5 life points to the user.
+     * After a level up the derived values will also be recalculated
+     * @param amount The double for the amount of experience to be added to the user
+     * @author Elyseia
      */
     fun addExp(amount: Double) {
         val user = userData.value.userBase ?: return
@@ -122,19 +128,36 @@ class UserManager(
     }
 
     /**
-     * Is a call to update the theme saved for the user
+     * Is a call to update the theme saved for the user in the user state
      * Light mode or dark mode
+     * Sends the updated preference to firestore
+     * @param isDark boolean that controls if it is in dark mode (true) or light mode (false)
+     * @author Elyseia
      */
     fun updateTheme(isDark: Boolean) {
         val current = userData.value.userBase ?: return
         val updated = current.copy(isDarkTheme = isDark)
         userData.update { current ->
-            current.copy(userBase = updated)
+            current.copy(
+                userBase = updated,
+                isLoading = true,
+                error = null
+            )
+        }
+        viewModelScope.launch {
+            try {
+                fireRepo.editUserParameter("isDark", isDark, current.userId)
+                userData.update { it.copy(isLoading = false, error = null) }
+            } catch (e: Exception) {
+                logger.e("FB", "Error updating theme preference to firestore", e)
+                userData.update { it.copy(isLoading = false, error = "Error writing theme preference to firestore") }
+            }
         }
     }
 
     /**
      * Clears the level up flag so the overlay will stop showing
+     * @author Elyseia
      */
     fun clearLevelUpFlag() {
         userData.update {
@@ -146,7 +169,9 @@ class UserManager(
     }
 
     /**
-     * Switches for if the user is in Fight or Meditate mode
+     * Switches the value controlling if the user is in Fight or Meditate mode
+     * @param value 0 for Fight and 1 for Meditate
+     * @author Elyseia
      */
     fun setFightOrMeditate(value: Int) {
         val user = userData.value.userBase ?: return
@@ -161,6 +186,8 @@ class UserManager(
      * Defense gives an extra 2% per point
      * Intelligence gives an extra 5% per point
      * Agility gives an extra 3% per point
+     * @return Long
+     * @author Elyseia
      */
     fun calcCoinsForReminderCompletion() : Long {
         val user = userData.value.userBase ?: return 0
@@ -175,13 +202,14 @@ class UserManager(
         return coins.toLong()
     }
 
-    // TODO: Adjust how many decimals for the double
     /**
      * Calculates the amount of exp to give the user for completing a reminder.
      * Uses 15 exp as the base value
      * Strength gives an extra 5% per point
      * Defense gives an extra 3% per point
      * Agility gives an extra 2% per point
+     * @return Double
+     * @author Elyseia
      */
     fun calcExpForReminderCompletion() : Double {
         val user = userData.value.userBase ?: return 0.0
@@ -198,6 +226,7 @@ class UserManager(
 
     /**
      * Recalculates some data for most accurate representation in UserJourney screen
+     * @author Elyseia
      */
     fun userJourneyCalculations() {
         userData.update { it.copy().recalculatingUserJourney() }
@@ -205,7 +234,10 @@ class UserManager(
 
     // ============ Reminder Functions ===============================================
     /**
-     * Retrieves a reminder's information based on the id
+     * Retrieves a reminder's information out of the reminder list based on the id
+     * @param id ID of the reminder
+     * @return A reminder object if it exists, null if nothing was found
+     * @author Elyseia
      */
     fun retrieveReminder(id: String) : Reminder? {
         return userData.value.userBase?.reminders?.find { it.reminderId == id }
@@ -213,7 +245,10 @@ class UserManager(
 
     // ============ Streak Functions ===============================================
     /**
-     * Removes a weekly streak from the streak list
+     * Removes a streak from the streak list
+     * Reupdates the weekly and month lists after the streak was removed
+     * @param streakId ID of the streak to be removed
+     * @author Elyseia
      */
     fun removeStreak(streakId: String) {
         userData.update { current ->
@@ -234,9 +269,10 @@ class UserManager(
      * Handles the Google sign-in result Intent returned to the Activity.
      *
      * Flow:
-     * 1. Try to pull the Google account and ID token out of the intent.
-     * 2. If the token is there, pass it down to Firebase to finish sign-in.
-     * 3. If anything fails, log it and update the UI with an error message.
+     * 1. Try to pull the Google account and ID token out of the intent. (handled in AuthModel)
+     * 2. If the token is there, pass it down to Firebase to finish sign-in. (handled in AuthModel)
+     * 3. Writes a bookkeeping instance to firestore (handled in FirestoreRepository)
+     * 4. If anything fails, log it and update the UI with an error message.
      *
      * @param data The Intent returned from the Google sign-in Activity result.
      * @author fdesouza1992
@@ -275,7 +311,6 @@ class UserManager(
      *
      * @param email  The user’s email address.
      * @param password The user’s password.
-     * @param logger Used to log warnings and errors during sign-in.
      *
      * @author thefool309, fdesouza1992
      */
@@ -332,7 +367,7 @@ class UserManager(
      */
     fun signOut(activity: Activity? = null) {
         userData.update { it.copy(isLoading = true, error = null) }
-        authModel.signOut()
+        authModel.signOut(activity)
         if (activity != null) {
             authModel.googleClient(activity).signOut().addOnCompleteListener {
                 userData.update { it.copy(isLoggedIn = false, isLoading = false) }
@@ -358,12 +393,10 @@ class UserManager(
      * 1. Grab the current Firebase user.
      * 2. In the background, make sure they have a user document in Firestore.
      * 3. Log an auth event to `authLogs` for basic monitoring.
-     * 4. Clear out loading and error state in the UI.
      *
      * If the Firestore work fails, we log a warning but don’t block sign-in.
      *
      * @param provider The auth provider string (e.g., "password" or "google").
-     * @param logger   For logging any issues while doing post-login work.
      * @author fdesouza1992
      */
     private fun postLoginBookkeeping(provider: String) = viewModelScope.launch {
@@ -401,6 +434,20 @@ class UserManager(
 //    }
 
     // Create a new User
+    /**
+     * Creates a new Firebase user with email and password, then signs them in.
+     *
+     * Flow:
+     * 1. Mark the UI as loading
+     * 2. Call 'createUserWithEmailAndPassword'
+     * 3. Immediately sign the user in with the same credentials
+     * 4. Run the shared post-login work (create user doc, log, etc.)
+     * 5. Handle common error cases (email already used, bad format, etc.) with user-friendly messages.
+     *
+     * @param email The email for the new account
+     * @param password The password for the new account
+     * @author thefool309, fdesouza1992
+     */
     fun createNewUserWithEmailAndPassword(email: String, password: String) {
         viewModelScope.launch {
             userData.update { it.copy(isLoading = true, error = null) }
@@ -431,6 +478,17 @@ class UserManager(
         }
     }
 
+    /**
+     * A full account delete for the currently signed-in user.
+     *
+     * Flow:
+     * 1. Mark the UI as loading and clear any old error.
+     * 2. Call into the Firestore Repository to delete the user and their data.
+     * 3. If the repo call returns false or throws an error, a simple "try again" message is displayed.
+     * 4. On success, the auth listener will notice that the user is now null and the rest of the app can react to that.
+     *
+     * @author fdesouza1992
+     */
     fun deleteAccount() {
         userData.update { it.copy(isLoading = true, error = null) }
 
@@ -467,6 +525,10 @@ class UserManager(
         }
     }
 
+    /**
+     * Writes the information from a level up into the user's firestore data
+     * @author Elyseia
+     */
     fun writeLevelUp() {
         val user = userData.value.userBase ?: return
         userData.update { it.copy(isLoading = true, error = null) }
