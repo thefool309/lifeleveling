@@ -1,6 +1,5 @@
 package com.lifeleveling.app.data
 
-import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
 data class Users(
