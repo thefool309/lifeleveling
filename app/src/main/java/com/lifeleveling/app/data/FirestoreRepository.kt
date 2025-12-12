@@ -1137,7 +1137,7 @@ class FirestoreRepository {
         return true
     }
 
-    // Get all of the sign in user's reminders
+    // Get all the sign in user's reminders
     suspend fun getAllReminders(logger: ILogger): List<Reminders> {
         val uid = getUserId()
         if (uid.isNullOrBlank()) {
