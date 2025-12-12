@@ -556,7 +556,7 @@ fun CreateReminderScreen(
                                     val isDaily = asDaily
                                     var timesPerMinute = 0
                                     var timesPerHour = 0
-                                    var timesPerDay = 0
+                                    val timesPerDay = 0
                                     val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
 
                                     if (isDaily && everyCount > 0) {
@@ -653,5 +653,60 @@ fun CreateReminderScreen(
     if(showCreateRemindersToolTip.value){
         CreateRemindersToolTip(showCreateRemindersToolTip)
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     *This is the sacred whitespace - do not remove
+     */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
