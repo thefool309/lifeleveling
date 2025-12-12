@@ -59,6 +59,7 @@ data class Reminders(
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
     val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
+    val timesPerMinute: Int = 0,        // How many minutes(s)
     val timesPerHour: Int = 0,          // How many hour(s)
     val timesPerDay: Int = 0,           // How many day(s)
     val timesPerMonth: Int = 0,         // How many month(s)
