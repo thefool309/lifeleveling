@@ -612,7 +612,7 @@ fun CreateReminderScreen(
                                         completedAt = null,
                                         createdAt = null,
                                         lastUpdate = null,
-                                        isDaily = isDaily,
+                                        daily = isDaily,
                                         timesPerMinute = timesPerMinute,
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,

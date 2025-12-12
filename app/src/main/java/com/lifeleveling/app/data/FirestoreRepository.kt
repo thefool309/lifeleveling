@@ -787,7 +787,7 @@ class FirestoreRepository {
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp(),
-            "isDaily" to reminders.isDaily,
+            "isDaily" to reminders.daily,
             "timesPerMinute" to reminders.timesPerMinute,
             "timesPerHour" to reminders.timesPerHour,
             "timesPerDay" to reminders.timesPerDay,
@@ -1104,12 +1104,12 @@ class FirestoreRepository {
 
         // If it’s a one-off (not daily, not repeating), only show on its start date.
         val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
-        if (!isDaily && !hasRepeatRule) {
+        if (!daily && !hasRepeatRule) {
             return date == startDate
         }
 
         // If it’s daily with no duration rule, show every day from start onward.
-        if (isDaily && !hasRepeatRule) return true
+        if (daily && !hasRepeatRule) return true
 
         // If it repeats forever, allow it as long as date >= start.
         if (repeatForever) return true

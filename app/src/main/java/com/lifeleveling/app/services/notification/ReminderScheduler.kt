@@ -43,7 +43,7 @@ class ReminderScheduler(private val context: Context, val logger: ILogger = Andr
                 putExtra("TITLE", reminder.title)
                 putExtra("ID", reminder.reminderId)
                 putExtra("DUE_AT", reminder.dueAt.toDate().time)
-                putExtra("IS_DAILY", reminder.isDaily)
+                putExtra("IS_DAILY", reminder.daily)
                 putExtra("TIMES_PER_DAY", reminder.timesPerDay)
                 putExtra("TIMES_PER_MONTH", reminder.timesPerMonth)
             }
