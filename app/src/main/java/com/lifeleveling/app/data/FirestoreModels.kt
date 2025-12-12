@@ -67,6 +67,7 @@ data class Reminders(
     val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
     val repeatCount: Int = 0,            // how many units
     val repeatInterval: String? = null,  // days, weeks, months or years
+    val enabled: Boolean = true,
 )
 
 // Player stat block (Stats Screen)
