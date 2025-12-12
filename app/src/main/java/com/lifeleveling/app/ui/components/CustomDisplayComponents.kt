@@ -36,6 +36,8 @@ import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.data.Reminders
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 /*
 Reusable components that will appear on multiple screens
@@ -470,7 +472,6 @@ private fun DailyReminderRow(
     reminder: Reminders,
     logger: ILogger,
 ) {
-    // How many “slots” we should show for today (1, 4, etc.)
     val checkboxCount = calculateDailySlots(reminder)
 
     Row(
@@ -480,7 +481,7 @@ private fun DailyReminderRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Icon + title (left side)
+        // LEFT: icon + (title + starting line)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -494,32 +495,51 @@ private fun DailyReminderRow(
                 )
             }
 
-            Text(
-                text = reminder.title,
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
+            Column {
+                Text(
+                    text = reminder.title,
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+
+                val dueText = reminder.dueAt?.toDate()?.let { date ->
+                    // Use whatever formatting style you prefer
+                    val local = date.toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDateTime()
+
+                    val month = local.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                    val day = local.dayOfMonth
+                    val year = local.year
+
+                    val hour12 = ((local.hour + 11) % 12) + 1
+                    val ampm = if (local.hour >= 12) "PM" else "AM"
+                    val minute = local.minute.toString().padStart(2, '0')
+
+                    "Starting: $month $day, $year • $hour12:$minute $ampm"
+                } ?: "Starting: —"
+
+                Text(
+                    text = dueText,
+                    style = AppTheme.textStyles.Small,
+                    color = AppTheme.colors.FadedGray
+                )
+            }
         }
 
-        // Checkboxes (right side)
+        // RIGHT: checkboxes
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             repeat(checkboxCount) { index ->
-                var checked by remember(reminder.reminderId, index) {
-                    mutableStateOf(false)
-                }
+                var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
 
                 CustomCheckbox(
                     checked = checked,
                     onCheckedChange = { new ->
                         checked = new
-                        // TODO: hook this up to repo.setReminderCompleted / per-slot tracking
-                        logger.d(
-                            "Reminders",
-                            "Clicked checkbox $index for reminder ${reminder.reminderId}"
-                        )
+                        logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
                     },
                     size = 18.dp,
                 )
