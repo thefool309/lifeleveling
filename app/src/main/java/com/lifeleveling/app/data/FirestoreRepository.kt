@@ -849,7 +849,7 @@ class FirestoreRepository {
     // Mark a reminder complete/incomplete and set/unset completedAt automatically.
     suspend fun setReminderCompleted(
         reminderId: String,
-        isCompleted: Boolean,
+        completed: Boolean,
         logger: ILogger
     ): Boolean {
         val uid = getUserId()
@@ -859,12 +859,12 @@ class FirestoreRepository {
         }
         return try {
             val payload = hashMapOf<String, Any?>(
-                "isCompleted" to isCompleted,
-                "completedAt" to if (isCompleted) FieldValue.serverTimestamp() else null,
+                "completed" to completed,
+                "completedAt" to if (completed) FieldValue.serverTimestamp() else null,
                 "lastUpdate" to FieldValue.serverTimestamp()
             )
             remindersCol(uid).document(reminderId).update(payload).await()
-            logger.d("Reminders", "setReminderCompleted: $reminderId -> $isCompleted")
+            logger.d("Reminders", "setReminderCompleted: $reminderId -> $completed")
             true
         } catch (e: Exception) {
             logger.e("Reminders", "setReminderCompleted failed", e)
@@ -930,11 +930,11 @@ class FirestoreRepository {
      * 1) Gets the current user's uid. If we don't have one, we log it and return an empty list.
      * 2) Builds an "end of day" timestamp (exclusive) which is **the start of the next day**.
      *    Example: if date is 2025-12-11, endOfDay is 2025-12-12 00:00 (local time).
-     * 3) Queries Firestore for reminders where `dueAt < endOfDay`.
+     * 3) Queries Firestore for reminders where `startingAt < endOfDay`.
      *    - This gives us a *candidate list* of reminders that start before the day ends.
      * 4) Converts docs into `Reminders` objects and copies `doc.id` into `reminderId`.
      * 5) Filters the list using `occursOn(date, zone)` so we only keep reminders that actually apply to that calendar day (one-time, daily, and repeat rules).
-     * 6) Sorts the results by `dueAt` so the day view shows them in a nice order.
+     * 6) Sorts the results by `startingAt` so the day view shows them in a nice order.
      *
      * Edge cases:
      * - If user is not signed in -> logs + returns emptyList()
@@ -964,7 +964,7 @@ class FirestoreRepository {
             val snap = db.collection("users")
                 .document(uid)
                 .collection("reminders")
-                .whereLessThan("dueAt", endTs)
+                .whereLessThan("startingAt", endTs)
                 .get()
                 .await()
 
