@@ -10,7 +10,6 @@ import com.google.firebase.firestore.SetOptions
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
-import com.google.firebase.firestore.ktx.toObject
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
@@ -784,7 +783,7 @@ class FirestoreRepository {
             "title" to reminders.title,
             "notes" to reminders.notes,
             "dueAt" to reminders.dueAt,
-            "isCompleted" to reminders.isCompleted,
+            "isCompleted" to reminders.completed,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp(),

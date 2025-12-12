@@ -608,7 +608,7 @@ fun CreateReminderScreen(
                                         title = createdReminderTitle.trim(),
                                         notes = "",
                                         dueAt = dueAt,
-                                        isCompleted = false,
+                                        completed = false,
                                         completedAt = null,
                                         createdAt = null,
                                         lastUpdate = null,

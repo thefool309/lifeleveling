@@ -53,7 +53,7 @@ data class Reminders(
     val title: String = "",
     val notes: String = "",
     val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
-    val isCompleted: Boolean = false,
+    val completed: Boolean = false,
     val completedAt: Timestamp? = null,  // set when marked complete
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
