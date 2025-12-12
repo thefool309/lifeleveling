@@ -1119,7 +1119,6 @@ class FirestoreRepository {
         // Otherwise it repeats with a finite duration rule.
         val interval = repeatInterval ?: return false
         val count = repeatCount
-        if (count <= 0) return false
 
         // End date is inclusive: start + count units (e.g. 2 days => start..start+2days)
         val endDate = when (interval) {
