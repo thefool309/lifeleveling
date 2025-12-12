@@ -971,7 +971,7 @@ class FirestoreRepository {
                 .await()
 
             val all = snap.documents.mapNotNull { doc ->
-                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
+                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
             }
 
             all
