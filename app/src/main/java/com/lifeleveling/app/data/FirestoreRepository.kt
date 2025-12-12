@@ -790,6 +790,7 @@ class FirestoreRepository {
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp(),
             "isDaily" to reminders.isDaily,
+            "timesPerMinute" to reminders.timesPerMinute,
             "timesPerHour" to reminders.timesPerHour,
             "timesPerDay" to reminders.timesPerDay,
             "timesPerMonth" to reminders.timesPerMonth,
