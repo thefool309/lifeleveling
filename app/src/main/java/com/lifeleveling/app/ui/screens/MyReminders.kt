@@ -247,14 +247,21 @@ fun MyRemindersScreen(
         MyRemindersToolTip(showMyRemindersToolTip)
     }
 
-//    if (toShowReminderInfo.value) {
-//        ShowReminder(
-//            toShow = toShowReminderInfo,
-//            passedReminder = reminderToShow,
-//            hourOptions = hourOptions,
-//            minutesOptions = minutesOptions,
-//            amOrPmOptions = amOrPmOptions
-//        )
-//    }
+    if (toShowReminderInfo.value) {
+        ShowReminder(
+            toShow = toShowReminderInfo,
+            passedReminder = reminderToShow,
+            hourOptions = hourOptions,
+            minutesOptions = minutesOptions,
+            amOrPmOptions = amOrPmOptions,
+            onDelete = { r ->
+                // UI removal
+                remindersListState.value = remindersListState.value.filter { it.reminderId != r.reminderId }
+
+                // Firestore removal
+                scope.launch { repo.deleteReminder(r.reminderId, logger) }
+            }
+        )
+    }
 }
 
