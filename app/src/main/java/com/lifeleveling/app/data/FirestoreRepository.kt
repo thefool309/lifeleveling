@@ -926,6 +926,43 @@ class FirestoreRepository {
         }
     }
 
+    suspend fun getRemindersForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): List<Reminders> {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e("Reminders", "getRemindersForDate: user id is null/blank; sign in first.")
+            return emptyList()
+        }
+
+        val zone = ZoneId.systemDefault()
+        val endOfDay = date.plusDays(1).atStartOfDay(zone) // exclusive end boundary
+        val endTs = Timestamp(Date.from(endOfDay.toInstant()))
+
+        return try {
+            // Fetch candidates with dueAt <= endOfSelectedDay.
+            val snap = db.collection("users")
+                .document(uid)
+                .collection("reminders")
+                .whereLessThan("dueAt", endTs)
+                .get()
+                .await()
+
+            val all = snap.documents.mapNotNull { doc ->
+                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
+            }
+
+            all
+                .filter { it.occursOn(date, zone) }
+                .sortedBy { it.dueAt?.toDate() } // keeps a nice ordering
+        } catch (e: Exception) {
+            logger.e("Reminders", "getRemindersForDate failed for $date", e)
+            emptyList()
+        }
+    }
+
+
     // Fetch a single reminder
 
     // Fetch a list of reminders
