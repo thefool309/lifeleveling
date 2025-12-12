@@ -554,6 +554,7 @@ fun CreateReminderScreen(
 
                                     // --- 2. "Set as daily" + "Remind me every:" ---
                                     val isDaily = asDaily
+                                    var timesPerMinute = 0
                                     var timesPerHour = 0
                                     var timesPerDay = 0
                                     val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
@@ -562,16 +563,11 @@ fun CreateReminderScreen(
                                         when (selectedReminderAmountHourDayWeek) {
                                             0 -> {
                                                 // "Remind me every X Mins"
-                                                // For now: store X in timesPerHour (we'll interpret as minutes later).
-                                                timesPerHour = everyCount
+                                                timesPerMinute = everyCount
                                             }
                                             1 -> {
                                                 // "Remind me every X Hours"
-                                                // For now: store X in timesPerDay (we'll interpret as hours).
-                                                timesPerDay = everyCount
-                                            }
-                                            else -> {
-                                                // No other units in this dropdown currently
+                                                timesPerHour = everyCount
                                             }
                                         }
                                     }
@@ -617,6 +613,7 @@ fun CreateReminderScreen(
                                         createdAt = null,
                                         lastUpdate = null,
                                         isDaily = isDaily,
+                                        timesPerMinute = timesPerMinute,
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
