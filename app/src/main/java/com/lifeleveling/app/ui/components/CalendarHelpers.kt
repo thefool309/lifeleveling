@@ -43,6 +43,7 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.resolveEnumColor
@@ -446,13 +447,15 @@ fun SuffixForDays(day: Int): String {
 @Composable
 fun ShowReminder(
     toShow: MutableState<Boolean>,
-    passedReminder: MutableState<calReminder>,
+    passedReminder: MutableState<Reminders?>,
     hourOptions: List<String>,
     minutesOptions: List<String>,
-    amOrPmOptions: List<String>
+    amOrPmOptions: List<String>,
+    onDelete: (Reminders) -> Unit
 ) {
-    val reminder = passedReminder.value
+    val reminder = passedReminder.value ?: return
     var delete by remember { mutableStateOf(false) }
+
     // == below is safe access to the list - if somehow the index is messed up, it will just return null - if null is returned it uses the value in the quotations
     val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
     val minutes = minutesOptions.getOrNull(reminder.selectedMinutes) ?: "00"
