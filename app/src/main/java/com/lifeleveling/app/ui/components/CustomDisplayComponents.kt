@@ -459,8 +459,17 @@ fun DailyRemindersList(
                     .padding(bottom = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                reminders.forEach { reminder ->
+                reminders.forEachIndexed { index, reminder ->
                     DailyReminderRow(reminder = reminder, logger = logger)
+
+                    // Separator line
+                    if (index != reminders.lastIndex) {
+                        SeparatorLine(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        )
+                    }
                 }
             }
         }
