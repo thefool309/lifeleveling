@@ -610,7 +610,7 @@ class FirestoreRepository {
             return null
         }
 
-        var userDoc: Users? = null
+        var userDoc: Users?
         val userSnap = docRef.get()
             .await()
         if (userSnap.exists() && userSnap != null) {
