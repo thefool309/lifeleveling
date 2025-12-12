@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.lifeleveling.app.ui.components.Reminder
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
@@ -1134,6 +1135,26 @@ class FirestoreRepository {
         // Optional: if you want “repeat every 1 unit” behavior, treat it as always true within window.
         // If later you add "every 2 days" etc, you’d compute steps here.
         return true
+    }
+
+    // Get all of the sign in user's reminders
+    suspend fun getAllReminders(logger: ILogger): List<Reminders> {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e("Reminders", "getAllReminders: user id is null/blank; sign in first.")
+            return emptyList()
+        }
+
+        return try {
+            val snap = remindersCol(uid).get().await()
+
+            snap.documents.mapNotNull { doc ->
+                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
+            }.sortedBy { it.startingAt?.toDate() }
+        } catch (e: Exception) {
+            logger.e("Reminders", "getAllReminders failed", e)
+            emptyList()
+        }
     }
 
 }
