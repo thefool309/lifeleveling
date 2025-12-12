@@ -945,6 +945,7 @@ class FirestoreRepository {
      * @param date The day the calendar is showing.
      * @param logger Logger used for debug/error messages.
      * @return List of reminders that should appear on [date], sorted by due time.
+     * @author fdesouza1992
      */
     suspend fun getRemindersForDate(
         date: LocalDate,
@@ -1078,6 +1079,24 @@ class FirestoreRepository {
             false
         }
     }
+
+    /**
+     * Determines whether this reminder should appear on the given calendar date.
+     *
+     * Helper method used by the Day View to decide if a reminder applies to a specific day based on its start date and repeat settings.
+     *
+     * Behavior:
+     * - One-time reminders only appear on their original start date.
+     * - Daily reminders appear every day starting from their start date.
+     * - Repeating reminders appear within their allowed repeat window
+     *   (days, weeks, months, or years).
+     * - Reminders never appear before their start date.
+     *
+     * @param date The calendar day being evaluated.
+     * @param zone The device time zone used to safely convert timestamps to dates.
+     * @return true if the reminder should be shown on the given date, false otherwise.
+     * @author fdesouza1992
+     */
 
     private fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
         val start = this.dueAt?.toDate() ?: return false
