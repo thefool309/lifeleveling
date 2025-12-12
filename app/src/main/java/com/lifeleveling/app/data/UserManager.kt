@@ -117,7 +117,7 @@ class UserManager(
                 userBase = updated,
                 levelUpFlag = leveledUp, // If leveled up the popup will trigger
                 levelUpCoins = coins
-            ).recalculateAll()
+            ).recalculateAfterLevelUp()
         }
     }
 
@@ -201,6 +201,31 @@ class UserManager(
      */
     fun userJourneyCalculations() {
         userData.update { it.copy().recalculatingUserJourney() }
+    }
+
+    // ============ Reminder Functions ===============================================
+    /**
+     * Retrieves a reminder's information based on the id
+     */
+    fun retrieveReminder(id: String) : Reminder? {
+        return userData.value.userBase?.reminders?.find { it.reminderId == id }
+    }
+
+    // ============ Streak Functions ===============================================
+    /**
+     * Removes a weekly streak from the streak list
+     */
+    fun removeStreak(streakId: String) {
+        userData.update { current ->
+            val user = userData.value.userBase ?: return@update current
+
+            val streaks = user.streaks.filter { it.streakId != streakId }
+
+            val updated = current.copy(
+                userBase = user.copy(streaks = streaks)
+            )
+            updated.separateStreaks()
+        }
     }
 
     // ================== Auth Functions ==========================================================

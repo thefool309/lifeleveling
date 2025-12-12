@@ -8,6 +8,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.AddStreak
 import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -41,9 +44,10 @@ import com.lifeleveling.app.ui.theme.resolveEnumColor
 
 //@Preview
 @Composable
-fun StreaksScreen(
-    navController: NavController? = null,
-) {
+fun StreaksScreen() {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+
     // Pop up tips
     val showLevelTip = remember { mutableStateOf(false) }
     val showStreaksTip = remember { mutableStateOf(false) }

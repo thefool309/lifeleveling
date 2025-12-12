@@ -13,7 +13,7 @@ import com.lifeleveling.app.ui.theme.enumColor
 * as well as the local save of user logic.
 */
 
-object TestUser {
+object TestUser_ {
     var name by mutableStateOf("John Doe")
     var level by mutableStateOf(3)
     var currentExp by mutableStateOf(250)
@@ -411,7 +411,7 @@ object TestUser {
     }
 }
 
-data class Reminder (
+data class TestReminder (
     val id: Int,
     val name: String,
     val icon: Int,
@@ -422,8 +422,8 @@ data class Reminder (
     val completedTally: Long
 )
 
-data class Streak (
-    val reminder: Reminder,
+data class TestStreak (
+    val reminder: TestReminder,
     val totalAmount: Int,
     var numberCompleted: Int = 0,
     var repeat: Boolean = false,
@@ -432,7 +432,7 @@ data class Streak (
     var repeatInterval: String = "",
 )
 
-data class Badge (
+data class TestBadge (
     val id: Int,
     val icon: Int,
     val color: enumColor,

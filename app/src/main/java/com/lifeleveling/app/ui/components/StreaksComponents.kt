@@ -38,7 +38,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.Reminder
+import com.lifeleveling.app.data.Streak
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.enumColor
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,7 +61,11 @@ fun ShowStreak(
     toShow: MutableState<Boolean>,
     passedStreak: MutableState<Streak>,
 ) {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+
     val streak = passedStreak.value
+    val reminder = userManager.retrieveReminder(streak.reminderId) ?: Reminder(colorToken = null)
     var delete by remember { mutableStateOf(false) }
 
     CustomDialog(
@@ -75,19 +84,19 @@ fun ShowStreak(
                 ) {
                     ShadowedIcon(
                         modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(streak.reminder.icon),
-                        tint = if (streak.reminder.color == null) Color.Unspecified
-                        else resolveEnumColor(streak.reminder.color),
+                        imageVector = ImageVector.vectorResource(reminder.iconName),
+                        tint = if (reminder.colorToken == null) Color.Unspecified
+                        else resolveEnumColor(reminder.colorToken),
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = streak.reminder.name,
+                        text = reminder.title,
                         style = AppTheme.textStyles.HeadingFour,
                         color = AppTheme.colors.SecondaryThree
                     )
                 }
                 // Progress bar display
-                val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+                val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
                 ProgressBar(
                     progress = percentageCompleted,
                 )
@@ -98,32 +107,23 @@ fun ShowStreak(
                     color = AppTheme.colors.Gray
                 )
                 Text(
-                    text = stringResource(R.string.streak_to_complete, streak.totalAmount),
+                    text = stringResource(R.string.streak_to_complete, streak.totalRequired),
                     style = AppTheme.textStyles.Default,
                     color = AppTheme.colors.Gray
                 )
-                if (streak.reminder.daily) {
+                if (reminder.isDaily) {
                     Text(
-                        text = stringResource(R.string.streak_daily_count, streak.reminder.timesPerDay),
+                        text = stringResource(R.string.streak_daily_count, reminder.timesPerDay),
                         style = AppTheme.textStyles.Default,
                         color = AppTheme.colors.Gray
                     )
                 }
                 if (streak.repeat) {
-                    if (streak.repeatIndefinitely) {
-                        Text(
-                            text = stringResource(R.string.repeats_indefinitely),
-                            style = AppTheme.textStyles.Default,
-                            color = AppTheme.colors.Gray
-                        )
-                    } else {
-                        val streakSection = if (streak.reminder.daily) stringResource(R.string.week) else R.string.month
-                        Text(
-                            text = stringResource(R.string.repeats_every, streakSection, streak.repeatNumber, streak.repeatInterval),
-                            style = AppTheme.textStyles.Default,
-                            color = AppTheme.colors.Gray
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.streak_repeat),
+                        style = AppTheme.textStyles.Default,
+                        color = AppTheme.colors.Gray
+                    )
                 }
 
                 // Buttons for deleting or closing window
@@ -172,7 +172,7 @@ fun ShowStreak(
                                 append(stringResource(R.string.streak_delete))
                             }
                             withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.SecondaryThree, textDecoration = TextDecoration.Underline)) {
-                                append(streak.reminder.name)
+                                append(reminder.title)
                             }
                             withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
                                 append(stringResource(R.string.streak_delete_two))
@@ -202,11 +202,7 @@ fun ShowStreak(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            if (streak.reminder.daily) {
-                                TestUser.removeFromWeeklyStreak(streak.reminder)
-                            } else {
-                                TestUser.removeFromMonthlyStreak(streak.reminder)
-                            }
+                            userManager.removeStreak(streak.streakId)
                             toShow.value = false
                         },
                         backgroundColor = AppTheme.colors.Error75,

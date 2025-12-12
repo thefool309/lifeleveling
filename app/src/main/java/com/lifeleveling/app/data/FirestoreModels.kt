@@ -2,7 +2,6 @@ package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
-import com.lifeleveling.app.ui.components.TestUser.mostCompletedReminder
 
 data class UsersBase(
     val userId: String = "",
@@ -46,6 +45,8 @@ data class UsersData (
     var lifePointsNotUsed: Long = 0L,
     //Lists
     var enabledReminders: List<Reminder> = emptyList(),
+    var weeklyStreaks: List<Streak> = emptyList(),
+    var monthlyStreaks: List<Streak> = emptyList(),
     // User Journey Stats
     var totalStreaksCompleted: Long = 0L,
     var badgesEarned: Long = 0L,
@@ -83,6 +84,8 @@ data class UsersData (
             badgesEarned = calculateBadgesEarned(),
             allExpEver = calculateAllExp(),
             coinsSpent = calculateCoinsSpent(),
+            weeklyStreaks = calcWeeklyStreaks(),
+            monthlyStreaks = calcMonthlyStreaks(),
         )
     }
 
@@ -105,6 +108,15 @@ data class UsersData (
         return this.copy(
             xpToNextLevel = calculateXpToNextLevel(),
             lifePointsNotUsed = calculateUnusedLifePoints(),
+            coinsSpent = calculateCoinsSpent(),
+            allExpEver = calculateAllExp(),
+        )
+    }
+
+    fun separateStreaks(): UsersData {
+        return this.copy(
+            weeklyStreaks = calcWeeklyStreaks(),
+            monthlyStreaks = calcMonthlyStreaks(),
         )
     }
 
@@ -151,6 +163,14 @@ data class UsersData (
             }
         }
         return userBase!!.mostCompletedReminder
+    }
+
+    // TODO: Separate Streak list into week and month
+    fun calcWeeklyStreaks() : List<Streak> {
+        return userBase?.streaks?.filter { it.isWeekly } ?: emptyList()
+    }
+    fun calcMonthlyStreaks() : List<Streak> {
+        return userBase?.streaks?.filter { !it.isWeekly } ?: emptyList()
     }
 }
 

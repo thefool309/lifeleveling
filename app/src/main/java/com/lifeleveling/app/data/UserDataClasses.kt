@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
-import com.lifeleveling.app.ui.components.Reminder
 import com.lifeleveling.app.ui.theme.enumColor
 
 data class Stats (
@@ -27,9 +26,9 @@ data class Reminder(
     val timesPerDay: Long = 0,           // How many times per day
     val timesPerMonth: Long = 0,         // How many times per month
     val colorToken: enumColor?,      // nullable like enumColor? in TestUser
-    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
-    val completedTally: Long,           // Used for calculating the most completed reminders for the user journey stats
-    val enabled: Boolean,               // If the reminder is active or just saved
+    val iconName: Int = 0,           // store icon key (ex: "water_drop"), not R.drawable.id
+    val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
+    val enabled: Boolean = true,               // If the reminder is active or just saved
 )
 
 // One active streak the user is tracking
@@ -40,12 +39,10 @@ data class Reminder(
 data class Streak(
     val streakId: String = "",                  // doc id inside streaks subcollection
     val reminderId: String = "",                // link to Reminders.reminderId
-    val periodType: String = "weekly",          // "weekly" or "monthly"
+    val isWeekly: Boolean = false,              // "weekly" or "monthly"
     val totalRequired: Long = 0,                // totalAmount in TestUser.kt
     val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
-    val repeatIndefinitely: Boolean = false,
-    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
-    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
+    val repeat: Boolean = true,                 // Repeat flag
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
 )
