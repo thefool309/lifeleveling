@@ -81,17 +81,17 @@ fun MyRemindersScreen(
         stringResource(R.string.am),
         stringResource(R.string.pm),
     )
-    val hoursDaysWeeks = listOf(
-        stringResource(R.string.hours),
-        stringResource(R.string.days),
-        stringResource(R.string.weeks)
-    )
-    val daysWeeksMonthsYearsList = listOf(
-        stringResource(R.string.days),
-        stringResource(R.string.weeks),
-        stringResource(R.string.months),
-        stringResource(R.string.years)
-    )
+//    val hoursDaysWeeks = listOf(
+//        stringResource(R.string.hours),
+//        stringResource(R.string.days),
+//        stringResource(R.string.weeks)
+//    )
+//    val daysWeeksMonthsYearsList = listOf(
+//        stringResource(R.string.days),
+//        stringResource(R.string.weeks),
+//        stringResource(R.string.months),
+//        stringResource(R.string.years)
+//    )
 
     Box(
         modifier = Modifier
