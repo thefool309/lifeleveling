@@ -256,15 +256,14 @@ fun MyRemindersScreen(
             amOrPmOptions = amOrPmOptions,
             onDelete = { r ->
                 scope.launch {
-                    // 1) delete in Firestore
+                    // Delete in Firestore
                     val ok = repo.deleteReminder(r.reminderId, logger)
 
-                    // 2) if successful, remove from UI list (optimistic is ok too)
+                    // If successful, remove from UI list
                     if (ok) {
                         remindersListState.value =
                             remindersListState.value.filter { it.reminderId != r.reminderId }
                     } else {
-                        // optional: log or show snackbar/toast
                         logger.e("Reminders", "UI delete failed for ${r.reminderId}")
                     }
                 }
