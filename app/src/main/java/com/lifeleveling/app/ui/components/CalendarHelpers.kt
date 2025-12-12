@@ -68,7 +68,8 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
     val dayValue = date.dayOfMonth
     val toShowReminderInfo = remember {mutableStateOf(false)}
     val hasReminder = reminders.filter { r ->
-        r.isEnabled && r.year == yearIndex && r.month == monthValue && r.day == dayValue    //filter all reminders that are enabled and match this year, month, day
+        r.isEnabled && (
+                (r.year == yearIndex && r.month == monthValue && r.day == dayValue) || (r.isDaily && (yearIndex > r.year || (yearIndex == r.year && monthValue > r.month) || (yearIndex == r.year && monthValue == r.month && dayValue >= r.day))))
     }
     val colorOptions = listOf(
         Color.Red,
