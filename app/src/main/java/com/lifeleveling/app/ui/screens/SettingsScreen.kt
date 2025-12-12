@@ -171,7 +171,7 @@ fun SettingScreen(
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { TODO("Add in navigation to all reminders") }
+                                .clickable { navController?.navigate("MyReminders") }
                         )
                     }
 
