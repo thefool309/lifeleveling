@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.R.attr.enabled
 import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -797,6 +798,7 @@ class FirestoreRepository {
             "repeatForever" to reminders.repeatForever,
             "repeatCount" to reminders.repeatCount,
             "repeatInterval" to reminders.repeatInterval,
+            "enabled" to reminders.enabled,
         ).filterValues { it != null } // don't write null reminderId if empty
 
         return try {
