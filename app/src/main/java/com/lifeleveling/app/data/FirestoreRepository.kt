@@ -957,7 +957,7 @@ class FirestoreRepository {
         }
 
         val zone = ZoneId.systemDefault()
-        val endOfDay = date.plusDays(1).atStartOfDay(zone) // exclusive end boundary
+        val endOfDay = date.plusDays(1).atStartOfDay(zone)
         val endTs = Timestamp(Date.from(endOfDay.toInstant()))
 
         return try {
@@ -1078,4 +1078,45 @@ class FirestoreRepository {
             false
         }
     }
+
+    private fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
+        val start = this.dueAt?.toDate() ?: return false
+        val startDate = start.toInstant().atZone(zone).toLocalDate()
+
+        // Don’t show before the reminder starts.
+        if (date.isBefore(startDate)) return false
+
+        // If it’s a one-off (not daily, not repeating), only show on its start date.
+        val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
+        if (!isDaily && !hasRepeatRule) {
+            return date == startDate
+        }
+
+        // If it’s daily with no duration rule, show every day from start onward.
+        if (isDaily && !hasRepeatRule) return true
+
+        // If it repeats forever, allow it as long as date >= start.
+        if (repeatForever) return true
+
+        // Otherwise it repeats with a finite duration rule.
+        val interval = repeatInterval ?: return false
+        val count = repeatCount
+        if (count <= 0) return false
+
+        // End date is inclusive: start + count units (e.g. 2 days => start..start+2days)
+        val endDate = when (interval) {
+            "days" -> startDate.plusDays(count.toLong())
+            "weeks" -> startDate.plusWeeks(count.toLong())
+            "months" -> startDate.plusMonths(count.toLong())
+            "years" -> startDate.plusYears(count.toLong())
+            else -> return false
+        }
+
+        if (date.isAfter(endDate)) return false
+
+        // Optional: if you want “repeat every 1 unit” behavior, treat it as always true within window.
+        // If later you add "every 2 days" etc, you’d compute steps here.
+        return true
+    }
+
 }
