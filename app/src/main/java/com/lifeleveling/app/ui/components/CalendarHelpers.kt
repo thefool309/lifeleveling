@@ -575,9 +575,10 @@ fun ShowReminder(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            calendarReminders.value = calendarReminders.value.filter {
-                                it != passedReminder.value
-                            }
+                            onDelete(reminder)
+//                            calendarReminders.value = calendarReminders.value.filter {
+//                                it != passedReminder.value
+//                            }
                             toShow.value = false
                         },
                         backgroundColor = AppTheme.colors.Error75,
