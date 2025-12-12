@@ -478,7 +478,7 @@ private fun DailyReminderRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         // LEFT: icon + (title + starting line)
@@ -528,21 +528,30 @@ private fun DailyReminderRow(
         }
 
         // RIGHT: checkboxes
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            repeat(checkboxCount) { index ->
-                var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
+        val rows = (0 until checkboxCount).toList().chunked(4)
 
-                CustomCheckbox(
-                    checked = checked,
-                    onCheckedChange = { new ->
-                        checked = new
-                        logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
-                    },
-                    size = 18.dp,
-                )
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            rows.forEach { rowIndices ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    rowIndices.forEach { index ->
+                        var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
+
+                        CustomCheckbox(
+                            checked = checked,
+                            onCheckedChange = { new ->
+                                checked = new
+                                logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
+                            },
+                            size = 18.dp,
+                        )
+                    }
+                }
             }
         }
     }
