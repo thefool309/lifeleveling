@@ -1102,10 +1102,9 @@ class FirestoreRepository {
         val start = this.startingAt?.toDate() ?: return false
         val startDate = start.toInstant().atZone(zone).toLocalDate()
 
-        // Don’t show before the reminder starts.
         if (date.isBefore(startDate)) return false
 
-        // If it’s a one-off (not daily, not repeating), only show on its start date.
+        // If it’s a one-off, only show on its start date.
         val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
         if (!daily && !hasRepeatRule) {
             return date == startDate
@@ -1121,7 +1120,6 @@ class FirestoreRepository {
         val interval = repeatInterval ?: return false
         val count = repeatCount
 
-        // End date is inclusive: start + count units (e.g. 2 days => start..start+2days)
         val endDate = when (interval) {
             "days" -> startDate.plusDays(count.toLong())
             "weeks" -> startDate.plusWeeks(count.toLong())
@@ -1132,8 +1130,6 @@ class FirestoreRepository {
 
         if (date.isAfter(endDate)) return false
 
-        // Optional: if you want “repeat every 1 unit” behavior, treat it as always true within window.
-        // If later you add "every 2 days" etc, you’d compute steps here.
         return true
     }
 
