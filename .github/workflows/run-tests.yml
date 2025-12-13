@@ -14,6 +14,13 @@ jobs:
         with:
           node-version: 24
 
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: 23
+          cache: 'gradle'
+
       - name: Install firebase-tools
         run: npm install -g firebase-tools
 
@@ -21,8 +28,9 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Initialize android emulator
+        env:
+          AVD_NAME: "TestAVD"
+          API_LEVEL: 36
         run: | 
           chmod +x ./scripts/create-android-emu.sh
           ./scripts/create-android-emu.sh
-
-          
