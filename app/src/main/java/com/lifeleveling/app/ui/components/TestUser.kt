@@ -77,18 +77,18 @@ object TestUser {
     )
     // ================================= My Reminders Test stuff =================================
     val calendarReminders = mutableStateOf(listOf(
-        calReminder(1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
-        calReminder(2,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
-        calReminder(3,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0),
-        calReminder(4,"TEST", false,false,true,true,R.drawable.med_bottle, 1, 12, 0,0,0,0,0),
-        calReminder(5,"Run", false,false,true,true,R.drawable.person_running, 1, 12, 0,0,0,0,0),
-        calReminder(6,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0),
-        calReminder(7,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0),
-        calReminder(8,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(9,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(10,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(11,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(12,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        calReminder(isEnabled = true, id = 1, day = 12,month = 12, year = 0,"Go to store", false,false,R.drawable.shop_color, 1, 32, 1,5,2,3,1,0),
+        calReminder(isEnabled = true, id =2, day = 12,month = 12, year = 0,"shower", false,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0,1),
+        calReminder(isEnabled = true, id =3, day = 12,month = 12, year = 0,"Doctor", false,false,R.drawable.shirt_color, 1, 12, 0,0,0,0,0,2),
+        calReminder(isEnabled = true, id =4, day = 12,month = 12, year = 0,"TEST", true,false,R.drawable.med_bottle, 1, 12, 0,0,0,0,0,3),
+        calReminder(isEnabled = true, id =5, day = 12,month = 12, year = 0,"Run", false,false,R.drawable.person_running, 1, 12, 0,0,0,0,0,1),
+        calReminder(isEnabled = true, id =6, day = 12,month = 12, year = 0,"T3", false,true,R.drawable.bell, 1, 12, 0,0,0,0,0,0),
+        calReminder(isEnabled = true, id =7, day = 2,month = 1, year = 1,"T4", false,false,R.drawable.document, 1, 12, 0,0,0,0,0,3),
+        calReminder(isEnabled = true, id =8, day = 22,month =1, year = 1,"T5", false,false,R.drawable.heart, 1, 12, 0,0,0,0,0,4),
+        calReminder(isEnabled = true, id =9, day = 21,month = 2, year = 1,"T5", false,false,R.drawable.heart, 1, 12, 0,0,0,0,0,4),
+        calReminder(isEnabled = true, id =10, day = 9,month = 3, year = 4,"T5", true,false,R.drawable.heart, 1, 12, 0,0,0,2,1,6),
+        calReminder(isEnabled = true, id =11, day = 8,month = 4, year = 4,"T5", false,false,R.drawable.heart, 1, 12, 0,0,0,0,0,3),
+        calReminder(isEnabled = true, id =12, day = 3,month = 5, year = 4,"T5", false,false,R.drawable.heart, 1, 12, 0,0,0,0,0,2),
 
         )
     )
@@ -459,12 +459,16 @@ data class Badge (
 )
 
 data class calReminder(
+    val isEnabled: Boolean,
     val id: Int,
+    val day: Int,
+    val month: Int,
+    val year: Int,
     val name: String,
-    val isDoNotRepeat: Boolean,
+    val repeatReminder: Boolean,
     val isDaily: Boolean,
-    val isWeekDay: Boolean,
-    val isIndefiniteRepeat: Boolean,
+    //val isWeekDay: Boolean,
+    //val isIndefiniteRepeat: Boolean,
     val icon: Int,
     val selectedHours: Int,
     val selectedMinutes: Int,
@@ -473,5 +477,6 @@ data class calReminder(
     val reminderAmountHourDayWeek: Int,
     val repeatAmount: Int,
     val selectRepeatAmount: Int,
+    val color: Int
 )
 

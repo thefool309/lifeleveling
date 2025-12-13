@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
@@ -32,9 +33,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.kizitonwose.calendar.core.YearMonth
+import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.theme.AppTheme
+import java.time.LocalDate
+import java.time.Month
+import java.time.format.TextStyle
+import java.util.Locale
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.AndroidLogger
@@ -56,10 +63,10 @@ fun CreateReminderScreen(
     val scope = rememberCoroutineScope()
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
-    var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed
+    //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed            @Todo Stephen Commented this out as not used
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
-    var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed
-    var indefinitelyRepeat by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
+    //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed        @Todo Stephen Commented this out as not used
+    var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
     var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
     var selectedHour by remember { mutableStateOf(0) }          // selected hour for reminder   <-- This is needed
@@ -108,10 +115,10 @@ fun CreateReminderScreen(
         stringResource(R.string.am),
         stringResource(R.string.pm),
     )
-    val hoursDaysWeeks = listOf(
+    val hoursOrMins = listOf(
+        stringResource(R.string.minutesShort),
         stringResource(R.string.hours),
-        stringResource(R.string.days),
-        stringResource(R.string.weeks)
+
     )
     val daysWeeksMonthsYearsList = listOf(
         stringResource(R.string.days),
@@ -120,7 +127,42 @@ fun CreateReminderScreen(
         stringResource(R.string.years)
     )
 
-    Surface {
+    val today = LocalDate.now()                                                             // Current date
+    val monthList = (1..12).map { monthNumber ->
+        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())   // Months list
+    }
+    val startYear = today.year                                                               // Years list (current year + 5)
+    val endYear = startYear + 5
+    val yearList = (startYear..endYear).toList()
+    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
+    var selectedMonth by remember { mutableStateOf(today.monthValue - 1) }
+    var selectedYear by remember { mutableStateOf(0) }
+    val actualYear = yearList[selectedYear]                                                 // Actual selected values
+    val actualMonth = selectedMonth + 1
+    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
+    val dayList = (1..daysInMonth).map { day ->
+        SuffixForDays(day)
+    }
+    val selectedMonthMenu = remember { mutableStateOf(false) }
+
+    val selectedDayMenu = remember { mutableStateOf(false) }
+    val selectedYearMenu = remember { mutableStateOf(false) }
+    var selectedColorIndex by remember { mutableStateOf(0) }
+    val colorMenu = remember { mutableStateOf(false) }
+    val colorOptions = listOf(
+        Color.Red,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow,
+        Color.Cyan,
+        Color.LightGray,
+        Color.White
+    )
+
+    Surface(
+
+    ){
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -193,12 +235,27 @@ fun CreateReminderScreen(
                             DropDownReminderMenu(
                                 modifier = Modifier
                                     .width(108.dp)
-                                    .height(32.dp)
-                                    .padding(horizontal = 16.dp),
+                                    .height(32.dp),
+
                                 options = iconOptions,
                                 selectedIndex = selectedReminderIndex,
                                 onSelectedChange = { selectedReminderIndex = it },
                                 expanded = iconMenu
+                            )
+                            Text(
+                                text = stringResource(R.string.color),
+                                color = AppTheme.colors.SecondaryOne,
+                                style = AppTheme.textStyles.HeadingFive
+                            )
+
+                            DropDownColorMenu(
+                                modifier = Modifier
+                                    .width(108.dp)
+                                    .height(32.dp),
+                                colors = colorOptions,
+                                selectedIndex = selectedColorIndex,
+                                onSelectedChange = { selectedColorIndex = it },
+                                expanded = colorMenu
                             )
                         }
                         Column(
@@ -210,6 +267,36 @@ fun CreateReminderScreen(
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ){
+                                DropDownTextMenu(
+                                    options = monthList,
+                                    selectedIndex = selectedMonth,
+                                    onSelectedChange = {selectedMonth = it },
+                                    expanded = selectedMonthMenu,
+                                    modifier = Modifier
+                                        .weight(1f),
+                                )
+                                DropDownTextMenu(
+                                    options = dayList,
+                                    selectedIndex = selectedDay,
+                                    onSelectedChange = {selectedDay = it },
+                                    expanded = selectedDayMenu,
+                                    modifier = Modifier
+                                        .weight(1f),
+                                )
+                                DropDownTextMenu(
+                                    options = yearList.map {it.toString()},
+                                    selectedIndex = selectedYear,
+                                    onSelectedChange = {selectedYear = it },
+                                    expanded = selectedYearMenu,
+                                    modifier = Modifier
+                                        .weight(1f),
+                                )
+                            }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -254,192 +341,123 @@ fun CreateReminderScreen(
                             modifier = Modifier,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
-                            Text(
-                                text = stringResource(R.string.remind_me_every),                                color = AppTheme.colors.SecondaryOne,
-                                style = AppTheme.textStyles.HeadingFive
-                            )
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ){
-                                CustomTextField(
-                                    value = reminderAmountNumber,
-                                    onValueChange = {   newText ->
-                                        reminderAmountNumber = newText
-                                        if(newText.isNotEmpty()) {
-                                            indefinitelyRepeat = false
-                                            doNotRepeat = false
-                                        }
-                                    },
-                                    placeholderText = "",
-                                    inputFilter = { it.all { char -> char.isDigit() } },
-                                    modifier = Modifier
-                                        .weight(1f),
-
-                                    )
-                                DropDownTextMenu(
-                                    options = hoursDaysWeeks,
-                                    selectedIndex = selectedReminderAmountHourDayWeek,
-                                    onSelectedChange = {selectedReminderAmountHourDayWeek = it },
-                                    expanded = selectedReminderAmountMenu,
-                                    modifier = Modifier.weight(1f),
+                            ) {
+                                CustomCheckbox(
+                                    checked = asDaily,
+                                    onCheckedChange = {
+                                        asDaily = it
+                                    }
+                                )
+                                Text(
+                                    text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.Gray
                                 )
                             }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            ) {
-
-                                // As daily
+                            if(asDaily) {
+                                Text(
+                                    text = stringResource(R.string.remind_me_every),
+                                    color = AppTheme.colors.SecondaryOne,
+                                    style = AppTheme.textStyles.HeadingFive
+                                )
                                 Row(
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    CustomCheckbox(
-                                        checked = asDaily,
-                                        onCheckedChange = {
-                                            asDaily = it
-                                            if(it){
-                                                doNotRepeat = false
 
-                                                asWeekDay = false
+                                    CustomTextField(
+                                        value = reminderAmountNumber,
+                                        onValueChange = { newText ->
+                                            reminderAmountNumber = newText
+                                            if (newText.isNotEmpty()) {
+                                                repeatReminder = false
+                                                //doNotRepeat = false
                                             }
-                                        }
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
-                                        color = AppTheme.colors.Gray
-                                    )
-                                }
+                                        },
+                                        placeholderText = "",
+                                        inputFilter = { it.all { char -> char.isDigit() } },
+                                        modifier = Modifier
+                                            .weight(1f),
 
-                                // Do not repeat
-                                Row(
-                                    modifier = Modifier.weight(1f),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        CustomCheckbox(
-                                            checked = asWeekDay,
-                                            onCheckedChange = {
-                                                asWeekDay = it
-                                                if(it){
-                                                    doNotRepeat = false
-                                                    asDaily = false
+                                        )
+                                    DropDownTextMenu(
+                                        options = hoursOrMins,
+                                        selectedIndex = selectedReminderAmountHourDayWeek,
+                                        onSelectedChange = { selectedReminderAmountHourDayWeek = it },
+                                        expanded = selectedReminderAmountMenu,
+                                        modifier = Modifier.weight(1f),
+                                    )
 
-                                                }
-                                            }
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.checkbox_weekdays),                                            style = AppTheme.textStyles.Default,
-                                            color = AppTheme.colors.Gray
-                                        )
-                                    }
+
                                 }
                             }
+
                         }
                         Column(
                             modifier = Modifier,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
-                            Text(
-                                text = stringResource(R.string.repeat_for),                                color = AppTheme.colors.SecondaryOne,
-                                style = AppTheme.textStyles.HeadingFive
-                            )
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ){
-                                CustomTextField(
-                                    value = repeatAmount,
-                                    onValueChange = {   newText ->
-                                        repeatAmount = newText
-                                        if(newText.isNotEmpty()) {
-                                            indefinitelyRepeat = false
-                                            doNotRepeat = false
-                                        }
-                                    },
-                                    placeholderText = "",
-                                    inputFilter = { it.all { char -> char.isDigit() } },
-                                    modifier = Modifier
-                                        .weight(1f),
-
-                                    )
-                                DropDownTextMenu(
-                                    options = daysWeeksMonthsYearsList,
-                                    selectedIndex = selectedRepeatAmount,
-                                    onSelectedChange = {selectedRepeatAmount = it },
-                                    expanded = selectedRepeatAmountMenu,
-                                    modifier = Modifier.weight(1f),
+                            ) {
+                                CustomCheckbox(
+                                    checked = repeatReminder,
+                                    onCheckedChange = {
+                                        repeatReminder = it
+//                                        if (it) {
+//                                            //doNotRepeat = false
+//
+//                                        }
+                                    }
+                                )
+                                Text(
+                                    text = stringResource(R.string.repeat_reminder),
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.Gray
                                 )
                             }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            ) {
-
-                                // Indefinitely repeat
+                            if(repeatReminder) {
+                                Text(
+                                    text = stringResource(R.string.repeat_for), color = AppTheme.colors.SecondaryOne,
+                                    style = AppTheme.textStyles.HeadingFive
+                                )
                                 Row(
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    CustomCheckbox(
-                                        checked = indefinitelyRepeat,
-                                        onCheckedChange = {
-                                            indefinitelyRepeat = it
-                                            if(it){
-                                                doNotRepeat = false
-
+                                    CustomTextField(
+                                        value = repeatAmount,
+                                        onValueChange = { newText ->
+                                            repeatAmount = newText
+                                            if (newText.isNotEmpty()) {
+                                                repeatReminder = false
+                                                //doNotRepeat = false
                                             }
-                                        }
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.repeats_indefinitely),style = AppTheme.textStyles.Default,
-                                        color = AppTheme.colors.Gray
+                                        },
+                                        placeholderText = "",
+                                        inputFilter = { it.all { char -> char.isDigit() } },
+                                        modifier = Modifier
+                                            .weight(1f),
+
+                                        )
+                                    DropDownTextMenu(
+                                        options = daysWeeksMonthsYearsList,
+                                        selectedIndex = selectedRepeatAmount,
+                                        onSelectedChange = { selectedRepeatAmount = it },
+                                        expanded = selectedRepeatAmountMenu,
+                                        modifier = Modifier.weight(1f),
                                     )
                                 }
 
-                                // Do not repeat
-                                Row(
-                                    modifier = Modifier.weight(1f),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        CustomCheckbox(
-                                            checked = doNotRepeat,
-                                            onCheckedChange = {
-                                                doNotRepeat = it
-                                                if(it){
-                                                    indefinitelyRepeat = false
-
-                                                    asWeekDay = false
-                                                    asDaily = false
-                                                }
-                                            }
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.do_not_repeat),
-                                            style = AppTheme.textStyles.Default,
-                                            color = AppTheme.colors.Gray
-                                        )
-                                    }
-                                }
                             }
+
                         }
                     }
                 }
@@ -503,7 +521,7 @@ fun CreateReminderScreen(
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
                                     // --- "Remind me every" section ---
-                                    val isDaily = asDaily || asWeekDay
+                                    //val isDaily = asDaily || asWeekDay @Todo Stephen Commented this out as not used
                                     var timesPerHour = 0
                                     var timesPerDay = 0
                                     var timesPerMonth = 0
@@ -530,23 +548,23 @@ fun CreateReminderScreen(
                                     }
 
                                     // --- "Repeat for" [ amount + (Days/Weeks/Months/Years) ]
-                                    val repeatForever = indefinitelyRepeat
+                                    //val repeatForever = indefinitelyRepeat
                                     var repeatCount = 0
                                     var repeatInterval: String? = null
 
-                                    if (!doNotRepeat && !repeatForever) {
-                                        val count = repeatAmount.toIntOrNull() ?: 0
-                                        if (count > 0) {
-                                            repeatCount = count
-                                            repeatInterval = when (selectedRepeatAmount) {
-                                                0 -> "days"
-                                                1 -> "weeks"
-                                                2 -> "months"
-                                                3 -> "years"
-                                                else -> null
-                                            }
-                                        }
-                                    }
+//                                    if (!doNotRepeat && !repeatForever) {                    @Todo Stephen Commented this out as not used
+//                                        val count = repeatAmount.toIntOrNull() ?: 0
+//                                        if (count > 0) {
+//                                            repeatCount = count
+//                                            repeatInterval = when (selectedRepeatAmount) {
+//                                                0 -> "days"
+//                                                1 -> "weeks"
+//                                                2 -> "months"
+//                                                3 -> "years"
+//                                                else -> null
+//                                            }
+//                                        }
+//                                    }
 
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore auto-generates
@@ -557,11 +575,11 @@ fun CreateReminderScreen(
                                         completedAt = null,
                                         createdAt = null,
                                         lastUpdate = null,
-                                        isDaily = isDaily,
+                                        //isDaily = isDaily,               @Todo Stephen Commented this out as not used
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
-                                        repeatForever = repeatForever,
+                                        //repeatForever = repeatForever, @Todo Stephen Commented this out as not used
                                         repeatCount = repeatCount,
                                         repeatInterval = repeatInterval,
                                         colorToken = null,
@@ -649,6 +667,5 @@ fun CreateReminderScreen(
     if(showCreateRemindersToolTip.value){
         CreateRemindersToolTip(showCreateRemindersToolTip)
     }
-
 }
 

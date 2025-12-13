@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -56,31 +60,79 @@ import kotlin.collections.toList
 import kotlin.collections.filter
 
 @Composable
-fun Day(day: CalendarDay) {
+fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:Int) {
     val isOutDate = day.position != DayPosition.MonthDate
+    val date = day.date
+    val yearIndex = date.year - startYear
+    val monthValue = date.month.value
+    val dayValue = date.dayOfMonth
+    val toShowReminderInfo = remember {mutableStateOf(false)}
+    val hasReminder = reminders.filter { r ->
+        r.isEnabled && (
+                (r.year == yearIndex && r.month == monthValue && r.day == dayValue) || (r.isDaily && (yearIndex > r.year || (yearIndex == r.year && monthValue > r.month) || (yearIndex == r.year && monthValue == r.month && dayValue >= r.day))))
+    }
+    val colorOptions = listOf(
+        Color.Red,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow,
+        Color.Cyan,
+        Color.LightGray,
+        Color.White
+    )
+    val hourOptions = stringArrayResource(R.array.hour_array).toList()
+    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
+    val amOrPmOptions = listOf( stringResource(R.string.am), stringResource(R.string.pm))
+    val dayReminders = remember{mutableStateOf(hasReminder)}
     Box(
         modifier = Modifier
             .border(
-                color = AppTheme.colors.Gray, shape = RectangleShape,
+                color = AppTheme.colors.Gray,
+                shape = RectangleShape,
                 width = 0.2.dp
             )
             .fillMaxWidth()
-            .height(70.dp)
-            .clickable {
-                // Todo add click to add events to days > might be handled in Add reminders
-            },
-        contentAlignment = Alignment.TopCenter,
+            .height(70.dp),
+        contentAlignment = Alignment.TopCenter
     ) {
         Text(
-            text = day.date.dayOfMonth.toString(),
-            color = if (isOutDate) {
-                AppTheme.colors.FadedGray
-            } else {
-                AppTheme.colors.Gray
+            text = dayValue.toString(),
+            color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
+        )
+        if (hasReminder.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ){
+                hasReminder.take(4).forEach { reminder -> // The .take(n=4) limits how many dots will be in Day cell
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .size(8.dp)
+                            .background(colorOptions[reminder.color], CircleShape)
+                            .clickable {
+                                toShowReminderInfo.value = true
+                                dayReminders.value = hasReminder
+                            }
+                    )
+                }
             }
+        }
+    }
+    if (toShowReminderInfo.value) {
+
+        ShowCalendarReminders(
+            toShowReminderInfo,
+            dayReminders.value,
+            day = dayValue,
+            month = monthValue,
+            hourOptions,
+            minutesOptions,
+            amOrPmOptions
         )
     }
-
 }
 
 @Composable
@@ -136,8 +188,6 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
         }
     }
 }
-
-private fun DayOfWeek.getDisplayName(short: Any, default: Any) {}
 
 @Composable
 fun MonthJump(
@@ -478,7 +528,7 @@ fun ShowReminder(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                           delete = true
+                            delete = true
                         },
                         backgroundColor = AppTheme.colors.Error75,
                     ) {
@@ -561,6 +611,97 @@ fun ShowReminder(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShowCalendarReminders(
+    toShow: MutableState<Boolean>,
+    reminders: List<calReminder>,
+    day: Int,
+    month: Int,
+    hourOptions: List<String>,
+    minutesOptions: List<String>,
+    amOrPmOptions: List<String>
+){
+    if(reminders.isEmpty()){
+        return
+    }
+    val month = Month.of(month).getDisplayName(TextStyle.FULL, Locale.getDefault())
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = true
+    ){
+        Column(
+           verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Reminders for $month ${SuffixForDays(day)}",
+                style = AppTheme.textStyles.HeadingSix,
+                color = AppTheme.colors.SecondaryThree
+            )
+            HighlightCard(
+                modifier = Modifier
+
+                    .fillMaxWidth(),
+
+                outerPadding = 0.dp
+            ){
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+
+                ) {
+                    reminders.forEach { reminder: calReminder ->
+                        val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
+                        val min = minutesOptions.getOrNull(reminder.selectedMinutes) ?: "0"
+                        val amPm = amOrPmOptions.getOrNull(reminder.amOrPm) ?: "AM"
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(AppTheme.colors.DarkerBackground, shape = RoundedCornerShape(12.dp)),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                ShadowedIcon(
+                                    modifier = Modifier.size(30.dp),
+                                    imageVector = ImageVector.vectorResource(reminder.icon),
+                                    tint = Color.Unspecified
+                                )
+                                Text(
+                                    text = reminder.name,
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.SecondaryThree
+                                )
+                                Text(
+                                    text = "$hour:$min $amPm",
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            CustomButton(
+                width = 120.dp,
+                onClick = { toShow.value = false },
+                backgroundColor = AppTheme.colors.Success75,
+            ) {
+                Text(
+                    text = stringResource(R.string.close),
+                    style = AppTheme.textStyles.HeadingSix,
+                    color = AppTheme.colors.Background
+                )
             }
         }
     }
