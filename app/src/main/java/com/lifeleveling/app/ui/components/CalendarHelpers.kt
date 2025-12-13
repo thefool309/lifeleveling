@@ -2,6 +2,7 @@ package com.lifeleveling.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -27,6 +31,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -34,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
@@ -42,6 +48,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.resolveEnumColor
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Month
@@ -60,8 +67,10 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
     val yearIndex = date.year - startYear
     val monthValue = date.month.value
     val dayValue = date.dayOfMonth
+    val toShowReminderInfo = remember {mutableStateOf(false)}
     val hasReminder = reminders.filter { r ->
-        r.isEnabled && r.year == yearIndex && r.month == monthValue && r.day == dayValue    //filter all reminders that are enabled and match this year, month, day
+        r.isEnabled && (
+                (r.year == yearIndex && r.month == monthValue && r.day == dayValue) || (r.isDaily && (yearIndex > r.year || (yearIndex == r.year && monthValue > r.month) || (yearIndex == r.year && monthValue == r.month && dayValue >= r.day))))
     }
     val colorOptions = listOf(
         Color.Red,
@@ -73,7 +82,10 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
         Color.LightGray,
         Color.White
     )
-
+    val hourOptions = stringArrayResource(R.array.hour_array).toList()
+    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
+    val amOrPmOptions = listOf( stringResource(R.string.am), stringResource(R.string.pm))
+    val dayReminders = remember{mutableStateOf(hasReminder)}
     Box(
         modifier = Modifier
             .border(
@@ -101,10 +113,26 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
                             .align(Alignment.CenterVertically)
                             .size(8.dp)
                             .background(colorOptions[reminder.color], CircleShape)
+                            .clickable {
+                                toShowReminderInfo.value = true
+                                dayReminders.value = hasReminder
+                            }
                     )
                 }
             }
         }
+    }
+    if (toShowReminderInfo.value) {
+
+        ShowCalendarReminders(
+            toShowReminderInfo,
+            dayReminders.value,
+            day = dayValue,
+            month = monthValue,
+            hourOptions,
+            minutesOptions,
+            amOrPmOptions
+        )
     }
 }
 
@@ -595,6 +623,96 @@ fun ShowReminder(
     }
 }
 
+@Composable
+fun ShowCalendarReminders(
+    toShow: MutableState<Boolean>,
+    reminders: List<calReminder>,
+    day: Int,
+    month: Int,
+    hourOptions: List<String>,
+    minutesOptions: List<String>,
+    amOrPmOptions: List<String>
+){
+    if(reminders.isEmpty()){
+        return
+    }
+    val month = Month.of(month).getDisplayName(TextStyle.FULL, Locale.getDefault())
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = true
+    ){
+        Column(
+           verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Reminders for $month ${SuffixForDays(day)}",
+                style = AppTheme.textStyles.HeadingSix,
+                color = AppTheme.colors.SecondaryThree
+            )
+            HighlightCard(
+                modifier = Modifier
+
+                    .fillMaxWidth(),
+
+                outerPadding = 0.dp
+            ){
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+
+                ) {
+                    reminders.forEach { reminder: calReminder ->
+                        val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
+                        val min = minutesOptions.getOrNull(reminder.selectedMinutes) ?: "0"
+                        val amPm = amOrPmOptions.getOrNull(reminder.amOrPm) ?: "AM"
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(AppTheme.colors.DarkerBackground, shape = RoundedCornerShape(12.dp)),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                ShadowedIcon(
+                                    modifier = Modifier.size(30.dp),
+                                    imageVector = ImageVector.vectorResource(reminder.icon),
+                                    tint = Color.Unspecified
+                                )
+                                Text(
+                                    text = reminder.name,
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.SecondaryThree
+                                )
+                                Text(
+                                    text = "$hour:$min $amPm",
+                                    style = AppTheme.textStyles.Default,
+                                    color = AppTheme.colors.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            CustomButton(
+                width = 120.dp,
+                onClick = { toShow.value = false },
+                backgroundColor = AppTheme.colors.Success75,
+            ) {
+                Text(
+                    text = stringResource(R.string.close),
+                    style = AppTheme.textStyles.HeadingSix,
+                    color = AppTheme.colors.Background
+                )
+            }
+        }
+    }
+}
 
 
 fun formatReminderTime(reminder: Reminders): String {

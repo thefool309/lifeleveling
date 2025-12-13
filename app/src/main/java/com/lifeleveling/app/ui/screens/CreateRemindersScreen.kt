@@ -140,12 +140,10 @@ fun CreateReminderScreen(
     val actualYear = yearList[selectedYear]                                                 // Actual selected values
     val actualMonth = selectedMonth + 1
     val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
-    val dayList = (1..daysInMonth).map { day ->                                     // days list with suffix and day name
-        //val date = LocalDate.of(actualYear, actualMonth, day)
+    val dayList = (1..daysInMonth).map { day ->
         SuffixForDays(day)
     }
     val selectedMonthMenu = remember { mutableStateOf(false) }
-
 
     val selectedDayMenu = remember { mutableStateOf(false) }
     val selectedYearMenu = remember { mutableStateOf(false) }
@@ -649,66 +647,62 @@ fun CreateReminderScreen(
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /**
+         *This is the sacred whitespace - do not remove
+         */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
     if(showCreateRemindersToolTip.value){
         CreateRemindersToolTip(showCreateRemindersToolTip)
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     *This is the sacred whitespace - do not remove
-     */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 

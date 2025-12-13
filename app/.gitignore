@@ -1,3 +1,10 @@
+/build/crashlytics
+/build/generated
+/build/gmpAppId
+/build/intermediates
+/build/kotlin
+/build/outputs
+/build/tmp
 /build
 google-services.json
 .kotlin/
