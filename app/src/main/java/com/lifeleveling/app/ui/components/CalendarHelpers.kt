@@ -126,6 +126,8 @@ fun Day(day: CalendarDay, reminders: List<calReminder> = emptyList(), startYear:
         ShowCalendarReminders(
             toShowReminderInfo,
             dayReminders.value,
+            day = dayValue,
+            month = monthValue,
             hourOptions,
             minutesOptions,
             amOrPmOptions
@@ -618,6 +620,8 @@ fun ShowReminder(
 fun ShowCalendarReminders(
     toShow: MutableState<Boolean>,
     reminders: List<calReminder>,
+    day: Int,
+    month: Int,
     hourOptions: List<String>,
     minutesOptions: List<String>,
     amOrPmOptions: List<String>
@@ -625,33 +629,34 @@ fun ShowCalendarReminders(
     if(reminders.isEmpty()){
         return
     }
-    val r = reminders.first()
-    val day = r.day
-    val month = Month.of(r.month).getDisplayName(TextStyle.FULL, Locale.getDefault())
-
+    val month = Month.of(month).getDisplayName(TextStyle.FULL, Locale.getDefault())
     CustomDialog(
         toShow = toShow,
         dismissOnInsideClick = true
     ){
         Column(
-           modifier = Modifier.fillMaxWidth(),
+           verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Reminders for $month ${SuffixForDays(day)}",
-                style = AppTheme.textStyles.HeadingFour,
+                style = AppTheme.textStyles.HeadingSix,
                 color = AppTheme.colors.SecondaryThree
             )
             HighlightCard(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(450.dp),
+
+                    .fillMaxWidth(),
+
                 outerPadding = 0.dp
             ){
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(150.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+
                 ) {
                     reminders.forEach { reminder: calReminder ->
                         val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
