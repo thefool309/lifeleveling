@@ -4,7 +4,7 @@
 set -e
 
 # shellcheck disable=SC1091
-export "$(grep -v '^#' .env | xargs)"
+# export "$(grep -v '^#' .env | xargs)" # commented out because it was causing the workflow to fail
 
 # the package path based on imported env variables
 PACKAGE="system-images;android-${API_LEVEL};google_apis;x86_64"
