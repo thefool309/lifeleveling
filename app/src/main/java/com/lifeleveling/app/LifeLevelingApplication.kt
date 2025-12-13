@@ -9,6 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Overhead class that controls the application state.
+ * MainActivity will refresh with UI load in but application will only go with the apps opening and closing
+ * @author Elyseia
+ */
 class LifeLevelingApplication : Application(), DefaultLifecycleObserver {
     lateinit var userManager: UserManager
 

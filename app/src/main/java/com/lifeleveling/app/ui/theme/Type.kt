@@ -16,6 +16,11 @@ val LexendDeca = FontFamily(
 )
 
 // Material typography changed to customized styles
+/**
+ * Saving the values for complete TextStyles.
+ * Saves the app standards of the font, size, line height, and more.
+ * @author Elyseia
+ */
 val Typography = Typography(
     // HeadingOne
     displayLarge = TextStyle(
@@ -99,6 +104,10 @@ val Typography = Typography(
     )
 )
 
+/**
+ * Saved names of Text values pulled from Figma.
+ * @author Elyseia
+ */
 data class TextStyles(
     val HeadingOne: TextStyle,
     val HeadingTwo: TextStyle,
@@ -113,7 +122,6 @@ data class TextStyles(
     val DefaultUnderlined: TextStyle,
     val SmallUnderlined: TextStyle
 )
-
 
 val AppTextStyles = TextStyles(
     HeadingOne = Typography.displayLarge,

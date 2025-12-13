@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.InnerShadow
 import com.lifeleveling.app.ui.theme.resolveEnumColor
@@ -66,6 +68,11 @@ ScrollFadeEdges  -  Applies a dark shading at the top and bottom if the screen o
  */
 
 // This screen shows the different effects that are within this file
+/**
+ * This screen shows the different effects that are within this file.
+ * Purely for testing purposes.
+ * @author Elyseia
+ */
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -304,9 +311,15 @@ fun TestScreen() {
 }
 
 /**
- * Darker background Screen
- *@param wrapContent Change this is for the box to be the width of the content
+ * Makes a box that will look sunken in and have a darker background to distinguish from other UI elements
+ * @param width Only needed if you want to control the width of the box, otherwise it will default to filling the max width
+ * @param wrapContent Change this for the box to be the width of the content instead of taking up the max width
  * @param height Leaving this null will make the card adjust based on content height
+ * @param cornerRadius Controls the curve or the corners, defaults to app standards
+ * @param outerPadding Puts padding on the outside of the box to keep it away from the edges. Make 0 if not desired.
+ * @param innerPadding Puts padding on the inside of the box to keep content from the edges. Defaults to app standards
+ * @param backgroundColor Controls the color of the box. Defaults to the app standard for it.
+ * @param content The content to be displayed within the box. Can be passed in { } after composable call.
  *
  * @author Elyseia
  */
@@ -382,8 +395,15 @@ fun HighlightCard(
  * A custom button shaded inside with a drop shadow.
  * Will grow based on the content inside
  * A weight can be passed in to adjust the width
- * @param width Sets a specific width. Only use for precision
+ * @param onClick What the button should do when it is clicked on.
  * @param enabled Sets a boolean condition of if the button is clickable
+ * @param cornerRadius Controls the curve of the corners, defaults to app standards.
+ * @param backgroundColor The color the button will be when it is enabled
+ * @param disabledColor The color the button will be when it is NOT enabled.
+ * @param horizontalPadding The padding between the content inside and the outside edges on the sides.
+ * @param verticalPadding The padding between the content inside and the edges above and below it.
+ * @param width Sets a specific width. Only use for precision. Defaults to wrap content within it
+ * @param content What will be displayed inside of the button. Can be passed in through { } after the call
  *
  * @author Elyseia
  */
@@ -469,12 +489,13 @@ fun CustomButton(
 }
 
 /**
- * Adds a backdrop to the icon
- * @param imageVector The icon
+ * Displays an icon and adds a backdrop shadow behind it.
+ * @param imageVector The icon to be displayed
+ * @param contentDescription A description of the icon
  * @param tint The color of the icon.
  * @param shadowColor Color of the drop shadow
  * @param shadowOffset Moves the shadow out farther from the icon
- * @param shadowAlpha How dark the shadow will appear
+ * @param shadowAlpha How opaque the shadow will appear
  *
  * @author Elyseia
  */
@@ -518,6 +539,11 @@ fun ShadowedIcon(
 
 /**
  * Shaded popup card for overlays.
+ * @param cornerRadius Controls the curve of the corners of the box. Defaults to app standards
+ * @param outerPadding Adds padding outside the popup so that it is not against the screen edges.
+ * @param innerPadding Adds padding inside the popup so that the content is not on the box's edges.
+ * @param backgroundColor The color of the box displayed.
+ * @param content The content that will be inside the box. Can be added inside { } after the call.
  *
  * @author Elyseia
  */
@@ -586,13 +612,15 @@ fun PopupCard(
 
 /**
  * Circular button with a center icon.
+ * @param onClick Logic of what the button does when clicked.
  * @param imageVector Icon to display.
- * @param onClick Logic of what the button does.
+ * @param contentDescription A description of the icon or button function
  * @param size Changes the size of the button, icon scales with.
  * @param backgroundColor Color of the button.
  * @param iconTint Color of the icon inside
  * @param shadowColor Color of the button drop shadow.
- * @param elevation Button drop shadow adjustment.
+ * @param elevation How far out the drop shadow of the button renders
+ * @param iconSizeModifier An adjustment to the icon's ration to the button size if the icon doesn't seem to be fitting properly.
  *
  * @author Elyseia
  */
@@ -647,10 +675,11 @@ fun CircleButton(
 }
 
 /**
- * Progress bar for changing values.
+ * A bar to display a visual representation of a percentage passed into it.
  * @param progress Percentage value for how full the bar will appear.
  * @param backgroundColor Color of hte unfilled space.
  * @param progressColor Color of the filled in space.
+ * @param cornerRadius Controls the curve of the corners to the bar. Defaults to the app standards.
  *
  * @author Elyseia
  */
@@ -743,13 +772,15 @@ fun ProgressBar(
 
 /**
  * Two option toggle switch.
- * @param options The list of options to appear in order.
- * @param selectedIndex A value that the switch will change based on the selection.
+ * @param options The list of options to appear in order from left to right. Takes a max of two.
+ * @param selectedIndex A value that the switch will change based on the selection. Matches the index of the option in the options.
+ * @param onOptionSelected What should happen when the option is clicked on. Pass in that the selected Index becomes it.
  * @param horizontalPadding How far from edge the text appears.
  * @param verticalPadding Padding above and below text.
  * @param backgroundColor Back of switch color.
  * @param selectedColor Color of the indicator.
  * @param unselectedColor Color of the text for the unselected option.
+ * @param cornerRadius Controls the curve of the corners to the switch. Defaults to the app standard.
  * @param textStyle The style of the text inside. Will change the size of the entire switch to fit it.
  * @param insetAmount The offset of the indicator to appear inside the switch.
  * @param extraWidth Adds space to the button to stretch it wider if needed.
@@ -898,10 +929,10 @@ fun SlidingSwitch(
 }
 
 /**
- * Custom Checkbox
+ * Custom Checkbox Composable
  * @param checked The bool that box's state depends on
  * @param onCheckedChange What to do when it is clicked, defaults to changing the bool state
- * @param size Adjusts size of box and icon inside
+ * @param size Adjusts size of box and check icon inside
  * @param mainColor Outline of unchecked area and fill of checked box
  * @param checkColor Color of the checkmark inside
  *
@@ -940,10 +971,11 @@ fun CustomCheckbox(
 }
 
 /**
- * CustomDialog will pop up a window in the middle of the screen that will dismiss when clicking outside of it
+ * CustomDialog will pop up a window in the middle of the screen that will dismiss when clicking outside and inside of it
  * @param toShow The boolean for if the window shows or not.
  * @param dismissOnInsideClick If the contents is NOT interactive, leave this as true for the window to disappear if clicked on. False will allow buttons to be on the inside.
  * @param dismissOnOutsideClick Controls if the window will close if you click outside the box
+ * @param content What will be displayed within the dialog box. Can be filled in within { } after the call.
  *
  * @author Elyseia
  */
@@ -978,7 +1010,7 @@ fun CustomDialog(
 }
 
 /**
- * Creates a dropdown menu for string options
+ * Creates a dropdown menu for a list of string options
  * @param options List of strings for options
  * @param selectedIndex Variable for storing the selected option index
  * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
@@ -1088,7 +1120,7 @@ fun DropDownTextMenu(
 }
 
 /**
- * Creates a dropdown menu for string options
+ * Creates a dropdown menu for a list of reminders
  * @param options List of reminders for options
  * @param selectedIndex Variable for storing the selected option index
  * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
@@ -1123,6 +1155,9 @@ fun DropDownReminderMenu(
     selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
     selectedText: Color = AppTheme.colors.Gray,
 ) {
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+
     Box(
         modifier = modifier
     ) {
@@ -1135,15 +1170,15 @@ fun DropDownReminderMenu(
                     .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
                     .fillMaxWidth()
                     .widthIn(max = 300.dp),
-                value = options.getOrNull(selectedIndex)?.name ?: "",
+                value = options.getOrNull(selectedIndex)?.title ?: "",
                 onValueChange = { },
                 readOnly = readOnly,
                 leadingIcon = {
                     val item = options[selectedIndex]
                     ShadowedIcon(
                         modifier = Modifier.size(arrowSize),
-                        imageVector = ImageVector.vectorResource(item.icon),
-                        tint = item.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
+                        imageVector = ImageVector.vectorResource(item.iconName),
+                        tint = item.colorToken?.let { resolveEnumColor(it) } ?: Color.Unspecified
                     )
                 },
                 trailingIcon = {
@@ -1177,8 +1212,8 @@ fun DropDownReminderMenu(
                     .background(backgroundMainColor)
             ) {
                 options.forEachIndexed { index, reminder ->
-                    val alreadyInStreaks = TestUser.weeklyStreaks.any { it.reminder.id == reminder.id } ||
-                            TestUser.weeklyStreaks.any { it.reminder.id == reminder.id }
+                    val alreadyInStreaks = userState.weeklyStreaks.any { it.reminderId == reminder.reminderId } ||
+                            userState.weeklyStreaks.any { it.reminderId == reminder.reminderId }
 
                     if (!alreadyInStreaks) {
                         val isSelected = index == selectedIndex
@@ -1196,12 +1231,12 @@ fun DropDownReminderMenu(
                                 ) {
                                     ShadowedIcon(
                                         modifier = Modifier.size(arrowSize),
-                                        imageVector = ImageVector.vectorResource(reminder.icon),
-                                        tint = reminder.color?.let { resolveEnumColor(it) } ?: Color.Unspecified
+                                        imageVector = ImageVector.vectorResource(reminder.iconName),
+                                        tint = reminder.colorToken?.let { resolveEnumColor(it) } ?: Color.Unspecified
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = reminder.name,
+                                        text = reminder.title,
                                         style = textStyle,
                                         color = if (isSelected) selectedText else textColor,
                                     )
@@ -1224,6 +1259,7 @@ fun DropDownReminderMenu(
 
 /**
  * A thin line with a dot at either end for separating UI sections
+ * @param color The color the line will appear as. Defaults to the app standard.
  *
  * @author Elyseia
  */
@@ -1254,6 +1290,9 @@ fun SeparatorLine(
  * @param inputFilter Allows the use of filters on what can be entered. Examples: { it.all { char -> char.isDigit() } } is only numbers. .isLetter() is only letters. .isWhitespace() allows spaces
  * @param backgroundColor Color of the text box inside the outline
  * @param outlineColor Color of the outline of the box
+ * @param keyboardOptions Add in any kepyboard options that will show a specific style of keyboard when the user clicks into it.
+ * @param supportingUnit Add any extra pieces to appear below the text box such as necessary items for a password.
+ * @param visualTransformation If the text inside should go through a visual transformation such as hiding password content.
  *
  * @author Elyseia
  */

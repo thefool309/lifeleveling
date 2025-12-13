@@ -29,7 +29,8 @@ import com.lifeleveling.app.ui.theme.AppTheme
 
 
 /**
- * Makes a list of the bullets passed in.
+ * Makes a bulleted list from the list of strings passed in
+ * @param items The list of AnnotatedStrings that will be turned into bullet points.
  *
  * @author Elyseia
  */
@@ -61,7 +62,7 @@ fun BulletPoints(items: List<AnnotatedString>) {
 }
 
 /**
- * Saving the dialog options with parameters to pass in making tooltips look the same
+ * Saving the dialog options with parameters to pass in to make tooltips look the same
  * @param toShow Boolean for showing the dialog
  * @param title Title of tooltip window. Call as R.string.[string name]
  * @param tips Build a list of annotatedStrings to pass in as bullet points
@@ -104,7 +105,7 @@ fun Tooltip(
 
 
 /**
- * Level and Experience Popup Tool Tip
+ * Level and Experience Popup Tool Tip.
  * @param toShow The boolean to toggle if it is shown
  */
 @Composable
@@ -142,7 +143,7 @@ fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
 }
 
 /**
- * HealthToolTip window
+ * Health Tool Tip window
  * @param toShow The boolean to toggle if it is shown
  */
 @Composable
@@ -253,6 +254,12 @@ fun BadgesToolTip(toShow: MutableState<Boolean>) {
     )
 }
 
+/**
+ * Stats popup tool tip
+ * @param toShow Boolean that controls if the popup window will be displayed
+ *
+ * @author StephenC1993
+ */
 @Composable
 fun StatsToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points
@@ -316,6 +323,12 @@ fun StatsToolTip(toShow: MutableState<Boolean>) {
     )
 }
 
+/**
+ * User Journey tool tip window
+ * @param toShow Boolean controlling if the popup window will be displayed
+ *
+ * @author Elyseia
+ */
 @Composable
 fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points

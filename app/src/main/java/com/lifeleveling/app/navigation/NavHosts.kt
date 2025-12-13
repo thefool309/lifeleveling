@@ -28,6 +28,12 @@ import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
 
+/**
+ * Holds the navigation logic.
+ * Listens for if the user is logged in and only shows inside screens with the navigation bar if the user is authenticated and logged in.
+ * Add screens to be navigated too here within the NavHost
+ * @author Elyseia
+ */
 @Composable
 fun AppNavHost() {
     val navController = LocalNavController.current

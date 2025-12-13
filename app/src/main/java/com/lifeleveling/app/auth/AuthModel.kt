@@ -43,7 +43,7 @@ import kotlinx.coroutines.tasks.await
  * @author fdesouza1992
  * **/
 class AuthModel(
-    // Firebase auth and Firestore repository instance
+    // Firebase auth instance and passed in logger logic
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val logger: ILogger
 ) {

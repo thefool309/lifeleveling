@@ -41,6 +41,10 @@ val Error_Light = Color(0xff921e19)
 val Error75_Light = Color(0xbf921e19)
 val Warning_Light = Color(0xff444118)
 
+/**
+ * Enum representation of colors for easier saving
+ * @author Elyseia
+ */
 enum class enumColor {
     BrandOne,
     BrandTwo,
@@ -61,6 +65,12 @@ enum class enumColor {
     Warning,
 }
 
+/**
+ * Turns the enum color name into an actual color value
+ * @param color The enum name of a color
+ * @return Returns a proper color value
+ * @author Elyseia
+ */
 @Composable
 fun resolveEnumColor(color: enumColor): Color = when (color) {
     enumColor.BrandOne -> AppTheme.colors.BrandOne

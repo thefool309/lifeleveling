@@ -34,12 +34,22 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 
 // Each nav item set up
+/**
+ * The setup information for every navigation item to be passed into the bottom nav bar.
+ * @param icon The icon to be displayed
+ * @param route The screen that clicking the item should take the user to
+ * @author Elyseia
+ */
 data class BottomNavItem(
     val icon: Int,
     val route: String,
 )
 
 // Group of all items in the menu
+/**
+ * The list of the give main screens that will be showing up ont he bottom navigation bar.
+ * @author Elyseia
+ */
 object Constants {
     val BottomNavItems = listOf(
         // Calendar screen
@@ -70,42 +80,48 @@ object Constants {
     )
 }
 
-/**
- * Old standard nav bar. See new CustomNavBar
- */
-@Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    NavigationBar(
-        containerColor = AppTheme.colors.DarkerBackground,
-        modifier = Modifier.Companion.height(80.dp)
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+///**
+// * Old standard nav bar. See new CustomNavBar
+// * @author Elyseia
+// */
+//@Composable
+//fun BottomNavigationBar(navController: NavHostController) {
+//    NavigationBar(
+//        containerColor = AppTheme.colors.DarkerBackground,
+//        modifier = Modifier.Companion.height(80.dp)
+//    ) {
+//        val navBackStackEntry by navController.currentBackStackEntryAsState()
+//        val currentRoute = navBackStackEntry?.destination?.route
+//
+//        Constants.BottomNavItems.forEach { navItem ->
+//            NavigationBarItem(
+//                selected = currentRoute == navItem.route,
+//                onClick = { navController.navigate(navItem.route) },
+//                icon = {
+//                    Icon(
+//                        imageVector = ImageVector.Companion.vectorResource(navItem.icon),
+//                        contentDescription = navItem.route,
+//                        modifier = Modifier.Companion.size(40.dp),
+//                    )
+//                },
+//                alwaysShowLabel = false,
+//                colors = NavigationBarItemDefaults.colors(
+//                    selectedIconColor = AppTheme.colors.BrandOne,
+//                    unselectedIconColor = AppTheme.colors.BrandTwo,
+//                )
+//            )
+//        }
+//    }
+//}
 
-        Constants.BottomNavItems.forEach { navItem ->
-            NavigationBarItem(
-                selected = currentRoute == navItem.route,
-                onClick = { navController.navigate(navItem.route) },
-                icon = {
-                    Icon(
-                        imageVector = ImageVector.Companion.vectorResource(navItem.icon),
-                        contentDescription = navItem.route,
-                        modifier = Modifier.Companion.size(40.dp),
-                    )
-                },
-                alwaysShowLabel = false,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = AppTheme.colors.BrandOne,
-                    unselectedIconColor = AppTheme.colors.BrandTwo,
-                )
-            )
-        }
-    }
-}
-
 /**
- * New beautiful nav bar. Look at it. LOOK AT IT!
- * @author Elyseia fixed this
+ * A custom created bottom navigation bar that follows the applications design themes.
+ * Holds the clickable navigation items to direct the user through the app.
+ * Will be only be displayed on screens the user can see if they are logged in
+ * @param navController The controller that handles the actual routing to change the screens
+ * @param height How tall to make the bar at the bottom of the screen
+ * @param indicatorSize How large to make the circle indicator that is behind the icons
+ * @author Elyseia
  */
 @Composable
 fun CustomNavBar(

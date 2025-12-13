@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+/**
+ *  A wrapper around the starting load logic that will run while the splash screen is being shown.
+ *  @param userManager The UserManager object that controls if the user is signed in or not
+ *
+ *  @author Elyseia, fdesouza1992
+ */
 class StartLogic(
     private val userManager: UserManager,
 ) : ViewModel() {
@@ -33,8 +39,10 @@ class StartLogic(
 
             val uid = FirebaseAuth.getInstance().currentUser?.uid
             if (uid != null) {
-                userManager.loadUser()
+                // TODO: Load in the user
+//                userManager.loadUser()
             } else {
+                // User not found so set the flag to logged out.
                 userManager.setLoggedOut()
             }
 
@@ -43,6 +51,10 @@ class StartLogic(
     }
 }
 
+/**
+ * A factory that controls the StartLogic
+ * @author Elyseia
+ */
 class StartLogicFactory(
     private val userManager: UserManager,
 ) : ViewModelProvider.Factory {

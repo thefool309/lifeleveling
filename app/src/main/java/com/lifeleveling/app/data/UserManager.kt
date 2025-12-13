@@ -409,6 +409,15 @@ class UserManager(
         fireRepo.writeBookkeeping(provider, user)
     }
 
+    /**
+     * Makes sure the flag is set to logged out.
+     * Used at the start when the app loads if a user is not saved
+     * @author Elyseia
+     */
+    fun setLoggedOut() {
+        userData.update { it.copy(isLoggedIn = false, userBase = null) }
+    }
+
     // ================== Firestore managing functions ==============================================
 
 

@@ -36,6 +36,12 @@ import com.lifeleveling.app.ui.components.PopupCard
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * The display of the applications splash screen.
+ * @param backgroundColor The color that should be behind the splash screen
+ *
+ * @author Elyseia
+ */
 @Composable
 fun SplashAnimationOverlay(
     backgroundColor: Color = AppTheme.colors.Background
@@ -64,6 +70,13 @@ fun SplashAnimationOverlay(
     }
 }
 
+/**
+ * An overlay screen that will fade the current screen displayed and show a loading circle with the loading flag is toggled
+ * @param backgroundColor The background color that gives the 'faded' look to the UI behind it.
+ * @param progressColor The color of the spinner wheel.
+ *
+ * @author Elyseia, fdesouza1992
+ */
 @Composable
 fun LoadingOverlay(
     modifier: Modifier = Modifier,
@@ -83,6 +96,13 @@ fun LoadingOverlay(
     }
 }
 
+/**
+ * An overlay that is triggered when the user levels up.
+ * Will display a congratulations message, the new level, and how many coins were awareded.
+ * Has a button that dismisses the message and triggers a small write to firestore of the updated information.
+ *
+ * @author Elyseia
+ */
 @Composable
 fun LevelUpOverlay() {
     val userManager = LocalUserManager.current

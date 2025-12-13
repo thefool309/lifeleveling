@@ -27,6 +27,11 @@ To access Typography styles use AppTheme.textStyles.[text style you need]
 */
 
 // Universally usable names pulled from Figma for color scheme
+/**
+ * The common names of the colors pulled from Figma.
+ * A class that holds them all for assigning values for dark versus light.
+ * @author Elyseia
+ */
 data class Colors(
     val BrandOne: Color,
     val BrandTwo: Color,
@@ -48,6 +53,10 @@ data class Colors(
 )
 
 // Dark Mode colors assigned
+/**
+ *  The assignment of the dark mode colors into an object
+ *  @author Elyseia
+ */
 private val DarkCustomScheme = Colors(
     BrandOne = BrandOne_Dark,
     BrandTwo = BrandTwo_Dark,
@@ -69,6 +78,10 @@ private val DarkCustomScheme = Colors(
 )
 
 //Light Mode colors assigned
+/**
+ *  The assignment of the light mode colors into an object
+ *  @author Elyseia
+ */
 private val LightCustomScheme = Colors(
     BrandOne = BrandOne_Light,
     BrandTwo = BrandTwo_Light,
@@ -90,6 +103,10 @@ private val LightCustomScheme = Colors(
 )
 
 // Materials Dark colors
+/**
+ * Overriding the material3 base dark colors to app theme colors
+ * @Elyseia
+ */
 private val DarkMaterialColors = darkColorScheme(
     primary = BrandOne_Dark,
     onPrimary = Background_Dark,
@@ -123,6 +140,10 @@ private val DarkMaterialColors = darkColorScheme(
 )
 
 // Materials Light colors
+/**
+ * Overriding the material3 base light colors to app theme colors
+ * @Elyseia
+ */
 private val LightMaterialColors = lightColorScheme(
     primary = BrandOne_Light,
     onPrimary = Background_Light,
@@ -160,6 +181,10 @@ val LocalAppColors = staticCompositionLocalOf { DarkCustomScheme }
 val LocalAppTextStyles = staticCompositionLocalOf { AppTextStyles }
 
 // Theme Wrapper
+/**
+ * Sets up the theme controls for the application.
+ * @param darkTheme A boolean value that controls if the app is in dark or light mode
+ */
 @Composable
 fun LifelevelingTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -191,6 +216,11 @@ fun LifelevelingTheme(
 }
 
 // Custom accessor of colors and typography
+/**
+ * This object exposes the Colors and TextStyles that are for this application.
+ * Makes it so that UI can call saved values as AppTheme.colors.Background and AppTheme.textStyles.Default
+ * @author Elyseia
+ */
 object AppTheme {
     val colors: Colors
         @Composable
@@ -210,6 +240,10 @@ object AppTheme {
 }
 
 // Hides system top and bottom bars
+/**
+ * Hides the System bars until the user 'pulls' them down.
+ * @author Elyseia
+ */
 @Composable
 fun HideSystemBars() {
     val view = LocalView.current

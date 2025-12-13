@@ -48,7 +48,9 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Shows the information of a streak and option to delete it.
+ * Shows the information of a streak and option to delete it through a dialogue window.
+ * Has a switch for what is shown between the streak data or a confirmation message for deletion
+ * Confirmation will then launch delete functions.
  * @param toShow A boolean controlling if the window shows or not.
  * @param passedStreak The streak that is being clicked on.
  *
@@ -218,7 +220,9 @@ fun ShowStreak(
 }
 
 /**
- * Add a streak to streak containers and UI
+ * Ask the user for information on which reminder they want to make a streak out of.
+ * Will display different messages if there is not a reminder available to use.
+ * Add a streak to streak containers and updates UI.
  * @param toShow Boolean needed to show screen because it is a dialog
  * @param daily Determines if it shows daily reminders or other reminders
  *

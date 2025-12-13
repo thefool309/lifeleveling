@@ -45,74 +45,16 @@ fun found in this file
 /**
  * Level and Experience Display
  *
- * It will load the current user from Firestore, build a [StatsUi], and then show the level / XP bar using that snapshot.
- * While it is loading, a small progress indicator is shown.
- *
  * @param showLevelTip The bool that controls showing the tooltip window
-// * @param statsUi Optional stats model so when null, stats are fetched from Firestore
-// * @param repo Used to load the current user when [statsUi] is null.
-// * @param logger Used for reporting any errors while loading stats from Firestore.
+ * @param modifier Add in a weight or a size for how much of the screen the display takes up
  *
  * @author Elyseia, fdesouza1992
- *
  */
 @Composable
 fun LevelAndProgress(
     modifier: Modifier = Modifier,// add a weight for how much of the page or a size
     showLevelTip: MutableState<Boolean>,
-//    statsUi: StatsUi? = null,
-//    repo: FirestoreRepository = FirestoreRepository(),
-//    logger: ILogger = AndroidLogger(),
 ) {
-//
-//    var isLoading by remember { mutableStateOf(statsUi == null) }
-//    var uiState by remember { mutableStateOf(statsUi) }
-//
-//    // Decide: use provided statsUi, or fetch from Firestore if null
-//    LaunchedEffect(statsUi) {
-//        if (statsUi != null) {
-//            uiState = statsUi
-//            isLoading = false
-//        } else {
-//            // No stats provided → fetch current user from Firestore.
-//            isLoading = true
-//            val user = repo.getCurrentUser(logger)
-//            uiState = user?.let { u ->
-//                val baseStats = u.stats
-//                StatsUi(
-//                    level            = u.level.toInt(),
-//                    currentXp        = u.currentXp.toInt(),
-//                    xpToNextLevel    = u.xpToNextLevel.toInt(),
-//                    usedLifePoints   = 0,
-//                    unusedLifePoints = u.lifePoints.toInt(),                // total life point pool
-//                    strength         = baseStats.strength.toInt(),
-//                    defense          = baseStats.defense.toInt(),
-//                    intelligence     = baseStats.intelligence.toInt(),
-//                    agility          = baseStats.agility.toInt(),
-//                    health           = baseStats.health.toInt()
-//                )
-//            }
-//            isLoading = false
-//        }
-//    }
-
-//    when {
-//        isLoading -> {
-//            // Small inline loader
-//            CircularProgressIndicator(
-//                color = AppTheme.colors.SecondaryTwo
-//            )
-//        }
-//
-//        uiState != null -> {
-//            val data = uiState!!
-//
-//            val progress = if (data.xpToNextLevel > 0) {
-//                (data.currentXp.toFloat() / data.xpToNextLevel.toFloat()).coerceIn(0f, 1f)
-//            } else {
-//                0f
-//            }
-
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
 
@@ -121,60 +63,55 @@ fun LevelAndProgress(
     val formattedExp = String.format("%.2f", currentExp)
     val expToNextLevel = userState.xpToNextLevel
 
-            Column(
-                modifier = modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Level and info icon
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Start),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                // Level and info icon
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.Start),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    // Level Display
-                    Text(
-//                        text = stringResource(R.string.level, data.level),
-                        text = stringResource(R.string.level, level),
-                        color = AppTheme.colors.SecondaryOne,
-                        style = AppTheme.textStyles.HeadingThree.copy(
-                            shadow = Shadow(
-                                color = AppTheme.colors.DropShadow,
-                                offset = Offset(3f, 4f),
-                                blurRadius = 6f,
-                            )
-                        ),
-                    )
-                    // Info Icon
-                    ShadowedIcon(
-                        imageVector = ImageVector.vectorResource(R.drawable.info),
-                        tint = AppTheme.colors.FadedGray,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .offset(y = 9.74.dp)
-                            .clickable {
-                                showLevelTip.value = !showLevelTip.value
-                            }
-                    )
-                }
-
-                // Progress Bar
-                ProgressBar(
-//                    progress = data.currentXp.toFloat() / data.xpToNextLevel
-                    progress = currentExp.toFloat() / expToNextLevel.toFloat(),
-                )
-
-                // Experience Display
+                // Level Display
                 Text(
-//                    text = stringResource(R.string.exp_display, data.currentXp, data.xpToNextLevel),
-                    text = stringResource(R.string.exp_display, formattedExp, expToNextLevel),
-                    color = AppTheme.colors.Gray,
-                    style = AppTheme.textStyles.Default,
-                    modifier = Modifier.align(Alignment.End)
+                    text = stringResource(R.string.level, level),
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingThree.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    ),
+                )
+                // Info Icon
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(R.drawable.info),
+                    tint = AppTheme.colors.FadedGray,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .offset(y = 9.74.dp)
+                        .clickable {
+                            showLevelTip.value = !showLevelTip.value
+                        }
                 )
             }
-//        } else -> {}
-//    }
+
+            // Progress Bar
+            ProgressBar(
+                progress = currentExp.toFloat() / expToNextLevel.toFloat(),
+            )
+
+            // Experience Display
+            Text(
+                text = stringResource(R.string.exp_display, formattedExp, expToNextLevel),
+                color = AppTheme.colors.Gray,
+                style = AppTheme.textStyles.Default,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
 }
 
 /**
@@ -328,6 +265,11 @@ fun EquipmentDisplay(
     }
 }
 
+/**
+ * A display of ther user's health in two forms: a number representation and a progress bar based on the percentage between current helath and max health.
+ * @param showHealthTip A boolean tht controls if the health tooltip overlay will display
+ * @author fdesouza1992, Elyseia
+ */
 @Composable
 fun HealthDisplay(
     modifier: Modifier = Modifier,

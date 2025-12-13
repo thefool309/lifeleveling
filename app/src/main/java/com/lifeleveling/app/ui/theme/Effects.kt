@@ -40,6 +40,15 @@ modifier = Modifier.align(Alignment.TopStart),
 
 /**
  * Draws an inner shadow to the parent component
+ * @param color A base background color. What the back screen should be. Basically the fill color. Can be sent to Transparent if layering.
+ * @param cornerRadius Controls the curve of the corners. Defaults to the highlight card and popup card app standards.
+ * @param shadowColor The color of the shadow to put on top.
+ * @param blur The blue value of the shadow
+ * @param offsetX How far the shadow will shift on the x axis
+ * @param offsetY How far the shadow will shift on the y axis
+ * @param spread The distance out the shadow will spread from the edge of the box
+ * @param content Anything to be put inside the shadow.
+ *
  * @author Elyseia
  */
 @Composable

@@ -42,6 +42,14 @@ import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
 import com.lifeleveling.app.ui.components.SlidingSwitch
 
+/**
+ * The main home screen composable.
+ * Displays user level, exp, health, and coins.
+ * Shows the user's equipment and controls the switch of fight or meditate.
+ * Has button navigation to store and inventories.
+ * Displays the user's avatar.
+ * @author Elyseia
+ */
 @Preview
 @Composable
 fun HomeScreen() {

@@ -43,6 +43,12 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomDialog
 
+/**
+ * The composable for the Main settings screen.
+ * Contains clickable options to navigate to several other screens.
+ * Contains the switch to control the user's preference on the theme colors.
+ * @author StephenC1993
+ */
 @Preview
 @Composable
 fun SettingScreen(){
