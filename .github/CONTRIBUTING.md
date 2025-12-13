@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to this project.
 
-Forks are welcome. **Pull requests will not be accepted until at least February 2026**, and only once we have a clear way for outside contributors to reliably test the application. If you want to build on this project in the meantime, you are encouraged to fork it and modify it to use your own Firebase project.
+Forks are welcome. **Pull requests from forks will not be accepted until at least February 2026**, and only once we have a clear way for outside contributors to reliably test the application. If you want to build on this project in the meantime, you are encouraged to fork it and modify it to use your own Firebase project.
 
 For **major changes**, please open an issue first to discuss what you would like to change before doing significant work.
 
