@@ -1404,6 +1404,21 @@ fun LazyColumnFadeEdges(
     }
 }
 
+/**
+ * Creates a dropdown menu for string options
+ * @param colors list of color choices
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
+ * @param arrowSize Changes the size of the arrow on the dropdown box
+ * @param textColor Sets the color of all the text and the arrow
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @author sgcfsu1993 (Stephen C.) (Made from Elyseia's original DropDownTextMenu)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDownColorMenu(

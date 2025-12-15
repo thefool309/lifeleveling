@@ -354,7 +354,7 @@ fun CreateReminderScreen(
                                     }
                                 )
                                 Text(
-                                    text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
+                                    text = stringResource(R.string.checkbox_setdaily), style = AppTheme.textStyles.Default,
                                     color = AppTheme.colors.Gray
                                 )
                             }
@@ -438,7 +438,6 @@ fun CreateReminderScreen(
                                             repeatAmount = newText
                                             if (newText.isNotEmpty()) {
                                                 repeatReminder = false
-                                                //doNotRepeat = false
                                             }
                                         },
                                         placeholderText = "",
