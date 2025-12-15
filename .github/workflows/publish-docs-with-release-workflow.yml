@@ -8,8 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Wiki Repo
-        run: git clone https://github.com/${{ github.repository }}.wiki.git wiki
+      - name: Checkout Repository
+        uses: actions/checkout@v4.0.0
+        with:
+          fetch-depth: '0'
 
       - name: Install pandoc
         run: sudo apt-get update && sudo apt-get install -y pandoc
