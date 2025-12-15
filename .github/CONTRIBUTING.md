@@ -13,7 +13,7 @@ Please make sure to update tests as appropriate. We have settled on a **hybrid t
 ## Code Style & Conventions
 
 - Please follow **Kotlin naming and code conventions**.
-- If you notice naming or convention mistakes—by anyone, including maintainers—please call them out in an issue.
+- If you notice naming or convention mistakes, by anyone, including maintainers, please address them in an issue.
 - We are all learning, especially when coming from languages with different conventions, and corrections are welcome.
 
 ---
