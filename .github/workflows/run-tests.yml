@@ -36,5 +36,5 @@ jobs:
           ./scripts/create-android-emu.sh
 
       - name: Start the Android Emulator
-        run: emulator -avd TestAVD
+        run: ./emulator -avd TestAVD
 
