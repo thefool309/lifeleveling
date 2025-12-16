@@ -197,7 +197,7 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
                 val id = repo.createReminder(
                     reminders = com.lifeleveling.app.data.Reminders(
                         title = "Hydrate",
-                        notes = "Drink water"
+                        notes = "Drink water",
                     ),
                     logger = logger
                 )

@@ -58,6 +58,8 @@ import java.util.Locale
 import kotlin.collections.toList
 import kotlin.collections.filter
 
+
+
 /**
  * This creates the day box on the calendar along with facilitating the dots for the reminders and the in and out dates of the calendar
  * @param day from Kizitonwose Calendar (https://github.com/kizitonwose/Calendar?utm_source=chatgpt.com) helps get the date for the box and its position in the calendar (in/out date or normal date range)
@@ -522,9 +524,10 @@ fun ShowReminder(
 ) {
     val reminder = passedReminder.value ?: return
     var delete by remember { mutableStateOf(false) }
-    val hour = hourOptions[reminder.selectedHours]
+    val hour = hourOptions[reminder.selectedHours as Int]
     val minutes = minutesOptions[reminder.selectedMinutes]
     val amOrPm = amOrPmOptions[reminder.amOrPm]
+    val timeLabel = "${hour}:${minutes} $amOrPm"
 
     CustomDialog(
         toShow = toShow,
@@ -553,6 +556,7 @@ fun ShowReminder(
                         color = AppTheme.colors.SecondaryThree
                     )
                 }
+
                 Text(
 //                    text = "Remind me at: $hour:$minutes $amOrPm",
                     text = "Remind me at: $timeLabel",
