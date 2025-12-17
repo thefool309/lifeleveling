@@ -1,68 +1,72 @@
 name: run-tests.yml
 on:
   pull_request:
-
 jobs:
 
   run_tests:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       NODE_OPTIONS: "--dns-result-order=ipv4first"
-      ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
-      ADB_MDNS_OPENSCREEN: 0
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
-
       - name: Setup JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: 21
           cache: 'gradle'
-          distribution: 'temurin'
-
+      - name: Install Emulator Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpulse0 libgl1
       - name: Decode google-services.json
         run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode > app/google-services.json
-
       - name: Install firebase-tools
         run: npm install -g firebase-tools
-
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Add Emulator to Path
+        run: |
+          export PATH=$PATH:/usr/local/lib/android/sdk/emulator
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Run connected tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
           api-level: 36
           target: google_apis
-
-          arch: arm64-v8a
+          arch: x86_64
           disable-animations: true
           force-avd-creation: true
-
-          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu host
+          emulator-options: >-
+            -no-window
+            -gpu swiftshader_indirect
+            -no-snapshot
+            -noaudio
+            -no-boot-anim
           script: |
-            adb kill-server && adb start-server
             firebase emulators:start --project ${{ vars.FIREBASE_PROJECT }} &
             
             echo "Waiting for Firebase Emulators..."
             timeout 60s bash -c 'until nc -z localhost 9099; do sleep 2; done'
             echo "Firebase Auth is up!"
             
-            sleep 20
-            
             chmod +x gradlew
-            ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
-
+            timeout 15m ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
       - name: Force Kill Emulator
         if: always()
         run: |
           pkill -9 qemu || true
           pkill -9 crashpad_handler || true
-
       - name: Upload Logs
         if: failure()
         uses: actions/upload-artifact@v4
