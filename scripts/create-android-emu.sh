@@ -17,7 +17,8 @@ yes | sdkmanager "$PACKAGE"
 
 echo "Creating AVD: ${AVD_NAME} using package ${PACKAGE}"
 
-echo "no" | avdmanager create avd \
+echo "yes" | avdmanager create avd \
+  -v \
   --force \
   --name "${AVD_NAME}" \
   --package "${PACKAGE}" \
