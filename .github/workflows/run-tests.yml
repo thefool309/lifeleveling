@@ -7,8 +7,8 @@ jobs:
   run_tests:
     runs-on: ubuntu-latest
     env:
-      ANDROID_USER_HOME: $HOME/.android
-      ANDROID_AVD_HOME: $HOME/.android/avd
+      ANDROID_USER_HOME: ${{ github.workspace }}/.android
+      ANDROID_AVD_HOME: ${{ github.workspace }}/.android/avd
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
       - name: SANITY CHECK FOR AVD
         run: |
           avdmanager list avd
-          ls $HOME/.android/avd
+          ls ${{ github.workspace }}/.android/avd
 
       - name: Start the Android Emulator
         run: /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD
