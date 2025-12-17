@@ -49,7 +49,14 @@ jobs:
           api-level: 36
           target: google_apis
           arch: x86_64
+          disable-animations: 'true'
           force-avd-creation: true
+          emulator-options: >
+            -no-window 
+            -gpu swiftshader_indirect 
+            -no-snapshot 
+            -noaudio 
+            -no-boot-anim'
           script: |
             firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
 
