@@ -69,11 +69,14 @@ jobs:
 
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu host
           script: |
+            adb kill-server && adb start-server
             firebase emulators:start --project ${{ vars.FIREBASE_PROJECT }} &
             
             echo "Waiting for Firebase Emulators..."
             timeout 60s bash -c 'until nc -z localhost 9099; do sleep 2; done'
             echo "Firebase Auth is up!"
+            
+            sleep 20
             
             chmod +x gradlew
             timeout 15m ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
