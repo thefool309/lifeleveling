@@ -30,9 +30,7 @@ jobs:
       - name: SANITY CHECK
         run: ls /usr/local/lib/android/sdk
 
-      - name: Add Emulator to Path
-        run: |
-          export $PATH:/usr/local/lib/android/sdk/emulator
+
 
       - name: Initialize android emulator
         env:
@@ -43,5 +41,5 @@ jobs:
           ./scripts/create-android-emu.sh
 
       - name: Start the Android Emulator
-        run: emulator -avd TestAVD
+        run: /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD
 
