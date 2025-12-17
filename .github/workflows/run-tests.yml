@@ -43,16 +43,12 @@ jobs:
         with:
           api-level: 36
           target: google_apis
-          arch: x86_64
+
+          arch: arm64-v8a
           disable-animations: true
           force-avd-creation: true
 
-          emulator-options: >-
-            -no-window
-            -gpu swiftshader_indirect
-            -no-snapshot
-            -noaudio
-            -no-boot-anim
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim
           script: |
             firebase emulators:start --project ${{ vars.FIREBASE_PROJECT }} &
             
