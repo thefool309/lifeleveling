@@ -64,7 +64,7 @@ jobs:
             -noaudio
             -no-boot-anim
           script: |
-            firebase emulators:start --project ${{ secrets.FIREBASE_PROJECT_ID }} &
+            firebase emulators:start --project ${{ vars.FIREBASE_PROJECT }} &
             
             echo "Waiting for Firebase Emulators..."
             timeout 60s bash -c 'until nc -z localhost 9099; do sleep 2; done'
