@@ -49,7 +49,7 @@ jobs:
       - name: SANITY CHECK FOR AVD
         run: |
           avdmanager list avd
-          ls $HOME/.config/.android/avd
+          ls $HOME/.android/avd
 
       - name: Start the Android Emulator
         run: /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD
