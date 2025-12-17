@@ -3,8 +3,12 @@ on:
   pull_request:
 
 jobs:
+
   run_tests:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_USER_HOME: ${{ github.workspace }}/.android
+      ANDROID_AVD_HOME: ${{ github.workspace }}/.android/avd
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
