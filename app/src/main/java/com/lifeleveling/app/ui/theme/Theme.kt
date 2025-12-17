@@ -182,8 +182,9 @@ val LocalAppTextStyles = staticCompositionLocalOf { AppTextStyles }
 
 // Theme Wrapper
 /**
- * Sets up the theme controls for the application.
+ * Sets up the theme controls and values for the application.
  * @param darkTheme A boolean value that controls if the app is in dark or light mode
+ * @author Elyseia
  */
 @Composable
 fun LifelevelingTheme(

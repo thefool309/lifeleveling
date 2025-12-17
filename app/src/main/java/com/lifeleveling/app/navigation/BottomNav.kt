@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -47,7 +44,7 @@ data class BottomNavItem(
 
 // Group of all items in the menu
 /**
- * The list of the give main screens that will be showing up ont he bottom navigation bar.
+ * The list of the give main screens that will be showing up on the bottom navigation bar.
  * @author Elyseia
  */
 object Constants {
@@ -79,40 +76,6 @@ object Constants {
         )
     )
 }
-
-///**
-// * Old standard nav bar. See new CustomNavBar
-// * @author Elyseia
-// */
-//@Composable
-//fun BottomNavigationBar(navController: NavHostController) {
-//    NavigationBar(
-//        containerColor = AppTheme.colors.DarkerBackground,
-//        modifier = Modifier.Companion.height(80.dp)
-//    ) {
-//        val navBackStackEntry by navController.currentBackStackEntryAsState()
-//        val currentRoute = navBackStackEntry?.destination?.route
-//
-//        Constants.BottomNavItems.forEach { navItem ->
-//            NavigationBarItem(
-//                selected = currentRoute == navItem.route,
-//                onClick = { navController.navigate(navItem.route) },
-//                icon = {
-//                    Icon(
-//                        imageVector = ImageVector.Companion.vectorResource(navItem.icon),
-//                        contentDescription = navItem.route,
-//                        modifier = Modifier.Companion.size(40.dp),
-//                    )
-//                },
-//                alwaysShowLabel = false,
-//                colors = NavigationBarItemDefaults.colors(
-//                    selectedIconColor = AppTheme.colors.BrandOne,
-//                    unselectedIconColor = AppTheme.colors.BrandTwo,
-//                )
-//            )
-//        }
-//    }
-//}
 
 /**
  * A custom created bottom navigation bar that follows the applications design themes.

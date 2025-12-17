@@ -1,12 +1,8 @@
 package com.lifeleveling.app.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -21,15 +17,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import kotlin.collections.forEach
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.theme.AppTheme
 
 
 /**
- * Makes a bulleted list from the list of strings passed in
+ * Prints a bulleted list from the list of strings passed in
  * @param items The list of AnnotatedStrings that will be turned into bullet points.
  *
  * @author Elyseia
@@ -62,7 +56,7 @@ fun BulletPoints(items: List<AnnotatedString>) {
 }
 
 /**
- * Saving the dialog options with parameters to pass in to make tooltips look the same
+ * The tooltip window that pops up with tutorial style information.
  * @param toShow Boolean for showing the dialog
  * @param title Title of tooltip window. Call as R.string.[string name]
  * @param tips Build a list of annotatedStrings to pass in as bullet points
@@ -106,7 +100,9 @@ fun Tooltip(
 
 /**
  * Level and Experience Popup Tool Tip.
+ * Explains information about the level and experience of the user
  * @param toShow The boolean to toggle if it is shown
+ * @author Elyseia
  */
 @Composable
 fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
@@ -144,7 +140,9 @@ fun LifeExperienceToolTip(toShow: MutableState<Boolean>) {
 
 /**
  * Health Tool Tip window
+ * Explains the information of the user's health, how to get more, and the difference between fighting and meditating
  * @param toShow The boolean to toggle if it is shown
+ * @author Elyseia
  */
 @Composable
 fun HealthToolTip(toShow: MutableState<Boolean>) {
@@ -180,7 +178,9 @@ fun HealthToolTip(toShow: MutableState<Boolean>) {
 
 /**
  * Streaks Popup Tool Tip
+ * Explains what streaks are, the rewards for completing them, and difference between weekly and month streaks.
  * @param toShow The boolean to toggle if it is shown
+ * @author Elyseia
  */
 @Composable
 fun StreaksToolTip(toShow: MutableState<Boolean>) {
@@ -217,8 +217,10 @@ fun StreaksToolTip(toShow: MutableState<Boolean>) {
 }
 
 /**
- * Streaks Popup Tool Tip
+ * Badges Popup Tool Tip
+ * Explains what badges are and how they appear different between ones achieves and ones still needed.
  * @param toShow The boolean to toggle if it is shown
+ * @author Elyseia
  */
 @Composable
 fun BadgesToolTip(toShow: MutableState<Boolean>) {
@@ -256,6 +258,7 @@ fun BadgesToolTip(toShow: MutableState<Boolean>) {
 
 /**
  * Stats popup tool tip
+ * Explains the difference between the stats and how they affect the experience and coin gains
  * @param toShow Boolean that controls if the popup window will be displayed
  *
  * @author StephenC1993
@@ -263,7 +266,7 @@ fun BadgesToolTip(toShow: MutableState<Boolean>) {
 @Composable
 fun StatsToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points
-    val StatTips = listOf(
+    val statTips = listOf(
         buildAnnotatedString {
             withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
                 append(stringResource(R.string.StatTipOne))
@@ -319,12 +322,13 @@ fun StatsToolTip(toShow: MutableState<Boolean>) {
     Tooltip(
         toShow = toShow,
         title = R.string.stats,
-        tips = StatTips
+        tips = statTips
     )
 }
 
 /**
  * User Journey tool tip window
+ * Explains the stats displayed within the window as the user's personal achievements
  * @param toShow Boolean controlling if the popup window will be displayed
  *
  * @author Elyseia

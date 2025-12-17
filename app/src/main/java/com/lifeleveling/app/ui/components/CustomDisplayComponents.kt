@@ -8,17 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,25 +21,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.data.LocalUserManager
-import com.lifeleveling.app.ui.models.StatsUi
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.util.AndroidLogger
-import com.lifeleveling.app.util.ILogger
-
-/*
-Reusable components that will appear on multiple screens
-fun found in this file
-* LevelAndProgress
-* EquipmentDisplay
- */
 
 /**
  * Level and Experience Display
+ * Takes in parameters from the user state instead of recollecting it.
+ * This will allow only the pieces that change to be updated instead of recollecting all over again with every change.
  *
  * @param showLevelTip The bool that controls showing the tooltip window
  * @param modifier Add in a weight or a size for how much of the screen the display takes up
+ * @param level Pass in the state handling of level from the user information
+ * @param currentExp Pass in the state handling of the currentXp from the user information
+ * @param expToNextLevel Pass in the state handling of the expToNextLevel from the user information
  *
  * @author Elyseia, fdesouza1992
  */
@@ -54,14 +40,11 @@ fun found in this file
 fun LevelAndProgress(
     modifier: Modifier = Modifier,// add a weight for how much of the page or a size
     showLevelTip: MutableState<Boolean>,
+    level: Long,
+    currentExp: Double,
+    expToNextLevel: Long,
 ) {
-    val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
-
-    val level = userState.userBase?.level ?: 0
-    val currentExp = userState.userBase?.currentXp ?: 0.0
     val formattedExp = String.format("%.2f", currentExp)
-    val expToNextLevel = userState.xpToNextLevel
 
         Column(
             modifier = modifier
@@ -124,9 +107,6 @@ fun LevelAndProgress(
 fun EquipmentDisplay(
     modifier: Modifier = Modifier,
 ) {
-    val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -266,21 +246,22 @@ fun EquipmentDisplay(
 }
 
 /**
- * A display of ther user's health in two forms: a number representation and a progress bar based on the percentage between current helath and max health.
+ * A display of the user's health in two forms:
+ * a number representation and a progress bar based on the percentage between current health and max health.
+ * Takes in parameters from the user state instead of recollecting it.
+ * This will allow only the pieces that change to be updated instead of recollecting all over again with every change.
  * @param showHealthTip A boolean tht controls if the health tooltip overlay will display
+ * @param currentHealth Pass in the state handling of the currentHealth value from the user state
+ * @param maxHealth Pass in the state handling of the maxHealth value from the user state
  * @author fdesouza1992, Elyseia
  */
 @Composable
 fun HealthDisplay(
     modifier: Modifier = Modifier,
     showHealthTip: MutableState<Boolean>,
+    currentHealth: Long,
+    maxHealth: Long,
 ) {
-    val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
-
-    val currentHealth = userState.userBase?.currHealth ?: 0
-    val maxHealth = userState.maxHealth
-
     Column(
         modifier = modifier
             .fillMaxWidth(),

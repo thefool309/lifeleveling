@@ -123,6 +123,10 @@ data class TextStyles(
     val SmallUnderlined: TextStyle
 )
 
+/**
+ * Turns the material3 default names into the recognized app names of different values
+ * @author Elyseia
+ */
 val AppTextStyles = TextStyles(
     HeadingOne = Typography.displayLarge,
     HeadingTwo = Typography.displayMedium,

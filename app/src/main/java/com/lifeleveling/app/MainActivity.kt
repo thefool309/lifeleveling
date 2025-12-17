@@ -142,11 +142,21 @@ class MainActivity : ComponentActivity() {
                         if (!appReady) { SplashAnimationOverlay() }
                         else {
                             // Main screens
-                            AppNavHost()
+                            AppNavHost(userState.isLoggedIn)
                             // Will show a loading wheel if the state is showing it is loading
                             if(userState.isLoading) LoadingOverlay()
                             // Shows a popup for the player leveling
-                            if (userState.levelUpFlag) LevelUpOverlay()
+                            if (userState.levelUpFlag) {
+                                LevelUpOverlay(
+                                    level = userState.userBase?.level ?: 1,
+                                    levelUpCoins = userState.levelUpCoins,
+                                    onDismiss = {
+                                        userManager.clearLevelUpFlag() // dismisses the overlay message
+                                        // Launches a small write to firestore of the updated level values
+                                        userManager.writeLevelUp()
+                                    }
+                                )
+                            }
                         }
                     }
                 }
