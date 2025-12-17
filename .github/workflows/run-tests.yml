@@ -29,7 +29,7 @@ jobs:
 
       - name: Add Emulator to Path
         run: |
-          export $PATH:/usr/local/lib/android/sdk/emulator
+          export $PATH:$ANDROID_SDK_ROOT/emulator
 
       - name: Initialize android emulator
         env:
