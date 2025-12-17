@@ -10,6 +10,7 @@ jobs:
     env:
       NODE_OPTIONS: "--dns-result-order=ipv4first"
       ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
+      ADB_MDNS_OPENSCREEN: 0
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -38,6 +39,11 @@ jobs:
       - name: Add Emulator to Path
         run: |
           export PATH=$PATH:/usr/local/lib/android/sdk/emulator
+
+      - name: Update Platform Tools
+        run: |
+          sdkmanager --install "platform-tools" "cmdline-tools;latest"
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
       - name: Run connected tests
         uses: ReactiveCircus/android-emulator-runner@v2
