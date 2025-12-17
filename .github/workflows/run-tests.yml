@@ -27,9 +27,12 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: SANITY CHECK
+        run: ls /usr/local/lib/android/sdk
+
       - name: Add Emulator to Path
         run: |
-          export $PATH:$ANDROID_SDK_ROOT/emulator
+          export $PATH:/usr/local/lib/android/sdk/emulator
 
       - name: Initialize android emulator
         env:
