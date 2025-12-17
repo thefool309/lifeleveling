@@ -6,6 +6,8 @@ jobs:
 
   run_tests:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--dns-result-order=ipv4first"
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
