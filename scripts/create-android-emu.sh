@@ -2,6 +2,7 @@
 
 # !! Exit immediately if a command exits with a non-zero status !!
 set -e
+set -x
 
 # shellcheck disable=SC1091
 # export "$(grep -v '^#' .env | xargs)" # commented out because it was causing the workflow to fail
