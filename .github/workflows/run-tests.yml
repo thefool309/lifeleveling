@@ -9,6 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       NODE_OPTIONS: "--dns-result-order=ipv4first"
+      ANDROID_SDK_ROOT: /Users/runner/Library/Android/sdk
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
