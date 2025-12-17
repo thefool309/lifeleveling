@@ -73,6 +73,12 @@ jobs:
             chmod +x gradlew
             ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
 
+      - name: Force Kill Emulator
+        if: always()
+        run: |
+          pkill -9 qemu || true
+          pkill -9 crashpad_handler || true
+
       - name: Upload Logs
         if: failure()
         uses: actions/upload-artifact@v4
