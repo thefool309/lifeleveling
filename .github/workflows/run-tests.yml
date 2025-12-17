@@ -42,6 +42,9 @@ jobs:
           chmod +x ./scripts/create-android-emu.sh
           ./scripts/create-android-emu.sh
 
-      - name: Start the Android Emulator
-        run: /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD
+      - name: SANITY CHECK FOR AVD
+        run: /usr/local/lib/android/sdk/emulator/emulator -list-avds
+
+#      - name: Start the Android Emulator
+#        run: /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD
 
