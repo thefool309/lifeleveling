@@ -43,7 +43,7 @@ jobs:
           ./scripts/create-android-emu.sh
 
       - name: SANITY CHECK FOR AVD
-        run: /usr/local/lib/android/sdk/emulator/emulator -list-avds
+        run: avdmanager list avd
 
 #      - name: Start the Android Emulator
 #        run: /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD
