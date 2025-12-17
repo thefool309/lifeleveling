@@ -6,9 +6,6 @@ jobs:
 
   run_tests:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_USER_HOME: ${{ github.workspace }}/.android
-      ANDROID_AVD_HOME: ${{ github.workspace }}/.android/avd
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -16,13 +13,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: 20
 
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'corretto'
-          java-version: 23
+          distribution: 'temurin'
+          java-version: 21
           cache: 'gradle'
 
       - name: Install Emulator Dependencies
@@ -42,6 +39,7 @@ jobs:
       - name: Add Emulator to Path
         run: |
           export PATH=$PATH:/usr/local/lib/android/sdk/emulator
+
       - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -54,14 +52,15 @@ jobs:
           api-level: 36
           target: google_apis
           arch: x86_64
-          disable-animations: 'true'
+          disable-animations: true
           force-avd-creation: true
-          emulator-options: >
-            '-no-window 
-            -gpu swiftshader_indirect 
-            -no-snapshot 
-            -noaudio 
-            -no-boot-anim'
-          script: |
-            firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
 
+          emulator-options: >-
+            -no-window
+            -gpu swiftshader_indirect
+            -no-snapshot
+            -noaudio
+            -no-boot-anim
+          script: |
+            chmod +x gradlew
+            firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
