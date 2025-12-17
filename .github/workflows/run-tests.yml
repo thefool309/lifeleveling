@@ -33,9 +33,6 @@ jobs:
       - name: Install firebase-tools
         run: npm install -g firebase-tools
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Add Emulator to Path
         run: |
           export PATH=$PATH:/usr/local/lib/android/sdk/emulator
@@ -43,18 +40,6 @@ jobs:
       - name: Update Platform Tools
         run: |
           sdkmanager --install "platform-tools" "cmdline-tools;latest"
-          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-
-      - name: Fix Android SDK Tool Path
-        run: |
-          CMDLINE_TOOLS_ROOT="$ANDROID_HOME/cmdline-tools"
-          
-          yes | sdkmanager --install "cmdline-tools;latest"
-          
-          rm -rf "$CMDLINE_TOOLS_ROOT/latest"
-          mv "$CMDLINE_TOOLS_ROOT/latest-2" "$CMDLINE_TOOLS_ROOT/latest"
-          
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
       - name: Run connected tests
@@ -79,7 +64,7 @@ jobs:
             sleep 20
             
             chmod +x gradlew
-            timeout 15m ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
+            ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
 
       - name: Force Kill Emulator
         if: always()
