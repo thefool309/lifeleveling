@@ -61,6 +61,16 @@ jobs:
           # -no-window and -no-audio reduce external dependency requirements
           /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
 
+      - name: Wait for Emulator to Boot
+        run: |
+          adb wait-for-device
+          BOOT_COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')
+          while [ "$BOOT_COMPLETED" != "1" ]; do
+            echo "Waiting for emulator to boot... current status: $BOOT_COMPLETED"
+            sleep 5
+            BOOT_COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')
+          done
+          echo "Emulator is fully booted!
       - name: run firebase emulators and integrated tests
         run: |
           firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
