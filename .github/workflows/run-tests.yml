@@ -33,15 +33,6 @@ jobs:
       - name: Install firebase-tools
         run: npm install -g firebase-tools
 
-      - name: Add Emulator to Path
-        run: |
-          export PATH=$PATH:/usr/local/lib/android/sdk/emulator
-
-      - name: Update Platform Tools
-        run: |
-          sdkmanager --install "platform-tools" "cmdline-tools;latest"
-          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-
       - name: Run connected tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
