@@ -32,7 +32,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: SANITY CHECK
-        run: ls /usr/local/lib/android/sdk/emulator/qemu
+        run: ls /usr/local/lib/android/sdk/emulator/qemu/linux-x86_64
 
       - name: Add Emulator to Path
         run: |
