@@ -60,3 +60,7 @@ jobs:
           # -no-window and -no-audio reduce external dependency requirements
           /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
 
+      - name: run firebase emulators and integrated tests
+        run: |
+          firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
+
