@@ -47,12 +47,11 @@ jobs:
 
       - name: Fix Android SDK Tool Path
         run: |
-          # Clean up inconsistent cmdline-tools folders
-          cd $ANDROID_HOME/cmdline-tools
-          # Move whatever is in 'latest-2' into 'latest'
-          rm -rf latest
-          mv latest-2 latest || true
-          # Add the correct bin to PATH
+          # Force delete the 'latest-2' and 'latest' mess
+          rm -rf $ANDROID_HOME/cmdline-tools/latest
+          rm -rf $ANDROID_HOME/cmdline-tools/latest-2
+          # Reinstall ONLY the latest tools
+          sdkmanager --install "cmdline-tools;latest"
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
@@ -66,7 +65,7 @@ jobs:
           disable-animations: true
           force-avd-creation: true
 
-          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu host
           script: |
             firebase emulators:start --project ${{ vars.FIREBASE_PROJECT }} &
             
