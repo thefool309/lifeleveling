@@ -71,7 +71,7 @@ jobs:
             echo "Firebase Auth is up!"
             
             chmod +x gradlew
-            ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
+            timeout 15m ./gradlew connectedAndroidTest || (adb logcat -d > logcat.txt && exit 1)
 
       - name: Force Kill Emulator
         if: always()
