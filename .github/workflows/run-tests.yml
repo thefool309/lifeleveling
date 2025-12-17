@@ -43,35 +43,13 @@ jobs:
         run: |
           export PATH=$PATH:/usr/local/lib/android/sdk/emulator
 
-      - name: Initialize android emulator
-        env:
-          AVD_NAME: "TestAVD"
-          API_LEVEL: 36
-        run: | 
-          chmod +x ./scripts/create-android-emu.sh
-          ./scripts/create-android-emu.sh
-
-      - name: SANITY CHECK FOR AVD
-        run: |
-          avdmanager list avd
-          ls ${{ github.workspace }}/.android/avd
-
-      - name: Start the Android Emulator
-        run: |
-          # -no-window and -no-audio reduce external dependency requirements
-          /usr/local/lib/android/sdk/emulator/emulator -avd TestAVD -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &
-
-      - name: Wait for Emulator to Boot
-        run: |
-          adb wait-for-device
-          BOOT_COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')
-          while [ "$BOOT_COMPLETED" != "1" ]; do
-            echo "Waiting for emulator to boot... current status: $BOOT_COMPLETED"
-            sleep 5
-            BOOT_COMPLETED=$(adb shell getprop sys.boot_completed | tr -d '\r')
-          done
-          echo "Emulator is fully booted!
-      - name: run firebase emulators and integrated tests
-        run: |
-          firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
+      - name: Run connected tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: true
+          script: |
+            firebase emulators:exec --project ${{ secrets.FIREBASE_PROJECT_ID }} "./gradlew connectedAndroidTest"
 
