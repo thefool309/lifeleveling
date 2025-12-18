@@ -26,7 +26,7 @@ data class UsersBase(
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
     val currHealth: Long = 60,          // Default 60 at start
     // Badges can be stored in arrays of Badge objects on user doc.
-    val badges: List<Badge> = emptyList(),       // greyed out badges/ secret badges
+    val badges: List<Badge> = emptyList(),       // greyed out badges/ secret badges TODO: Write new badges in Firebase and put completed and IDs here
     val reminders: List<Reminder> = emptyList(),
     val fightOrMeditate: Int = 0,
     // User Journey Stats to be saved

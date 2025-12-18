@@ -2,6 +2,7 @@ package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
 import com.lifeleveling.app.ui.theme.enumColor
+import com.lifeleveling.app.R
 
 /**
  * Stats object to store the stat values
@@ -97,7 +98,7 @@ data class Badge(
     val badgeId: String = "",
     val badgeName: String = "",
     val badgeDescription: String = "",
-    val iconName: String = "",           // Stores the name, not the R.drawable
+    val iconName: Int = R.drawable.question_mark,           // Stores the name, not the R.drawable
     val colorToken: enumColor,
     val completed: Boolean = false,
     val unlockedAt: Timestamp? = null,   // When badge was earned

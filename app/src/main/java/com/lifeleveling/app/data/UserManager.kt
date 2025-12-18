@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -244,6 +245,84 @@ class UserManager(
     }
 
     // ============ Streak Functions ===============================================
+    /**
+     * This function takes the UI supplied draft and a reminder information to create a full streak object.
+     * @param streakId The new ID for the streak.
+     * @param reminder The reminder the streak is based on
+     * @param draft The draft of information the user gave from the UI
+     * @see StreakDraft
+     * @return A full Streak object.
+     * @author Elyseia
+     */
+    private fun buildStreak(
+        streakId: String,
+        draft: StreakDraft,
+        reminder: Reminder,
+    ) : Streak {
+        val now = Timestamp.now()
+        val total = if (reminder.daily) {
+            reminder.timesPerDay * 7
+        } else {
+            reminder.timesPerMonth
+        }
+        return Streak(
+            streakId = streakId,
+            reminderId = draft.reminderId,
+            weekly = draft.weekly,
+            totalRequired = total,
+            numberCompleted = 0,
+            repeat = draft.repeat,
+            createdAt = now,
+            endsAt = null, /* TODO: Update this */
+            lastUpdate = now
+        )
+    }
+
+    /**
+     * Creates a new streak and adds it into the user's data and firestore collection
+     * Flow:
+     * 1. Pulls information needed for user and reminder
+     * 2. Sends the information to firestore and returns a full streak object with the uid firestore assigned
+     * 3. Updates the user's streak collection in the local state information
+     * @param draft A draft object for a streak the user provides from the UI
+     * @see StreakDraft
+     * @author Elyseia
+     */
+    fun addStreak(draft: StreakDraft) {
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+                val reminder = retrieveReminder(draft.reminderId) ?: error("Reminder not found")
+                val user = userData.value.userBase ?: error("User not loaded")
+
+                val streak = fireRepo.createStreak(uid) { streakId ->
+                    buildStreak(
+                        streakId,
+                        draft,
+                        reminder,
+                    )
+                }
+
+                val updated = user.copy(
+                    streaks = user.streaks + streak,
+                )
+
+                userData.update {
+                    it.copy(
+                        userBase = updated
+                    ).separateStreaks()
+                }
+            } catch (e: Exception) {
+                logger.e("FB", "Error adding streak", e)
+                userData.update { it.copy(error = "Error adding streak") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
     /**
      * Removes a streak from the streak list
      * Reupdates the weekly and month lists after the streak was removed

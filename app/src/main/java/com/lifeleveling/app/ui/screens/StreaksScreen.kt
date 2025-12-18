@@ -22,11 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.components.AddStreak
-import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.AllBadgesDisplay
 import com.lifeleveling.app.ui.components.BadgesToolTip
@@ -40,13 +40,21 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowStreak
 import com.lifeleveling.app.ui.components.SingleBadgeDisplay
 import com.lifeleveling.app.ui.components.StreaksToolTip
+import com.lifeleveling.app.ui.components.TestingUser
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 
-//@Preview
+/**
+ * Main screen that shows the user's streaks information and badges.
+ * Calls the abilities to add and delete streaks.
+ * Displays obtained and locked badges.
+ * @author Elyseia
+ */
+@Preview
 @Composable
 fun StreaksScreen() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
 
     // Pop up tips
     val showLevelTip = remember { mutableStateOf(false) }
@@ -54,8 +62,8 @@ fun StreaksScreen() {
     val showBadgesTip = remember { mutableStateOf(false) }
     val showBadge = remember { mutableStateOf(false) }
     val showStreakInfo = remember { mutableStateOf(false) }
-    val badgeToDisplay = remember { mutableStateOf(TestUser.allBadges[1])}
-    val streakToShow = remember { mutableStateOf(TestUser.weeklyStreaks[0])}
+    val badgeToDisplay = remember { mutableStateOf(TestingUser.allBadges[0])}
+    val streakToShow = remember { mutableStateOf(userState.userBase?.streaks[0])}
     val addWeekStreak = remember { mutableStateOf(false) }
     val addMonthStreak = remember { mutableStateOf(false) }
     val gridState = rememberLazyGridState()
@@ -76,7 +84,10 @@ fun StreaksScreen() {
         ) {
             // Level and exp
             LevelAndProgress(
-                showLevelTip = showLevelTip
+                showLevelTip = showLevelTip,
+                level = userState.userBase?.level ?: 1,
+                currentExp = userState.userBase?.currentXp ?: 0.0,
+                expToNextLevel = userState.xpToNextLevel
             )
             // Streaks title
             Row(
@@ -133,7 +144,8 @@ fun StreaksScreen() {
                     SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
                     // Display of streaks
-                    TestUser.weeklyStreaks.forEach { streak ->
+                    userState.weeklyStreaks.forEach { streak ->
+                        val reminder = userManager.retrieveReminder(streak.reminderId)
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -153,27 +165,27 @@ fun StreaksScreen() {
                                     verticalAlignment = Alignment.CenterVertically,
                                 ){
                                     ShadowedIcon(
-                                        imageVector = ImageVector.vectorResource(streak.reminder.icon),
-                                        tint = if (streak.reminder.color == null) Color.Unspecified
-                                                else resolveEnumColor(streak.reminder.color),
+                                        imageVector = ImageVector.vectorResource(reminder?.iconName ?: R.drawable.question_mark),
+                                        tint = if (reminder?.colorToken == null) Color.Unspecified
+                                                else resolveEnumColor(reminder.colorToken),
                                         modifier = Modifier
                                             .size(20.dp)
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = streak.reminder.name,
+                                        text = reminder?.title ?: "",
                                         style = AppTheme.textStyles.HeadingSix,
                                         color = AppTheme.colors.Gray
                                     )
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Text(
-                                    text = "${streak.numberCompleted}/${streak.totalAmount}",
+                                    text = "${streak.numberCompleted} / ${streak.totalRequired}",
                                     style = AppTheme.textStyles.HeadingSix,
                                     color = AppTheme.colors.Gray,
                                 )
                             }
-                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
                             ProgressBar(
                                 progress = percentageCompleted,
                             )
@@ -235,7 +247,8 @@ fun StreaksScreen() {
                     SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
                     // Display of streaks
-                    TestUser.monthlyStreaks.forEach { streak ->
+                    userState.monthlyStreaks.forEach { streak ->
+                        val reminder = userManager.retrieveReminder(streak.reminderId)
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -255,27 +268,27 @@ fun StreaksScreen() {
                                     verticalAlignment = Alignment.CenterVertically,
                                 ){
                                     ShadowedIcon(
-                                        imageVector = ImageVector.vectorResource(streak.reminder.icon),
-                                        tint = if (streak.reminder.color == null) Color.Unspecified
-                                        else resolveEnumColor(streak.reminder.color),
+                                        imageVector = ImageVector.vectorResource(reminder?.iconName ?: R.drawable.question_mark),
+                                        tint = if (reminder?.colorToken == null) Color.Unspecified
+                                        else resolveEnumColor(reminder.colorToken),
                                         modifier = Modifier
                                             .size(20.dp)
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = streak.reminder.name,
+                                        text = reminder?.title ?: "",
                                         style = AppTheme.textStyles.HeadingSix,
                                         color = AppTheme.colors.Gray
                                     )
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Text(
-                                    text = "${streak.numberCompleted}/${streak.totalAmount}",
+                                    text = "${streak.numberCompleted}/${streak.totalRequired}",
                                     style = AppTheme.textStyles.HeadingSix,
                                     color = AppTheme.colors.Gray,
                                 )
                             }
-                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalAmount
+                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
                             ProgressBar(
                                 progress = percentageCompleted,
                             )
@@ -346,7 +359,7 @@ fun StreaksScreen() {
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .clickable { navController?.navigate("journey_stats") },
+                        .clickable { navController.navigate("journey_stats") },
                     text = stringResource(R.string.my_journey_stats),
                     color = AppTheme.colors.SecondaryThree,
                     style = AppTheme.textStyles.DefaultUnderlined,
@@ -361,6 +374,7 @@ fun StreaksScreen() {
             ) {
                 AllBadgesDisplay(
                     toShow = showBadge,
+                    badges = TestingUser.allBadges,
                     showBadge = badgeToDisplay,
                     scrollState = gridState
                 )
@@ -383,13 +397,21 @@ fun StreaksScreen() {
     if (addWeekStreak.value) {
         AddStreak(
             toShow = addWeekStreak,
-            daily = true
+            daily = true,
+            reminders = userState.enabledReminders.filter { it.daily },
+            streaksAlreadyCreated = userState.weeklyStreaks
         )
     }
     if (addMonthStreak.value) {
         AddStreak(
             toShow = addMonthStreak,
-            daily = false
+            daily = false,
+            reminders = userState.enabledReminders.filter { !it.daily },
+            streaksAlreadyCreated = userState.monthlyStreaks,
+            navigateToAddReminder = { /* TODO: Add navigation to create a reminder */ },
+            onCreate = { draft ->
+                userManager.addStreak(draft)
+            }
         )
     }
 
@@ -408,7 +430,11 @@ fun StreaksScreen() {
     if (showStreakInfo.value) {
         ShowStreak(
             toShow = showStreakInfo,
-            passedStreak = streakToShow
+            streak = streakToShow.value,
+            reminder = userManager.retrieveReminder(streakToShow.value?.reminderId ?: "") ?: Reminder(colorToken = null),
+            onDelete = {
+                userManager.removeStreak(streakToShow.value?.streakId ?: "")
+            }
         )
     }
 }

@@ -998,4 +998,36 @@ class FirestoreRepository(
             false
         }
     }
+
+    /**
+     * A reference to the path of the user's streaks collection
+     * @param uid The ID of the user
+     * @author Elyseia
+     */
+    fun userStreakRef(uid: String) =
+        db.collection("users")
+            .document(uid)
+            .collection("streaks")
+
+    /**
+     * Adds a streak to the user's streak collection
+     * Flow:
+     * 1. Creates an id for the streak.
+     * 2. Creates a streak object using that idea and other information passed to it.
+     * 3. Saves the new streak in firestore
+     * 4. Returns the streak created
+     * @param uid The user ID to be written in
+     * @param streakBuilder The function that builds a streak that firestore will pass a streak ID to
+     * @return Returns a full streak object
+     * @author Elyseia
+     */
+    suspend fun createStreak(
+        uid: String,
+        streakBuilder: (String) -> Streak,
+    ) : Streak {
+        val ref = userStreakRef(uid).document()
+        val streak = streakBuilder(ref.id)
+        ref.set(streak).await()
+        return streak
+    }
 }

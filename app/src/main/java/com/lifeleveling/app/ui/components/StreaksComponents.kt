@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -37,10 +38,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.LocalNavController
-import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.Badge
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.data.Streak
+import com.lifeleveling.app.data.StreakDraft
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 import java.text.SimpleDateFormat
@@ -51,21 +52,21 @@ import java.util.Locale
  * Shows the information of a streak and option to delete it through a dialogue window.
  * Has a switch for what is shown between the streak data or a confirmation message for deletion
  * Confirmation will then launch delete functions.
+ * Takes in state managed values to avoid recollecting state.
  * @param toShow A boolean controlling if the window shows or not.
- * @param passedStreak The streak that is being clicked on.
+ * @param streak The streak that is being clicked on.
+ * @param reminder The reminder that the streak is based on.
+ * @param onDelete Logic to implement to delete the streak before the window is closed.
  *
  * @author Elyseia
  */
 @Composable
 fun ShowStreak(
     toShow: MutableState<Boolean>,
-    passedStreak: MutableState<Streak>,
+    streak: Streak?,
+    reminder: Reminder,
+    onDelete: () -> Unit,
 ) {
-    val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
-
-    val streak = passedStreak.value
-    val reminder = userManager.retrieveReminder(streak.reminderId) ?: Reminder(colorToken = null)
     var delete by remember { mutableStateOf(false) }
 
     CustomDialog(
@@ -96,7 +97,7 @@ fun ShowStreak(
                     )
                 }
                 // Progress bar display
-                val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
+                val percentageCompleted = streak!!.numberCompleted.toFloat() / streak.totalRequired
                 ProgressBar(
                     progress = percentageCompleted,
                 )
@@ -202,7 +203,7 @@ fun ShowStreak(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            userManager.removeStreak(streak.streakId)
+                            onDelete()
                             toShow.value = false
                         },
                         backgroundColor = AppTheme.colors.Error75,
@@ -222,34 +223,29 @@ fun ShowStreak(
 /**
  * Ask the user for information on which reminder they want to make a streak out of.
  * Will display different messages if there is not a reminder available to use.
- * Add a streak to streak containers and updates UI.
+ * Creates a streak draft to pass the streak creation function
  * @param toShow Boolean needed to show screen because it is a dialog
  * @param daily Determines if it shows daily reminders or other reminders
+ * @param reminders Full list of reminders (daily or not already separated).
+ * @param streaksAlreadyCreated List of the streaks already created (either weekly or monthly)
+ * @param navigateToAddReminder A navigation call to the add reminder screen.
+ * @param onCreate Pass in the function call to create a reminder, gives the Streak draft object to create it out of.
  *
  * @author Elyseia
  */
 @Composable
 fun AddStreak(
     toShow: MutableState<Boolean>,
-    daily: Boolean = true
-) {
-    val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
-    val navController = LocalNavController.current
-
+    daily: Boolean = true,
+    reminders: List<Reminder>,
+    streaksAlreadyCreated: List<Streak>,
+    navigateToAddReminder: () -> Unit,
+    onCreate: (StreakDraft) -> Unit,
+    ) {
     var selectedReminderIndex by remember { mutableStateOf(0) }
-    val remindersForWeekly = userState.enabledReminders.filter { it.daily }
-    val remindersForMonthly = userState.enabledReminders.filter { !it.daily }
-    val remindersAvailableToUse =  if (daily) {
-        val usedIDs = userState.weeklyStreaks.map { it.reminderId }.toSet()
-        remindersForWeekly.filter { reminder ->
-            reminder.reminderId !in usedIDs
-        }
-    } else {
-        val usedIDs = userState.monthlyStreaks.map { it.reminderId }.toSet()
-        remindersForMonthly.filter { reminder ->
-            reminder.reminderId !in usedIDs
-        }
+    val usedIDs = streaksAlreadyCreated.map { it.reminderId }.toSet()
+    val remindersAvailableToUse = reminders.filter { reminder ->
+        reminder.reminderId !in usedIDs
     }
     var repeat by remember { mutableStateOf(true) }
     val reminderMenu = remember { mutableStateOf(false) }
@@ -264,11 +260,7 @@ fun AddStreak(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
-                val empty = if (daily) {
-                    remindersForWeekly.isEmpty()
-                } else {
-                    remindersForMonthly.isEmpty()
-                }
+                val empty = reminders.isEmpty()
                 Text(
                     text = if (empty) stringResource(R.string.no_reminders_for_streaks)
                         else stringResource(R.string.all_reminders_already_streaks),
@@ -331,9 +323,7 @@ fun AddStreak(
                         backgroundMainColor = AppTheme.colors.DarkerBackground,
                     )
                     Text(
-                        modifier = Modifier.clickable {
-                            // TODO: Close this window, add a navigation to the add reminders screen.
-                        },
+                        modifier = Modifier.clickable { navigateToAddReminder() },
                         text = stringResource(R.string.need_a_new_reminder),
                         style = AppTheme.textStyles.DefaultUnderlined,
                         color = AppTheme.colors.Gray
@@ -384,14 +374,12 @@ fun AddStreak(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            repeat = !(repeatNumber == 0 || repeatInput == "0" && !indefinitely)
-                            if (indefinitely) repeat = true
-                            TestUser.addStreak(
-                                reminder = remindersAvailableToUse[selectedReminderIndex],
-                                repeat = repeat,
-                                repeatIndefinitely = indefinitely,
-                                repeatNumber = repeatNumber,
-                                repeatInterval = repeatIntervalOptions[selectedRepeatIndex],
+                            onCreate(
+                                StreakDraft(
+                                    reminderId = remindersAvailableToUse[selectedReminderIndex].reminderId,
+                                    weekly = daily,
+                                    repeat = repeat,
+                                )
                             )
                             toShow.value = false
                         },
@@ -410,10 +398,13 @@ fun AddStreak(
 }
 
 /**
- * Displays the players badges.
+ * Displays the players badges in a grid of clickable circles.
+ * Takes in parameters of the userState to avoid recollecting state.
  * @param columns Number of columns in the grid.
  * @param toShow A boolean for showing a window with badge information inside it.
+ * @param badges Pass in the list of badges from the userState for the list that needs to be shown.
  * @param showBadge A variable to store a badge into when it is clicked, will be used for displaying the information.
+ * @param scrollState Pass in the scroll state for saving where the user has scrolled in the list to.
  *
  * @author Elyseia
  */
@@ -423,7 +414,8 @@ fun AllBadgesDisplay(
     modifier: Modifier = Modifier,
     columns: Int = 5,
     toShow: MutableState<Boolean>,
-    showBadge: MutableState<Badge>,
+    badges: List<TestBadge>,
+    showBadge: MutableState<TestBadge>,
     scrollState: LazyGridState,
 ) {
     LazyVerticalGrid(
@@ -433,7 +425,7 @@ fun AllBadgesDisplay(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         state = scrollState,
     ) {
-        items(TestUser.allBadges) { badge ->
+        items(badges) { badge ->
             Box(
                 modifier = Modifier
                     .aspectRatio(1f)
@@ -457,7 +449,7 @@ fun AllBadgesDisplay(
 }
 
 /**
- * Shows the information of a single badge
+ * Shows the information of a single badge in a popup window.
  * @param toShow A boolean to determine if the window shows
  * @param badge The badge item to be displayed
  *
@@ -466,7 +458,7 @@ fun AllBadgesDisplay(
 @Composable
 fun SingleBadgeDisplay(
     modifier: Modifier = Modifier,
-    badge: Badge,
+    badge: TestBadge,
     toShow: MutableState<Boolean>,
 ) {
     CustomDialog(
@@ -516,7 +508,12 @@ fun SingleBadgeDisplay(
                 val date = badge.completedOn?.let {
                     SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
                         .format(Date(it))
-                } ?: "Not Completed"
+                } ?: "NotCompleted"
+//                    ?.toDate()
+//                    ?.let {
+//                        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+//                            .format(it)
+//                    } ?: "Not Completed"
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
