@@ -203,8 +203,8 @@ fun ShowStreak(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            onDelete()
                             toShow.value = false
+                            onDelete()
                         },
                         backgroundColor = AppTheme.colors.Error75,
                     ) {
@@ -269,6 +269,10 @@ fun AddStreak(
                     textAlign = TextAlign.Center,
                 )
                 Text(
+                    modifier = Modifier.clickable {
+                        toShow.value = false
+                        navigateToAddReminder()
+                    },
                     text = stringResource(R.string.make_a_new_reminder),
                     style = AppTheme.textStyles.DefaultUnderlined,
                     color = AppTheme.colors.Gray,
@@ -323,7 +327,10 @@ fun AddStreak(
                         backgroundMainColor = AppTheme.colors.DarkerBackground,
                     )
                     Text(
-                        modifier = Modifier.clickable { navigateToAddReminder() },
+                        modifier = Modifier.clickable {
+                            toShow.value = false
+                            navigateToAddReminder()
+                        },
                         text = stringResource(R.string.need_a_new_reminder),
                         style = AppTheme.textStyles.DefaultUnderlined,
                         color = AppTheme.colors.Gray
@@ -374,6 +381,7 @@ fun AddStreak(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
+                            toShow.value = false
                             onCreate(
                                 StreakDraft(
                                     reminderId = remindersAvailableToUse[selectedReminderIndex].reminderId,
@@ -381,7 +389,6 @@ fun AddStreak(
                                     repeat = repeat,
                                 )
                             )
-                            toShow.value = false
                         },
                         backgroundColor = AppTheme.colors.Success75,
                     ) {
@@ -397,6 +404,7 @@ fun AddStreak(
     }
 }
 
+// TODO: Update this after badges created
 /**
  * Displays the players badges in a grid of clickable circles.
  * Takes in parameters of the userState to avoid recollecting state.
@@ -448,6 +456,7 @@ fun AllBadgesDisplay(
     }
 }
 
+// TODO: Update this after badges created
 /**
  * Shows the information of a single badge in a popup window.
  * @param toShow A boolean to determine if the window shows

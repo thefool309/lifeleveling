@@ -399,7 +399,11 @@ fun StreaksScreen() {
             toShow = addWeekStreak,
             daily = true,
             reminders = userState.enabledReminders.filter { it.daily },
-            streaksAlreadyCreated = userState.weeklyStreaks
+            streaksAlreadyCreated = userState.weeklyStreaks,
+            navigateToAddReminder = { /* TODO: Navigate to create a reminder */ },
+            onCreate = { draft ->
+                userManager.addStreak(draft)
+            }
         )
     }
     if (addMonthStreak.value) {
@@ -433,7 +437,7 @@ fun StreaksScreen() {
             streak = streakToShow.value,
             reminder = userManager.retrieveReminder(streakToShow.value?.reminderId ?: "") ?: Reminder(colorToken = null),
             onDelete = {
-                userManager.removeStreak(streakToShow.value?.streakId ?: "")
+                streakToShow.value?.streakId?.let { userManager.removeStreak(it) }
             }
         )
     }

@@ -326,19 +326,41 @@ class UserManager(
     /**
      * Removes a streak from the streak list
      * Reupdates the weekly and month lists after the streak was removed
+     * FLow:
+     * 1. Deletes the streak from firestore
+     * 2. Deletes the streak from local storage of all streaks
+     * 3. Updates separated lists to no longer have the streak
      * @param streakId ID of the streak to be removed
      * @author Elyseia
      */
     fun removeStreak(streakId: String) {
-        userData.update { current ->
-            val user = userData.value.userBase ?: return@update current
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
 
-            val streaks = user.streaks.filter { it.streakId != streakId }
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+                val user = userData.value.userBase ?: error("User not loaded")
 
-            val updated = current.copy(
-                userBase = user.copy(streaks = streaks)
-            )
-            updated.separateStreaks()
+                if (user.streaks.none { it.streakId == streakId }) {
+                    error("Streak not found")
+                }
+
+                fireRepo.deleteStreak(uid, streakId)
+
+                val updated = user.copy(
+                    streaks = user.streaks.filterNot { it.streakId == streakId }
+                )
+                userData.update {
+                    it.copy(
+                        userBase = updated
+                    ).separateStreaks()
+                }
+            } catch (e: Exception) {
+                logger.e("FB", "Error removing streak", e)
+                userData.update { it.copy(error = "Error removing streak") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
         }
     }
 

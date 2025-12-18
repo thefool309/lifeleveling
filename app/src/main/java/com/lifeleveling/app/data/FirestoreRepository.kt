@@ -1030,4 +1030,19 @@ class FirestoreRepository(
         ref.set(streak).await()
         return streak
     }
+
+    /**
+     * Deletes a streak from the user's streak collection.
+     * @param uid The user's unique ID
+     * @param streakId The unique ID of the streak that is being deleted
+     */
+    suspend fun deleteStreak(
+        uid: String,
+        streakId: String,
+    ) {
+        userStreakRef(uid)
+            .document(streakId)
+            .delete()
+            .await()
+    }
 }
