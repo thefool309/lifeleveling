@@ -15,7 +15,6 @@ data class UsersBase(
     val allCoinsEarned: Long = 0,
     // Update from inline map to now use Stats data class
     val stats: Stats = Stats(),
-    val streaks: List<Streak> = emptyList(),
     val onboardingComplete: Boolean = false,
     val createdAt: Timestamp? = null,
     val lastUpdate: Timestamp? = null,
@@ -27,7 +26,6 @@ data class UsersBase(
     val currHealth: Long = 60,          // Default 60 at start
     // Badges can be stored in arrays of Badge objects on user doc.
     val badges: List<Badge> = emptyList(),       // greyed out badges/ secret badges TODO: Write new badges in Firebase and put completed and IDs here
-    val reminders: List<Reminder> = emptyList(),
     val fightOrMeditate: Int = 0,
     // User Journey Stats to be saved
     val weekStreaksCompleted: Long = 0,
@@ -49,6 +47,16 @@ data class UsersBase(
  */
 data class UsersData (
     var userBase: UsersBase? = null,
+
+    // Run time collections that loading from firestore directly could affect
+    val reminders: List<Reminder> = emptyList(),
+    val streaks: List<Streak> = emptyList(),
+
+    //Lists
+    var enabledReminders: List<Reminder> = emptyList(),
+    var weeklyStreaks: List<Streak> = emptyList(),
+    var monthlyStreaks: List<Streak> = emptyList(),
+
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
     // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
@@ -56,22 +64,17 @@ data class UsersData (
     var maxHealth: Long = 0L,
     val baseHealth: Long = 60L,
     var lifePointsNotUsed: Long = 0L,
-    //Lists
-    var enabledReminders: List<Reminder> = emptyList(),
-    var weeklyStreaks: List<Streak> = emptyList(),
-    var monthlyStreaks: List<Streak> = emptyList(),
+
     // User Journey Stats
     var totalStreaksCompleted: Long = 0L,
     var badgesEarned: Long = 0L,
     var allExpEver: Double = 0.0,
     var coinsSpent: Long = 0L,
 
-    // For use in functions
+    // Flags
     var error: String? = null,
     val fbUser: FirebaseUser? = null,
     val levelUpCoins: Long = 0L,
-
-    // Flags
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     val levelUpFlag: Boolean = false,
@@ -179,7 +182,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateEnabledReminders() : List<Reminder> {
-        return userBase?.reminders?.filter { it.enabled } ?: emptyList()
+        return reminders.filter { it.enabled }
     }
 
     /**
@@ -226,7 +229,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateMostCompletedReminder() : Pair<String, Long> {
-        val highest = userBase?.reminders?.maxByOrNull { it.completedTally }
+        val highest = reminders.maxByOrNull { it.completedTally }
         if (highest != null) {
             if (userBase!!.mostCompletedReminder.second < highest.completedTally) {
                 return Pair(highest.title, highest.completedTally)
@@ -242,7 +245,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calcWeeklyStreaks() : List<Streak> {
-        return userBase?.streaks?.filter { it.weekly } ?: emptyList()
+        return streaks.filter { it.weekly }
     }
 
     /**
@@ -251,7 +254,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calcMonthlyStreaks() : List<Streak> {
-        return userBase?.streaks?.filter { !it.weekly } ?: emptyList()
+        return streaks.filter { it.weekly }
     }
 }
 

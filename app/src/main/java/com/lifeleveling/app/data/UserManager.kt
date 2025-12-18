@@ -1,17 +1,12 @@
 package com.lifeleveling.app.data
 
 import android.app.Activity
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.auth.AuthModel
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
@@ -20,9 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlin.Int
-import kotlin.collections.orEmpty
 
 /**
  * Manages the local state of the user.
@@ -147,7 +140,10 @@ class UserManager(
         }
         viewModelScope.launch {
             try {
-                fireRepo.editUserParameter("isDark", isDark, current.userId)
+                fireRepo.editUser(
+                    current.userId,
+                    mapOf("isDark" to isDark),
+                )
                 userData.update { it.copy(isLoading = false, error = null) }
             } catch (e: Exception) {
                 logger.e("FB", "Error updating theme preference to firestore", e)
@@ -241,7 +237,7 @@ class UserManager(
      * @author Elyseia
      */
     fun retrieveReminder(id: String) : Reminder? {
-        return userData.value.userBase?.reminders?.find { it.reminderId == id }
+        return userData.value.reminders.find { it.reminderId == id }
     }
 
     // ============ Streak Functions ===============================================
@@ -295,7 +291,6 @@ class UserManager(
             try {
                 val uid = authModel.currentUser?.uid ?: error("User not logged in")
                 val reminder = retrieveReminder(draft.reminderId) ?: error("Reminder not found")
-                val user = userData.value.userBase ?: error("User not loaded")
 
                 val streak = fireRepo.createStreak(uid) { streakId ->
                     buildStreak(
@@ -305,13 +300,9 @@ class UserManager(
                     )
                 }
 
-                val updated = user.copy(
-                    streaks = user.streaks + streak,
-                )
-
-                userData.update {
-                    it.copy(
-                        userBase = updated
+                userData.update {current ->
+                    current.copy(
+                        streaks = current.streaks + streak,
                     ).separateStreaks()
                 }
             } catch (e: Exception) {
@@ -339,20 +330,16 @@ class UserManager(
 
             try {
                 val uid = authModel.currentUser?.uid ?: error("User not logged in")
-                val user = userData.value.userBase ?: error("User not loaded")
 
-                if (user.streaks.none { it.streakId == streakId }) {
+                if (userData.value.streaks.none { it.streakId == streakId }) {
                     error("Streak not found")
                 }
 
                 fireRepo.deleteStreak(uid, streakId)
 
-                val updated = user.copy(
-                    streaks = user.streaks.filterNot { it.streakId == streakId }
-                )
-                userData.update {
-                    it.copy(
-                        userBase = updated
+                userData.update {current ->
+                    current.copy(
+                        streaks = userData.value.streaks.filterNot { it.streakId == streakId }
                     ).separateStreaks()
                 }
             } catch (e: Exception) {
@@ -428,7 +415,7 @@ class UserManager(
 
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
                 // No account exists with this email
-                logger.w("FB", "No user for ${email.trim()}")
+                logger.e("FB", "No user for ${email.trim()}", e)
                 userData.update { it.copy(isLoading = false, error = "No account found for this email.") }
 
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
@@ -570,7 +557,7 @@ class UserManager(
             } catch (e: com.google.firebase.auth.FirebaseAuthUserCollisionException) {
                 // Email already in use.
                 val msg = authModel.checkIfEmailInUse(email)
-                logger.w("FB", msg)
+                logger.e("FB", msg, e)
                 userData.update { it.copy(isLoading = false, error = msg) }
 
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
@@ -645,9 +632,9 @@ class UserManager(
 
         viewModelScope.launch {
             try {
-                fireRepo.updateMultipleParameters(
-                    uid = user.userId,
-                    params = mapOf(
+                fireRepo.editUser(
+                    userId = user.userId,
+                    userData = mapOf(
                         "level" to user.level,
                         "currentXp" to user.currentXp,
                         "lifePointsTotal" to user.lifePointsTotal,

@@ -1,40 +1,16 @@
 package com.lifeleveling.app.auth
 
 import android.app.Activity
-import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.lifeleveling.app.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
 import com.lifeleveling.app.data.UsersData
-import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
-
-// These flags were moved into the UsersData object
-///**
-// * Simple container for what the auth screen needs to know:
-// * - who the current user is (if any)
-// * - whether we're busy doing an auth call
-// * - any error message to show
-// *
-// * @author fdesouza1992
-// * **/
-//data class AuthUiState(
-//    val user: FirebaseUser? = null,
-//    val isLoading: Boolean = false,
-//    val error: String? = null
-//)
 
 /**
  * Class that owns all of our Firebase/Google sign-in logic.
@@ -47,11 +23,6 @@ class AuthModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val logger: ILogger
 ) {
-//    private val repo = FirestoreRepository()
-
-    // Backing field for authentication UI state
-//    private val _ui = MutableStateFlow(AuthUiState(user = auth.currentUser))
-//    val ui: StateFlow<AuthUiState> = _ui.asStateFlow()
 
     /**
      * Velma wuz here :3
@@ -62,23 +33,8 @@ class AuthModel(
     }
     val currentUser get() = auth.currentUser
 
-    /**
-     * Clears any current auth error message from the UI state.
-     *
-     * Call this after the user dismisses an error dialog so we don't keep re-showing the same message.
-     *
-     * @author fdesouza1992
-     */
-    fun clearError(user: UsersData) {
-        user.error = null
-//        _ui.value = _ui.value.copy(error = null)
-    }
-
 
     // Listener to monitor Firebase authentication state changes
-//    private val listener = FirebaseAuth.AuthStateListener { fb ->
-//        _ui.value = _ui.value.copy(user = fb.currentUser, isLoading = false, error = null)
-//    }
     /**
      * Add the listener to monitor the Firebase authentication state changes
      * @param listener The listener to register
@@ -89,8 +45,6 @@ class AuthModel(
     }
 
     // Initialization/ Cleanup
-//    init { auth.addAuthStateListener(listener) }
-//    override fun onCleared() { auth.removeAuthStateListener(listener) }
     /**
      *  Removes the listener that is observing the Firebase authentication state
      *  @param listener The listener to remove
@@ -117,56 +71,6 @@ class AuthModel(
             .build()
         return GoogleSignIn.getClient(activity, gso)
     }
-
-    // This will be taken care of in UserManager
-//    /**
-//     * Marks the UI as “loading” when the user starts the Google sign-in flow.
-//     *
-//     * This is usually called right before we launch the Google sign-in intent, so the UI can show a spinner or disable buttons.
-//     * @author fdesouza1992
-//     */
-//    fun beginGoogleSignIn() {
-//        _ui.value = _ui.value.copy(isLoading = true, error = null)
-//    }
-
-    // Moved to UserManager and FirestoreRepository
-//    /**
-//     * Runs the “after login” work once a user has successfully signed in.
-//     *
-//     * Flow:
-//     * 1. Grab the current Firebase user.
-//     * 2. In the background, make sure they have a user document in Firestore.
-//     * 3. Log an auth event to `authLogs` for basic monitoring.
-//     * 4. Clear out loading and error state in the UI.
-//     *
-//     * If the Firestore work fails, we log a warning but don’t block sign-in.
-//     *
-//     * @param provider The auth provider string (e.g., "password" or "google").
-//     * @param logger   For logging any issues while doing post-login work.
-//     * @author fdesouza1992
-//     */
-//    private fun postLoginBookkeeping(provider: String, logger: ILogger) {
-//        val user = auth.currentUser ?: return
-//        viewModelScope.launch {
-//            try { repo.ensureUserCreated(user) } catch (e: Exception) {
-//                logger.w("FB", "ensureUserCreated failed: ${e.message}")
-//            }
-//        }
-//        Firebase.firestore.collection("authLogs")
-//            .add(
-//                mapOf(
-//                    "ts" to com.google.firebase.Timestamp.now(),
-//                    "source" to "emailPasswordLogin",
-//                    "provider" to provider,
-//                    "uid" to user.uid,
-//                    "email" to user.email,
-//                    "name" to (user.displayName ?: "")
-//                )
-//            )
-//            .addOnFailureListener { e -> logger.w("FB", "Auth Log write failed: ${e.message}") }
-//
-//        _ui.value = _ui.value.copy(isLoading = false, error = null)
-//    }
 
     /**
      * Handles the Google sign-in result Intent returned to the Activity.
@@ -264,49 +168,6 @@ class AuthModel(
             googleClient(activity).signOut()
         }
     }
-
-    // Moved to UserManager and broken apart. See deleteUser below and in FirestoreRepository
-//    /**
-//     * A full account delete for the currently signed-in user.
-//     *
-//     * Flow:
-//     * 1. Mark the UI as loading and clear any old error.
-//     * 2. Call into the FirestoreRepository to delete the user and their data.
-//     * 3. If the repo call returns false or throws an error, a simple “try again” message is displayed.
-//     * 4. On success, the AuthStateListener will notice that the user is now null and the rest of the app can react to that.
-//     *
-//     * @param logger Used to log any errors that happen during the delete process.
-//     * @author fdesouza1992
-//     */
-//    fun deleteAccount(logger: ILogger) {
-//        viewModelScope.launch {
-//            _ui.value = _ui.value.copy(
-//                isLoading = true,
-//                error = null
-//            )
-//            try {
-//                val ok = repo.deleteUser(logger)
-//                if (!ok) {
-//                    _ui.value = _ui.value.copy(
-//                        isLoading = false,
-//                        error = "Failed to delete account. Please try again."
-//                    )
-//                } else {
-//                    // AuthStateListener will see user == null once delete succeeds
-//                    _ui.value = _ui.value.copy(
-//                        isLoading = false,
-//                        error = null
-//                    )
-//                }
-//            } catch (e: Exception) {
-//                logger.e("Auth", "deleteAccount failed", e)
-//                _ui.value = _ui.value.copy(
-//                    isLoading = false,
-//                    error = "Failed to delete account. Please try again."
-//                )
-//            }
-//        }
-//    }
 
     /**
      * Deletes the user from firebase auth

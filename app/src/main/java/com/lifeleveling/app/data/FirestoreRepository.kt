@@ -3,7 +3,6 @@ package com.lifeleveling.app.data
 import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -28,23 +27,17 @@ class FirestoreRepository(
     private val logger: ILogger
 ) {
 
-    // Moved to Auth
-//    /**
-//     * Velma wuz here :3
-//     */
-//    // Helper functions
-//    private fun getUserId() : String? {
-//        return auth.currentUser?.uid
-//    }
-
     /**
      * Updates the timestamp for when the last time the user's firestore data was updated
+     * Avoid using this function inside another function that already writes to the user's collection.
+     * It will cause a double firebase call.
+     * @param userId The unique firebase ID of the user
      */
     private fun updateTimestamp(userId: String) {
         try {
             db.collection("users")
                 .document(userId)
-                .update("lastUpdate", Timestamp.now())
+                .update("lastUpdate", FieldValue.serverTimestamp())
         }
         catch (e: Exception) {
             logger.e("Firestore", "Error Updating Timestamp", e)
@@ -62,63 +55,22 @@ class FirestoreRepository(
         val snap = docRef.get().await()
         val firstTime = !snap.exists()
 
-        // Compose the write payload using your Users model defaults
-        val model = UsersBase(
-            userId = uid,
-//            displayName = user.displayName.orEmpty(),
-//            email = user.email.orEmpty(),
-//            photoUrl = user.photoUrl?.toString().orEmpty(),
-//            coinsBalance = 0L,
-//            stats = Stats(
-//                agility = 0L,
-//                defense = 0L,
-//                intelligence = 0L,
-//                strength = 0L,
-//                health = 0L
-//            ),
-//            streaks = 0L,
-//            onboardingComplete = false,
-//            createdAt = null,
-//            lastUpdate = null,
-//            level = 1L,
-//            lifePointsTotal = 4L,        // Adding some life points to demo
-//            currentXp = 0.0,
-//            // xpToNextLevel is derived in Users, and we are not storing it
-//            currHealth = 10,
-//            badgesLocked = emptyList(),
-//            badgesUnlocked = emptyList(),
-        )
-
-        val data = UsersData(
-            userBase = model,
-            fbUser = user,
-            )
-
-//        val data = mutableMapOf<String, Any?>(
-//            "userId" to model.userId,
-//            "displayName" to model.displayName,
-//            "email" to model.email,
-//            "photoUrl" to model.photoUrl,
-//            "coinsBalance" to model.coinsBalance,
-//            "stats" to model.stats,
-//            "streaks" to model.streaks,
-//            "onboardingComplete" to model.onboardingComplete,
-//            "createdAt" to model.createdAt,
-//            "lastUpdate" to FieldValue.serverTimestamp(),
-//            "level" to model.level,
-//            "lifePoints" to model.lifePoints,
-//            "currentXp" to model.currentXp,
-//            "currHealth" to model.currHealth,
-//            "badgesLocked" to model.badgesLocked,
-//            "badgesUnlocked" to model.badgesUnlocked,
-//        )
-
         if (firstTime) {
             // first creation: write the full payload
-            docRef.set(data, SetOptions.merge()).await()
+            docRef.set(
+                mapOf(
+                    "userId" to uid,
+                    "displayName" to user.displayName,
+                    "email" to user.email,
+                    "photoUrl" to user.photoUrl?.toString(),
+                    "createdAt" to FieldValue.serverTimestamp(),
+                    "lastUpdate" to FieldValue.serverTimestamp(),
+                    "onboardingComplete" to false,
+                )
+            ).await()
         } else {
             // existing user: only bump lastUpdate (do NOT overwrite stats/lifePoints)
-            docRef.set(mapOf("lastUpdate" to FieldValue.serverTimestamp()), SetOptions.merge()).await()
+            docRef.update("lastUpdate", FieldValue.serverTimestamp()).await() //Update is a smaller payload
         }
 
         Log.d("FB", "users/$uid created=$firstTime")
@@ -137,32 +89,36 @@ class FirestoreRepository(
     suspend fun createUser(userData: Map<String, Any>, currentUser: FirebaseUser?): UsersData? {
 //        val currentUser = auth.currentUser
 
-        return if (currentUser != null) {
-            val uid = currentUser.uid
-            val docRef = db.collection("users")
-                            .document(uid)
+        if (currentUser == null) {
+            logger.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
+            return null
+        }
 
+        val uid = currentUser.uid
+        val docRef = db.collection("users")
+                        .document(uid)
+
+        val base = mapOf(
+            "userId" to uid,
+            "displayName" to userData["displayName"].toString(),
+            "email" to userData["email"].toString(),
+            "photoUrl" to userData["photoUrl"].toString(),
+            "createdAt" to FieldValue.serverTimestamp(),
+            "lastUpdate" to FieldValue.serverTimestamp()
+        )
+        return try {
+            docRef.set(base).await()
             val base = UsersBase(
                 userId = uid,
                 displayName = userData["displayName"].toString(),
                 email = userData["email"].toString(),
-                photoUrl = userData["photoUrl"].toString(),
-                createdAt = Timestamp.now(),
-                lastUpdate = Timestamp.now()
+                photoUrl = userData["photoUrl"].toString()
             )
-            try {
-                docRef.set(base).await()
-                return UsersData(userBase = base)
-            }
-            catch (e: Exception) {
-                // unknown error saving user to Firebase
-                logger.e("Firestore", "Error Saving User: ", e)
-                null
-            }
-
-        } else {
-            // No user is signed in
-            logger.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
+            UsersData(userBase = base)
+        }
+        catch (e: Exception) {
+            // unknown error saving user to Firebase
+            logger.e("Firestore", "Error Saving User: ", e)
             null
         }
 
@@ -175,62 +131,42 @@ class FirestoreRepository(
      * This Function is now defunct and deprecated in favor of the more specific functions for updating specific fields.
      * If you really feel you want to use this function, use it with caution, because storing the wrong data type,
      * can actually cause a cascading failure in the getUser function, causing fields to be blank in the user object
+     * This function can be used to save one parameter or multiple.
      * @param userData a map of userData, with the key being the name of the field to be filled
      * @param userId The firebase id of the user to write to
      * @author thefool309
      * @return Boolean for a success check
      */
-    suspend fun editUser(userData: Map<String, Any>, userId: String) : Boolean {
+    suspend fun editUser(userId: String?, userData: Map<String, Any>) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
         // if the user is not authenticated then authenticate before calling this function
 //        val userId: String = auth.currentUser!!.uid
-        var result: Boolean
-        try {
+        if(userId.isNullOrBlank()) {
+            logger.e("Firestore", "UserId is null or blank. Please login to Firebase.")
+            return false
+        }
+        if(userData.isEmpty()) {
+            logger.e("Firestore", "No parameters provided to update for user.")
+            return false
+        }
+
+        return try {
+            val data = userData.toMutableMap().apply {
+                put("lastUpdate", FieldValue.serverTimestamp())
+            }
             db.collection("users")
                 .document(userId)
-                .update(userData)
+                .update(data)
                 .await()
-            result = true
-            updateTimestamp(userId)
+            true
         }
         catch (e: Exception) {
-            logger.e("Auth", "Error Updating User: ", e)
-            result = false
+            logger.e("Firestore", "Error Updating User: $userId", e)
+            false
         }
-        return result
     }
 
     // User information
-    /**
-     * Combines several methods from below.
-     * Made to write over a single part of the user's information in firestore.
-     * Use for small writes of changing one value inside the UsersBase that is stored in the database.
-     * Can even be used to update Stats.
-     * @param parameterName The name of the parameter in firebase
-     * @param value What the new information stored there will be
-     * @param userId The userId of the current user.
-     */
-    suspend fun editUserParameter(parameterName: String, value: Any?, userId: String?) : Boolean {
-        if(userId == null) {
-            logger.e("Auth", "ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        if(value == null) {
-            logger.e("Invalid Parameter", "Value is empty, Please add in a value to write...")
-            return false
-        }
-        try {
-            docRef.update(parameterName, value).await()
-            updateTimestamp(userId)
-            return true
-        }
-        catch (e: Exception) {
-            logger.e("Auth", "Error Updating User: ", e)
-            return false
-        }
-    }
 //    /**
 //     * This function is designed for specifically updating the users displayName.
 //     * The displayName field is synonomous with a "username."
@@ -569,6 +505,9 @@ class FirestoreRepository(
 
     /**
      * Pulls the user's information from the database and puts it into a UsersData object for local use
+     * Pulls the UserBase information from firestore
+     * Pulls all subcollections into proper lists.
+     * Creates a UserData object and returns it
      * @param uID The ID of the user
      * @return A UsersData object for updating the state
      */
@@ -618,7 +557,10 @@ class FirestoreRepository(
         )
 
         val mostCompletedMap = data["mostCompletedReminder"] as? Map<*, *> ?: emptyMap<String, Any>()
-        val mostCompleted = Pair(mostCompletedMap["name"] as? String ?: "", (mostCompletedMap["completed"] as? Number)?.toLong() ?: 0L)
+        val mostCompleted = Pair(
+            mostCompletedMap["name"] as? String ?: "",
+            (mostCompletedMap["completed"] as? Number)?.toLong() ?: 0L
+        )
 
         val user = UsersBase(
             userId             = data["userId"] as? String ?: uID,
@@ -628,7 +570,6 @@ class FirestoreRepository(
             coinsBalance       = num("coinsBalance"),
             allCoinsEarned     = num("allCoinsEarned"),
             stats              = stats,
-            streaks            = emptyList(),   // TODO: map arrays if/when needed
             onboardingComplete = data["onboardingComplete"] as? Boolean ?: false,
             createdAt          = ts("createdAt"),
             lastUpdate         = ts("lastUpdate"),
@@ -639,7 +580,6 @@ class FirestoreRepository(
             currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
             currHealth         = num("currHealth"),
             badges             = emptyList(),   // TODO: map arrays if/when needed
-            reminders          = emptyList(),   // TODO: map arrays if/when needed
             fightOrMeditate    = (data["fightOrMeditate"] as? Number)?.toInt() ?: 0,
             weekStreaksCompleted = num("weekStreaksCompleted"),
             monthStreaksCompleted = num("monthStreaksCompleted"),
@@ -647,27 +587,53 @@ class FirestoreRepository(
             isDarkTheme        = data["isDarkTheme"] as? Boolean ?: true,
         )
 
-        return UsersData(userBase = user)
+        // Load the reminders subcollection
+        val remindersList = try {
+            remindersCol(uID)
+                .get().await().documents.mapNotNull { doc ->
+                    doc.toObject(Reminder::class.java)?.copy(reminderId = doc.id)
+                }
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error loading user's reminders", e)
+            emptyList()
+        }
+
+        // Load the streaks subcollection
+        val streaksList = try {
+            streaksCol(uID)
+                .get().await().documents.mapNotNull { doc ->
+                    doc.toObject(Streak::class.java)?.copy(streakId = doc.id)
+                }
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error loading user's streaks", e)
+            emptyList()
+        }
+
+        return UsersData(
+            userBase = user,
+            reminders = remindersList,
+            streaks = streaksList,
+        )
     }
 
     // TODO: Adjust this to write the map of the badges list
-    suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger, uid: String?) : Boolean {
-//        val uid: String? = getUserId()
-        if (uid == null) {
-            logger.e("Auth", "User ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users").document(uid)
-        try {
-            docRef.update("badgesLocked", newBadgesLocked).await()
-            updateTimestamp(uid)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
-            return false
-        }
-    }
+//    suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger, uid: String?) : Boolean {
+////        val uid: String? = getUserId()
+//        if (uid == null) {
+//            logger.e("Auth", "User ID is null. Please login to firebase.")
+//            return false
+//        }
+//        val docRef = db.collection("users").document(uid)
+//        try {
+//            docRef.update("badgesLocked", newBadgesLocked).await()
+//            updateTimestamp(uid)
+//            return true
+//        }
+//        catch(e: Exception) {
+//            logger.e("Firestore", "Error Updating User: ", e)
+//            return false
+//        }
+//    }
 
 //    suspend fun setBadgesUnlocked(newBadgesUnlocked: List<Badge>, logger: ILogger) : Boolean {
 //        val uid: String? = getUserId()
@@ -708,7 +674,6 @@ class FirestoreRepository(
      * @author fdesouza1992
      * **/
     suspend fun deleteUser(uid: String?): Boolean {
-//        val uid: String? = getUserId()
         if (uid == null) {
             logger.e("Auth", "User ID is null. Please login to firebase.")
             return false
@@ -737,21 +702,6 @@ class FirestoreRepository(
                 logger.e("Firestore", "Failed to delete user document for $uid", e)
                 return false
             }
-
-            // Moved this to AuthModel
-//            // Delete Firebase Auth user
-//            val currentUser = auth.currentUser
-//            if (currentUser != null) {
-//                try {
-//                    currentUser.delete().await()
-//                } catch (e: Exception) {
-//                    // Firestore doc is already gone.
-//                    logger.e("Auth", "Failed to delete Firebase Auth user for $uid", e)
-//                    return false
-//                }
-//            } else {
-//                logger.w("Auth", "No Firebase Auth user found for $uid during deleteUser.")
-//            }
 
             true
         } catch (e: Exception) {
@@ -967,44 +917,11 @@ class FirestoreRepository(
     }
 
     /**
-     * Writes several values to Firestore
-     * Be VERY CAREFUL with your naming conventions and make sure they are within UsersBase
-     * @param uid The ID of the user to write to
-     * @param params A map of the parameters to write. The String should be the UsersBase name of the parameter. The following Any is the value to write for that parameter.
-     * @return A boolean for a success check
-     * @author Elyseia
-     */
-    suspend fun updateMultipleParameters(
-        uid: String?,
-        params: Map<String, Any>,
-    ) : Boolean {
-        if (uid.isNullOrBlank()) {
-            logger.e("Auth", "UserId is null. Please login to Firebase.")
-            return false
-        }
-        if (params.isEmpty()) {
-            logger.e("Firestore", "No parameters provided to update for user $uid")
-            return false
-        }
-
-        val docRef = db.collection("users").document(uid)
-
-        return try {
-            docRef.update(params).await()
-            updateTimestamp(uid)
-            true
-        } catch (e: Exception) {
-            logger.e("Firestore", "Error updating user parameters for $uid", e)
-            false
-        }
-    }
-
-    /**
      * A reference to the path of the user's streaks collection
      * @param uid The ID of the user
      * @author Elyseia
      */
-    fun userStreakRef(uid: String) =
+    fun streaksCol(uid: String) =
         db.collection("users")
             .document(uid)
             .collection("streaks")
@@ -1025,9 +942,10 @@ class FirestoreRepository(
         uid: String,
         streakBuilder: (String) -> Streak,
     ) : Streak {
-        val ref = userStreakRef(uid).document()
+        val ref = streaksCol(uid).document()
         val streak = streakBuilder(ref.id)
         ref.set(streak).await()
+        updateTimestamp(uid)
         return streak
     }
 
@@ -1040,9 +958,10 @@ class FirestoreRepository(
         uid: String,
         streakId: String,
     ) {
-        userStreakRef(uid)
+        streaksCol(uid)
             .document(streakId)
             .delete()
             .await()
+        updateTimestamp(uid)
     }
 }
