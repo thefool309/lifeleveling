@@ -63,7 +63,7 @@ fun StreaksScreen() {
     val showBadge = remember { mutableStateOf(false) }
     val showStreakInfo = remember { mutableStateOf(false) }
     val badgeToDisplay = remember { mutableStateOf(TestingUser.allBadges[0])}
-    val streakToShow = remember { mutableStateOf(userState.userBase?.streaks[0])}
+    val streakToShow = remember { mutableStateOf(userState.streaks[0])}
     val addWeekStreak = remember { mutableStateOf(false) }
     val addMonthStreak = remember { mutableStateOf(false) }
     val gridState = rememberLazyGridState()

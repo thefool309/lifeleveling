@@ -23,6 +23,7 @@ import org.junit.runner.RunWith
 class AuthIntegratedTests {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private var logger = AndroidLogger()
 
     // test data for user and document
     private val testUsername = "testuser_1"
@@ -69,17 +70,15 @@ class AuthIntegratedTests {
 
     @Test
     fun createUserPositiveTest() = runTest {
-        val model = AuthModel()
-        val logger = AndroidLogger()
-        model.createUserWithEmailAndPassword(testEmail, testPassword, logger)
+        val model = AuthModel(logger = logger)
+        model.createUserWithEmailAndPassword(testEmail, testPassword)
         assert(auth.currentUser != null)
     }
 
     @Test
     fun signInPositiveTest() = runTest {
-        val model = AuthModel()
-        val logger = AndroidLogger()
-        model.signInWithEmailPassword(testEmail, testPassword, logger)
+        val model = AuthModel(logger = logger)
+        model.signInWithEmailPassword(testEmail, testPassword)
         assert(auth.currentUser != null)
     }
 }
