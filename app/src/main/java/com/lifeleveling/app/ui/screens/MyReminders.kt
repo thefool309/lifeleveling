@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,11 +30,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
@@ -43,55 +41,35 @@ import com.lifeleveling.app.ui.components.MyRemindersToolTip
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowReminder
+import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.util.ILogger
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
-import com.lifeleveling.app.ui.components.formatReminderTime
-import com.lifeleveling.app.ui.components.iconResForNameCalendar
 
-//@Preview
+@Preview
 @Composable
 fun MyRemindersScreen(
-    navController: NavController? = null,
-    repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = com.lifeleveling.app.util.AndroidLogger()
+    navController: NavController? = null
 ){
-    val scope = rememberCoroutineScope()
-    val toShowReminderInfo = remember { mutableStateOf(false) }
-    val reminderToShow = remember { mutableStateOf<Reminders?>(null) }
+    var toShowReminderInfo = remember { mutableStateOf(false) }
+    val reminderToShow = remember { mutableStateOf(TestUser.calendarReminders.value[0]) }
+
     val showMyRemindersToolTip = remember { mutableStateOf(false) }
-
-    // Replaces TestUser.calendarReminders
-    val remindersListState = remember { mutableStateOf<List<Reminders>>(emptyList()) }
-    val isLoading = remember { mutableStateOf(true) }
-
-    // Pull all reminders for the signed-in user
-    LaunchedEffect(Unit) {
-        isLoading.value = true
-        remindersListState.value = repo.getAllReminders(logger)
-        isLoading.value = false
-    }
-
-    //val remindersList = remindersListState.value
-
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
     val amOrPmOptions = listOf(
         stringResource(R.string.am),
         stringResource(R.string.pm),
     )
-//    val hoursDaysWeeks = listOf(
-//        stringResource(R.string.hours),
-//        stringResource(R.string.days),
-//        stringResource(R.string.weeks)
-//    )
-//    val daysWeeksMonthsYearsList = listOf(
-//        stringResource(R.string.days),
-//        stringResource(R.string.weeks),
-//        stringResource(R.string.months),
-//        stringResource(R.string.years)
-//    )
+    val hoursDaysWeeks = listOf(
+        stringResource(R.string.hours),
+        stringResource(R.string.days),
+        stringResource(R.string.weeks)
+    )
+    val daysWeeksMonthsYearsList = listOf(
+        stringResource(R.string.days),
+        stringResource(R.string.weeks),
+        stringResource(R.string.months),
+        stringResource(R.string.years)
+    )
 
     Box(
         modifier = Modifier
@@ -164,7 +142,8 @@ fun MyRemindersScreen(
                     .height(450.dp),
                 outerPadding = 0.dp
             ) {
-                val remindersList = remindersListState.value
+                val remindersList = TestUser.calendarReminders.value
+
 
                 Column(
                     modifier = Modifier
@@ -174,63 +153,58 @@ fun MyRemindersScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ){
 
-                    remindersList.forEachIndexed { index, reminder ->
-                        val timeLabel = formatReminderTime(reminder)
-
+                    remindersList.forEachIndexed { index ,calReminder ->
+                        val hour = hourOptions[calReminder.selectedHours]
+                        val minutes = minutesOptions[calReminder.selectedMinutes]
+                        val ampm = amOrPmOptions[calReminder.amOrPm]
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     toShowReminderInfo.value = true
-                                    reminderToShow.value = reminder
+                                    reminderToShow.value = calReminder
                                 },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
+
                             ShadowedIcon(
-                                modifier = Modifier.size(32.dp),
-                                imageVector = ImageVector.vectorResource(id = iconResForNameCalendar(reminder.iconName)),
+                                modifier = Modifier
+                                    .size(32.dp),
+                                imageVector = ImageVector.vectorResource(id=calReminder.icon),
                                 contentDescription = null,
                                 tint = Color.Unspecified
+
                             )
-
                             Spacer(Modifier.width(20.dp))
-
                             Text(
-                                text = reminder.title,
+                                text = calReminder.name,
                                 style = AppTheme.textStyles.HeadingSix,
                                 color = AppTheme.colors.Gray
                             )
-
                             Spacer(modifier = Modifier.size(8.dp))
-
                             Text(
-                                text = timeLabel,
+                                text = "$hour:$minutes $ampm",
                                 style = AppTheme.textStyles.HeadingSix,
                                 color = AppTheme.colors.Gray
                             )
 
                             Spacer(Modifier.weight(1f))
+                            Box(
+                                modifier = Modifier
 
-                            CustomCheckbox(
-                                checked = reminder.enabled,
-                                onCheckedChange = { newValue ->
-
-                                    // optimistic UI update
-                                    remindersListState.value =
-                                        remindersListState.value.toMutableList().also { list ->
-                                            list[index] = list[index].copy(enabled = newValue)
-                                        }
-
-                                    // persist to Firestore (SAFE: coroutine scope, not LaunchedEffect)
-                                    scope.launch {
-                                        repo.updateReminder(
-                                            reminderId = reminder.reminderId,
-                                            updates = mapOf("enabled" to newValue),
-                                            logger = logger
-                                        )
+                            ){
+                                CustomCheckbox(
+                                    checked = calReminder.isEnabled,
+                                    onCheckedChange = { newValue ->
+                                        TestUser.calendarReminders.value =
+                                            TestUser.calendarReminders.value.toMutableList().also { list ->
+                                                list[index] = list[index].copy(isEnabled = newValue)
+                                            }
                                     }
-                                }
-                            )
+                                )
+                            }
+
+
 
                         }
 
@@ -238,6 +212,7 @@ fun MyRemindersScreen(
                             SeparatorLine()
                         }
                     }
+
                 }
             }
         }
@@ -253,21 +228,7 @@ fun MyRemindersScreen(
             passedReminder = reminderToShow,
             hourOptions = hourOptions,
             minutesOptions = minutesOptions,
-            amOrPmOptions = amOrPmOptions,
-            onDelete = { r ->
-                scope.launch {
-                    // Delete in Firestore
-                    val ok = repo.deleteReminder(r.reminderId, logger)
-
-                    // If successful, remove from UI list
-                    if (ok) {
-                        remindersListState.value =
-                            remindersListState.value.filter { it.reminderId != r.reminderId }
-                    } else {
-                        logger.e("Reminders", "UI delete failed for ${r.reminderId}")
-                    }
-                }
-            }
+            amOrPmOptions = amOrPmOptions
         )
     }
 }

@@ -1,6 +1,5 @@
 package com.lifeleveling.app.data
 
-import android.R.attr.enabled
 import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -8,10 +7,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.lifeleveling.app.ui.components.Reminder
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
+import com.google.firebase.firestore.ktx.toObject
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
@@ -294,6 +293,7 @@ class FirestoreRepository {
     /**
      * set the number coins to the Users firebase balance
      * @return Boolean
+     * @param health  a long that contains the new balance
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
      */
 
@@ -610,7 +610,7 @@ class FirestoreRepository {
             return null
         }
 
-        var userDoc: Users?
+        var userDoc: Users? = null
         val userSnap = docRef.get()
             .await()
         if (userSnap.exists() && userSnap != null) {
@@ -784,13 +784,12 @@ class FirestoreRepository {
             "reminderId" to (reminders.reminderId.ifBlank { null }),
             "title" to reminders.title,
             "notes" to reminders.notes,
-            "startingAt" to reminders.startingAt,
-            "completed" to reminders.completed,
+            "dueAt" to reminders.dueAt,
+            "isCompleted" to reminders.isCompleted,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp(),
-            "daily" to reminders.daily,
-            "timesPerMinute" to reminders.timesPerMinute,
+            "isDaily" to reminders.isDaily,
             "timesPerHour" to reminders.timesPerHour,
             "timesPerDay" to reminders.timesPerDay,
             "timesPerMonth" to reminders.timesPerMonth,
@@ -799,7 +798,6 @@ class FirestoreRepository {
             "repeatForever" to reminders.repeatForever,
             "repeatCount" to reminders.repeatCount,
             "repeatInterval" to reminders.repeatInterval,
-            "enabled" to reminders.enabled,
         ).filterValues { it != null } // don't write null reminderId if empty
 
         return try {
@@ -852,7 +850,7 @@ class FirestoreRepository {
     // Mark a reminder complete/incomplete and set/unset completedAt automatically.
     suspend fun setReminderCompleted(
         reminderId: String,
-        completed: Boolean,
+        isCompleted: Boolean,
         logger: ILogger
     ): Boolean {
         val uid = getUserId()
@@ -862,12 +860,12 @@ class FirestoreRepository {
         }
         return try {
             val payload = hashMapOf<String, Any?>(
-                "completed" to completed,
-                "completedAt" to if (completed) FieldValue.serverTimestamp() else null,
+                "isCompleted" to isCompleted,
+                "completedAt" to if (isCompleted) FieldValue.serverTimestamp() else null,
                 "lastUpdate" to FieldValue.serverTimestamp()
             )
             remindersCol(uid).document(reminderId).update(payload).await()
-            logger.d("Reminders", "setReminderCompleted: $reminderId -> $completed")
+            logger.d("Reminders", "setReminderCompleted: $reminderId -> $isCompleted")
             true
         } catch (e: Exception) {
             logger.e("Reminders", "setReminderCompleted failed", e)
@@ -892,98 +890,40 @@ class FirestoreRepository {
         }
     }
 
-//    suspend fun getRemindersForDay(
-//        date: LocalDate,
-//        logger: ILogger
-//    ): List<Reminders> {
-//        val uid = getUserId()
-//        if (uid.isNullOrBlank()) {
-//            logger.e("Reminders", "getRemindersForDay: user id is null/blank; sign in first.")
-//            return emptyList()
-//        }
-//
-//        val zone = ZoneId.systemDefault()
-//        val startOfDay = date.atStartOfDay(zone)
-//        val endOfDay = startOfDay.plusDays(1)
-//
-//        val startTs = Timestamp(Date.from(startOfDay.toInstant()))
-//        val endTs = Timestamp(Date.from(endOfDay.toInstant()))
-//
-//        return try {
-//            val snap = db.collection("users")
-//                .document(uid)
-//                .collection("reminders")
-//                .whereGreaterThanOrEqualTo("dueAt", startTs)
-//                .whereLessThan("dueAt", endTs)
-//                .get()
-//                .await()
-//
-//            snap.documents.mapNotNull { doc ->
-//                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
-//            }
-//        } catch (e: Exception) {
-//            logger.e("Reminders", "getRemindersForDay failed for $date", e)
-//            emptyList()
-//        }
-//    }
-
-    /**
-     * Returns all reminders that should show up on the selected [date] for the currently signed-in user.
-     *
-     * 1) Gets the current user's uid. If we don't have one, we log it and return an empty list.
-     * 2) Builds an "end of day" timestamp (exclusive) which is **the start of the next day**.
-     *    Example: if date is 2025-12-11, endOfDay is 2025-12-12 00:00 (local time).
-     * 3) Queries Firestore for reminders where `startingAt < endOfDay`.
-     *    - This gives us a *candidate list* of reminders that start before the day ends.
-     * 4) Converts docs into `Reminders` objects and copies `doc.id` into `reminderId`.
-     * 5) Filters the list using `occursOn(date, zone)` so we only keep reminders that actually apply to that calendar day (one-time, daily, and repeat rules).
-     * 6) Sorts the results by `startingAt` so the day view shows them in a nice order.
-     *
-     * Edge cases:
-     * - If user is not signed in -> logs + returns emptyList()
-     * - If Firestore read fails -> logs + returns emptyList()
-     *
-     * @param date The day the calendar is showing.
-     * @param logger Logger used for debug/error messages.
-     * @return List of reminders that should appear on [date], sorted by due time.
-     * @author fdesouza1992
-     */
-    suspend fun getRemindersForDate(
+    suspend fun getRemindersForDay(
         date: LocalDate,
         logger: ILogger
     ): List<Reminders> {
         val uid = getUserId()
         if (uid.isNullOrBlank()) {
-            logger.e("Reminders", "getRemindersForDate: user id is null/blank; sign in first.")
+            logger.e("Reminders", "getRemindersForDay: user id is null/blank; sign in first.")
             return emptyList()
         }
 
         val zone = ZoneId.systemDefault()
-        val endOfDay = date.plusDays(1).atStartOfDay(zone)
+        val startOfDay = date.atStartOfDay(zone)
+        val endOfDay = startOfDay.plusDays(1)
+
+        val startTs = Timestamp(Date.from(startOfDay.toInstant()))
         val endTs = Timestamp(Date.from(endOfDay.toInstant()))
 
         return try {
-            // Fetch candidates with dueAt <= endOfSelectedDay.
             val snap = db.collection("users")
                 .document(uid)
                 .collection("reminders")
-                .whereLessThan("startingAt", endTs)
+                .whereGreaterThanOrEqualTo("dueAt", startTs)
+                .whereLessThan("dueAt", endTs)
                 .get()
                 .await()
 
-            val all = snap.documents.mapNotNull { doc ->
-                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
+            snap.documents.mapNotNull { doc ->
+                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
             }
-
-            all
-                .filter { it.occursOn(date, zone) }
-                .sortedBy { it.startingAt?.toDate() } // keeps a nice ordering
         } catch (e: Exception) {
-            logger.e("Reminders", "getRemindersForDate failed for $date", e)
+            logger.e("Reminders", "getRemindersForDay failed for $date", e)
             emptyList()
         }
     }
-
 
     // Fetch a single reminder
 
@@ -1080,93 +1020,4 @@ class FirestoreRepository {
             false
         }
     }
-
-    /**
-     * Checks if this reminder should be shown on a specific day.
-     *
-     * This is mainly used by the Day View to figure out which reminders belong
-     * on the selected date.
-     *
-     * It takes into account:
-     * - When the reminder starts
-     * - Whether it is daily
-     * - Whether it repeats (and for how long)
-     * 
-     * @param date The calendar day being evaluated.
-     * @param zone The device time zone used to safely convert timestamps to dates.
-     * @return true if the reminder applies to the given date, false if it does not.
-     * @author fdesouza1992
-     */
-
-    private fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
-        val start = this.startingAt?.toDate() ?: return false
-        val startDate = start.toInstant().atZone(zone).toLocalDate()
-
-        if (date.isBefore(startDate)) return false
-
-        // If it’s a one-off, only show on its start date.
-        val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
-        if (!daily && !hasRepeatRule) {
-            return date == startDate
-        }
-
-        // If it’s daily with no duration rule, show every day from start onward.
-        if (daily && !hasRepeatRule) return true
-
-        // If it repeats forever, allow it as long as date >= start.
-        if (repeatForever) return true
-
-        // Otherwise it repeats with a finite duration rule.
-        val interval = repeatInterval ?: return false
-        val count = repeatCount
-
-        val endDate = when (interval) {
-            "days" -> startDate.plusDays(count.toLong())
-            "weeks" -> startDate.plusWeeks(count.toLong())
-            "months" -> startDate.plusMonths(count.toLong())
-            "years" -> startDate.plusYears(count.toLong())
-            else -> return false
-        }
-
-        if (date.isAfter(endDate)) return false
-
-        return true
-    }
-
-    /**
-    * Returns **all reminders** for the currently signed-in user.
-    *
-    * 1. Retrieves the currently authenticated user's uid.
-    * 2. If the user is not signed in, logs the issue and returns an empty list.
-    * 3. Fetches all documents from `users/{uid}/reminders`.
-    * 4. Maps each Firestore document into a [Reminders] object and injects the document id into `reminderId` for easy reference in updates and deletes.
-    * 5. Sorts the results by `startingAt` so reminders appear in chronological order.
-    *
-    * Edge cases:
-    * - If the user is not authenticated → logs + returns `emptyList()`.
-    * - If the Firestore read fails → logs the exception + returns `emptyList()`.
-    *
-    * @param logger Logger used for debug/error messaging.
-    * @return A chronologically sorted list of all reminders belonging to the signed-in user.
-    * @author fdesouza1992
-    */
-    suspend fun getAllReminders(logger: ILogger): List<Reminders> {
-        val uid = getUserId()
-        if (uid.isNullOrBlank()) {
-            logger.e("Reminders", "getAllReminders: user id is null/blank; sign in first.")
-            return emptyList()
-        }
-
-        return try {
-            val snap = remindersCol(uid).get().await()
-
-            snap.documents.mapNotNull { doc ->
-                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
-            }.sortedBy { it.startingAt?.toDate() }
-        } catch (e: Exception) {
-            logger.e("Reminders", "getAllReminders failed", e)
-            emptyList()
-        }
-    }
-
 }

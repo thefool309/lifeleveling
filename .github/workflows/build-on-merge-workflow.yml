@@ -9,9 +9,6 @@ on:
 jobs:
   build_apk:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
 
     env:
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
@@ -25,9 +22,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'corretto'
-          java-version: 23
-          cache: 'gradle'
+          distribution: temurin
+          java-version: 17
 
       - name: Cache Gradle
         uses: actions/cache@v3
@@ -52,16 +48,6 @@ jobs:
 
       - name: Decode google-services.json
         run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode > app/google-services.json
-
-#      - name: Generate Docs
-#        run: ./gradlew dokkaHtml
-#
-#      - name: push Docs
-#        uses: JamesIves/github-pages-deploy-action@v4
-#        with:
-#          branch: 'gh-pages'
-#          folder: app/build/dokka/html
-#          target-folder: docs
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
