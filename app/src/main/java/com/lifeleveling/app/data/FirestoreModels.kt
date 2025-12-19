@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 
 data class Users(
@@ -52,13 +53,12 @@ data class Reminders(
     val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
     val title: String = "",
     val notes: String = "",
-    val startingAt: Timestamp? = null,        // when the reminder should trigger (nullable)
-    val completed: Boolean = false,
+    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val isCompleted: Boolean = false,
     val completedAt: Timestamp? = null,  // set when marked complete
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
-    val daily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
-    val timesPerMinute: Int = 0,        // How many minutes(s)
+    val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
     val timesPerHour: Int = 0,          // How many hour(s)
     val timesPerDay: Int = 0,           // How many day(s)
     val timesPerMonth: Int = 0,         // How many month(s)
@@ -67,7 +67,6 @@ data class Reminders(
     val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
     val repeatCount: Int = 0,            // how many units
     val repeatInterval: String? = null,  // days, weeks, months or years
-    val enabled: Boolean = true,
 )
 
 // Player stat block (Stats Screen)

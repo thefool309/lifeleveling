@@ -273,7 +273,7 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
                     val id = selectedId ?: return@launch
                     val ok = repo.setReminderCompleted(
                         reminderId = id,
-                        completed = true,
+                        isCompleted = true,
                         logger = logger
                     )
                     android.widget.Toast
@@ -291,7 +291,7 @@ fun DebugRemindersPanel(repo: FirestoreRepository = FirestoreRepository()) {
                     val id = selectedId ?: return@launch
                     val ok = repo.setReminderCompleted(
                         reminderId = id,
-                        completed = false,
+                        isCompleted = false,
                         logger = logger
                     )
                     android.widget.Toast
