@@ -30,8 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
@@ -40,13 +38,18 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
-import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.UserJourneyToolTip
 import com.lifeleveling.app.ui.theme.AppTheme
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
+/**
+ * The User Journey Screen that shows several statistics for the user about their accomplishments so far.
+ * Lays out interesting information that has been collected on the backend.
+ * Can store progress toward badge materials.
+ * @author Elyseia
+ */
+@Preview
 @Composable
 fun UserJourneyScreen() {
     val userManager = LocalUserManager.current
@@ -55,14 +58,15 @@ fun UserJourneyScreen() {
 
     val scrollState = rememberScrollState()
     val showJourneyTip = remember { mutableStateOf(false) }
-    val profileCreatedDate = TestUser.profileCreatedDate.let {
-        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-            .format(Date(it))
-    } ?: "Not Completed"
-    val timeSinceCreated = TestUser.getTimeSinceUserCreated()
-    TestUser.updateTopReminder()
-    val mostCompletedReminder = if (TestUser.mostCompletedReminder.first == "") stringResource(R.string.no_remiders)
-                        else "${TestUser.mostCompletedReminder.first} ${TestUser.mostCompletedReminder.second.toString()}"
+
+    // Extra calculations for some stats
+    val profileCreatedDate: String = userState.userBase?.createdAt?.toDate()?.let {date ->
+        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
+    } ?: "Unknown"
+    val timeSinceCreated = userManager.calcTimeSinceCreatedDate()
+    userManager.userJourneyCalculations()
+    val mostCompletedReminder = if (userState.userBase?.mostCompletedReminder?.first == "") stringResource(R.string.no_remiders_completed)
+                        else "${userState.userBase?.mostCompletedReminder?.first} ${userState.userBase?.mostCompletedReminder?.second.toString()}"
 
     // Statistics to display
     val statistics = listOf(
@@ -70,17 +74,20 @@ fun UserJourneyScreen() {
         JourneySection(
           title = R.string.streaks,
             items = listOf(
+                // Total of all streaks completed
                 JourneyItem(
                     R.string.all_streaks_completed,
-                    TestUser.totalStreaksCompleted.toString()
+                    userState.totalStreaksCompleted.toString()
                 ),
+                // Total weekly streaks completed
                 JourneyItem(
                     R.string.weekly_streaks_completed,
-                    TestUser.weekStreaksCompleted.toString()
+                    userState.userBase?.weekStreaksCompleted.toString()
                 ),
+                // Total monthly streaks completed
                 JourneyItem(
                     R.string.monthly_streaks_completed,
-                    TestUser.monthStreaksCompleted.toString()
+                    userState.userBase?.monthStreaksCompleted.toString()
                 )
             )
         ),
@@ -88,9 +95,10 @@ fun UserJourneyScreen() {
         JourneySection(
             title = R.string.badges,
             items = listOf(
+                // Total number earned
                 JourneyItem(
                     R.string.badges_earned,
-                    TestUser.badgesEarned.toString(),
+                    userState.badgesEarned.toString(),
                 ),
             )
         ),
@@ -101,17 +109,17 @@ fun UserJourneyScreen() {
                 // Total experience
                 JourneyItem(
                     R.string.total_exp,
-                    TestUser.allExpEver.toString()
+                    userState.allExpEver.toString()
                 ),
                 // Total coins
                 JourneyItem(
                     R.string.total_coins,
-                    TestUser.allCoinsEarned.toString()
+                    userState.userBase?.allCoinsEarned.toString()
                 ),
                 // Coins spent
                 JourneyItem(
                     R.string.coins_spent,
-                    TestUser.coinsSpent.toString()
+                    userState.coinsSpent.toString()
                 ),
             )
         ),
@@ -124,10 +132,12 @@ fun UserJourneyScreen() {
                     R.string.journey_started_on,
                     profileCreatedDate
                 ),
+                // How old their profile is / how long since creation
                 JourneyItem(
                     R.string.account_age,
                     timeSinceCreated
                 ),
+                // The title of the reminder they completed most and how many times it has been done.
                 JourneyItem(
                     R.string.most_completed_reminder,
                     value = mostCompletedReminder
@@ -252,22 +262,23 @@ fun UserJourneyScreen() {
     }
 }
 
+/**
+ * A data class to store statistics to be displayed in the user journey screen.
+ * Requires a name of the stat and the value to be displayed for it.
+ * @author Elyseia
+ */
 data class JourneyItem(
     val name: Int,
     val value: String,
 )
 
+/**
+ * A data class that creates sections with different Journey Items inside
+ * Takes in a section name for displaying on the UserJourney screen
+ * Takes in a list of Journey Items that will be displayed within that section
+ * @author Elyseia
+ */
 data class JourneySection(
     val title: Int,
     val items: List<JourneyItem>
 )
-
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewUserJourneyScreen() {
-    // Create a mock navController
-    val navController = rememberNavController()
-
-    UserJourneyScreen()
-}

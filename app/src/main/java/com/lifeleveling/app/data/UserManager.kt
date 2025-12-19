@@ -1,6 +1,7 @@
 package com.lifeleveling.app.data
 
 import android.app.Activity
+import android.icu.util.Calendar
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -280,6 +281,31 @@ class UserManager(
      */
     fun userJourneyCalculations() {
         userData.update { it.copy().recalculatingUserJourney() }
+    }
+
+    /**
+     * Calculates how long it has been since the user created their profile.
+     * Takes their createdAt time and subtracts if from the current time to get the difference
+     * Uses the result of that to calculate a string that will display the number of years and days since creation
+     * @return Returns a string already formatted with years(if years since created) and days
+     * @author Elyseia
+     */
+    fun calcTimeSinceCreatedDate(): String {
+        val createdAtTimestamp = userData.value.userBase?.createdAt ?: return "Unknown"
+        val createdAtDate = createdAtTimestamp.toDate()
+        val now = System.currentTimeMillis()
+        val timeDifference = now - createdAtDate.time
+
+        // Converting to days
+        val days = timeDifference / (1000 * 60 * 60 * 24)
+        val years = days / 365
+        val remainingDays = days % 365
+
+        // Building string for display
+        val yearsSection = if (years > 0) "$years year${if (years > 1) "s " else " "}" else ""
+        val daysSection = "$remainingDays day${if (remainingDays != 1L) "s" else ""}"
+
+        return (yearsSection + daysSection).trim()
     }
 
     // ============ Reminder Functions ===============================================
