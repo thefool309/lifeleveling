@@ -1,21 +1,16 @@
 package com.lifeleveling.app.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -25,10 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalNavController
-import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
@@ -37,8 +30,6 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 @Preview
 @Composable
 fun TermsAndPrivacyScreen(){
-    val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
 
     Surface(
@@ -66,11 +57,12 @@ fun TermsAndPrivacyScreen(){
                         )
                     ),
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                        .weight(1f)
+                        .align(Alignment.Top)
                 )
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(16.dp))
                 CircleButton(
-                    modifier = Modifier,
+                    modifier = Modifier.align(Alignment.Top),
                     onClick = {navController.popBackStack()},
                     imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
                     size = 48.dp

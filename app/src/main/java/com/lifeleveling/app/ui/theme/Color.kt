@@ -45,7 +45,7 @@ val Warning_Light = Color(0xff444118)
  * Enum representation of colors for easier saving
  * @author Elyseia
  */
-enum class enumColor {
+enum class EnumColor {
     BrandOne,
     BrandTwo,
     SecondaryOne,
@@ -72,22 +72,22 @@ enum class enumColor {
  * @author Elyseia
  */
 @Composable
-fun resolveEnumColor(color: enumColor): Color = when (color) {
-    enumColor.BrandOne -> AppTheme.colors.BrandOne
-    enumColor.BrandTwo -> AppTheme.colors.BrandTwo
-    enumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
-    enumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
-    enumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
-    enumColor.Background -> AppTheme.colors.Background
-    enumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
-    enumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
-    enumColor.DropShadow -> AppTheme.colors.DropShadow
-    enumColor.LightShadow -> AppTheme.colors.LightShadow
-    enumColor.Gray -> AppTheme.colors.Gray
-    enumColor.FadedGray -> AppTheme.colors.FadedGray
-    enumColor.Success -> AppTheme.colors.Success
-    enumColor.Success75 -> AppTheme.colors.Success75
-    enumColor.Error -> AppTheme.colors.Error
-    enumColor.Error75 -> AppTheme.colors.Error75
-    enumColor.Warning -> AppTheme.colors.Warning
+fun resolveEnumColor(color: EnumColor): Color = when (color) {
+    EnumColor.BrandOne -> AppTheme.colors.BrandOne
+    EnumColor.BrandTwo -> AppTheme.colors.BrandTwo
+    EnumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
+    EnumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
+    EnumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
+    EnumColor.Background -> AppTheme.colors.Background
+    EnumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
+    EnumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
+    EnumColor.DropShadow -> AppTheme.colors.DropShadow
+    EnumColor.LightShadow -> AppTheme.colors.LightShadow
+    EnumColor.Gray -> AppTheme.colors.Gray
+    EnumColor.FadedGray -> AppTheme.colors.FadedGray
+    EnumColor.Success -> AppTheme.colors.Success
+    EnumColor.Success75 -> AppTheme.colors.Success75
+    EnumColor.Error -> AppTheme.colors.Error
+    EnumColor.Error75 -> AppTheme.colors.Error75
+    EnumColor.Warning -> AppTheme.colors.Warning
 }

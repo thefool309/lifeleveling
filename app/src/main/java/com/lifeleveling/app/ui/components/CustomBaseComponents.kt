@@ -403,7 +403,7 @@ fun HighlightCard(
  * @param horizontalPadding The padding between the content inside and the outside edges on the sides.
  * @param verticalPadding The padding between the content inside and the edges above and below it.
  * @param width Sets a specific width. Only use for precision. Defaults to wrap content within it
- * @param content What will be displayed inside of the button. Can be passed in through { } after the call
+ * @param content What will be displayed inside the button. Can be passed in through { } after the call
  *
  * @author Elyseia
  */

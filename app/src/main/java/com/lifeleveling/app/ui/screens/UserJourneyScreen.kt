@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -149,7 +150,6 @@ fun UserJourneyScreen() {
             Row(
                 modifier = Modifier
                     .align(Alignment.Start),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // Journey Title
                 Text(
@@ -162,20 +162,26 @@ fun UserJourneyScreen() {
                             blurRadius = 2f,
                         )
                     ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.Top)
                 )
+                Spacer(Modifier.width(8.dp))
                 // Info Icon
                 ShadowedIcon(
                     imageVector = ImageVector.vectorResource(R.drawable.info),
                     tint = AppTheme.colors.FadedGray,
                     modifier = Modifier
                         .size(20.dp)
-                        .offset(y = 9.74.dp)
+//                        .offset(y = 9.74.dp)
                         .clickable {
                             showJourneyTip.value = !showJourneyTip.value
                         }
+                        .align(Alignment.Top)
                 )
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.width(16.dp))
                 CircleButton(
+                    modifier = Modifier.align(Alignment.Top),
                     onClick = { navController.popBackStack() },
                     imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
                     size = 48.dp,

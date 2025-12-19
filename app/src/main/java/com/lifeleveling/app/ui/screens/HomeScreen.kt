@@ -75,7 +75,10 @@ fun HomeScreen() {
         ) {
             // Box of Level and Exp
             LevelAndProgress(
-                showLevelTip = showLevelTip
+                showLevelTip = showLevelTip,
+                level = userState.userBase?.level ?: 1L,
+                currentExp = userState.userBase?.currentXp ?: 0.0,
+                expToNextLevel = userState.xpToNextLevel
             )
 
             // Middle section
@@ -204,7 +207,11 @@ fun HomeScreen() {
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                HealthDisplay( showHealthTip = showHealthTip )
+                HealthDisplay(
+                    showHealthTip = showHealthTip,
+                    currentHealth = userState.userBase?.currHealth ?: 0,
+                    maxHealth = userState.maxHealth
+                )
 
                 // Fight to Meditate Switch
                 SlidingSwitch(

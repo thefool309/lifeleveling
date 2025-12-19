@@ -105,16 +105,16 @@ fun CustomNavBar(
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
-            modifier = Modifier.Companion.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.Companion.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Constants.BottomNavItems.forEach { navItem ->
                 val selected = currentRoute == navItem.route
 
                 Box(
-                    contentAlignment = Alignment.Companion.Center,
-                    modifier = Modifier.Companion
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
                         .clickable {
@@ -125,17 +125,17 @@ fun CustomNavBar(
                         }
                 ) {
                     Box(
-                        contentAlignment = Alignment.Companion.Center,
-                        modifier = Modifier.Companion
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
                             .size(indicatorSize)
                             .background(
-                                color = if (selected) AppTheme.colors.BrandOne else Color.Companion.Transparent,
+                                color = if (selected) AppTheme.colors.BrandOne else Color.Transparent,
                                 shape = CircleShape
                             )
                     ) {
                         if (selected) {
                             Image(
-                                modifier = Modifier.Companion
+                                modifier = Modifier
                                     .clip(CircleShape)
                                     .matchParentSize(),
                                 painter = painterResource(R.drawable.circle_button_innerlight),
@@ -144,9 +144,9 @@ fun CustomNavBar(
                         }
 
                         Icon(
-                            imageVector = ImageVector.Companion.vectorResource(navItem.icon),
+                            imageVector = ImageVector.vectorResource(navItem.icon),
                             contentDescription = navItem.route,
-                            modifier = Modifier.Companion.size(40.dp),
+                            modifier = Modifier.size(40.dp),
                             tint = if (selected) AppTheme.colors.DarkerBackground else AppTheme.colors.BrandTwo
                         )
                     }

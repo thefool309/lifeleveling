@@ -65,7 +65,6 @@ fun NotificationScreen(){
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
             ){
                 Text(
                     text = "Notifications",
@@ -77,10 +76,13 @@ fun NotificationScreen(){
                             blurRadius = 2f,
                         )
                     ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.Top)
                 )
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(16.dp))
                 CircleButton(
-                    modifier = Modifier,
+                    modifier = Modifier.align(Alignment.Top),
                     onClick = {navController.popBackStack()},
                     imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
                     size = 48.dp

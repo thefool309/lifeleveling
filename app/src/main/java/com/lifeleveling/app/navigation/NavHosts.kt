@@ -1,20 +1,14 @@
 package com.lifeleveling.app.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lifeleveling.app.data.LocalNavController
-import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
@@ -22,8 +16,6 @@ import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
-import com.lifeleveling.app.ui.screens.StatsScreen
-import com.lifeleveling.app.ui.screens.StatsScreenRoute
 import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.screens.UserJourneyScreen

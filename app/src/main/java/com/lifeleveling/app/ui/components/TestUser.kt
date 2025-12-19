@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.theme.enumColor
+import com.lifeleveling.app.ui.theme.EnumColor
 
 /*
 * This is just a singleton test user for us to hardcode values into for UI testing
@@ -65,9 +65,9 @@ object TestingUser {
     // All reminders
     private val reminders = mutableListOf (
         TestReminder(1, "Drink Water", R.drawable.water_drop, null, true, 3, 0, 20),
-        TestReminder(2, "Laundry", R.drawable.shirt, enumColor.BrandTwo, false, 0, 4, 2),
+        TestReminder(2, "Laundry", R.drawable.shirt, EnumColor.BrandTwo, false, 0, 4, 2),
         TestReminder(3, "Shower", R.drawable.shower_bath, null, false, 0, 15, 3),
-        TestReminder(4, "Read", R.drawable.person_reading, enumColor.SecondaryTwo, false, 0, 8, 1),
+        TestReminder(4, "Read", R.drawable.person_reading, EnumColor.SecondaryTwo, false, 0, 8, 1),
         TestReminder(5, "Run", R.drawable.person_running_color, null, false, 0, 4, 1),
         TestReminder(6, "Make my bed", R.drawable.bed_color, null, true, 1, 0, 6),
         TestReminder(7, "Brush teeth", R.drawable.toothbrush, null, true, 2, 0, 12),
@@ -87,7 +87,7 @@ object TestingUser {
 
     // Functions on reminders
     // Add a reminder
-    fun addReminder(name: String, icon: Int, color: enumColor?, daily: Boolean, timesPerDay: Int, timesPerMonth: Int) {
+    fun addReminder(name: String, icon: Int, color: EnumColor?, daily: Boolean, timesPerDay: Int, timesPerMonth: Int) {
         val newReminder = TestReminder(nextId++, name, icon, color, daily, timesPerDay, timesPerMonth, 0)
         reminders.add(newReminder)
         updateLists()
@@ -217,7 +217,7 @@ object TestingUser {
             TestBadge(
                 3,
                 R.drawable.flame,
-                enumColor.BrandOne,
+                EnumColor.BrandOne,
                 "On Fire!",
                 "Complete your first week streak.",
                 true,
@@ -229,7 +229,7 @@ object TestingUser {
             TestBadge(
                 2,
                 R.drawable.sun_glasses,
-                enumColor.BrandOne,
+                EnumColor.BrandOne,
                 "Looking Good!",
                 "Customize the look of your avatar.",
                 true,
@@ -241,7 +241,7 @@ object TestingUser {
             TestBadge(
                 1,
                 R.drawable.one,
-                enumColor.SecondaryTwo,
+                EnumColor.SecondaryTwo,
                 "Everyone Starts at the Beginning",
                 "You created your account and started your Life Leveling journey!",
                 true,
@@ -253,7 +253,7 @@ object TestingUser {
             TestBadge(
                 4,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -261,7 +261,7 @@ object TestingUser {
             TestBadge(
                 5,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -269,7 +269,7 @@ object TestingUser {
             TestBadge(
                 6,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -277,7 +277,7 @@ object TestingUser {
             TestBadge(
                 7,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -285,7 +285,7 @@ object TestingUser {
             TestBadge(
                 8,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -293,7 +293,7 @@ object TestingUser {
             TestBadge(
                 9,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -301,7 +301,7 @@ object TestingUser {
             TestBadge(
                 10,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -309,7 +309,7 @@ object TestingUser {
             TestBadge(
                 11,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -317,7 +317,7 @@ object TestingUser {
             TestBadge(
                 12,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -325,7 +325,7 @@ object TestingUser {
             TestBadge(
                 13,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -333,7 +333,7 @@ object TestingUser {
             TestBadge(
                 14,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -341,7 +341,7 @@ object TestingUser {
             TestBadge(
                 15,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -349,7 +349,7 @@ object TestingUser {
             TestBadge(
                 16,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -357,7 +357,7 @@ object TestingUser {
             TestBadge(
                 17,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -365,7 +365,7 @@ object TestingUser {
             TestBadge(
                 18,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -373,7 +373,7 @@ object TestingUser {
             TestBadge(
                 19,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -381,7 +381,7 @@ object TestingUser {
             TestBadge(
                 20,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -389,7 +389,7 @@ object TestingUser {
             TestBadge(
                 21,
                 R.drawable.question_mark,
-                enumColor.BrandTwo,
+                EnumColor.BrandTwo,
                 "TBA",
                 "Other badges to be filled out.",
                 false
@@ -415,7 +415,7 @@ data class TestReminder (
     val id: Int,
     val name: String,
     val icon: Int,
-    val color: enumColor?,
+    val color: EnumColor?,
     val daily: Boolean,
     val timesPerDay: Int,
     val timesPerMonth: Int,
@@ -435,7 +435,7 @@ data class TestStreak (
 data class TestBadge (
     val id: Int,
     val icon: Int,
-    val color: enumColor,
+    val color: EnumColor,
     val title: String,
     val description: String,
     val completed: Boolean = false,

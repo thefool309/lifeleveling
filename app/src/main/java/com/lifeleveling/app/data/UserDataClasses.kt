@@ -1,7 +1,7 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
-import com.lifeleveling.app.ui.theme.enumColor
+import com.lifeleveling.app.ui.theme.EnumColor
 import com.lifeleveling.app.R
 
 /**
@@ -48,7 +48,7 @@ data class Reminder(
     val daily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
     val timesPerDay: Long = 0,           // How many times per day
     val timesPerMonth: Long = 0,         // How many times per month
-    val colorToken: enumColor?,      // nullable like enumColor? in TestUser
+    val colorToken: EnumColor?,      // nullable like enumColor? in TestUser
     val iconName: Int = 0,           // store icon key (ex: "water_drop"), not R.drawable.id
     val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
     val enabled: Boolean = true,               // If the reminder is active or just saved
@@ -99,7 +99,7 @@ data class Badge(
     val badgeName: String = "",
     val badgeDescription: String = "",
     val iconName: Int = R.drawable.question_mark,           // Stores the name, not the R.drawable
-    val colorToken: enumColor,
+    val colorToken: EnumColor,
     val completed: Boolean = false,
     val unlockedAt: Timestamp? = null,   // When badge was earned
 )
