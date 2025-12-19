@@ -552,7 +552,7 @@ class UserManager(
             try {
                 authModel.createUserWithEmailAndPassword(email.trim(), password)
                 postLoginBookkeeping(provider = "password")
-                userData.update { it.copy(isLoading = false, error = null) }
+                userData.update { it.copy(isLoggedIn = true, isLoading = false, error = null) }
 
             } catch (e: com.google.firebase.auth.FirebaseAuthUserCollisionException) {
                 // Email already in use.

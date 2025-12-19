@@ -22,9 +22,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -57,15 +54,14 @@ private fun isGoogleMailboxUi(email: String): Boolean =
     email.endsWith("@gmail.com", ignoreCase = true) ||
             email.endsWith("@googlemail.com", ignoreCase = true)
 
-// @Preview(showBackground = true)
+ @Preview(showBackground = true)
 @Composable
 fun CreateAccountScreen() {
     val userManager = LocalUserManager.current
-    val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
 
     val googleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        userManager.signInWithGoogleIntent(result.data)
+        userManager.handleGoogleResultIntent(result.data)
     }
     val context = LocalContext.current
 
@@ -217,7 +213,7 @@ fun CreateAccountScreen() {
                     // Join
                     CustomButton(
                         onClick = {
-                            userManager.register(email.value, password.value)
+                            userManager.createNewUserWithEmailAndPassword(email.value, password.value)
                         },
                         enabled = !isGmail && email.value.isNotEmpty() && isPasswordValid && termsCheck.value
                         ,
@@ -292,15 +288,4 @@ fun PasswordRules(pWord: String): List<Pair<String, Boolean>> {
         stringResource(R.string.number) to pWord.any { it.isDigit() },
         stringResource(R.string.specialChar) to pWord.any { it in "!@#$%^&*()_+-=" }
     )
-}
-
-
-@Suppress("VisualLintAccessibilityTestFramework")
-@Preview(showBackground = true)
-@Composable
-fun PreviewCreateAccount() {
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-
-    CreateAccountScreen()
 }

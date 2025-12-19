@@ -21,7 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,20 +36,14 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
-
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import com.lifeleveling.app.auth.AuthUiState
 import com.lifeleveling.app.ui.components.CustomDialog
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.lifeleveling.app.data.LocalNavController
@@ -62,7 +55,7 @@ private fun isGoogleMailboxUi(email: String): Boolean =
     email.endsWith("@gmail.com", ignoreCase = true) ||
             email.endsWith("@googlemail.com", ignoreCase = true)
 
-// @Preview(showBackground = true)
+ @Preview(showBackground = true)
 @Composable
 fun SignIn() {
     val userManager = LocalUserManager.current
@@ -78,12 +71,12 @@ fun SignIn() {
     val showErrorDialog = remember { mutableStateOf(false) }
 
     val googleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        userManager.signInWithGoogleIntent(result.data)
+        userManager.handleGoogleResultIntent(result.data)
     }
     val context = LocalContext.current
 
     // If an error occurs, the dialog box will open
-    if (userState.errorMessage != null && !showErrorDialog.value) {
+    if (userState.error != null && !showErrorDialog.value) {
         showErrorDialog.value = true
     }
 
@@ -167,7 +160,7 @@ fun SignIn() {
                     //login button
                     CustomButton(
                         onClick = {
-                            userManager.login(email.value, password.value)
+                            userManager.signInWithEmailPassword(email.value, password.value)
                         },
                         enabled = !isGmail && email.value.isNotEmpty() && password.value.isNotEmpty()
                     ) {
@@ -249,7 +242,7 @@ fun SignIn() {
     }
 
     // Auth Error Dialog Box
-    if (showErrorDialog.value && userState.errorMessage != null) {
+    if (showErrorDialog.value && userState.error != null) {
         CustomDialog(
             toShow = showErrorDialog,
             dismissOnInsideClick = false,
@@ -267,7 +260,7 @@ fun SignIn() {
                 )
 
                 Text(
-                    text = userState.errorMessage.toString(),
+                    text = userState.error.toString(),
                     color = AppTheme.colors.Gray,
                     style = AppTheme.textStyles.Default,
                     textAlign = TextAlign.Center
@@ -297,17 +290,3 @@ fun SignIn() {
         }
     }
 }
-
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewSignIn() {
-//    val email = remember { mutableStateOf("") }
-//    val password = remember { mutableStateOf("") }
-//
-//    SignIn(
-//        email = email,
-//        password = password,
-//        authState =
-//    )
-//}
