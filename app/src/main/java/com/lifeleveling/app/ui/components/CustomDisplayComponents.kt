@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -36,6 +38,8 @@ import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.data.Reminders
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 /*
 Reusable components that will appear on multiple screens
@@ -411,7 +415,7 @@ fun DailyRemindersList(
     LaunchedEffect(date) {
         isLoading = true
         try {
-            reminders = repo.getRemindersForDay(date, logger)
+            reminders = repo.getRemindersForDate(date, logger)
         } catch (e: Exception) {
             logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
             reminders = emptyList()
@@ -454,11 +458,21 @@ fun DailyRemindersList(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 8.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                reminders.forEach { reminder ->
+                reminders.forEachIndexed { index, reminder ->
                     DailyReminderRow(reminder = reminder, logger = logger)
+
+                    // Separator line
+                    if (index != reminders.lastIndex) {
+                        SeparatorLine(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -470,17 +484,16 @@ private fun DailyReminderRow(
     reminder: Reminders,
     logger: ILogger,
 ) {
-    // How many “slots” we should show for today (1, 4, etc.)
     val checkboxCount = calculateDailySlots(reminder)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Icon + title (left side)
+        // LEFT: icon + (title + starting line)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -494,57 +507,107 @@ private fun DailyReminderRow(
                 )
             }
 
-            Text(
-                text = reminder.title,
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
+            Column {
+                Text(
+                    text = reminder.title,
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+
+                val dueText = reminder.startingAt?.toDate()?.let { date ->
+                    // Use whatever formatting style you prefer
+                    val local = date.toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDateTime()
+
+                    val month = local.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                    val day = local.dayOfMonth
+                    val year = local.year
+
+                    val hour12 = ((local.hour + 11) % 12) + 1
+                    val ampm = if (local.hour >= 12) "PM" else "AM"
+                    val minute = local.minute.toString().padStart(2, '0')
+
+                    "Starting: $month $day, $year • $hour12:$minute $ampm"
+                } ?: "Starting: —"
+
+                Text(
+                    text = dueText,
+                    style = AppTheme.textStyles.Small,
+                    color = AppTheme.colors.FadedGray
+                )
+            }
         }
 
-        // Checkboxes (right side)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            repeat(checkboxCount) { index ->
-                var checked by remember(reminder.reminderId, index) {
-                    mutableStateOf(false)
-                }
+        // RIGHT: checkboxes
+        val rows = (0 until checkboxCount).toList().chunked(4)
 
-                CustomCheckbox(
-                    checked = checked,
-                    onCheckedChange = { new ->
-                        checked = new
-                        // TODO: hook this up to repo.setReminderCompleted / per-slot tracking
-                        logger.d(
-                            "Reminders",
-                            "Clicked checkbox $index for reminder ${reminder.reminderId}"
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            rows.forEach { rowIndices ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    rowIndices.forEach { index ->
+                        var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
+
+                        CustomCheckbox(
+                            checked = checked,
+                            onCheckedChange = { new ->
+                                checked = new
+                                logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
+                            },
+                            size = 18.dp,
                         )
-                    },
-                    size = 18.dp,
-                )
+                    }
+                }
             }
         }
     }
 }
 
 /**
- * Decide how many checkboxes to show for a reminder on a given day.
+ * Calculates how many "time slots" (checkboxes) should be shown for a reminder on a single day in the calendar view.
  *
- * • Every N hours → 24 / N slots (so every 6 hours = 4 checkboxes)
- * • Every N days → N checkboxes (simple mapping for now)
- * • Every N weeks / months → N checkboxes (we can refine this to a bit more specific later)
- * • One-off / simple daily → 1 checkbox.
+ * The count is based on how often the reminder repeats:
+ *
+ * - Times per minute:
+ *   → (24 * 60) / minutes
+ *   → Example: every 30 minutes = 48 slots
+ *   → Hard-capped at 24 to avoid creating an insane amount of checkboxes.
+ *
+ * - Times per hour:
+ *   → 24 / hours
+ *   → Example: every 6 hours = 4 slots.
+ *
+ * - Times per day:
+ *   → Uses the value directly (minimum of 1).
+ *   → Example: 3 times per day = 3 slots.
+ *
+ * - Times per month:
+ *   → Uses the value directly (minimum of 1).
+ *
+ * - Fallback:
+ *   → If no repeat values are set, default to 1 slot.
+ *
+ * @param reminder The reminder containing repeat frequency values.
+ * @return The number of daily slots (checkboxes) to render.
+ * @author fdesouza1992
  */
 private fun calculateDailySlots(reminder: Reminders): Int {
+    val mins = reminder.timesPerMinute
     val hours = reminder.timesPerHour
     val perDay = reminder.timesPerDay
     val perMonth = reminder.timesPerMonth
 
     return when {
+        mins > 0 -> ((24*60)/mins).coerceAtLeast(1).coerceAtMost(24)        // adding a cap to avoid the creation of 144 checkboxes
         hours > 0 -> (24 / hours).coerceAtLeast(1)
-        perDay > 0 -> perDay
-        perMonth > 0 -> perMonth
+        perDay > 0 -> perDay.coerceAtLeast(1)
+        perMonth > 0 -> perMonth.coerceAtLeast(1)
         else -> 1
     }
 }

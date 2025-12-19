@@ -44,6 +44,7 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import kotlinx.datetime.Clock
@@ -521,12 +522,13 @@ fun SuffixForDays(
 @Composable
 fun ShowReminder(
     toShow: MutableState<Boolean>,
-    passedReminder: MutableState<calReminder>,
+    passedReminder: MutableState<Reminders?>,
     hourOptions: List<String>,
     minutesOptions: List<String>,
-    amOrPmOptions: List<String>
+    amOrPmOptions: List<String>,
+    onDelete: (Reminders) -> Unit
 ) {
-    val reminder = passedReminder.value
+    val reminder = passedReminder.value ?: return
     var delete by remember { mutableStateOf(false) }
     val hour = hourOptions[reminder.selectedHours]
     val minutes = minutesOptions[reminder.selectedMinutes]
@@ -548,19 +550,20 @@ fun ShowReminder(
                 ) {
                     ShadowedIcon(
                         modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(reminder.icon),
+                        imageVector = ImageVector.vectorResource(id = iconResForNameCalendar(reminder.iconName)),
                         tint =  Color.Unspecified
 
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = reminder.name,
+                        text = reminder.title,
                         style = AppTheme.textStyles.HeadingFour,
                         color = AppTheme.colors.SecondaryThree
                     )
                 }
                 Text(
-                    text = "Remind me at: $hour:$minutes $amOrPm",
+//                    text = "Remind me at: $hour:$minutes $amOrPm",
+                    text = "Remind me at: $timeLabel",
                     style = AppTheme.textStyles.Default,
                     color = AppTheme.colors.Gray
                 )
@@ -578,9 +581,7 @@ fun ShowReminder(
                 ) {
                     CustomButton(
                         width = 120.dp,
-                        onClick = {
-                            delete = true
-                        },
+                        onClick = { delete = true },
                         backgroundColor = AppTheme.colors.Error75,
                     ) {
                         Text(
@@ -618,7 +619,7 @@ fun ShowReminder(
                                     append("Are you sure you want to delete the reminder ")
                                 }
                                 withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.SecondaryThree, textDecoration = TextDecoration.Underline)) {
-                                    append(reminder.name)
+                                    append(reminder.title)
                                 }
                                 withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
                                     append(stringResource(R.string.streak_delete_two))
@@ -648,9 +649,10 @@ fun ShowReminder(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            calendarReminders.value = calendarReminders.value.filter {
-                                it != passedReminder.value
-                            }
+                            onDelete(reminder)
+//                            calendarReminders.value = calendarReminders.value.filter {
+//                                it != passedReminder.value
+//                            }
                             toShow.value = false
                         },
                         backgroundColor = AppTheme.colors.Error75,
@@ -766,5 +768,30 @@ fun ShowCalendarReminders(
                 )
             }
         }
+    }
+}
+
+
+fun formatReminderTime(reminder: Reminders): String {
+    val date = reminder.startingAt?.toDate() ?: return "--:--"
+    val zoned = date.toInstant().atZone(java.time.ZoneId.systemDefault())
+    return java.time.format.DateTimeFormatter.ofPattern("h:mm a").format(zoned)
+}
+
+fun iconResForNameCalendar(iconName: String?): Int {
+    return when (iconName) {
+        "water_drop"     -> R.drawable.water_drop
+        "bed_color"      -> R.drawable.bed_color
+        "shirt_color"    -> R.drawable.shirt_color
+        "med_bottle"     -> R.drawable.med_bottle
+        "shower_bath"    -> R.drawable.shower_bath
+        "shop_color"     -> R.drawable.shop_color
+        "person_running" -> R.drawable.person_running
+        "heart"          -> R.drawable.heart
+        "bell"           -> R.drawable.bell
+        "brain"          -> R.drawable.brain
+        "document"       -> R.drawable.document
+        "doctor"         -> R.drawable.doctor
+        else             -> R.drawable.bell
     }
 }
