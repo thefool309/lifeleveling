@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.theme.AppTextStyles
 import com.lifeleveling.app.ui.theme.AppTheme
@@ -45,23 +45,11 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.StatsToolTip
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
-import com.lifeleveling.app.ui.models.StatsUi
-import com.lifeleveling.app.ui.models.EditedStats
-import kotlinx.coroutines.launch
 
 @Composable
-fun StatsScreen(
-    uiState: StatsUi,
-    resetSignal: Int = 0,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-    onCommit: (EditedStats) -> Unit,
-) {
+fun StatsScreen() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
-    val navController = LocalNavController.current
-
-    val progress = (uiState.currentXp.toFloat() / uiState.xpToNextLevel.toFloat()).coerceIn(0f, 1f)
 
     // Small dialogs
     val showHelpDialog = remember { mutableStateOf(false) }
@@ -70,23 +58,28 @@ fun StatsScreen(
     // ---- SESSION STATE ----
     // Start-of-session: user has 0 used points and a pool of uiState.unusedLifePoints to spend.
 
-    var usedPoints by remember(resetSignal) { mutableStateOf(0) }
-    val remainingPoints = (uiState.unusedLifePoints - usedPoints).coerceAtLeast(0)
+    var usedPoints by remember(userState.userBase?.lifePointsUsed) {
+        mutableStateOf(userState.userBase?.lifePointsUsed ?: 0)
+    }
+    val totalPoints = userState.userBase?.lifePointsTotal ?: 0
+    val remainingPoints = totalPoints - usedPoints
+    var resetKey by remember { mutableStateOf(0) }
 
     // Per-stat values (one set only; re-seeded when resetSignal changes)
-    val strength     = remember(resetSignal) { mutableStateOf(uiState.strength) }
-    val defense      = remember(resetSignal) { mutableStateOf(uiState.defense) }
-    val intelligence = remember(resetSignal) { mutableStateOf(uiState.intelligence) }
-    val agility      = remember(resetSignal) { mutableStateOf(uiState.agility) }
-    val health       = remember(resetSignal) { mutableStateOf(uiState.health) }
+    val baseStats = userState.userBase?.stats
+    val strength     = remember(baseStats?.strength, resetKey) { mutableStateOf(baseStats?.strength ?: 0) }
+    val defense      = remember(baseStats?.defense, resetKey) { mutableStateOf(baseStats?.defense ?: 0) }
+    val intelligence = remember(baseStats?.intelligence, resetKey) { mutableStateOf(baseStats?.intelligence ?: 0) }
+    val agility      = remember(baseStats?.agility, resetKey) { mutableStateOf(baseStats?.agility ?: 0) }
+    val health       = remember(baseStats?.health, resetKey) { mutableStateOf(baseStats?.health ?: 0) }
 
     // Minimum (floor) values from the snapshot, keyed by label resource id (avoid string key issues)
     val baseByLabel = mapOf(
-        R.string.strength     to uiState.strength,
-        R.string.defense      to uiState.defense,
-        R.string.intelligence to uiState.intelligence,
-        R.string.agility      to uiState.agility,
-        R.string.health       to uiState.health,
+        R.string.strength     to userState.userBase?.stats?.strength,
+        R.string.defense      to userState.userBase?.stats?.defense,
+        R.string.intelligence to userState.userBase?.stats?.intelligence,
+        R.string.agility      to userState.userBase?.stats?.agility,
+        R.string.health       to userState.userBase?.stats?.health,
     )
 
     // Pack items for rendering
@@ -115,6 +108,9 @@ fun StatsScreen(
 
                 LevelAndProgress(
                     showLevelTip = showHelpDialog,
+                    level = userState.userBase?.level ?: 1,
+                    currentExp = userState.userBase?.currentXp ?: 0.0,
+                    expToNextLevel = userState.xpToNextLevel,
                 )
 
                 // Header + counters
@@ -142,7 +138,7 @@ fun StatsScreen(
                     }
 
                     Text(
-                        text = stringResource(R.string.LPUsed, usedPoints, uiState.unusedLifePoints),
+                        text = stringResource(R.string.LPUsed, usedPoints, userState.userBase?.lifePointsTotal ?: 0),
                         color = AppTheme.colors.Gray,
                         style = AppTheme.textStyles.Default.copy(
                             shadow = Shadow(
@@ -223,7 +219,7 @@ fun StatsScreen(
                                                     val floor = baseByLabel[labelRes] ?: 0
                                                     if (statValue.value > floor) {
                                                         statValue.value -= 1
-                                                        usedPoints = (usedPoints - 1).coerceAtLeast(0)
+                                                        usedPoints -= 1
                                                         // remainingPoints is derived; no manual change
                                                     }
                                                 }
@@ -293,7 +289,9 @@ fun StatsScreen(
                                 color = AppTheme.colors.Background
                             )
                         },
-                        onClick = { onCancel() },
+                        onClick = {
+                            resetKey++
+                        },
                         backgroundColor = AppTheme.colors.Error,
                     )
 
@@ -309,18 +307,14 @@ fun StatsScreen(
                             )
                         },
                         onClick = {
-                            onCommit(
-                                EditedStats(
-                                    strength = strength.value,
-                                    defense = defense.value,
-                                    intelligence = intelligence.value,
-                                    agility = agility.value,
-                                    health = health.value,
-                                    usedPoints = usedPoints,
-                                    remainingPoints = remainingPoints
-                                )
+                            userManager.updateStats(
+                                strength = strength.value,
+                                defense = defense.value,
+                                intelligence = intelligence.value,
+                                agility = agility.value,
+                                health = health.value,
+                                usedPoints = usedPoints,
                             )
-                            onConfirm()
                         },
                         backgroundColor = AppTheme.colors.SecondaryTwo,
                     )
@@ -337,116 +331,10 @@ fun StatsScreen(
     }
 }
 
-@Composable
-fun StatsScreenRoute(
-    repo: com.lifeleveling.app.data.FirestoreRepository = com.lifeleveling.app.data.FirestoreRepository(),
-    logger: com.lifeleveling.app.util.ILogger = com.lifeleveling.app.util.ILogger.DEFAULT
-) {
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-    var isLoading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var user by remember { mutableStateOf<com.lifeleveling.app.data.Users?>(null) }
-
-    // NEW: a knob we can twist to force the child screen to reset its remembered fields
-    var resetSignal by remember { mutableStateOf(0) }
-
-    // Initial load
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        error = null
-        isLoading = true
-        user = repo.getCurrentUser(logger)
-        isLoading = false
-        if (user == null) error = "Could not load user profile."
-    }
-
-    // If still no user (very first frame), show a centered spinner
-    if (user == null) {
-        androidx.compose.material3.CircularProgressIndicator()
-        return
-    }
-
-    val u = user!!
-
-    // Build UI model from the current snapshot
-    val baseStats = u.stats
-    val baseUsed  = (baseStats.strength + baseStats.defense + baseStats.intelligence + baseStats.agility + baseStats.health).toInt()
-    val lifePool  = u.lifePoints.toInt()
-
-    val uiState = StatsUi(
-        level           = u.level.toInt(),
-        currentXp       = u.currentXp.toInt(),
-        xpToNextLevel   = u.xpToNextLevel.toInt(),
-        usedLifePoints  = 0,                                    // Starts the session with used = 0
-        unusedLifePoints= lifePool,                             // total spendable life points for the session
-        strength        = baseStats.strength.toInt(),
-        defense         = baseStats.defense.toInt(),
-        intelligence    = baseStats.intelligence.toInt(),
-        agility         = baseStats.agility.toInt(),
-        health          = baseStats.health.toInt()
-    )
-
-    // Keep content mounted; overlay loading/error
-    Box(modifier = Modifier.fillMaxSize()) {
-        StatsScreen(
-            uiState = uiState,
-            resetSignal = resetSignal,                 // <-- drives child state reset
-            onCancel = {
-                // No network call → just reset child state to the current snapshot
-                resetSignal++                          // forces StatsScreen to re-seed from uiState
-            },
-            onConfirm = { /* optional toast/snackbar */ },
-            onCommit = { edited ->
-                val newStats = com.lifeleveling.app.data.Stats(
-                    strength     = edited.strength.toLong(),
-                    defense      = edited.defense.toLong(),
-                    intelligence = edited.intelligence.toLong(),
-                    agility      = edited.agility.toLong(),
-                    health       = edited.health.toLong()
-                )
-                val newLifePoints = edited.remainingPoints.toLong()
-
-                // Save then soft-refresh snapshot (overlay loader, no unmount)
-                scope.launch {
-                    isLoading = true
-                    val okStats = repo.setStats(newStats, logger)
-                    val okLP    = repo.setLifePoints(newLifePoints, logger)
-                    if (okStats && okLP) {
-                        user = repo.getCurrentUser(logger)   // refresh snapshot
-                        resetSignal++                         // and reset child UI to the new snapshot
-                        error = null
-                    } else {
-                        error = "Failed to save stats."
-                    }
-                    isLoading = false
-                }
-            }
-        )
-
-        if (isLoading) {
-            // Simple inline overlay
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                androidx.compose.material3.CircularProgressIndicator()
-            }
-        }
-
-        if (error != null) {
-            // Non-blocking error text which can be swapped for a snackbar if preferred
-            androidx.compose.material3.Text(
-                text = error!!,
-                color = AppTheme.colors.Error
-            )
-        }
-    }
-}
-
 
 data class StatItem(
     val icon: Int,
     val label: Int,
-    val color: androidx.compose.ui.graphics.Color,
-    val value: MutableState<Int>
+    val color: Color,
+    val value: MutableState<Long>
 )

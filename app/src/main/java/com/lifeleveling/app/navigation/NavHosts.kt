@@ -16,6 +16,7 @@ import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
+import com.lifeleveling.app.ui.screens.StatsScreen
 import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
@@ -64,7 +65,7 @@ fun AppNavHost(
             // Main Screens
             composable("home") { HomeScreen() }
             composable("calendar") { CalendarScreen() }
-            composable("stats") { TempStatsScreen()/*StatsScreen()*/ }
+            composable("stats") { StatsScreen() }
             composable("streaks") { StreaksScreen() }
             composable("settings") { SettingScreen() }
 

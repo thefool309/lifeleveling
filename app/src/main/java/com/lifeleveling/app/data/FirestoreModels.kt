@@ -63,7 +63,6 @@ data class UsersData (
     var xpToNextLevel: Long = 0L,
     var maxHealth: Long = 0L,
     val baseHealth: Long = 60L,
-    var lifePointsNotUsed: Long = 0L,
 
     // User Journey Stats
     var totalStreaksCompleted: Long = 0L,
@@ -94,7 +93,6 @@ data class UsersData (
             ),
             xpToNextLevel = calculateXpToNextLevel(),
             maxHealth = calculateMaxHealth(),
-            lifePointsNotUsed = calculateUnusedLifePoints(),
             enabledReminders = calculateEnabledReminders(),
             totalStreaksCompleted = calculateTotalStreaks(),
             badgesEarned = calculateBadgesEarned(),
@@ -130,9 +128,19 @@ data class UsersData (
     fun recalculateAfterLevelUp() : UsersData {
         return this.copy(
             xpToNextLevel = calculateXpToNextLevel(),
-            lifePointsNotUsed = calculateUnusedLifePoints(),
             coinsSpent = calculateCoinsSpent(),
             allExpEver = calculateAllExp(),
+        )
+    }
+
+    /**
+     * Recalculates the max health after the stats item has been updated
+     * @return A UsersData object for updating the state
+     * @author Elyseia
+     */
+    fun recalculateStatDependencies() : UsersData {
+        return this.copy(
+            maxHealth = calculateMaxHealth(),
         )
     }
 
@@ -165,15 +173,6 @@ data class UsersData (
     fun calculateMaxHealth() : Long {
         val healthStat = userBase?.stats?.health
         return baseHealth + ((healthStat ?: 0) * 5)
-    }
-
-    /**
-     * Calculates the amount of life points that have not been assigned yet.
-     * @return A long to pass into UsersData
-     * @author Elyseia
-     */
-    fun calculateUnusedLifePoints() : Long{
-        return (userBase?.lifePointsTotal ?: 0) - (userBase?.lifePointsUsed ?: 0)
     }
 
     /**

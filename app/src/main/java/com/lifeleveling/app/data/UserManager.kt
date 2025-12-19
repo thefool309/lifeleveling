@@ -176,6 +176,59 @@ class UserManager(
         userData.update { it.copy(userBase = updatedUser) }
     }
 
+    /**
+     * This will take in a new set of stats and save them to the user's information
+     * Flow:
+     * 1. Saves the stats and life points update to the user's local state.
+     * 2. Sends the updated stats and life point count to firestore
+     * 3. If the firestore write fails, the updates to the state rollback
+     * @author Elyseia
+     */
+    fun updateStats(
+        strength: Long,
+        defense: Long,
+        intelligence: Long,
+        agility: Long,
+        health: Long,
+        usedPoints: Long
+    ) {
+        val user = userData.value.userBase ?: return
+        val newStats = user.stats.copy(
+            strength = strength,
+            defense = defense,
+            intelligence = intelligence,
+            agility = agility,
+            health = health,
+        )
+        val updated = user.copy(
+            stats = newStats,
+            lifePointsUsed = usedPoints,
+        )
+        userData.update { current ->
+            current.copy(
+                userBase = updated,
+                isLoading = true,
+                error = null
+            ).recalculateStatDependencies()
+        }
+        viewModelScope.launch {
+            try {
+                fireRepo.editUser(
+                    user.userId,
+                    mapOf(
+                        "stats" to newStats,
+                        "lifePointsUsed" to usedPoints,
+                    ),
+                )
+                userData.update { it.copy(isLoading = false, error = null) }
+            } catch (e: Exception) {
+                logger.e("FB", "Error updating stats", e)
+                // Will roll back if write to firestore fails
+                userData.update { it.copy(userBase = user, isLoading = false, error = "Error updating stats").recalculateStatDependencies() }
+            }
+        }
+    }
+
     // ============ Calculation Functions ===============================================
     /**
      * Calculates the number of coins to give the user for completing a reminder.

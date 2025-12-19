@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -61,7 +62,8 @@ fun SplashAnimationOverlay(
 }
 
 /**
- * An overlay screen that will fade the current screen displayed and show a loading circle when the loading flag is toggled
+ * An overlay screen that will fade the current screen displayed and show a loading circle when the loading flag is toggled.
+ * All clicks will be absorbed so that nothing underneath accidentally fires
  * @param backgroundColor The background color that gives the 'faded' look to the UI behind it.
  * @param progressColor The color of the spinner wheel.
  *
@@ -76,7 +78,8 @@ fun LoadingOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .pointerInput(Unit) { /* Leave blank: Absorbs clicks so nothing happens */ },
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
