@@ -202,11 +202,11 @@ fun HealthDisplay(
             //.weight(.2f)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {// This line of health display
+    ) {// This line of health display
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-                ) {
+        ) {
             // Heart
             ShadowedIcon(
                 modifier = Modifier.size(20.dp),

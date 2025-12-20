@@ -88,7 +88,7 @@ class FirestoreRepository {
             badgesLocked = emptyList(),
             badgesUnlocked = emptyList(),
 
-        )
+            )
 
         val data = mutableMapOf<String, Any?>(
             "userId" to model.userId,
@@ -138,7 +138,7 @@ class FirestoreRepository {
         return if (currentUser != null) {
             val uid = currentUser.uid
             val docRef = db.collection("users")
-                            .document(uid)
+                .document(uid)
 
             val result = Users(
                 userId = uid,
@@ -190,7 +190,7 @@ class FirestoreRepository {
         }
         try {
             docRef.update("displayName", userName)
-            .await()
+                .await()
             updateTimestamp(userId, logger)
             return true
         }
@@ -467,7 +467,7 @@ class FirestoreRepository {
             return false
         }
         val docRef = db.collection("users")
-        .document(userId)
+            .document(userId)
         try {
             docRef.update("onboardingComplete", onboardingComplete).await()
             updateTimestamp(userId, logger)
@@ -507,8 +507,8 @@ class FirestoreRepository {
     }
 
     /**
-    * A function for adding Xp to the users firestore data
-    * @param xp A double representing the amount of xp to be added
+     * A function for adding Xp to the users firestore data
+     * @param xp A double representing the amount of xp to be added
      * @param logger A double representing the amount of xp to be added
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309, fd
@@ -578,8 +578,8 @@ class FirestoreRepository {
         try {
             val docRef = db.collection("fcmTokens").document(uID)
             docRef.update(mapOf("token" to token,
-                                        "uID" to uID,
-                                        "lastUpdate" to Timestamp.now())
+                "uID" to uID,
+                "lastUpdate" to Timestamp.now())
             ).await()
             return true
         }
@@ -821,6 +821,7 @@ class FirestoreRepository {
             logger.e("Reminders", "createReminder failed", e)
             null
         }
+        // TODO: implement notifTimestamp calculation
     }
 
     // Update a reminder by id
@@ -1090,7 +1091,7 @@ class FirestoreRepository {
      * - When the reminder starts
      * - Whether it is daily
      * - Whether it repeats (and for how long)
-     * 
+     *
      * @param date The calendar day being evaluated.
      * @param zone The device time zone used to safely convert timestamps to dates.
      * @return true if the reminder applies to the given date, false if it does not.
@@ -1133,22 +1134,22 @@ class FirestoreRepository {
     }
 
     /**
-    * Returns **all reminders** for the currently signed-in user.
-    *
-    * 1. Retrieves the currently authenticated user's uid.
-    * 2. If the user is not signed in, logs the issue and returns an empty list.
-    * 3. Fetches all documents from `users/{uid}/reminders`.
-    * 4. Maps each Firestore document into a [Reminders] object and injects the document id into `reminderId` for easy reference in updates and deletes.
-    * 5. Sorts the results by `startingAt` so reminders appear in chronological order.
-    *
-    * Edge cases:
-    * - If the user is not authenticated → logs + returns `emptyList()`.
-    * - If the Firestore read fails → logs the exception + returns `emptyList()`.
-    *
-    * @param logger Logger used for debug/error messaging.
-    * @return A chronologically sorted list of all reminders belonging to the signed-in user.
-    * @author fdesouza1992
-    */
+     * Returns **all reminders** for the currently signed-in user.
+     *
+     * 1. Retrieves the currently authenticated user's uid.
+     * 2. If the user is not signed in, logs the issue and returns an empty list.
+     * 3. Fetches all documents from `users/{uid}/reminders`.
+     * 4. Maps each Firestore document into a [Reminders] object and injects the document id into `reminderId` for easy reference in updates and deletes.
+     * 5. Sorts the results by `startingAt` so reminders appear in chronological order.
+     *
+     * Edge cases:
+     * - If the user is not authenticated → logs + returns `emptyList()`.
+     * - If the Firestore read fails → logs the exception + returns `emptyList()`.
+     *
+     * @param logger Logger used for debug/error messaging.
+     * @return A chronologically sorted list of all reminders belonging to the signed-in user.
+     * @author fdesouza1992
+     */
     suspend fun getAllReminders(logger: ILogger): List<Reminders> {
         val uid = getUserId()
         if (uid.isNullOrBlank()) {
