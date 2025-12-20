@@ -432,8 +432,6 @@ fun CreateReminderScreen(
                                         expanded = selectedReminderAmountMenu,
                                         modifier = Modifier.weight(1f),
                                     )
-
-
                                 }
                             }
 
