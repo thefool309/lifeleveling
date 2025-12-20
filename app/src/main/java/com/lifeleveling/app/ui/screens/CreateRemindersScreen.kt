@@ -190,6 +190,18 @@ fun CreateReminderScreen(
         Color.White
     )
 
+    // Strings that we actually store in Firestore
+    val colorTokenOptions = listOf(
+        "red",
+        "blue",
+        "green",
+        "magenta",
+        "yellow",
+        "cyan",
+        "light_gray",
+        "white"
+    )
+
     Surface(
 
     ){
@@ -403,12 +415,16 @@ fun CreateReminderScreen(
                                     CustomTextField(
                                         value = reminderAmountNumber,
                                         onValueChange = { newText ->
-                                            reminderAmountNumber = newText
-                                            if (newText.isNotEmpty()) {
-                                                repeatReminder = false
-                                                //doNotRepeat = false
-                                            }
+                                            // Only allow digits
+                                            reminderAmountNumber = newText.filter { it.isDigit() }
                                         },
+//                                        onValueChange = { newText ->
+////                                            reminderAmountNumber = newText
+////                                            if (newText.isNotEmpty()) {
+////                                                repeatReminder = false
+//                                                //doNotRepeat = false
+//                                            }
+//                                        },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
@@ -512,7 +528,7 @@ fun CreateReminderScreen(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            // Basic validation that we can build upon if needed
+                            // Basic validation - title required
                             if (createdReminderTitle.isBlank()){
                                 logger.w("Reminders", "CreateReminderScreen: title is blank, not saving.")
                                 return@CustomButton
@@ -520,13 +536,23 @@ fun CreateReminderScreen(
 
                             scope.launch {
                                 try {
+                                    // ---1. Resolve date and time into a Timestamp
+
+                                    // From Date Pickers
+                                    // From your date pickers:
+                                    val year = yearList.getOrNull(selectedYear) ?: today.year
+                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
+                                    val day = (selectedDay + 1).coerceAtMost(
+                                        YearMonth(year, month).lengthOfMonth()
+                                    )
+
+                                    // From your time pickers:
                                     val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
                                     val minuteStr = minutesOptions.getOrNull(selectedMinute) ?: "0"
                                     val rawHour = hourStr.toIntOrNull() ?: 0
                                     val minute = minuteStr.toIntOrNull() ?: 0
 
-                                    // This block converts the chosen AM/PM hour into a proper 24-hour format,
-                                    // handling the special cases for 12 AM and 12 PM.
+                                    // Converts to a 24-hr clock
                                     val hour24 = if (selectedAmOrPm == 1) {
                                         // PM
                                         if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
@@ -534,97 +560,105 @@ fun CreateReminderScreen(
                                         // AM
                                         rawHour % 12
                                     }
-                                    // --- Starting time: move to tomorrow if time already passed today ---
+
+                                    // Built a java.util.Date for the chosen year/month/day/time
                                     val now = Calendar.getInstance()
-                                    val cal = Calendar.getInstance().apply{
+                                    val cal = now.apply {
+                                        set(Calendar.YEAR, year)
+                                        set(Calendar.MONTH, month - 1) // Calendar months are 0-based
+                                        set(Calendar.DAY_OF_MONTH, day)
                                         set(Calendar.HOUR_OF_DAY, hour24)
                                         set(Calendar.MINUTE, minute)
                                         set(Calendar.SECOND, 0)
                                         set(Calendar.MILLISECOND, 0)
                                     }
-                                    // If time is earlier than "now", we will move to the next day
-                                    if (cal.before(now)){
-                                        cal.add(Calendar.DAY_OF_YEAR,1)
-                                    }
+
                                     val dueAt = Timestamp(cal.time)
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
-                                    // --- "Remind me every" section ---
-                                    //val isDaily = asDaily || asWeekDay @Todo Stephen Commented this out as not used
+                                    // --- 2. "Set as daily" + "Remind me every:" ---
+                                    val isDaily = asDaily
+                                    var timesPerMinute = 0
                                     var timesPerHour = 0
-                                    var timesPerDay = 0
-                                    var timesPerMonth = 0
-
+                                    val timesPerDay = 0
                                     val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
-                                    if (everyCount > 0) {
+
+                                    if (isDaily && everyCount > 0) {
                                         when (selectedReminderAmountHourDayWeek) {
                                             0 -> {
-                                                // Example: "Remind me every 8 Hours"
-                                                // We store "8" in timesPerHour.
-                                                timesPerHour = everyCount
+                                                // "Remind me every X Mins"
+                                                timesPerMinute = everyCount
                                             }
                                             1 -> {
-                                                // Example: "Remind me every 3 Days"
-                                                // For now we store the number 3 in timesPerDay.
-                                                timesPerDay = everyCount
-                                            }
-                                            2 -> {
-                                                // Example: "Remind me every 2 Weeks"
-                                                // For now we store the number 2 in timesPerMonth
-                                                timesPerMonth = everyCount
+                                                // "Remind me every X Hours"
+                                                timesPerHour = everyCount
                                             }
                                         }
                                     }
 
-                                    // --- "Repeat for" [ amount + (Days/Weeks/Months/Years) ]
-                                    //val repeatForever = indefinitelyRepeat
+                                    // timesPerMonth is unused for now
+                                    val timesPerMonth = 0
+
+                                    // ---- 3. “Repeat this reminder” (duration) ----
+
+                                    var repeatForever = false
                                     var repeatCount = 0
                                     var repeatInterval: String? = null
 
-//                                    if (!doNotRepeat && !repeatForever) {                    @Todo Stephen Commented this out as not used
-//                                        val count = repeatAmount.toIntOrNull() ?: 0
-//                                        if (count > 0) {
-//                                            repeatCount = count
-//                                            repeatInterval = when (selectedRepeatAmount) {
-//                                                0 -> "days"
-//                                                1 -> "weeks"
-//                                                2 -> "months"
-//                                                3 -> "years"
-//                                                else -> null
-//                                            }
-//                                        }
-//                                    }
+                                    if (repeatReminder) {
+                                        val count = repeatAmount.toIntOrNull() ?: 0
+                                        if (count > 0) {
+                                            repeatCount = count
+                                            repeatInterval = when (selectedRepeatAmount) {
+                                                0 -> "days"
+                                                1 -> "weeks"
+                                                2 -> "months"
+                                                3 -> "years"
+                                                else -> null
+                                            }
+                                        } else {
+                                            // User checked the box but didn't give a number:
+                                            // treat this as "repeat forever" for now.
+                                            repeatForever = true
+                                        }
+                                    }
 
+                                    // ---- 4. Color token from dropdown ----
+                                    val colorToken = colorTokenOptions.getOrNull(selectedColorIndex)
+
+                                    // ---- 5. Build Reminders model ----
                                     val reminder = Reminders(
-                                        reminderId = "",                    // Firestore auto-generates
+                                        reminderId = "",                    // Firestore will generate ID
                                         title = createdReminderTitle.trim(),
-                                        notes = "",                         // no notes field in UI yet, but here if needed
-                                        dueAt = dueAt,
-                                        isCompleted = false,
+                                        notes = "",
+                                        startingAt = dueAt,
+                                        completed = false,
                                         completedAt = null,
                                         createdAt = null,
                                         lastUpdate = null,
-                                        //isDaily = isDaily,               @Todo Stephen Commented this out as not used
+                                        daily = isDaily,
+                                        timesPerMinute = timesPerMinute,
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
-                                        //repeatForever = repeatForever, @Todo Stephen Commented this out as not used
+                                        repeatForever = repeatForever,
                                         repeatCount = repeatCount,
                                         repeatInterval = repeatInterval,
-                                        colorToken = null,
-                                        iconName = iconName           // fallback to empty if somehow null
+                                        colorToken = colorToken,
+                                        iconName = iconName
                                     )
 
+                                    // ---- 6. Persist in Firestore ----
                                     val id = repo.createReminder(reminder, logger)
                                     if (id != null) {
                                         navController?.popBackStack()
                                     } else {
                                         logger.e("Reminders", "CreateReminderScreen: createReminder returned null.")
-                                        // TODO: show a user-facing error dialog box
+                                        // TODO: show user-facing error dialog/snackbar
                                     }
                                 } catch (e: Exception) {
                                     logger.e("Reminders", "CreateReminderScreen: failed to create reminder", e)
-                                    // TODO: show a user-facing error dialog box
+                                    // TODO: show user-facing error dialog/snackbar
                                 }
                             }
                         },
