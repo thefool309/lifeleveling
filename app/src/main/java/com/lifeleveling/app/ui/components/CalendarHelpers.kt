@@ -61,7 +61,7 @@ import kotlin.collections.filter
 /**
  * This creates the day box on the calendar along with facilitating the dots for the reminders and the in and out dates of the calendar
  * @param day from Kizitonwose Calendar (https://github.com/kizitonwose/Calendar?utm_source=chatgpt.com) helps get the date for the box and its position in the calendar (in/out date or normal date range)
- * @param reminders list of users reminders that is filtered to find if its enabled, if its a daily, and the day/month/year for the reminder so its dot can be placed on the calendar
+ * @param remidners list of users reminders that is filtered to find if its enabled, if its a daily, and the day/month/year for the reminder so its dot can be placed on the calendar
  * @param startYear the base calendar year used to calculate the year offset when matching reminders to calendar dates, day.date is the
  * current year so when matching the index chosen by the user (date.year - startYear) for example date.year would be the current year the
  * user is looking at on the calendar, and 2025 is the current year given by the param startYear by localDate.now().year, so this will give
@@ -154,9 +154,7 @@ fun Day(
  * @author sgcfsu1993 (Stephen C.)
  **/
 @Composable
-fun DaysOfWeekTitle(
-    daysOfWeek: List<DayOfWeek>
-) {
+fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
     val topLine = AppTheme.colors.SecondaryTwo
     val grayLine = AppTheme.colors.Gray
     Row(

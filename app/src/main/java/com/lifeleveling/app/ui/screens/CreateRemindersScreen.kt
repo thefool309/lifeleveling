@@ -612,24 +612,18 @@ fun CreateReminderScreen(
 
                                     // ---- 5. Build Reminders model ----
                                     val reminder = Reminders(
-                                        reminderId = "",                    // Firestore will generate ID
-                                        title = createdReminderTitle.trim(),
-                                        notes = "",
+                                        title = createdReminderTitle.trim(),                    // Firestore will generate ID
                                         startingAt = dueAt,
-                                        completed = false,
-                                        completedAt = null,
-                                        createdAt = null,
-                                        lastUpdate = null,
                                         daily = isDaily,
                                         timesPerMinute = timesPerMinute,
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
+                                        colorToken = colorToken,
+                                        iconName = iconName,
                                         repeatForever = repeatForever,
                                         repeatCount = repeatCount,
                                         repeatInterval = repeatInterval,
-                                        colorToken = colorToken,
-                                        iconName = iconName
                                     )
 
                                     // ---- 6. Persist in Firestore ----

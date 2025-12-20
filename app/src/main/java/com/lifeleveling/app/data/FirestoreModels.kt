@@ -68,7 +68,12 @@ data class Reminders(
     val repeatCount: Int = 0,            // how many units
     val repeatInterval: String? = null,  // days, weeks, months or years
     val enabled: Boolean = true,
-)
+    val selectedMinutes: Int = 0,
+    val amOrPm: Int = 0,
+    val selectedHours: Int = 0
+) {
+
+}
 
 // Player stat block (Stats Screen)
 data class Stats (
