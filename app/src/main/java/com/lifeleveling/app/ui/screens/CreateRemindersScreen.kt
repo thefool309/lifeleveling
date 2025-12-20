@@ -148,7 +148,7 @@ fun CreateReminderScreen(
             Locale.getDefault()
         )
     }
-    selectedMonth = selectedMonth.coerceIn(0, filteredMonthList.size - 1)                    // makes sure the list does not go out of bounds by making sure the index is not less then 0 and is not going to a index greater then whats in filteredmonthlist, if so, reset it to the first index
+    selectedMonth = selectedMonth.coerceIn(0, filteredMonthList.size - 1)                    // makes sure the list does not go out of bounds by making sure the index is not less then 0 and is not going to a index greater than whats in filteredmonthlist, if so, reset it to the first index
     val actualMonth = firstAvailableMonth + selectedMonth                                    // converts the month index to the actual calendar month
     val daysInMonth = YearMonth(userSelectedYear, actualMonth).lengthOfMonth()  //gets the number of days in the selected month
     val isCurrentMonthAndYear =                                                                 //checks if the user selected month and year is the current month (returns true if its current year and month)
@@ -418,13 +418,7 @@ fun CreateReminderScreen(
                                             // Only allow digits
                                             reminderAmountNumber = newText.filter { it.isDigit() }
                                         },
-//                                        onValueChange = { newText ->
-////                                            reminderAmountNumber = newText
-////                                            if (newText.isNotEmpty()) {
-////                                                repeatReminder = false
-//                                                //doNotRepeat = false
-//                                            }
-//                                        },
+
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
@@ -456,10 +450,6 @@ fun CreateReminderScreen(
                                     checked = repeatReminder,
                                     onCheckedChange = {
                                         repeatReminder = it
-//                                        if (it) {
-//                                            //doNotRepeat = false
-//
-//                                        }
                                     }
                                 )
                                 Text(
@@ -482,15 +472,11 @@ fun CreateReminderScreen(
                                         value = repeatAmount,
                                         onValueChange = { newText ->
                                             repeatAmount = newText
-                                            if (newText.isNotEmpty()) {
-                                                repeatReminder = false
-                                            }
                                         },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
                                             .weight(1f),
-
                                         )
                                     DropDownTextMenu(
                                         options = daysWeeksMonthsYearsList,
