@@ -249,6 +249,10 @@ fun BadgesToolTip(toShow: MutableState<Boolean>) {
     )
 }
 
+/**
+ * Stats Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
 @Composable
 fun StatsToolTip(toShow: MutableState<Boolean>) {
     // Bullet Points
@@ -337,7 +341,7 @@ fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
 }
 
 /**
- * Streaks Popup Tool Tip
+ * MyReminders Popup Tool Tip
  * @param toShow The boolean to toggle if it is shown
  */
 @Composable
@@ -371,7 +375,7 @@ fun MyRemindersToolTip(toShow: MutableState<Boolean>) {
 }
 
 /**
- * Streaks Popup Tool Tip
+ * CreateReminders Popup Tool Tip
  * @param toShow The boolean to toggle if it is shown
  */
 @Composable
@@ -414,7 +418,7 @@ fun CreateRemindersToolTip(toShow: MutableState<Boolean>) {
 }
 
 /**
- * Streaks Popup Tool Tip
+ * Calendar Popup Tool Tip
  * @param toShow The boolean to toggle if it is shown
  */
 @Composable

@@ -821,7 +821,6 @@ class FirestoreRepository {
             logger.e("Reminders", "createReminder failed", e)
             null
         }
-        // TODO: implement notifTimestamp calculation
     }
 
     // Update a reminder by id

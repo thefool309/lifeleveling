@@ -159,7 +159,7 @@ fun CalendarScreen(
                                 modifier = Modifier
                                     .background(color = Color.Transparent),
                                 state = state,
-                                dayContent = { Day(it, reminders = calendarReminders.value, LocalDate.now().year) },
+                                dayContent = { Day(it, calendarReminders.value, LocalDate.now().year) },
                                 monthHeader = {
                                     Column(
                                         modifier = Modifier

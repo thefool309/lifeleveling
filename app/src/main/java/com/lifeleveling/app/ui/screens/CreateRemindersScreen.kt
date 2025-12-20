@@ -366,7 +366,7 @@ fun CreateReminderScreen(
                                     }
                                 )
                                 Text(
-                                    text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
+                                    text = stringResource(R.string.checkbox_setdaily), style = AppTheme.textStyles.Default,
                                     color = AppTheme.colors.Gray
                                 )
                             }
@@ -451,15 +451,11 @@ fun CreateReminderScreen(
                                     CustomTextField(
                                         value = repeatAmount,
                                         onValueChange = { newText ->
-                                            repeatAmount = newText.filter { it.isDigit() }
+                                            repeatAmount = newText
+                                            if (newText.isNotEmpty()) {
+                                                repeatReminder = false
+                                            }
                                         },
-//                                        onValueChange = { newText ->
-//                                            repeatAmount = newText
-//                                            if (newText.isNotEmpty()) {
-//                                                repeatReminder = false
-//                                                //doNotRepeat = false
-//                                            }
-//                                        },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
@@ -602,24 +598,18 @@ fun CreateReminderScreen(
 
                                     // ---- 5. Build Reminders model ----
                                     val reminder = Reminders(
-                                        reminderId = "",                    // Firestore will generate ID
-                                        title = createdReminderTitle.trim(),
-                                        notes = "",
+                                        title = createdReminderTitle.trim(),                    // Firestore will generate ID
                                         startingAt = dueAt,
-                                        completed = false,
-                                        completedAt = null,
-                                        createdAt = null,
-                                        lastUpdate = null,
                                         daily = isDaily,
                                         timesPerMinute = timesPerMinute,
                                         timesPerHour = timesPerHour,
                                         timesPerDay = timesPerDay,
                                         timesPerMonth = timesPerMonth,
+                                        colorToken = colorToken,
+                                        iconName = iconName,
                                         repeatForever = repeatForever,
                                         repeatCount = repeatCount,
                                         repeatInterval = repeatInterval,
-                                        colorToken = colorToken,
-                                        iconName = iconName
                                     )
 
                                     // ---- 6. Persist in Firestore ----
