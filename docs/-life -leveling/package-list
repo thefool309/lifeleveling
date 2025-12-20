@@ -67,7 +67,8 @@ $dokka.location:com.lifeleveling.app.data/FirestoreRepository/setStats/#com.life
 $dokka.location:com.lifeleveling.app.data/FirestoreRepository/subtractCoins/#kotlin.Long#com.lifeleveling.app.util.ILogger/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-firestore-repository/subtract-coins.html
 $dokka.location:com.lifeleveling.app.data/FirestoreRepository/updateReminder/#kotlin.String#kotlin.collections.Map[kotlin.String,kotlin.Any?]#com.lifeleveling.app.util.ILogger/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-firestore-repository/update-reminder.html
 $dokka.location:com.lifeleveling.app.data/Reminders///PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/index.html
-$dokka.location:com.lifeleveling.app.data/Reminders/Reminders/#kotlin.String#kotlin.String#kotlin.String#com.google.firebase.Timestamp?#kotlin.Boolean#com.google.firebase.Timestamp?#com.google.firebase.Timestamp?#com.google.firebase.Timestamp?#kotlin.Boolean#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.String?#kotlin.String#kotlin.Boolean#kotlin.Int#kotlin.String?#kotlin.Boolean/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/-reminders.html
+$dokka.location:com.lifeleveling.app.data/Reminders/Reminders/#kotlin.String#kotlin.String#kotlin.String#com.google.firebase.Timestamp?#kotlin.Boolean#com.google.firebase.Timestamp?#com.google.firebase.Timestamp?#com.google.firebase.Timestamp?#kotlin.Boolean#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.String?#kotlin.String#kotlin.Boolean#kotlin.Int#kotlin.String?#kotlin.Boolean#kotlin.Int#kotlin.Int#kotlin.Int/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/-reminders.html
+$dokka.location:com.lifeleveling.app.data/Reminders/amOrPm/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/am-or-pm.html
 $dokka.location:com.lifeleveling.app.data/Reminders/colorToken/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/color-token.html
 $dokka.location:com.lifeleveling.app.data/Reminders/completed/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/completed.html
 $dokka.location:com.lifeleveling.app.data/Reminders/completedAt/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/completed-at.html
@@ -81,6 +82,8 @@ $dokka.location:com.lifeleveling.app.data/Reminders/reminderId/#/PointingToDecla
 $dokka.location:com.lifeleveling.app.data/Reminders/repeatCount/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/repeat-count.html
 $dokka.location:com.lifeleveling.app.data/Reminders/repeatForever/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/repeat-forever.html
 $dokka.location:com.lifeleveling.app.data/Reminders/repeatInterval/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/repeat-interval.html
+$dokka.location:com.lifeleveling.app.data/Reminders/selectedHours/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/selected-hours.html
+$dokka.location:com.lifeleveling.app.data/Reminders/selectedMinutes/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/selected-minutes.html
 $dokka.location:com.lifeleveling.app.data/Reminders/startingAt/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/starting-at.html
 $dokka.location:com.lifeleveling.app.data/Reminders/timesPerDay/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/times-per-day.html
 $dokka.location:com.lifeleveling.app.data/Reminders/timesPerHour/#/PointingToDeclaration/-life -leveling/com.lifeleveling.app.data/-reminders/times-per-hour.html
