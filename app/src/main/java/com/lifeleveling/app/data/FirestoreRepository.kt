@@ -1134,7 +1134,7 @@ class FirestoreRepository {
     }
 
     /**
-    * Returns **all reminders** for the currently signed-in user.
+    * Returns **all reminders for the currently signed-in user.
     *
     * 1. Retrieves the currently authenticated user's uid.
     * 2. If the user is not signed in, logs the issue and returns an empty list.
