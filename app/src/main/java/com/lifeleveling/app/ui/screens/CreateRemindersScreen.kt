@@ -587,7 +587,6 @@ fun CreateReminderScreen(
 //                                        YearMonth(year, month).lengthOfMonth()
 //                                    )
                                     val year = userSelectedYear
-                                    val month = actualMonth
                                     val day = firstAvailableDay + selectedDay
 
                                     // From your time pickers:
@@ -609,7 +608,7 @@ fun CreateReminderScreen(
                                     val now = Calendar.getInstance()
                                     val cal = now.apply {
                                         set(Calendar.YEAR, year)
-                                        set(Calendar.MONTH, month - 1) // Calendar months are 0-based
+                                        set(Calendar.MONTH, actualMonth - 1) // Calendar months are 0-based
                                         set(Calendar.DAY_OF_MONTH, day)
                                         set(Calendar.HOUR_OF_DAY, hour24)
                                         set(Calendar.MINUTE, minute)
