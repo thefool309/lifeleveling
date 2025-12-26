@@ -581,11 +581,14 @@ fun CreateReminderScreen(
                                     // 1. Resolve date and time into a Timestamp
 
                                     // From Date Pickers
-                                    val year = yearList.getOrNull(selectedYear) ?: today.year
-                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
-                                    val day = (selectedDay + 1).coerceAtMost(
-                                        YearMonth(year, month).lengthOfMonth()
-                                    )
+//                                    val year = yearList.getOrNull(selectedYear) ?: today.year
+//                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
+//                                    val day = (selectedDay + 1).coerceAtMost(
+//                                        YearMonth(year, month).lengthOfMonth()
+//                                    )
+                                    val year = userSelectedYear
+                                    val month = actualMonth
+                                    val day = firstAvailableDay + selectedDay
 
                                     // From your time pickers:
                                     val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
