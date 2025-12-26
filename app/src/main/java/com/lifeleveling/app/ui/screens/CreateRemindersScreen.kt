@@ -510,10 +510,9 @@ fun CreateReminderScreen(
 
                             scope.launch {
                                 try {
-                                    // ---1. Resolve date and time into a Timestamp
+                                    // 1. Resolve date and time into a Timestamp
 
                                     // From Date Pickers
-                                    // From your date pickers:
                                     val year = yearList.getOrNull(selectedYear) ?: today.year
                                     val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
                                     val day = (selectedDay + 1).coerceAtMost(
@@ -550,7 +549,7 @@ fun CreateReminderScreen(
                                     val dueAt = Timestamp(cal.time)
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
-                                    // --- 2. "Set as daily" + "Remind me every:" ---
+                                    // 2. "Set as daily" + "Remind me every:"
                                     val isDaily = asDaily
                                     var timesPerMinute = 0
                                     var timesPerHour = 0
@@ -573,8 +572,7 @@ fun CreateReminderScreen(
                                     // timesPerMonth is unused for now
                                     val timesPerMonth = 0
 
-                                    // ---- 3. “Repeat this reminder” (duration) ----
-
+                                    // 3. “Repeat this reminder” (duration)
                                     var repeatForever = false
                                     var repeatCount = 0
                                     var repeatInterval: String? = null
@@ -591,16 +589,15 @@ fun CreateReminderScreen(
                                                 else -> null
                                             }
                                         } else {
-                                            // User checked the box but didn't give a number:
-                                            // treat this as "repeat forever" for now.
+                                            // User checked the box but didn't give a number is being treated as "repeat forever" for now.
                                             repeatForever = true
                                         }
                                     }
 
-                                    // ---- 4. Color token from dropdown ----
+                                    // 4. Color token from dropdown
                                     val colorToken = colorTokenOptions.getOrNull(selectedColorIndex)
 
-                                    // ---- 5. Build Reminders model ----
+                                    // 5. Build Reminders model
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore will generate ID
                                         title = createdReminderTitle.trim(),
@@ -622,7 +619,7 @@ fun CreateReminderScreen(
                                         iconName = iconName
                                     )
 
-                                    // ---- 6. Persist in Firestore ----
+                                    // 6. Persist in Firestore
                                     val id = repo.createReminder(reminder, logger)
                                     if (id != null) {
                                         navController?.popBackStack()
