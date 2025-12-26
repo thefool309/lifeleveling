@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -127,26 +128,94 @@ fun CreateReminderScreen(
         stringResource(R.string.years)
     )
 
-    val today = LocalDate.now()                                                             // Current date
-    val monthList = (1..12).map { monthNumber ->
-        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())   // Months list
-    }
-    val startYear = today.year                                                               // Years list (current year + 5)
+    val today = LocalDate.now()
+
+    // Years: current year through +5
+    val startYear = today.year
     val endYear = startYear + 5
     val yearList = (startYear..endYear).toList()
-    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
-    var selectedMonth by remember { mutableStateOf(today.monthValue - 1) }
+
+    // Index into year list
     var selectedYear by remember { mutableStateOf(0) }
-    val actualYear = yearList[selectedYear]                                                 // Actual selected values
-    val actualMonth = selectedMonth + 1
-    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
-    val dayList = (1..daysInMonth).map { day ->
+    val userSelectedYear = yearList[selectedYear]
+
+    // If the selected year is the current year, we only show months from "now" forward. Otherwise, show all 12 months.
+    val isCurrentYear = userSelectedYear == today.year
+    val firstAvailableMonth = if (isCurrentYear) {
+        today.monthValue
+    } else {
+        1                       // January for future years
+    }
+
+    // Months: Only months from firstAvailableMonth → December
+    val filteredMonthList = (firstAvailableMonth..12).map { monthNumber ->
+        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    }
+
+    // Index into filteredMonthList
+    var selectedMonth by remember { mutableStateOf(0) }
+    selectedMonth = selectedMonth.coerceIn(0, filteredMonthList.size - 1)
+
+    // Convert index back to actual calendar month value (1–12)
+    val actualMonth = firstAvailableMonth + selectedMonth
+
+    // Number of days in the selected month/year
+    val daysInMonth = YearMonth(userSelectedYear, actualMonth).lengthOfMonth()
+
+    // Current month and current year check
+    val isCurrentMonthAndYear =
+        isCurrentYear && actualMonth == today.monthValue
+
+    val firstAvailableDay = if (isCurrentMonthAndYear) {
+        today.dayOfMonth
+    } else {
+        1
+    }
+
+    // Index into the day list (0 = firstAvailableDay)
+    var selectedDay by remember { mutableStateOf(0) }
+
+    // Day dropdown options: from firstAvailableDay → end of that month
+    val dayList = (firstAvailableDay..daysInMonth).map { day ->
         SuffixForDays(day)
     }
-    val selectedMonthMenu = remember { mutableStateOf(false) }
 
+    // When the year changes, reset month and day to the first valid entries.
+    LaunchedEffect(userSelectedYear) {
+        selectedMonth = 0
+        selectedDay = 0
+    }
+
+    // When the month changes, reset day to the first valid entry for that month.
+    LaunchedEffect(userSelectedYear, actualMonth) {
+        selectedDay = 0
+    }
+
+    val selectedMonthMenu = remember { mutableStateOf(false) }
     val selectedDayMenu = remember { mutableStateOf(false) }
     val selectedYearMenu = remember { mutableStateOf(false) }
+
+
+//    val today = LocalDate.now()                                                             // Current date
+//    val monthList = (1..12).map { monthNumber ->
+//        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())   // Months list
+//    }
+//    val startYear = today.year                                                               // Years list (current year + 5)
+//    val endYear = startYear + 5
+//    val yearList = (startYear..endYear).toList()
+//    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
+//    var selectedMonth by remember { mutableStateOf(today.monthValue - 1) }
+//    var selectedYear by remember { mutableStateOf(0) }
+//    val actualYear = yearList[selectedYear]                                                 // Actual selected values
+//    val actualMonth = selectedMonth + 1
+//    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
+//    val dayList = (1..daysInMonth).map { day ->
+//        SuffixForDays(day)
+//    }
+//    val selectedMonthMenu = remember { mutableStateOf(false) }
+//
+//    val selectedDayMenu = remember { mutableStateOf(false) }
+//    val selectedYearMenu = remember { mutableStateOf(false) }
     var selectedColorIndex by remember { mutableStateOf(0) }
     val colorMenu = remember { mutableStateOf(false) }
     val colorOptions = listOf(
@@ -285,7 +354,7 @@ fun CreateReminderScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ){
                                 DropDownTextMenu(
-                                    options = monthList,
+                                    options = filteredMonthList,
                                     selectedIndex = selectedMonth,
                                     onSelectedChange = {selectedMonth = it },
                                     expanded = selectedMonthMenu,
