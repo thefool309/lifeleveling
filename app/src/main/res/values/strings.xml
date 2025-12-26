@@ -326,6 +326,7 @@
     <string name="myReminders_tooltip3">Taping on a reminder will display its repeat information and give you the option to delete it.</string>
     <string name="no_reminders_for_day">No reminders for this day yet.</string>
     <string name="error_loading_reminders">There was a problem loading your reminders. Please try again.</string>
+    <string name="cannot_create_past_reminder">You can't create a reminder in the past. Please pick a future time.</string>
 
     <!-- FCM/androidSettings -->
     <string name="reminder_channel">Reminders</string>
