@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,20 +69,20 @@ fun CreateReminderScreen(
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
     //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed        @Todo Stephen Commented this out as not used
     var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
-    var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder   <-- This is needed
+    var selectedReminderIndex by remember { mutableIntStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
-    var selectedHour by remember { mutableStateOf(0) }          // selected hour for reminder   <-- This is needed
+    var selectedHour by remember { mutableIntStateOf(0) }          // selected hour for reminder   <-- This is needed
     val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
     val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
-    var selectedMinute by remember { mutableStateOf(0) }        // selected minute                 <-- This is needed
-    var selectedAmOrPm by remember {mutableStateOf(0)}          // selected AM or PM                <-- This is needed
+    var selectedMinute by remember { mutableIntStateOf(0) }        // selected minute                 <-- This is needed
+    var selectedAmOrPm by remember {mutableIntStateOf(0)}          // selected AM or PM                <-- This is needed
     val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
     var reminderAmountNumber by remember { mutableStateOf("") }       // how many times the reminder is set for ex 5 days , 5 weeks , 5 months, 5 years <-- This is needed
     val selectedReminderAmountMenu = remember { mutableStateOf(false) } // bool for menu
-    var selectedReminderAmountHourDayWeek by remember { mutableStateOf(0) }        // the reminder is set for hours , days, week    <-- This is needed
+    var selectedReminderAmountHourDayWeek by remember { mutableIntStateOf(0) }        // the reminder is set for hours , days, week    <-- This is needed
     var repeatAmount by remember { mutableStateOf("") }                     // how many times to repeat the reminder text entered by user   <-- This is needed
     val selectedRepeatAmountMenu = remember { mutableStateOf(false) }       // bool to show menu
-    var selectedRepeatAmount by remember { mutableStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
+    var selectedRepeatAmount by remember { mutableIntStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
     val iconOptions = listOf(
         Reminder(0, "", R.drawable.water_drop, null, false, 0, 0, 0),
         Reminder(1, "", R.drawable.bed_color, null, false, 0, 0, 0),
@@ -136,7 +137,7 @@ fun CreateReminderScreen(
     val yearList = (startYear..endYear).toList()
 
     // Index into year list
-    var selectedYear by remember { mutableStateOf(0) }
+    var selectedYear by remember { mutableIntStateOf(0) }
     val userSelectedYear = yearList[selectedYear]
 
     // If the selected year is the current year, we only show months from "now" forward. Otherwise, show all 12 months.
@@ -153,7 +154,7 @@ fun CreateReminderScreen(
     }
 
     // Index into filteredMonthList
-    var selectedMonth by remember { mutableStateOf(0) }
+    var selectedMonth by remember { mutableIntStateOf(0) }
     selectedMonth = selectedMonth.coerceIn(0, filteredMonthList.size - 1)
 
     // Convert index back to actual calendar month value (1–12)
@@ -173,7 +174,7 @@ fun CreateReminderScreen(
     }
 
     // Index into the day list (0 = firstAvailableDay)
-    var selectedDay by remember { mutableStateOf(0) }
+    var selectedDay by remember { mutableIntStateOf(0) }
 
     // Day dropdown options: from firstAvailableDay → end of that month
     val dayList = (firstAvailableDay..daysInMonth).map { day ->
@@ -216,7 +217,7 @@ fun CreateReminderScreen(
 //
 //    val selectedDayMenu = remember { mutableStateOf(false) }
 //    val selectedYearMenu = remember { mutableStateOf(false) }
-    var selectedColorIndex by remember { mutableStateOf(0) }
+    var selectedColorIndex by remember { mutableIntStateOf(0) }
     val colorMenu = remember { mutableStateOf(false) }
     val colorOptions = listOf(
         Color.Red,
