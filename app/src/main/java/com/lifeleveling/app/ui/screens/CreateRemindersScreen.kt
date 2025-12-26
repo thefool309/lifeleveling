@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import com.google.firebase.Timestamp
 import java.time.LocalTime
 import java.util.Calendar
+import java.util.Date
 
 
 @Preview
@@ -652,6 +653,11 @@ fun CreateReminderScreen(
                                     }
 
                                     val dueAt = Timestamp(cal.time)
+                                    // Block user from adding a reminder in the past
+                                    if(dueAt.toDate().before(Date())){
+                                        logger.w("Reminders", "CreateReminderScreen: selected date/time is in the past, not saving.")
+                                        return@launch
+                                    }
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
                                     // 2. "Set as daily" + "Remind me every:"
