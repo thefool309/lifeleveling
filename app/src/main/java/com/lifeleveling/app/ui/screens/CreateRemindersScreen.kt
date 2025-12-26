@@ -242,9 +242,7 @@ fun CreateReminderScreen(
         "white"
     )
 
-    Surface(
-
-    ){
+    Surface{
         Box(
             modifier = Modifier
                 .fillMaxSize()
