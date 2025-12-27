@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +49,7 @@ import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.AndroidLogger
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import com.lifeleveling.app.data.Reminders
 import kotlinx.coroutines.launch
 import com.google.firebase.Timestamp
@@ -65,6 +67,7 @@ fun CreateReminderScreen(
 ){
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed            @Todo Stephen Commented this out as not used
@@ -656,6 +659,12 @@ fun CreateReminderScreen(
                                     // Block user from adding a reminder in the past
                                     if(dueAt.toDate().before(Date())){
                                         logger.w("Reminders", "CreateReminderScreen: selected date/time is in the past, not saving.")
+                                        // Using toast for now but will ask @stephen and cass to help get it onto the UI language of the app
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.cannot_create_past_reminder),
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                         return@launch
                                     }
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
