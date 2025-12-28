@@ -726,6 +726,95 @@ class FirestoreRepository {
         }
     }
 
+    // A wrapper method to get me the current user
+    suspend fun getCurrentUser(logger: ILogger): Users? {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth", "No user found with uid $uid; Please sign in.")
+            return null
+        }
+        return getUser(uid, logger)
+    }
+
+    // Method to set life points mirroring the behavior of existing setCoins and addCoins methods
+    suspend fun setLifePoints(lifePoints: Long, logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+        return try {
+            db.collection("users").document(uid)
+                .update("lifePoints", lifePoints)
+                .await()
+            updateTimestamp(uid, logger)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error updating lifePoints", e)
+            false
+        }
+    }
+
+    /**
+     * Resets the current user’s stats back to 0 and refunds all spent points into their lifePoints pool.
+     *
+     * Flow:
+     * 1. Look up the currently signed-in user’s ID.
+     * 2. Load their user document and read the current stats + lifePoints.
+     * 3. Sum all points spent across Health, Agility, Intelligence, Defense, and Strength.
+     * 4. Add those spent points back into lifePoints.
+     * 5. Write zeroed-out stats and the new lifePoints total back to Firestore.
+     * 6. Update the user’s timestamp so other parts of the app know the data changed.
+     *
+     * Example:
+     *  Stats: H=5, A=7, I=3, D=8, S=17  (total 40)
+     *  lifePoints = 5
+     *  After reset → all stats = 0, lifePoints = 45.
+     *
+     * @param logger Used to log any errors while resetting life points.
+     * @return true if the Firestore update succeeds, false otherwise.
+     * @author fdesouza1992
+     */
+    suspend fun resetLifePoints(logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Auth","ID is null. Please login to firebase.")
+            return false
+        }
+
+        // Loads current user
+        val user = getUser(uid, logger) ?: return false
+        val stats = user.stats
+
+        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
+        val currentLifePointsPool = user.lifePoints
+        val newLifePointsPool = usedLifePoint+currentLifePointsPool
+
+        val docRef = db.collection("users").document(uid)
+        return try {
+            val resetStats = Stats(
+                agility = 0L,
+                defense = 0L,
+                intelligence = 0L,
+                strength = 0L,
+                health = 0L
+            )
+
+            docRef.update(
+                mapOf(
+                    "stats" to resetStats,
+                    "lifePoints" to newLifePointsPool,
+                )
+            ).await()
+
+            updateTimestamp(uid, logger)
+            true
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error resetting life points", e)
+            false
+        }
+    }
+
 //    /**
 //     * Helper to get this user's 'reminders' collection in Firestore.
 //     *
@@ -979,95 +1068,6 @@ class FirestoreRepository {
     // Realtime stream of reminders (ordered by dueAt)
 
 
-    // A wrapper method to get me the current user
-    suspend fun getCurrentUser(logger: ILogger): Users? {
-        val uid = getUserId()
-        if (uid == null) {
-            logger.e("Auth", "No user found with uid $uid; Please sign in.")
-            return null
-        }
-        return getUser(uid, logger)
-    }
-
-    // Method to set life points mirroring the behavior of existing setCoins and addCoins methods
-    suspend fun setLifePoints(lifePoints: Long, logger: ILogger): Boolean {
-        val uid = getUserId()
-        if (uid == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-        return try {
-            db.collection("users").document(uid)
-                .update("lifePoints", lifePoints)
-                .await()
-            updateTimestamp(uid, logger)
-            true
-        } catch (e: Exception) {
-            logger.e("Firestore", "Error updating lifePoints", e)
-            false
-        }
-    }
-
-    /**
-     * Resets the current user’s stats back to 0 and refunds all spent points into their lifePoints pool.
-     *
-     * Flow:
-     * 1. Look up the currently signed-in user’s ID.
-     * 2. Load their user document and read the current stats + lifePoints.
-     * 3. Sum all points spent across Health, Agility, Intelligence, Defense, and Strength.
-     * 4. Add those spent points back into lifePoints.
-     * 5. Write zeroed-out stats and the new lifePoints total back to Firestore.
-     * 6. Update the user’s timestamp so other parts of the app know the data changed.
-     *
-     * Example:
-     *  Stats: H=5, A=7, I=3, D=8, S=17  (total 40)
-     *  lifePoints = 5
-     *  After reset → all stats = 0, lifePoints = 45.
-     *
-     * @param logger Used to log any errors while resetting life points.
-     * @return true if the Firestore update succeeds, false otherwise.
-     * @author fdesouza1992
-     */
-    suspend fun resetLifePoints(logger: ILogger): Boolean {
-        val uid = getUserId()
-        if (uid == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-
-        // Loads current user
-        val user = getUser(uid, logger) ?: return false
-        val stats = user.stats
-
-        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
-        val currentLifePointsPool = user.lifePoints
-        val newLifePointsPool = usedLifePoint+currentLifePointsPool
-
-        val docRef = db.collection("users").document(uid)
-        return try {
-            val resetStats = Stats(
-                agility = 0L,
-                defense = 0L,
-                intelligence = 0L,
-                strength = 0L,
-                health = 0L
-            )
-
-            docRef.update(
-                mapOf(
-                    "stats" to resetStats,
-                    "lifePoints" to newLifePointsPool,
-                )
-            ).await()
-
-            updateTimestamp(uid, logger)
-            true
-        } catch (e: Exception) {
-            logger.e("Firestore", "Error resetting life points", e)
-            false
-        }
-    }
-
 //    /**
 //     * Checks if this reminder should be shown on a specific day.
 //     *
@@ -1155,5 +1155,4 @@ class FirestoreRepository {
 //            emptyList()
 //        }
 //    }
-
 }
