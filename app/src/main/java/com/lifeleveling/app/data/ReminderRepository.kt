@@ -245,8 +245,7 @@ class ReminderRepository(
     /**
      * Checks if this reminder should be shown on a specific day.
      *
-     * This is mainly used by the Day View to figure out which reminders belong
-     * on the selected date.
+     * This is mainly used by the Day View to figure out which reminders belong on the selected date.
      *
      * It takes into account:
      * - When the reminder starts
@@ -330,6 +329,16 @@ class ReminderRepository(
         }
     }
 
+    /**
+     * Deletes all reminders for a specific user. Mainly used when fully removing a user account.
+     * We look inside `users/{uid}/reminders`, grab every document, batch-delete them, and commit it in one go.
+     *
+     * If something goes wrong, we log the error but don't throw — this keeps the delete user flow moving instead of crashing out.
+     *
+     * @param uid The user ID whose reminders we want to clear.
+     * @param logger For reporting any issues that happen during deletion.
+     * @author fdesouza1992
+     */
     suspend fun deleteAllRemindersForUser(uid: String, logger: ILogger) {
         try {
             val remindersSnap = remindersCol(uid).get().await()
