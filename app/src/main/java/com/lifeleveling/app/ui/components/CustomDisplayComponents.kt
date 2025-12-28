@@ -569,8 +569,6 @@ private fun DailyReminderRow(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     rowIndices.forEach { index ->
-                        //var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
-
                         // A given slot is "already completed" if its index is < initialCompletedSlots.
                         var checked by remember(reminder.reminderId, date, index) {
                             mutableStateOf(index < initialCompletedSlots)
@@ -580,6 +578,7 @@ private fun DailyReminderRow(
                             checked = checked,
                             onCheckedChange = { new ->
                                 if(!checked && new) {
+                                    // false -> true: increment
                                     checked = true
 
                                     scope.launch {
@@ -593,9 +592,24 @@ private fun DailyReminderRow(
                                             logger.e("Reminders", "Failed to increment completion for ${reminder.reminderId} on $date")
                                         }
                                     }
+                                } else if (checked && !new) {
+                                    // true -> false: decrement
+                                    checked = false
+                                    scope.launch {
+                                        val ok = repo.decrementReminderCompletionForDate(
+                                            reminderId = reminder.reminderId,
+                                            reminderTitle = reminder.title,   // 🔹 keep title in sync
+                                            date = date,
+                                            logger = logger
+                                        )
+                                        if (!ok) {
+                                            logger.e(
+                                                "Reminders",
+                                                "Failed to decrement completion for ${reminder.reminderId} on $date"
+                                            )
+                                        }
+                                    }
                                 }
-//                                checked = new
-//                                logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
                             },
                             size = 18.dp,
                         )
