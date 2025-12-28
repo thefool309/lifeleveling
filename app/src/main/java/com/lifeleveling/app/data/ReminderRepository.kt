@@ -449,4 +449,38 @@ class ReminderRepository(
             false
         }
     }
+
+    suspend fun getReminderCompletionsForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): Map<String, Int> = withContext(Dispatchers.IO) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            logger.e(TAG, "getReminderCompletionsForDate: no logged in user.")
+            return@withContext emptyMap()
+        }
+
+        val dateKey = date.toString()
+        return@withContext try {
+            val userRef = db.collection("users").document(uid)
+            val completionsCol = userRef.collection("reminderCompletions")
+
+            val snapshot = completionsCol
+                .whereEqualTo("dateKey", dateKey)
+                .get()
+                .await()
+
+            val result = mutableMapOf<String, Int>()
+            for (doc in snapshot.documents) {
+                val reminderId = doc.getString("reminderId") ?: continue
+                val count = (doc.getLong("count") ?: 0L).toInt()
+                result[reminderId] = count
+            }
+            result
+        } catch (e: Exception) {
+            logger.e(TAG, "getReminderCompletionsForDate failed for $dateKey", e)
+            emptyMap()
+        }
+    }
+
 }
