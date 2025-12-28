@@ -157,6 +157,7 @@
     <string name="account_age">Account Age:</string>
     <string name="no_remiders">No reminders yet.</string>
     <string name="most_completed_reminder">Most completed reminder:</string>
+    <string name="total_reminders_completed">Total reminders completed</string>
 
     <!-- Stats tips -->
     <string name="stats">Stats</string>
