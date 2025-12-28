@@ -450,6 +450,18 @@ class ReminderRepository(
         }
     }
 
+    /**
+     * Gets how many times each reminder was completed on a given day.
+     *
+     * Useful for Day View stats like:
+     *  - “How many times did I drink water today?”
+     *  - “Did I complete workout 3 times?”
+     *
+     * @param date The day we want completion stats for.
+     * @param logger Logs errors if something breaks.
+     * @return A map of reminderId to completion count for that date.
+     * @author fdesouza1992
+     */
     suspend fun getReminderCompletionsForDate(
         date: LocalDate,
         logger: ILogger
