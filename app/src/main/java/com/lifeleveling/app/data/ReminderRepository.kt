@@ -495,4 +495,27 @@ class ReminderRepository(
         }
     }
 
+    suspend fun getTotalReminderCompletions(
+        logger: ILogger
+    ): Long = withContext(Dispatchers.IO) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            logger.e(TAG, "getTotalReminderCompletions: no logged in user.")
+            return@withContext 0L
+        }
+
+        return@withContext try {
+            val userRef = db.collection("users").document(uid)
+            val completionsCol = userRef.collection("reminderCompletions")
+            val snapshot = completionsCol.get().await()
+
+            snapshot.documents.fold(0L) { acc, doc ->
+                acc + (doc.getLong("count") ?: 0L)
+            }
+        } catch (e: Exception) {
+            logger.e(TAG, "getTotalReminderCompletions failed", e)
+            0L
+        }
+    }
+
 }
