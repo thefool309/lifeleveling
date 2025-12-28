@@ -856,6 +856,13 @@ class FirestoreRepository {
         logger: ILogger
     ) : Boolean = reminderRepo.incrementReminderCompletionForDate(reminderId, reminderTitle, date, logger)
 
+    suspend fun decrementReminderCompletionForDate(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate,
+        logger: ILogger
+    ) : Boolean = reminderRepo.decrementReminderCompletionForDate(reminderId, reminderTitle, date, logger)
+
     suspend fun getReminderCompletionsForDate(
         date: LocalDate,
         logger: ILogger
