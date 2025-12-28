@@ -405,6 +405,24 @@ fun EquipmentDisplay(
     }
 }
 
+/**
+ * Shows all reminders for a specific day in the Day View screen.
+ *
+ * What this composable does:
+ * - Loads reminders for the given `date` from Firestore
+ * - Also loads how many times each reminder was completed that day
+ * - Shows a loading spinner while fetching
+ * - Shows an empty message if there are no reminders
+ * - Otherwise displays a scrollable list of `DailyReminderRow`s
+ *
+ * Basically: You give it a date, it builds the UI for that day’s reminders.
+ * Each reminder in the list will have its own row with checkboxes.
+ *
+ * @param date The day we want to display reminders for.
+ * @param repo FirestoreRepository used to load reminders + completion counts.
+ * @param logger For logging errors instead of crashing the UI.
+ * @author fdesouza1992
+ */
 @Composable
 fun DailyRemindersList(
     date: LocalDate,
