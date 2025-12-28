@@ -122,5 +122,5 @@ data class FcmTokens(
 data class ReminderCompletionLog(
     val reminderId: String = "",
     val dateKey: String = "",
-    val count: Int = 0,
+    val count: Long = 0L,
 )
