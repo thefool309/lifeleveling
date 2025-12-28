@@ -406,6 +406,7 @@ class ReminderRepository(
      * If not, Firestore creates it and starts from 1.
      *
      * @param reminderId The reminder we’re counting for.
+     * @param reminderTitle Title saved for future reference (nice for UI stats/history)
      * @param date The day this completion happened.
      * @param logger For logging success/fail messages.
      * @return `true` if increment works, `false` if something failed.
@@ -452,6 +453,26 @@ class ReminderRepository(
         }
     }
 
+    /**
+     * Decreases the completion count for a reminder on a specific day.
+     *
+     * This is basically the opposite of `incrementReminderCompletionForDate`.
+     * We call this when the user unchecks a reminder that was previously marked complete.
+     *
+     * Firestore doc lives here:
+     * `users/{uid}/reminderCompletions/{reminderId_yyyy-MM-dd}`
+     *
+     * What it does:
+     * - If the document already exists → subtracts 1 from the `count`
+     * - If it doesn't exist yet, Firestore will create it and start with -1 (so UI should guard)
+     *
+     * @param reminderId ID of the reminder being undone
+     * @param reminderTitle Title saved for future reference (nice for UI stats/history)
+     * @param date The day we're adjusting completion for
+     * @param logger Used to log errors instead of crashing
+     * @return true if decrement works, false if something failed
+     * @author fdesouza1992
+     */
     suspend fun decrementReminderCompletionForDate(
         reminderId: String,
         reminderTitle: String,
