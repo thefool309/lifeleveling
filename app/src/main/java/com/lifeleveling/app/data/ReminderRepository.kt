@@ -242,7 +242,6 @@ class ReminderRepository(
         }
     }
 
-
     /**
      * Checks if this reminder should be shown on a specific day.
      *
@@ -328,6 +327,21 @@ class ReminderRepository(
         } catch (e: Exception) {
             logger.e("Reminders", "getAllReminders failed", e)
             emptyList()
+        }
+    }
+
+    suspend fun deleteAllRemindersForUser(uid: String, logger: ILogger) {
+        try {
+            val remindersSnap = remindersCol(uid).get().await()
+            if (!remindersSnap.isEmpty) {
+                val batch = db.batch()
+                for (doc in remindersSnap.documents) {
+                    batch.delete(doc.reference)
+                }
+                batch.commit().await()
+            }
+        } catch (e: Exception) {
+            logger.e("Firestore", "Failed to delete reminders for user $uid", e)
         }
     }
 }
