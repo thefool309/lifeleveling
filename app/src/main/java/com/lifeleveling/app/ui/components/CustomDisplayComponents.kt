@@ -411,14 +411,18 @@ fun DailyRemindersList(
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
+    var completionsByReminderId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     LaunchedEffect(date) {
         isLoading = true
         try {
-            reminders = repo.getRemindersForDate(date, logger)
+            val dayReminders = repo.getRemindersForDate(date, logger)
+            reminders = dayReminders
+            completionsByReminderId = repo.getReminderCompletionsForDate(date, logger)
         } catch (e: Exception) {
             logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
             reminders = emptyList()
+            completionsByReminderId = emptyMap()
         } finally {
             isLoading = false
         }
@@ -463,7 +467,14 @@ fun DailyRemindersList(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 reminders.forEachIndexed { index, reminder ->
-                    DailyReminderRow(reminder = reminder, logger = logger)
+                    val initialCompletedSlots = completionsByReminderId[reminder.reminderId] ?: 0
+
+                    DailyReminderRow(
+                        reminder = reminder,
+                        date = date,
+                        initialCompletedSlots = initialCompletedSlots,
+                        repo = repo,
+                        logger = logger)
 
                     // Separator line
                     if (index != reminders.lastIndex) {
