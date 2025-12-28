@@ -14,9 +14,7 @@ import java.util.Date
 /**
  * Repository that encapsulates all Firestore reminder operations.
  *
- * This class is used internally by [FirestoreRepository] so that the rest
- * of the app can keep calling FirestoreRepository.createReminder(),
- * getRemindersForDate(), deleteReminder(), etc. without any changes.
+ * This class is used internally by [FirestoreRepository] so that the rest of the app can keep calling FirestoreRepository.createReminder(), getRemindersForDate(), deleteReminder(), etc. without any changes.
  *
  * @author fdesouza1992
  */
@@ -25,6 +23,13 @@ class ReminderRepository(
     private val db: FirebaseFirestore
 ) {
 
+    /**
+     * Convenience helper for getting the currently signed-in user's UID.
+     *
+     * This simply reads `auth.currentUser?.uid` and returns it, or `null` if there is no authenticated Firebase user at the moment
+     * @return The current Firebase Auth user's UID, or `null` if no user is signed in.
+     * @author fdesouza1992
+     */
     private fun getUserId(): String? = auth.currentUser?.uid
 
     /**
