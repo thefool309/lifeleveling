@@ -452,6 +452,47 @@ class ReminderRepository(
         }
     }
 
+    suspend fun decrementReminderCompletionForDate(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate,
+        logger: ILogger
+    ): Boolean = withContext(Dispatchers.IO) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            logger.e(TAG, "decrementReminderCompletionForDate: no logged in user.")
+            return@withContext false
+        }
+
+        val dateKey = date.toString()
+        val docId = "${reminderId}_$dateKey"
+
+        try {
+            val userRef = db.collection("users").document(uid)
+            val completionsCol = userRef.collection("reminderCompletions")
+            val docRef = completionsCol.document(docId)
+
+            val atMidnight = date
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .let { Date.from(it) }
+
+            val data = mapOf(
+                "reminderId" to reminderId,
+                "reminderTitle" to reminderTitle,
+                "dateKey" to dateKey,
+                "date" to atMidnight,
+                "count" to FieldValue.increment(-1L),
+            )
+
+            docRef.set(data, SetOptions.merge()).await()
+            true
+        } catch (e: Exception) {
+            logger.e(TAG, "decrementReminderCompletionForDate failed for $reminderId on $dateKey", e)
+            false
+        }
+    }
+
     /**
      * Gets how many times each reminder was completed on a given day.
      *
