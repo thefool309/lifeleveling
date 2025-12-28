@@ -388,6 +388,29 @@ class ReminderRepository(
         }
     }
 
+    /**
+     * Increases the "completed" count for a reminder on a specific day.
+     *
+     * This is what we call when the user checks off a reminder in the Day View.
+     * Only counts one tap at a time, so we call this every time a checkbox goes from not done → done.
+     *
+     * We store these inside:
+     * `users/{uid}/reminderCompletions/{reminderId_yyyy-MM-dd}`
+     *
+     * Example:
+     * - Reminder ID = "water"
+     * - Date = 2025-01-03
+     * - Document = `"water_2025-01-03"`
+     *
+     * If the doc exists, we just bump count by +1.
+     * If not, Firestore creates it and starts from 1.
+     *
+     * @param reminderId The reminder we’re counting for.
+     * @param date The day this completion happened.
+     * @param logger For logging success/fail messages.
+     * @return `true` if increment works, `false` if something failed.
+     * @author fdesouza1992
+     */
     suspend fun incrementReminderCompletionForDate(
         reminderId: String,
         date: LocalDate,
