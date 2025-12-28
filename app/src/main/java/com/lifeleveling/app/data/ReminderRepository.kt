@@ -117,7 +117,18 @@ class ReminderRepository(
         // TODO: implement notifTimestamp calculation
     }
 
-    // Update a reminder by id
+    /**
+     * Updates a reminder by its document ID.
+     *
+     * We pass in a map of fields we want to change (title, notes, color, etc.) and Firestore will only update those fields instead of overwriting everything.
+     * Also sneaks in a `lastUpdate` timestamp automatically so we always know when this reminder was last touched.
+     * Returns true if everything worked, or false if something failed.
+     *
+     * @param reminderId The Firestore document ID for the reminder we want to update.
+     * @param updates A map of fields we want to modify. Only these fields get changed.
+     * @param logger For debug/error messages.
+     * @author fdesouza1992
+     */
     suspend fun updateReminder(
         reminderId: String,
         updates: Map<String, Any?>,
