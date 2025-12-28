@@ -20,6 +20,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.data.Reminders
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -493,9 +495,13 @@ fun DailyRemindersList(
 @Composable
 private fun DailyReminderRow(
     reminder: Reminders,
+    date: LocalDate,
+    initialCompletedSlots: Int,
+    repo: FirestoreRepository,
     logger: ILogger,
 ) {
     val checkboxCount = calculateDailySlots(reminder)
+    val scope = rememberCoroutineScope()
 
     Row(
         modifier = Modifier
@@ -563,13 +569,32 @@ private fun DailyReminderRow(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     rowIndices.forEach { index ->
-                        var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
+                        //var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
+
+                        // A given slot is "already completed" if its index is < initialCompletedSlots.
+                        var checked by remember(reminder.reminderId, date, index) {
+                            mutableStateOf(index < initialCompletedSlots)
+                        }
 
                         CustomCheckbox(
                             checked = checked,
                             onCheckedChange = { new ->
-                                checked = new
-                                logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
+                                if(!checked && new) {
+                                    checked = true
+
+                                    scope.launch {
+                                        val ok = repo.incrementReminderCompletionForDate(
+                                            reminderId = reminder.reminderId,
+                                            date = date,
+                                            logger = logger
+                                        )
+                                        if (!ok){
+                                            logger.e("Reminders", "Failed to increment completion for ${reminder.reminderId} on $date")
+                                        }
+                                    }
+                                }
+//                                checked = new
+//                                logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
                             },
                             size = 18.dp,
                         )
