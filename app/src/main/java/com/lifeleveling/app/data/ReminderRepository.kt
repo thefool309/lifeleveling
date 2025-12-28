@@ -5,8 +5,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.lifeleveling.app.MainActivity.Companion.TAG
 import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
@@ -382,6 +385,45 @@ class ReminderRepository(
             }
         } catch (e: Exception) {
             logger.e("Firestore", "Failed to delete reminders for user $uid", e)
+        }
+    }
+
+    suspend fun incrementReminderCompletionForDate(
+        reminderId: String,
+        date: LocalDate,
+        logger: ILogger
+    ): Boolean = withContext(Dispatchers.IO) {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            logger.e(TAG, "incrementReminderCompletionForDate: no logged in user.")
+            return@withContext false
+        }
+
+        val dateKey = date.toString() // ISO "yyyy-MM-dd"
+        val docId = "${reminderId}_$dateKey"
+
+        try {
+            val userRef = db.collection("users").document(uid)
+            val completionsCol = userRef.collection("reminderCompletions")
+            val docRef = completionsCol.document(docId)
+
+            val atMidnight = date
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .let { Date.from(it) }
+
+            val data = mapOf(
+                "reminderId" to reminderId,
+                "dateKey" to dateKey,
+                "date" to atMidnight,
+                "count" to FieldValue.increment(1L)
+            )
+
+            docRef.set(data, SetOptions.merge()).await()
+            true
+        } catch (e: Exception) {
+            logger.e(TAG, "incrementReminderCompletionForDate failed for $reminderId on $dateKey", e)
+            false
         }
     }
 }
