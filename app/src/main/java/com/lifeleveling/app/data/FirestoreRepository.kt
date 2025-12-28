@@ -849,4 +849,18 @@ class FirestoreRepository {
         logger: ILogger
     ): List<Reminders> = reminderRepo.getAllReminders(logger)
 
+    suspend fun incrementReminderCompletionForDate(
+        reminderId: String,
+        date: LocalDate,
+        logger: ILogger
+    ) : Boolean = reminderRepo.incrementReminderCompletionForDate(reminderId, date, logger)
+
+    suspend fun getReminderCompletionsForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): Map<String, Int> = reminderRepo.getReminderCompletionsForDate(date, logger)
+
+    suspend fun getTotalReminderCompletions(
+        logger: ILogger
+    ): Long = reminderRepo.getTotalReminderCompletions(logger)
 }
