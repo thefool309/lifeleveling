@@ -190,7 +190,16 @@ class ReminderRepository(
         }
     }
 
-    // Deletes a reminder
+    /**
+     * Deletes a single reminder from Firestore.
+     *
+     * Just give me the reminderId and boom — it's gone. (Assuming the user is signed in and Firestore doesn't freak out.)
+     * Returns true if delete worked, false if something failed.
+     *
+     * @param reminderId The ID of the reminder we want to remove.
+     * @param logger Used to report errors if Firestore doesn't cooperate.
+     * @author fdesouzq1992
+     */
     suspend fun deleteReminder(reminderId: String, logger: ILogger): Boolean {
         val uid = getUserId()
         if (uid == null) {
