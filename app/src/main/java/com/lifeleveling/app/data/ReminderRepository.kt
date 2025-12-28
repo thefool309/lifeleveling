@@ -153,7 +153,18 @@ class ReminderRepository(
         //TODO: implement notifTimestamp recalculation
     }
 
-    // Mark a reminder complete/incomplete and set/unset completedAt automatically.
+    /**
+    * Marks a reminder as complete or incomplete.
+    *
+    * If completed = true → we also set `completedAt` with a server timestamp.
+    * If false → we clear `completedAt` (because it's not done anymore).
+    * Returns true on success, false if something broke.
+    *
+    * @param reminderId The ID of the reminder to update.
+    * @param completed Whether the reminder is done or not.
+    * @param logger For logging success/failure messages.
+     * @author fdesouza1992
+    */
     suspend fun setReminderCompleted(
         reminderId: String,
         completed: Boolean,
