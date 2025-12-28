@@ -1,0 +1,328 @@
+package com.lifeleveling.app.data
+
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
+
+/**
+ * Repository that encapsulates all Firestore reminder operations.
+ *
+ * This class is used internally by [FirestoreRepository] so that the rest
+ * of the app can keep calling FirestoreRepository.createReminder(),
+ * getRemindersForDate(), deleteReminder(), etc. without any changes.
+ *
+ * @author fdesouza1992
+ */
+class ReminderRepository(
+    private val auth: FirebaseAuth,
+    private val db: FirebaseFirestore
+) {
+
+    private fun getUserId(): String? = auth.currentUser?.uid
+
+    /**
+     * Helper to get this user's 'reminders' collection in Firestore.
+     *
+     * We use this to keep the path logic in one place 'users/{uid}/reminders'.
+     *
+     * @param uid The user's unique Firestore/Firebase Auth ID.
+     * @return A reference to that user's 'reminders' collection.
+     * @author fdesouza1992
+     * **/
+    private fun remindersCol(uid: String) =
+        //Firebase.firestore.collection("users").document(uid).collection("reminders")
+        db.collection("users").document(uid).collection("reminders")
+
+    /**
+     * Creates or updates a reminder for the currently signed-in user.
+     *
+     * Current Flow:  (May need to be updated as we progress)
+     * 1. Check that we have a logged-in user; if not, log it and return null.
+     * 2. Builds the reminder payload, letting Firestore handle server timestamps.
+     * 3. If `reminders.reminderId` is blank, a new doc with an auto ID is created, otherwise writes to that specific document.
+     * 4. Ensures the `reminderId` field inside the document matches the doc ID to facilitate with mapping later.
+     *
+     * On success, we log the created reminder and return its document ID.
+     * On failure, we log the error and return null so the caller can handle it.
+     *
+     * @param reminders The reminder data we want to store.
+     * @param logger Used to log success or failures during write.
+     * @return The Firestore document ID for this reminder, or `null` if something went wrong.
+     * @author fdesouza1992
+     * **/
+    suspend fun createReminder(
+        reminders: Reminders,
+        logger: ILogger
+    ): String? {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            logger.e("Reminders", "createReminder: user not authenticated.")
+            return null
+        }
+
+        // Build the payload; let Firestore set timestamps
+        val payload = hashMapOf(
+            "reminderId" to (reminders.reminderId.ifBlank { null }),
+            "title" to reminders.title,
+            "notes" to reminders.notes,
+            "startingAt" to reminders.startingAt,
+            "completed" to reminders.completed,
+            "completedAt" to reminders.completedAt,
+            "createdAt" to FieldValue.serverTimestamp(),
+            "lastUpdate" to FieldValue.serverTimestamp(),
+            "daily" to reminders.daily,
+            "timesPerMinute" to reminders.timesPerMinute,
+            "timesPerHour" to reminders.timesPerHour,
+            "timesPerDay" to reminders.timesPerDay,
+            "timesPerMonth" to reminders.timesPerMonth,
+            "colorToken" to reminders.colorToken,
+            "iconName" to reminders.iconName,
+            "repeatForever" to reminders.repeatForever,
+            "repeatCount" to reminders.repeatCount,
+            "repeatInterval" to reminders.repeatInterval,
+            "enabled" to reminders.enabled,
+        ).filterValues { it != null } // don't write null reminderId if empty
+
+        return try {
+            val docRef = if (reminders.reminderId.isBlank()) {
+                remindersCol(uid).document() // auto id
+            } else {
+                remindersCol(uid).document(reminders.reminderId)
+            }
+
+            // Persist reminderId inside the doc for simple mapping
+            val finalPayload = payload.toMutableMap().apply {
+                put("reminderId", docRef.id)
+            }
+
+            docRef.set(finalPayload, SetOptions.merge()).await()
+            logger.d("Reminders", "createReminder: created ${docRef.id}")
+            docRef.id
+        } catch (e: Exception) {
+            logger.e("Reminders", "createReminder failed", e)
+            null
+        }
+        // TODO: implement notifTimestamp calculation
+    }
+
+    // Update a reminder by id
+    suspend fun updateReminder(
+        reminderId: String,
+        updates: Map<String, Any?>,
+        logger: ILogger
+    ): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Reminders", "updateReminder: user not authenticated.")
+            return false
+        }
+        return try {
+            val payload = updates.toMutableMap().apply {
+                this["lastUpdate"] = FieldValue.serverTimestamp()
+            }
+            remindersCol(uid).document(reminderId).update(payload).await()
+            logger.d("Reminders", "updateReminder: $reminderId")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "updateReminder failed", e)
+            false
+        }
+        //TODO: implement notifTimestamp recalculation
+    }
+
+    // Mark a reminder complete/incomplete and set/unset completedAt automatically.
+    suspend fun setReminderCompleted(
+        reminderId: String,
+        completed: Boolean,
+        logger: ILogger
+    ): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Reminders", "setReminderCompleted: user not authenticated.")
+            return false
+        }
+        return try {
+            val payload = hashMapOf<String, Any?>(
+                "completed" to completed,
+                "completedAt" to if (completed) FieldValue.serverTimestamp() else null,
+                "lastUpdate" to FieldValue.serverTimestamp()
+            )
+            remindersCol(uid).document(reminderId).update(payload).await()
+            logger.d("Reminders", "setReminderCompleted: $reminderId -> $completed")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "setReminderCompleted failed", e)
+            false
+        }
+    }
+
+    // Deletes a reminder
+    suspend fun deleteReminder(reminderId: String, logger: ILogger): Boolean {
+        val uid = getUserId()
+        if (uid == null) {
+            logger.e("Reminders", "deleteReminder: user not authenticated.")
+            return false
+        }
+        return try {
+            remindersCol(uid).document(reminderId).delete().await()
+            logger.d("Reminders", "deleteReminder: $reminderId")
+            true
+        } catch (e: Exception) {
+            logger.e("Reminders", "deleteReminder failed", e)
+            false
+        }
+    }
+
+    /**
+     * Returns all reminders that should show up on the selected [date] for the currently signed-in user.
+     *
+     * 1) Gets the current user's uid. If we don't have one, we log it and return an empty list.
+     * 2) Builds an "end of day" timestamp (exclusive) which is **the start of the next day**.
+     *    Example: if date is 2025-12-11, endOfDay is 2025-12-12 00:00 (local time).
+     * 3) Queries Firestore for reminders where `startingAt < endOfDay`.
+     *    - This gives us a *candidate list* of reminders that start before the day ends.
+     * 4) Converts docs into `Reminders` objects and copies `doc.id` into `reminderId`.
+     * 5) Filters the list using `occursOn(date, zone)` so we only keep reminders that actually apply to that calendar day (one-time, daily, and repeat rules).
+     * 6) Sorts the results by `startingAt` so the day view shows them in a nice order.
+     *
+     * Edge cases:
+     * - If user is not signed in -> logs + returns emptyList()
+     * - If Firestore read fails -> logs + returns emptyList()
+     *
+     * @param date The day the calendar is showing.
+     * @param logger Logger used for debug/error messages.
+     * @return List of reminders that should appear on [date], sorted by due time.
+     * @author fdesouza1992
+     */
+    suspend fun getRemindersForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): List<Reminders> {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e("Reminders", "getRemindersForDate: user id is null/blank; sign in first.")
+            return emptyList()
+        }
+
+        val zone = ZoneId.systemDefault()
+        val endOfDay = date.plusDays(1).atStartOfDay(zone)
+        val endTs = Timestamp(Date.from(endOfDay.toInstant()))
+
+        return try {
+            // Fetch candidates with dueAt <= endOfSelectedDay.
+            val snap = db.collection("users")
+                .document(uid)
+                .collection("reminders")
+                .whereLessThan("startingAt", endTs)
+                .get()
+                .await()
+
+            val all = snap.documents.mapNotNull { doc ->
+                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
+            }
+
+            all
+                .filter { it.occursOn(date, zone) }
+                .sortedBy { it.startingAt?.toDate() } // keeps a nice ordering
+        } catch (e: Exception) {
+            logger.e("Reminders", "getRemindersForDate failed for $date", e)
+            emptyList()
+        }
+    }
+
+
+    /**
+     * Checks if this reminder should be shown on a specific day.
+     *
+     * This is mainly used by the Day View to figure out which reminders belong
+     * on the selected date.
+     *
+     * It takes into account:
+     * - When the reminder starts
+     * - Whether it is daily
+     * - Whether it repeats (and for how long)
+     *
+     * @param date The calendar day being evaluated.
+     * @param zone The device time zone used to safely convert timestamps to dates.
+     * @return true if the reminder applies to the given date, false if it does not.
+     * @author fdesouza1992
+     */
+
+    private fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
+        val start = this.startingAt?.toDate() ?: return false
+        val startDate = start.toInstant().atZone(zone).toLocalDate()
+
+        if (date.isBefore(startDate)) return false
+
+        // If it’s a one-off, only show on its start date.
+        val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
+        if (!daily && !hasRepeatRule) {
+            return date == startDate
+        }
+
+        // If it’s daily with no duration rule, show every day from start onward.
+        if (daily && !hasRepeatRule) return true
+
+        // If it repeats forever, allow it as long as date >= start.
+        if (repeatForever) return true
+
+        // Otherwise it repeats with a finite duration rule.
+        val interval = repeatInterval ?: return false
+        val count = repeatCount
+
+        val endDate = when (interval) {
+            "days" -> startDate.plusDays(count.toLong())
+            "weeks" -> startDate.plusWeeks(count.toLong())
+            "months" -> startDate.plusMonths(count.toLong())
+            "years" -> startDate.plusYears(count.toLong())
+            else -> return false
+        }
+
+        if (date.isAfter(endDate)) return false
+
+        return true
+    }
+
+    /**
+     * Returns **all reminders for the currently signed-in user.
+     *
+     * 1. Retrieves the currently authenticated user's uid.
+     * 2. If the user is not signed in, logs the issue and returns an empty list.
+     * 3. Fetches all documents from `users/{uid}/reminders`.
+     * 4. Maps each Firestore document into a [Reminders] object and injects the document id into `reminderId` for easy reference in updates and deletes.
+     * 5. Sorts the results by `startingAt` so reminders appear in chronological order.
+     *
+     * Edge cases:
+     * - If the user is not authenticated → logs + returns `emptyList()`.
+     * - If the Firestore read fails → logs the exception + returns `emptyList()`.
+     *
+     * @param logger Logger used for debug/error messaging.
+     * @return A chronologically sorted list of all reminders belonging to the signed-in user.
+     * @author fdesouza1992
+     */
+    suspend fun getAllReminders(logger: ILogger): List<Reminders> {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e("Reminders", "getAllReminders: user id is null/blank; sign in first.")
+            return emptyList()
+        }
+
+        return try {
+            val snap = remindersCol(uid).get().await()
+
+            snap.documents.mapNotNull { doc ->
+                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
+            }.sortedBy { it.startingAt?.toDate() }
+        } catch (e: Exception) {
+            logger.e("Reminders", "getAllReminders failed", e)
+            emptyList()
+        }
+    }
+}
