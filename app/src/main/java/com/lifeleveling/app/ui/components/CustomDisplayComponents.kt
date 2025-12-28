@@ -510,6 +510,26 @@ fun DailyRemindersList(
     }
 }
 
+/**
+ * A single reminder row inside the daily list — includes the icon, title, starting date/time, and the checkboxes that track completion.
+ *
+ * Each checkbox represents one "repeat slot" for that reminder.
+ * Example:
+ *  - Drink water every 2 hours → multiple checkmarks in a day
+ *  - Take medication once → probably just one checkbox
+ *
+ * User interactions:
+ * - Checking a box calls `incrementReminderCompletionForDate`
+ * - Unchecking a box calls `decrementReminderCompletionForDate`
+ * - Completion count is remembered so UI shows past progress
+ *
+ * @param reminder The reminder being displayed in this row.
+ * @param date The day we're marking completions for.
+ * @param initialCompletedSlots How many boxes are already checked for that day.
+ * @param repo FirestoreRepository used to increment/decrement counts.
+ * @param logger For debugging if Firestore calls fail.
+ * @author fdesouza1992
+ */
 @Composable
 private fun DailyReminderRow(
     reminder: Reminders,
