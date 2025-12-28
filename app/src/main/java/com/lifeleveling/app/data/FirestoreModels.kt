@@ -123,5 +123,5 @@ data class ReminderCompletionLog(
     val reminderId: String = "",
     val dateKey: String = "",
     val count: Long = 0L,
-    val title: String = "",
+    val reminderTitle: String = "",
 )
