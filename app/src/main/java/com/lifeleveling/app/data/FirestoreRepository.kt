@@ -815,6 +815,41 @@ class FirestoreRepository {
         }
     }
 
+    // Thin Wrapper Helpers to maintain all the existing behavior on all files.
+    // Reminder API: Delegated to ReminderRepository
+
+    suspend fun createReminder(
+        reminders: Reminders,
+        logger: ILogger
+    ): String? = reminderRepo.createReminder(reminders, logger)
+
+    suspend fun updateReminder(
+        reminderId: String,
+        updates: Map<String, Any?>,
+        logger: ILogger
+    ): Boolean = reminderRepo.updateReminder(reminderId, updates, logger)
+
+    suspend fun setReminderCompleted(
+        reminderId: String,
+        completed: Boolean,
+        logger: ILogger
+    ): Boolean = reminderRepo.setReminderCompleted(reminderId, completed, logger)
+
+    suspend fun deleteReminder(
+        reminderId: String,
+        logger: ILogger
+    ): Boolean = reminderRepo.deleteReminder(reminderId, logger)
+
+    suspend fun getRemindersForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): List<Reminders> = reminderRepo.getRemindersForDate(date, logger)
+
+    suspend fun getAllReminders(
+        logger: ILogger
+    ): List<Reminders> = reminderRepo.getAllReminders(logger)
+
+
 //    /**
 //     * Helper to get this user's 'reminders' collection in Firestore.
 //     *
@@ -1020,7 +1055,7 @@ class FirestoreRepository {
 //     * - If Firestore read fails -> logs + returns emptyList()
 //     *
 //     * @param date The day the calendar is showing.
-//     * @param logger Logger used for debug/error messages.
+//     * @param logger used for debug/error messages.
 //     * @return List of reminders that should appear on [date], sorted by due time.
 //     * @author fdesouza1992
 //     */
