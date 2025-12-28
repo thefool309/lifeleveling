@@ -495,6 +495,16 @@ class ReminderRepository(
         }
     }
 
+    /**
+     * Returns total number of reminder completions across all time.
+     *
+     * We read every document inside `reminderCompletions` and sum the `count` values. Great for showing progress in "My Journey" or achievement screens.
+     * If something goes wrong, we return 0 instead of crashing the app.
+     *
+     * @param logger For logging issues if Firestore read fails.
+     * @return The total count of completions across all reminders.
+     * @author fdesouza1992
+     */
     suspend fun getTotalReminderCompletions(
         logger: ILogger
     ): Long = withContext(Dispatchers.IO) {
@@ -517,5 +527,4 @@ class ReminderRepository(
             0L
         }
     }
-
 }
