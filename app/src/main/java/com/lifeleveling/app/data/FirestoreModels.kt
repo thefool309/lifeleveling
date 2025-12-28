@@ -118,3 +118,9 @@ data class FcmTokens(
     val token: String = "",
     val lastUpdate: Timestamp? = null
 )
+
+data class ReminderCompletionLog(
+    val reminderId: String = "",
+    val dateKey: String = "",
+    val count: Int = 0,
+)
