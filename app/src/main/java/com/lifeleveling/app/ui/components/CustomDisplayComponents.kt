@@ -585,6 +585,7 @@ private fun DailyReminderRow(
                                     scope.launch {
                                         val ok = repo.incrementReminderCompletionForDate(
                                             reminderId = reminder.reminderId,
+                                            reminderTitle = reminder.title,
                                             date = date,
                                             logger = logger
                                         )

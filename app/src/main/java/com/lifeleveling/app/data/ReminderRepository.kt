@@ -413,6 +413,7 @@ class ReminderRepository(
      */
     suspend fun incrementReminderCompletionForDate(
         reminderId: String,
+        reminderTitle: String,
         date: LocalDate,
         logger: ILogger
     ): Boolean = withContext(Dispatchers.IO) {
@@ -437,9 +438,10 @@ class ReminderRepository(
 
             val data = mapOf(
                 "reminderId" to reminderId,
+                "reminderTitle" to reminderTitle,
                 "dateKey" to dateKey,
                 "date" to atMidnight,
-                "count" to FieldValue.increment(1L)
+                "count" to FieldValue.increment(1L),
             )
 
             docRef.set(data, SetOptions.merge()).await()
