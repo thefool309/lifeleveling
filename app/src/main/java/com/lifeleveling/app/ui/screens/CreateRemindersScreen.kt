@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,10 +49,13 @@ import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.AndroidLogger
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import com.lifeleveling.app.data.Reminders
 import kotlinx.coroutines.launch
 import com.google.firebase.Timestamp
+import java.time.LocalTime
 import java.util.Calendar
+import java.util.Date
 
 
 @Preview
@@ -63,6 +67,7 @@ fun CreateReminderScreen(
 ){
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed            @Todo Stephen Commented this out as not used
@@ -71,12 +76,51 @@ fun CreateReminderScreen(
     var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
     var selectedReminderIndex by remember { mutableIntStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
-    var selectedHour by remember { mutableIntStateOf(0) }          // selected hour for reminder   <-- This is needed
-    val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
-    val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
-    var selectedMinute by remember { mutableIntStateOf(0) }        // selected minute                 <-- This is needed
-    var selectedAmOrPm by remember {mutableIntStateOf(0)}          // selected AM or PM                <-- This is needed
-    val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
+//    var selectedHour by remember { mutableIntStateOf(0) }          // selected hour for reminder   <-- This is needed
+//    val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
+//    val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
+//    var selectedMinute by remember { mutableIntStateOf(0) }        // selected minute                 <-- This is needed
+//    var selectedAmOrPm by remember {mutableIntStateOf(0)}          // selected AM or PM                <-- This is needed
+//    val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
+
+    val hourOptions = stringArrayResource(R.array.hour_array).toList()
+    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
+    val amOrPmOptions = listOf(
+        stringResource(R.string.am),
+        stringResource(R.string.pm),
+    )
+
+    // Defaulting to the user's "now" time
+    val nowTime = remember { LocalTime.now() }
+
+    val initialHourIndexAndAmPm = remember {
+        val hour24 = nowTime.hour                   // 0–23
+        val isPm = hour24 >= 12
+        val hour12 = when {
+            hour24 == 0 -> 12
+            hour24 > 12 -> hour24 - 12
+            else -> hour24
+        }
+        val idx = hourOptions.indexOf(hour12.toString())
+            .coerceAtLeast(0)
+        val amPmIdx = if (isPm) 1 else 0           // 0 = AM, 1 = PM
+        idx to amPmIdx
+    }
+
+    val initialMinuteIndex = remember {
+        val minuteStr = "%02d".format(nowTime.minute)   // "00".."59"
+        minutesOptions.indexOf(minuteStr).coerceAtLeast(0)
+    }
+
+    var selectedHour by remember { mutableIntStateOf(initialHourIndexAndAmPm.first) }
+    val selectedHourMenu = remember { mutableStateOf(false) }
+
+    var selectedMinute by remember { mutableIntStateOf(initialMinuteIndex) }
+    val selectedMinuteMenu = remember { mutableStateOf(false) }
+
+    var selectedAmOrPm by remember { mutableIntStateOf(initialHourIndexAndAmPm.second) }
+    val amOrPmOptionsMenu = remember { mutableStateOf(false) }
+
     var reminderAmountNumber by remember { mutableStateOf("") }       // how many times the reminder is set for ex 5 days , 5 weeks , 5 months, 5 years <-- This is needed
     val selectedReminderAmountMenu = remember { mutableStateOf(false) } // bool for menu
     var selectedReminderAmountHourDayWeek by remember { mutableIntStateOf(0) }        // the reminder is set for hours , days, week    <-- This is needed
@@ -111,12 +155,7 @@ fun CreateReminderScreen(
         "document",      // 10
         "doctor"         // 11
     )
-    val hourOptions = stringArrayResource(R.array.hour_array).toList()
-    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
-    val amOrPmOptions = listOf(
-        stringResource(R.string.am),
-        stringResource(R.string.pm),
-    )
+
     val hoursOrMins = listOf(
         stringResource(R.string.minutesShort),
         stringResource(R.string.hours),
@@ -581,11 +620,13 @@ fun CreateReminderScreen(
                                     // 1. Resolve date and time into a Timestamp
 
                                     // From Date Pickers
-                                    val year = yearList.getOrNull(selectedYear) ?: today.year
-                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
-                                    val day = (selectedDay + 1).coerceAtMost(
-                                        YearMonth(year, month).lengthOfMonth()
-                                    )
+//                                    val year = yearList.getOrNull(selectedYear) ?: today.year
+//                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
+//                                    val day = (selectedDay + 1).coerceAtMost(
+//                                        YearMonth(year, month).lengthOfMonth()
+//                                    )
+                                    val year = userSelectedYear
+                                    val day = firstAvailableDay + selectedDay
 
                                     // From your time pickers:
                                     val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
@@ -606,7 +647,7 @@ fun CreateReminderScreen(
                                     val now = Calendar.getInstance()
                                     val cal = now.apply {
                                         set(Calendar.YEAR, year)
-                                        set(Calendar.MONTH, month - 1) // Calendar months are 0-based
+                                        set(Calendar.MONTH, actualMonth - 1) // Calendar months are 0-based
                                         set(Calendar.DAY_OF_MONTH, day)
                                         set(Calendar.HOUR_OF_DAY, hour24)
                                         set(Calendar.MINUTE, minute)
@@ -615,6 +656,17 @@ fun CreateReminderScreen(
                                     }
 
                                     val dueAt = Timestamp(cal.time)
+                                    // Block user from adding a reminder in the past
+                                    if(dueAt.toDate().before(Date())){
+                                        logger.w("Reminders", "CreateReminderScreen: selected date/time is in the past, not saving.")
+                                        // Using toast for now but will ask @stephen and cass to help get it onto the UI language of the app
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.cannot_create_past_reminder),
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        return@launch
+                                    }
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
                                     // 2. "Set as daily" + "Remind me every:"
