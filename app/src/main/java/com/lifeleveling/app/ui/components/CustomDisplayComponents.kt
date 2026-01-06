@@ -20,6 +20,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.data.Reminders
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -403,6 +405,24 @@ fun EquipmentDisplay(
     }
 }
 
+/**
+ * Shows all reminders for a specific day in the Day View screen.
+ *
+ * What this composable does:
+ * - Loads reminders for the given `date` from Firestore
+ * - Also loads how many times each reminder was completed that day
+ * - Shows a loading spinner while fetching
+ * - Shows an empty message if there are no reminders
+ * - Otherwise displays a scrollable list of `DailyReminderRow`s
+ *
+ * Basically: You give it a date, it builds the UI for that day’s reminders.
+ * Each reminder in the list will have its own row with checkboxes.
+ *
+ * @param date The day we want to display reminders for.
+ * @param repo FirestoreRepository used to load reminders + completion counts.
+ * @param logger For logging errors instead of crashing the UI.
+ * @author fdesouza1992
+ */
 @Composable
 fun DailyRemindersList(
     date: LocalDate,
@@ -411,14 +431,18 @@ fun DailyRemindersList(
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
+    var completionsByReminderId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     LaunchedEffect(date) {
         isLoading = true
         try {
-            reminders = repo.getRemindersForDate(date, logger)
+            val dayReminders = repo.getRemindersForDate(date, logger)
+            reminders = dayReminders
+            completionsByReminderId = repo.getReminderCompletionsForDate(date, logger)
         } catch (e: Exception) {
             logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
             reminders = emptyList()
+            completionsByReminderId = emptyMap()
         } finally {
             isLoading = false
         }
@@ -463,7 +487,14 @@ fun DailyRemindersList(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 reminders.forEachIndexed { index, reminder ->
-                    DailyReminderRow(reminder = reminder, logger = logger)
+                    val initialCompletedSlots = completionsByReminderId[reminder.reminderId] ?: 0
+
+                    DailyReminderRow(
+                        reminder = reminder,
+                        date = date,
+                        initialCompletedSlots = initialCompletedSlots,
+                        repo = repo,
+                        logger = logger)
 
                     // Separator line
                     if (index != reminders.lastIndex) {
@@ -479,12 +510,36 @@ fun DailyRemindersList(
     }
 }
 
+/**
+ * A single reminder row inside the daily list — includes the icon, title, starting date/time, and the checkboxes that track completion.
+ *
+ * Each checkbox represents one "repeat slot" for that reminder.
+ * Example:
+ *  - Drink water every 2 hours → multiple checkmarks in a day
+ *  - Take medication once → probably just one checkbox
+ *
+ * User interactions:
+ * - Checking a box calls `incrementReminderCompletionForDate`
+ * - Unchecking a box calls `decrementReminderCompletionForDate`
+ * - Completion count is remembered so UI shows past progress
+ *
+ * @param reminder The reminder being displayed in this row.
+ * @param date The day we're marking completions for.
+ * @param initialCompletedSlots How many boxes are already checked for that day.
+ * @param repo FirestoreRepository used to increment/decrement counts.
+ * @param logger For debugging if Firestore calls fail.
+ * @author fdesouza1992
+ */
 @Composable
 private fun DailyReminderRow(
     reminder: Reminders,
+    date: LocalDate,
+    initialCompletedSlots: Int,
+    repo: FirestoreRepository,
     logger: ILogger,
 ) {
     val checkboxCount = calculateDailySlots(reminder)
+    val scope = rememberCoroutineScope()
 
     Row(
         modifier = Modifier
@@ -552,13 +607,47 @@ private fun DailyReminderRow(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     rowIndices.forEach { index ->
-                        var checked by remember(reminder.reminderId, index) { mutableStateOf(false) }
+                        // A given slot is "already completed" if its index is < initialCompletedSlots.
+                        var checked by remember(reminder.reminderId, date, index) {
+                            mutableStateOf(index < initialCompletedSlots)
+                        }
 
                         CustomCheckbox(
                             checked = checked,
                             onCheckedChange = { new ->
-                                checked = new
-                                logger.d("Reminders", "Clicked checkbox $index for reminder ${reminder.reminderId}")
+                                if(!checked && new) {
+                                    // false -> true: increment
+                                    checked = true
+
+                                    scope.launch {
+                                        val ok = repo.incrementReminderCompletionForDate(
+                                            reminderId = reminder.reminderId,
+                                            reminderTitle = reminder.title,
+                                            date = date,
+                                            logger = logger
+                                        )
+                                        if (!ok){
+                                            logger.e("Reminders", "Failed to increment completion for ${reminder.reminderId} on $date")
+                                        }
+                                    }
+                                } else if (checked && !new) {
+                                    // true -> false: decrement
+                                    checked = false
+                                    scope.launch {
+                                        val ok = repo.decrementReminderCompletionForDate(
+                                            reminderId = reminder.reminderId,
+                                            reminderTitle = reminder.title,   // 🔹 keep title in sync
+                                            date = date,
+                                            logger = logger
+                                        )
+                                        if (!ok) {
+                                            logger.e(
+                                                "Reminders",
+                                                "Failed to decrement completion for ${reminder.reminderId} on $date"
+                                            )
+                                        }
+                                    }
+                                }
                             },
                             size = 18.dp,
                         )
