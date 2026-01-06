@@ -58,8 +58,6 @@ import java.util.Locale
 import kotlin.collections.toList
 import kotlin.collections.filter
 
-
-
 /**
  * This creates the day box on the calendar along with facilitating the dots for the reminders and the in and out dates of the calendar
  * @param day from Kizitonwose Calendar (https://github.com/kizitonwose/Calendar?utm_source=chatgpt.com) helps get the date for the box and its position in the calendar (in/out date or normal date range)
@@ -71,7 +69,11 @@ import kotlin.collections.filter
  * @author sgcfsu1993 (Stephen C.)
  */
 @Composable
-fun Day(day: CalendarDay, reminders: List<calReminder>, startYear:Int) {
+fun Day(
+    day: CalendarDay,
+    reminders: List<calReminder>,
+    startYear:Int
+) {
     val isOutDate = day.position != DayPosition.MonthDate
     val date = day.date
     val yearIndex = date.year - startYear
@@ -337,10 +339,10 @@ fun MonthJump(
 
 /**
  * This allows the user to jump to a selected day while on the calendar day view
- * @param toShow The bool value to show or not to show the dialog for DayJump
+ * @param toShowDay The bool value to show or not to show the dialog for DayJump
  * @param startMonth the earliest month the user can select
  * @param endMonth the last month the user can select
- * @param onJumpToMonth callback from the users selected date
+ * @param onJumpToDay callback from the users selected date
  * @author sgcfsu1993 (Stephen C.)
  **/
 @Composable
@@ -492,9 +494,11 @@ fun DayJump(
  * This adds the suffix to the day.
  * @param day takes in the day and applies the correct suffix to it (when its day date is 11 return 11th)
  * day % 10 returns the remainder so the correct suffix can be applied to it
- * Stephen C.
+ * @author sgcfsu1993 (Stephen C.)
  **/
-fun SuffixForDays(day: Int): String {
+fun SuffixForDays(
+    day: Int
+): String {
     return when {
         day in 11..13 -> "$day" + "th"
         day % 10 == 1 -> "$day" + "st"
@@ -524,11 +528,10 @@ fun ShowReminder(
 ) {
     val reminder = passedReminder.value ?: return
     var delete by remember { mutableStateOf(false) }
-    val hour = hourOptions[reminder.selectedHours as Int]
-    val minutes = minutesOptions[reminder.selectedMinutes]
-    val amOrPm = amOrPmOptions[reminder.amOrPm]
-    val timeLabel = "${hour}:${minutes} $amOrPm"
-
+//    val hour = hourOptions[reminder.selectedHours]
+//    val minutes = minutesOptions[reminder.selectedMinutes]
+//    val amOrPm = amOrPmOptions[reminder.amOrPm]
+    val timeLabel = formatReminderTime(reminder)
     CustomDialog(
         toShow = toShow,
         dismissOnInsideClick = false,
@@ -556,7 +559,6 @@ fun ShowReminder(
                         color = AppTheme.colors.SecondaryThree
                     )
                 }
-
                 Text(
 //                    text = "Remind me at: $hour:$minutes $amOrPm",
                     text = "Remind me at: $timeLabel",
