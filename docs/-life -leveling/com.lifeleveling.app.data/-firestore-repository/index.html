@@ -193,7 +193,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="create-reminder.html"><span class="token function">createReminder</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reminders<span class="token operator">: </span><a href="../-reminders/index.html">Reminders</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Creates or updates a reminder for the currently signed-in user.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="create-reminder.html"><span class="token function">createReminder</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reminders<span class="token operator">: </span><a href="../-reminders/index.html">Reminders</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -209,6 +209,21 @@
               <div>
                 <div class="title">
                   <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="create-user.html"><span class="token function">createUser</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">userData<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-users/index.html">Users</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">This function creates a user data store in the Firestore Cloud Storage section of the project. It takes a map of userData, with the key being the name of the field to be filled, and an ILogger, which is an interface defined in this project to make the code more detachable. We use a suspend function because FirebaseFirestore is async</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1487706894%2FFunctions%2F492899073" anchor-label="decrementReminderCompletionForDate" id="1487706894%2FFunctions%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="decrement-reminder-completion-for-date.html"><span>decrement</span><wbr></wbr><span>Reminder</span><wbr></wbr><span>Completion</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1487706894%2FFunctions%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="decrement-reminder-completion-for-date.html"><span class="token function">decrementReminderCompletionForDate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reminderId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">reminderTitle<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/time/LocalDate.html">LocalDate</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -313,7 +328,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-all-reminders.html"><span class="token function">getAllReminders</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-reminders/index.html">Reminders</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns **all reminders for the currently signed-in user.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-all-reminders.html"><span class="token function">getAllReminders</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-reminders/index.html">Reminders</a><span class="token operator">&gt;</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -333,6 +348,21 @@
               </div>
             </div>
           </div>
+<a data-name="1189254816%2FFunctions%2F492899073" anchor-label="getReminderCompletionsForDate" id="1189254816%2FFunctions%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-reminder-completions-for-date.html"><span>get</span><wbr></wbr><span>Reminder</span><wbr></wbr><span>Completions</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1189254816%2FFunctions%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-reminder-completions-for-date.html"><span class="token function">getReminderCompletionsForDate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/time/LocalDate.html">LocalDate</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
 <a data-name="876119012%2FFunctions%2F492899073" anchor-label="getRemindersForDate" id="876119012%2FFunctions%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
           <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
             <div class="main-subrow keyValue ">
@@ -343,7 +373,22 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-reminders-for-date.html"><span class="token function">getRemindersForDate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/time/LocalDate.html">LocalDate</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-reminders/index.html">Reminders</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns all reminders that should show up on the selected <a href="get-reminders-for-date.html">date</a> for the currently signed-in user.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-reminders-for-date.html"><span class="token function">getRemindersForDate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/time/LocalDate.html">LocalDate</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-reminders/index.html">Reminders</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1688514864%2FFunctions%2F492899073" anchor-label="getTotalReminderCompletions" id="-1688514864%2FFunctions%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-total-reminder-completions.html"><span>get</span><wbr></wbr><span>Total</span><wbr></wbr><span>Reminder</span><wbr></wbr><span><span>Completions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1688514864%2FFunctions%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-total-reminder-completions.html"><span class="token function">getTotalReminderCompletions</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -374,6 +419,21 @@
               <div>
                 <div class="title">
                   <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="increment-level.html"><span class="token function">incrementLevel</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Increments the players level by one in the firestore data</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="911269554%2FFunctions%2F492899073" anchor-label="incrementReminderCompletionForDate" id="911269554%2FFunctions%2F492899073" data-filterable-set=":app:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="increment-reminder-completion-for-date.html"><span>increment</span><wbr></wbr><span>Reminder</span><wbr></wbr><span>Completion</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="911269554%2FFunctions%2F492899073"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="increment-reminder-completion-for-date.html"><span class="token function">incrementReminderCompletionForDate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reminderId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">reminderTitle<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/time/LocalDate.html">LocalDate</a><span class="token punctuation">, </span></span><span class="parameter ">logger<span class="token operator">: </span><a href="../../com.lifeleveling.app.util/-i-logger/index.html">ILogger</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -595,7 +655,7 @@
 </div>
     <div class="footer">
         <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
+        <span>© 2026 Copyright</span>
         <span class="pull-right">
             <span>Generated by </span>
             <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
