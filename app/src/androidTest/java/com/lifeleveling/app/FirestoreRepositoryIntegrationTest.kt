@@ -215,7 +215,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("displayName" to "Tingle"))
+        val result = repo.editDisplayName("Tingle", auth.currentUser!!.uid)
         assert(result)
     }
 
@@ -224,7 +224,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("displayName" to ""))
+        val result = repo.editDisplayName("", auth.currentUser!!.uid)
         assert(!result)
     }
 
@@ -233,7 +233,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("displayName" to "    "))
+        val result = repo.editDisplayName("    ", auth.currentUser!!.uid)
         assert(!result)
     }
 
@@ -242,7 +242,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("email" to "tingle@annoyingasscharacters.com"))
+        val result = repo.editEmail("tingle@annoyingasscharacters.com", auth.currentUser!!.uid)
         assert(result)
     }
 
@@ -251,7 +251,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("displayName" to ""))
+        val result = repo.editEmail("", auth.currentUser!!.uid)
         assert(!result)
     }
 
@@ -260,7 +260,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("displayName" to "   "))
+        val result = repo.editEmail("    ", auth.currentUser!!.uid)
         assert(!result)
     }
 
@@ -269,7 +269,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("photoUrl" to "www.reallycoolpicture.com/123456789.png"))
+        val result = repo.editPhotoUrl("www.reallycoolpicture.com/123456789.png", auth.currentUser!!.uid)
         assert(result)
     }
 
@@ -278,7 +278,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("photoUrl" to ""))
+        val result = repo.editPhotoUrl("", auth.currentUser!!.uid)
         assert(!result)
     }
 
@@ -287,7 +287,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val repo = FirestoreRepository(logger = logger)
-        val result = repo.editUser(auth.currentUser!!.uid, mapOf("displayName" to "    "))
+        val result = repo.editPhotoUrl("    ", auth.currentUser!!.uid)
         assert(!result)
     }
 
@@ -310,58 +310,56 @@ class FirestoreRepositoryIntegrationTest {
 //    }
 
 
-
-    // TODO: Write new function for these
-//    @Test
-//    fun setCurrHealthPositiveTest() = runTest {
-//        val logger = AndroidLogger()
-//        authorizeFirebaseUser(logger)
-//        val repo = FirestoreRepository()
-//        resetUser(logger, repo)
-//        var user = repo.getUser(auth.currentUser!!.uid, logger)
-//        var health = user!!.currHealth
-//        repo.setCurrHealth(52L, logger)
-//        user = repo.getUser(auth.currentUser!!.uid, logger)
-//        health = user!!.currHealth
-//        assert(health == 52L)
-//    }
-//    @Test
-//    fun setCoinsPositiveTest() = runTest {
-//        val logger = AndroidLogger()
-//        authorizeFirebaseUser(logger)
-//        val repo = FirestoreRepository()
-//        resetUser(logger, repo)
-//        var user = repo.getUser(auth.currentUser!!.uid, logger)
-//        var coins = user!!.coinsBalance
-//        repo.setCoins(52L, logger)
-//        user = repo.getUser(auth.currentUser!!.uid, logger)
-//        coins = user!!.coinsBalance
-//        assert(coins == 52L)
-//    }
-//    @Test
-//    fun addCoinsPositiveTest() = runTest {
-//        val logger = AndroidLogger()
-//        authorizeFirebaseUser(logger)
-//        val repo = FirestoreRepository()
-//        resetUser(logger, repo)
-//        var user = repo.getUser(auth.currentUser!!.uid, logger)
-//        val oldCoins = user!!.coinsBalance
-//        repo.addCoins(52L, logger)
-//        user = repo.getUser(auth.currentUser!!.uid, logger)
-//        val newCoins = user!!.coinsBalance
-//        assert(newCoins == (oldCoins + 52L))
-//    }
-//    @Test
-//    fun subtractCoinsPositiveTest() = runTest {
-//        val logger = AndroidLogger()
-//        authorizeFirebaseUser(logger)
-//        val repo = FirestoreRepository()
-//        resetUser(logger, repo)
-//        var user = repo.getUser(auth.currentUser!!.uid, logger)
-//        val oldCoins = user!!.coinsBalance
-//        repo.subtractCoins(52L, logger)
-//        user = repo.getUser(auth.currentUser!!.uid, logger)
-//        val newCoins = user!!.coinsBalance
-//        assert(newCoins == (oldCoins - 52L))
-//    }
+    @Test
+    fun setCurrHealthPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository(logger = logger)
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid)
+        var health = user!!.userBase!!.currHealth
+        repo.setCurrHealth(52L, auth.currentUser!!.uid)
+        user = repo.getUser(auth.currentUser!!.uid)
+        health = user!!.userBase!!.currHealth
+        assert(health == 52L)
+    }
+    @Test
+    fun setCoinsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository(logger = logger)
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid)
+        var coins = user!!.userBase!!.coinsBalance
+        repo.setCoins(52L, auth.currentUser!!.uid)
+        user = repo.getUser(auth.currentUser!!.uid)
+        coins = user!!.userBase!!.coinsBalance
+        assert(coins == 52L)
+    }
+    @Test
+    fun addCoinsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository(logger= logger)
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid)
+        val oldCoins = user!!.userBase!!.coinsBalance
+        repo.addCoins(52L, auth.currentUser!!.uid)
+        user = repo.getUser(auth.currentUser!!.uid)
+        val newCoins = user!!.userBase!!.coinsBalance
+        assert(newCoins == (oldCoins + 52L))
+    }
+    @Test
+    fun subtractCoinsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository(logger = logger)
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid)
+        val oldCoins = user!!.userBase!!.coinsBalance
+        repo.subtractCoins(52L, auth.currentUser!!.uid)
+        user = repo.getUser(auth.currentUser!!.uid)
+        val newCoins = user!!.userBase!!.coinsBalance
+        assert(newCoins == (oldCoins - 52L))
+    }
 }
