@@ -356,3 +356,118 @@ fun UserJourneyToolTip(toShow: MutableState<Boolean>) {
         tips = levelTips
     )
 }
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun MyRemindersToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val myRemindersTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.myReminders_tooltip1))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.myReminders_tooltip2))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.myReminders_tooltip3))
+            }
+        },
+
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.myReminders_tipstitle,
+        tips = myRemindersTips
+    )
+}
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun CreateRemindersToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val addRemindersTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.title_tooltip))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.icon_tooltip))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.starting_at_tooltip))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.remind_me_every_tooltip))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.repeat_for_tooltip))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.reminders_tooptip,
+        tips = addRemindersTips
+    )
+}
+
+/**
+ * Streaks Popup Tool Tip
+ * @param toShow The boolean to toggle if it is shown
+ */
+@Composable
+fun CalendarToolTip(toShow: MutableState<Boolean>) {
+    // Bullet Points
+    val calendarTips = listOf(
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip1))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip2))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tooptip3))
+            }
+        },
+        buildAnnotatedString {
+            withStyle(style = AppTheme.textStyles.Small.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                append(stringResource(R.string.calendar_tip_jumpto))
+            }
+        },
+    )
+
+    // Dialog window
+    Tooltip(
+        toShow = toShow,
+        title = R.string.calendar_tooptiptitle,
+        tips = calendarTips
+    )
+}

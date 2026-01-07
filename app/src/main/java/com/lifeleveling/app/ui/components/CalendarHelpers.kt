@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,15 +26,24 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
+import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.resolveEnumColor
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Month
@@ -43,6 +53,7 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.collections.toList
+import kotlin.collections.filter
 
 @Composable
 fun Day(day: CalendarDay) {
@@ -402,5 +413,155 @@ fun SuffixForDays(day: Int): String {
         day % 10 == 2 -> "$day" + "nd"
         day % 10 == 3 -> "$day" + "rd"
         else -> "$day" + "th"
+    }
+}
+
+@Composable
+fun ShowReminder(
+    toShow: MutableState<Boolean>,
+    passedReminder: MutableState<calReminder>,
+    hourOptions: List<String>,
+    minutesOptions: List<String>,
+    amOrPmOptions: List<String>
+) {
+    val reminder = passedReminder.value
+    var delete by remember { mutableStateOf(false) }
+    // == below is safe access to the list - if somehow the index is messed up, it will just return null - if null is returned it uses the value in the quotations
+    val hour = hourOptions.getOrNull(reminder.selectedHours) ?: "0"
+    val minutes = minutesOptions.getOrNull(reminder.selectedMinutes) ?: "00"
+    val amOrPm = amOrPmOptions.getOrNull(reminder.amOrPm) ?: "AM"
+
+    CustomDialog(
+        toShow = toShow,
+        dismissOnInsideClick = false,
+    ) {
+        if (!delete) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // Display icon and title
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    ShadowedIcon(
+                        modifier = Modifier.size(30.dp),
+                        imageVector = ImageVector.vectorResource(reminder.icon),
+                        tint =  Color.Unspecified
+
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = reminder.name,
+                        style = AppTheme.textStyles.HeadingFour,
+                        color = AppTheme.colors.SecondaryThree
+                    )
+                }
+                Text(
+                    text = "Remind me at: $hour:$minutes $amOrPm",
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+                Text(
+                    text = "Place holder for more info",
+                    style = AppTheme.textStyles.Default,
+                    color = AppTheme.colors.Gray
+                )
+
+                // Buttons for deleting or closing window
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = {
+                           delete = true
+                        },
+                        backgroundColor = AppTheme.colors.Error75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                    Spacer(Modifier.width(20.dp))
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = { toShow.value = false },
+                        backgroundColor = AppTheme.colors.Success75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.close),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                }
+            }
+        } else {
+            // Screen for confirming delete
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    textAlign = TextAlign.Center,
+                    text = (
+                            buildAnnotatedString {
+                                withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                                    append("Are you sure you want to delete the reminder ")
+                                }
+                                withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.SecondaryThree, textDecoration = TextDecoration.Underline)) {
+                                    append(reminder.name)
+                                }
+                                withStyle(style = AppTheme.textStyles.HeadingSix.toSpanStyle().copy(color = AppTheme.colors.Gray)) {
+                                    append(stringResource(R.string.streak_delete_two))
+                                }
+                            }
+                            ),
+                    style = AppTheme.textStyles.HeadingSix,
+                    color = AppTheme.colors.Gray
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = { delete = false },
+                        backgroundColor = AppTheme.colors.Success75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                    Spacer(Modifier.width(20.dp))
+                    CustomButton(
+                        width = 120.dp,
+                        onClick = {
+                            calendarReminders.value = calendarReminders.value.filter {
+                                it != passedReminder.value
+                            }
+                            toShow.value = false
+                        },
+                        backgroundColor = AppTheme.colors.Error75,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            style = AppTheme.textStyles.HeadingSix,
+                            color = AppTheme.colors.Background
+                        )
+                    }
+                }
+            }
+        }
     }
 }

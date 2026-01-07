@@ -1,9 +1,12 @@
 name: Attach APK to release
 on:
+#  workflow_run:
+#    workflows: ["Android CI"]
+#    types:
+#      - completed
   release:
-    types: [published]
-  workflow_dispatch:
-  pull_request:
+    types:
+      - published
 
 jobs:
   build_apk:
@@ -33,6 +36,6 @@ jobs:
         if: github.event_name == 'release'
         with:
           name: app-release-${{ github.event.release.tag_name }}
-          files: ./*.apk
+          files: signed-${{ github.event.release.tag_name }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
