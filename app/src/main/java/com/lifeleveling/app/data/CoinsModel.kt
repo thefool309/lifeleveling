@@ -5,6 +5,4 @@ data class CoinBalance(
     val userId: Int,
     val currCoins: Long,
     val lifeTimeCoins: Long,
-) {
-
-}
+) {}
