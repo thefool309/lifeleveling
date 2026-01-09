@@ -298,37 +298,6 @@ fun SettingScreen(
 
                     SeparatorLine()
 
-                    // Delete Account
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
-
-                        ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.trash_solid_full),
-                            tint = AppTheme.colors.Error,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                        Text(
-                            text = stringResource(R.string.deleteAccount),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(2f, 2f),
-                                    blurRadius = 2f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .clickable { showDeleteDialog.value = true }
-
-                        )
-                    }
-
-                    SeparatorLine()
-
                     // Logout
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),

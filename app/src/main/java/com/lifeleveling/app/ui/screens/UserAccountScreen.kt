@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -31,6 +33,7 @@ import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.theme.AppTheme
 
 @Preview
@@ -45,6 +48,7 @@ fun UserAccountScreen(
     val editUserName = rememberSaveable { mutableStateOf(false) }
     val editPassword = rememberSaveable { mutableStateOf(false) }
     val editEmail = rememberSaveable { mutableStateOf(false) }
+    val showDeleteDialog = rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -290,6 +294,36 @@ fun UserAccountScreen(
                         }
                     )
                 }
+            }
+
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ){
+
+                ShadowedIcon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.trash_solid_full),
+                    tint = AppTheme.colors.Error,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.CenterVertically)
+                )
+                Text(
+                    text = stringResource(R.string.deleteAccount),
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.DefaultUnderlined.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 2f,
+                        )
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable { showDeleteDialog.value = true }
+
+                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
