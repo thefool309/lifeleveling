@@ -82,6 +82,9 @@ fun CalendarScreen(
         val isMonthView = remember { mutableStateOf(true) }
         val jumpedDay = remember { mutableStateOf(LocalDate.now()) }
         val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
+        val repo = remember { FirestoreRepository() }
+        val logger: ILogger = AndroidLogger()
+        val monthReminders = remember { mutableStateOf<List<Reminders>>(emptyList()) }
 
         val state = rememberCalendarState(
             startMonth = startMonth,
