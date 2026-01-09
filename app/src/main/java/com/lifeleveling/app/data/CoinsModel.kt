@@ -2,6 +2,7 @@ package com.lifeleveling.app.data
 
 /**
  * A data class that will be nested inside the user data and used for keeping track of the user balance
+ * This will be saved to the database
  */
 data class CoinBalance(
     val userId: Int,

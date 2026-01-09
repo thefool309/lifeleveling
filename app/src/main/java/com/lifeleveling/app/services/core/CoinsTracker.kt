@@ -17,6 +17,7 @@ import kotlinx.coroutines.tasks.await
 /**
  * # CoinsTracker
  * A class that will be placed into the users calculated data, and called inside the UserViewModel
+ * This will not be saved into the database.
  * @see CoinBalance
  * @sample TimerViewModel
  */
@@ -51,6 +52,7 @@ class CoinsTracker(
         return coinsBalance.lifeTimeCoins
     }
     /**
+     * # startRewardTimer
      * A function for handling the reward timer. It waits 60 seconds, updates the coin balance, returns a RewardEvent and emits a RewardEvent for UI components
      * @see TimerViewModel
      * @sample TimerViewModel.awardCoins
@@ -64,9 +66,12 @@ class CoinsTracker(
         return RewardEvent(reward, "rewardEvent")
     }
 
-    suspend fun saveCoins(userId: String, logger: AndroidLogger = AndroidLogger()) {
-        val db = FirebaseFirestore.getInstance()
-        val docRef = db.collection("coins").document(userId)
+    /**
+     * # saveCoinsBalance
+     * a function for saving the coins balance to firebase. I chose to rewrite this here, as I felt like this was a more appropriate place for it to live.
+     */
+    suspend fun saveCoinsBalance(userId: String, logger: AndroidLogger = AndroidLogger()) {
+        val docRef = FirebaseFirestore.getInstance().collection("coins").document(userId)
         val data = coinsBalance
 
         try {
