@@ -49,9 +49,15 @@ import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.time.ExperimentalTime
 import com.lifeleveling.app.ui.components.DailyRemindersList
+import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Reminders
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
+import java.time.ZoneId
 
 
-@Preview
+
+//@Preview
 @OptIn(ExperimentalTime::class)
 @Composable
 fun CalendarScreen(
