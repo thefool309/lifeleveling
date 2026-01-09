@@ -93,7 +93,7 @@ data class Reminders(
  * @author fdesouza1992
  */
 
-private fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
+fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
     val start = this.startingAt?.toDate() ?: return false
     val startDate = start.toInstant().atZone(zone).toLocalDate()
 
