@@ -42,7 +42,7 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
-import com.lifeleveling.app.ui.components.TestUser.calendarReminders
+//import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -93,6 +93,11 @@ fun CalendarScreen(
             firstDayOfWeek = daysOfWeek.first(),
             outDateStyle = OutDateStyle.EndOfGrid
         )
+        LaunchedEffect(Unit) {
+            val all = repo.getAllReminders(logger)
+            monthReminders.value = all.filter { it.enabled }
+        }
+
         LaunchedEffect(jumpedMonth.value) {
             jumpedMonth.value?.let { date ->
                 val myYearMonth = YearMonth(date.year, date.month.ordinal + 1)
