@@ -177,6 +177,36 @@ fun SettingScreen(
 
                     SeparatorLine()
 
+                    // User's Account Settings
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.person),
+                            tint = AppTheme.colors.SecondaryOne,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
+
+                        )
+                        Text(
+                            text = "Account Settings",
+                            color = AppTheme.colors.Gray,
+                            style = AppTheme.textStyles.HeadingSix.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable { navController?.navigate("userAccountScreen") }
+                        )
+                    }
+
+                    SeparatorLine()
+
                     // User's Journey
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),

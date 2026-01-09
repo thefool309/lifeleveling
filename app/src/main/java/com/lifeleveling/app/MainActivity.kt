@@ -453,6 +453,9 @@ fun NavHostContainer(
             composable("MyReminders") {
                 MyRemindersScreen(navController = navController)
             }
+            composable("UserAccountScreen") {
+                UserAccountScreen(navController = navController)
+            }
         }
     )
 }

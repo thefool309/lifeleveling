@@ -28,6 +28,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.Navigator
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomButton
@@ -36,10 +38,10 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.theme.AppTheme
 
-@Preview
+//@Preview
 @Composable
 fun UserAccountScreen(
-
+navController: NavController
 ){
     val displayName = rememberSaveable { mutableStateOf("Bobby") }
     val email = rememberSaveable { mutableStateOf("bobbyemail@fakeemail.com") }
@@ -86,7 +88,7 @@ fun UserAccountScreen(
                     modifier = Modifier
                         .align(Alignment.Top)
                         .clickable {  },
-                    onClick = {},
+                    onClick = {navController.popBackStack()},
                     imageVector = ImageVector.vectorResource(R.drawable.back_arrow),
                     size = 48.dp
                 )
