@@ -316,7 +316,7 @@ class FirestoreRepository {
 
     }
     /**
-     * set the currHealth value in the firestore data
+     * set the currHealth value in the firestore data, Suspend function, must be called in view model
      * @return Boolean
      * @param health  a long that contains the new balance
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
@@ -338,6 +338,39 @@ class FirestoreRepository {
         catch(e: Exception) {
             logger.e(TAG, "Error Updating User: ", e)
             return false
+        }
+    }
+    /**
+     * # getCoins
+     * retrieves coinsBalance from the users information in firebase. Suspend function utilizes coroutine so must be called in view model
+     *
+     * Returns -1 on failure
+     *  ```
+     *  // inside a view model
+     *  logger = AndroidLogger()
+     *  repo = FirestoreRepository()
+     *  val coins = repo.getCoins(logger)
+     *  ```
+     * @return Long
+     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
+     * @author thefool309
+     *
+     */
+    suspend fun getCoins(logger: ILogger) : Long {
+        val userId: String? = getUserId()
+        if (userId == null) {
+            logger.e(TAG,"ID is null. Please login to firebase.")
+            return -1
+        }
+        val docRef = db.collection("users")
+        .document(userId)
+        try {
+            val data = docRef.get().await()
+            val newCoins = data["coins"] as Long
+            return newCoins
+        } catch (e: Exception){
+            logger.e(TAG, "Error Retrieving coins from User: ", e)
+            return -1
         }
     }
     /**
