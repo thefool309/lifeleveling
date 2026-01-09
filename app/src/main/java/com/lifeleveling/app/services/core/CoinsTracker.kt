@@ -31,26 +31,47 @@ class CoinsTracker(
         val TAG: String = CoinsTracker::class.java.simpleName
     }
 
+    /**
+     * # `addCoins()`
+     *
+     * adds coins to the `coinsBalance.currCoins` and `coinsBalance.lifeTimeCoins` properties
+     * @param coins the number of coins to add to the coinsBalance properties
+     * @sample TimerViewModel.handleCoinsEvent
+     */
     fun addCoins(coins: Long): Long {
         coinsBalance.currCoins += coins
-        coinsBalance.lifeTimeCoins += coins
+        coinsBalance.lifetimeCoins += coins
         return coinsBalance.currCoins
     }
-
+    /**
+     * # `subtractCoins()`
+     *
+     * subtracts coins from the `coinsBalance.currCoins` property
+     * @param coins the number of coins to add to the `coinsBalance.currCoins` property
+     * @sample TimerViewModel.handleCoinsEvent
+     */
     fun subtractCoins(coins: Long): Long {
         coinsBalance.currCoins -= coins
         return coinsBalance.currCoins
     }
 
+    /**
+     * # getCoins()
+     * return the `coinsBalance.currCoins` property
+     */
     fun getCoins() : Long {
         return coinsBalance.currCoins
     }
 
+    /**
+     * # getLifetimeCoins()
+     * return the `coinsBalance.lifetimeCoins` property.
+     */
     fun getLifetimeCoins(): Long {
-        return coinsBalance.lifeTimeCoins
+        return coinsBalance.lifetimeCoins
     }
     /**
-     * # startRewardTimer
+     * # `startCoinsEvent()`
      * A function for handling the reward timer. It waits for a defined number of seconds,
      * updates the coin balance, returns a RewardEvent and emits a RewardEvent for UI components
      * can be set to 0 seconds if instant.
@@ -71,7 +92,7 @@ class CoinsTracker(
     }
 
     /**
-     * # saveCoinsBalance
+     * # `saveCoinsBalance()`
      * a function for saving the coins balance to firebase. I chose to rewrite this here, as I felt like this was a more appropriate place for it to live.
      * used to update the nested database table "coins" represented by the data class CoinsBalance
      * @see TimerViewModel
