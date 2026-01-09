@@ -25,7 +25,7 @@ data class CoinsBalance(
  * @author thefool309
  */
 data class CoinsEvent(
-    val coinsEarned: Long,
+    val coins: Long,
     val source: String,  // a name for where it came from
     val isReward: Boolean = true,
     val message: String = "You earned coins!",

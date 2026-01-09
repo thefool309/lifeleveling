@@ -58,7 +58,7 @@ class CoinsTracker(
      * @param seconds the number of seconds between the events defaults to 60
      * @param reward the number of coins to be awarded defaults to 10
      */
-    suspend fun startRewardTimer(seconds: Long = 60L, reward: Long = 10L) : CoinsEvent {
+    suspend fun startCoinEvent(seconds: Long = 60L, reward: Long = 10L) : CoinsEvent {
         delay(seconds * 1000L)
         val coinsEvent = CoinsEvent(reward,"rewardEvent")
         _coinsEvents.emit(coinsEvent)

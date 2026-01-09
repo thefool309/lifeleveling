@@ -26,20 +26,21 @@ class TimerViewModel(val coinsBalance: CoinsBalance) : ViewModel() {
      * can be placed on a timer or set to 0 if instant.
      *
      * @see CoinsTracker.addCoins
-     * @see CoinsTracker.startRewardTimer
+     * @see CoinsTracker.startCoinEvent
      * @param seconds the number of seconds to delay this coroutine before the award is awarded
      * @param reward the number of coins to be awarded
      */
     fun awardCoins(seconds: Long = 60L, reward: Long = 10L) {
         viewModelScope.launch(Dispatchers.IO) {
-            val coinsEvent: CoinsEvent = coinsTracker.startRewardTimer(seconds, reward)
-            coinsTracker.addCoins(coinsEvent.coinsEarned)
+            val coinsEvent: CoinsEvent = coinsTracker.startCoinEvent(seconds, reward)
+            coinsTracker.addCoins(coinsEvent.coins)
         }
     }
 
     fun reduceBalance(amount: Long = 1L) {
         viewModelScope.launch(Dispatchers.IO) {
-            val coinsEvent: CoinsEvent = coinsTracker.startRewardTimer(amount)
+            val coinsEvent: CoinsEvent = coinsTracker.startCoinEvent(0L, amount)
+            coinsTracker.subtractCoins(coinsEvent.coins)
         }
     }
     /**
