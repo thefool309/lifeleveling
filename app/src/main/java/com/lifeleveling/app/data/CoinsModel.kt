@@ -1,15 +1,25 @@
 package com.lifeleveling.app.data
-
+import com.lifeleveling.app.services.core.CoinsTracker
+import com.lifeleveling.app.services.core.TimerViewModel
 /**
+ * # CoinsBalance
  * A data class that will be nested inside the user data and used for keeping track of the user balance
+ *
  * This will be saved to the database
+ * @see CoinsTracker
+ * @see TimerViewModel
  */
-data class CoinBalance(
+data class CoinsBalance(
     val userId: Int,
     var currCoins: Long,
     var lifeTimeCoins: Long,
 ) {}
 
+/**
+ * # RewardEvent
+ * the data associated with a specific reward event. For use with communicating with the UI, and other listening parts of the application.
+ * @see CoinsTracker
+ */
 data class RewardEvent(
     val coinsEarned: Long,
     val source: String,  // a name for where it came from

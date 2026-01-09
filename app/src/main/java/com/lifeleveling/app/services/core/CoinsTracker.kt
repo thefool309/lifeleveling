@@ -1,29 +1,25 @@
 package com.lifeleveling.app.services.core
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.lifeleveling.app.data.CoinBalance
+import com.lifeleveling.app.data.CoinsBalance
 import com.lifeleveling.app.data.RewardEvent
 import com.lifeleveling.app.util.AndroidLogger
-import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 /**
  * # CoinsTracker
  * A class that will be placed into the users calculated data, and called inside the UserViewModel
  * This will not be saved into the database.
- * @see CoinBalance
+ * @see CoinsBalance
  * @sample TimerViewModel
  */
 
 class CoinsTracker(
-    val coinsBalance: CoinBalance,
+    val coinsBalance: CoinsBalance,
 ) {
 
     private val _rewardEvents = MutableSharedFlow<RewardEvent>()
