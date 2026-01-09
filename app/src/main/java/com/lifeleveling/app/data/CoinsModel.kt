@@ -8,6 +8,7 @@ import com.lifeleveling.app.services.core.TimerViewModel
  * This will be saved to the database
  * @see CoinsTracker
  * @see TimerViewModel
+ * @author thefool309
  */
 data class CoinsBalance(
     val userId: Int,
@@ -16,13 +17,16 @@ data class CoinsBalance(
 ) {}
 
 /**
- * # RewardEvent
- * the data associated with a specific reward event. For use with communicating with the UI, and other listening parts of the application.
+ * # CoinsEvent
+ * the data associated with a specific coins event. For use with communicating with the UI, and other listening parts of the application.
+ *
+ * Can be a reward or a subtraction (purchase)
  * @see CoinsTracker
+ * @author thefool309
  */
-data class RewardEvent(
+data class CoinsEvent(
     val coinsEarned: Long,
     val source: String,  // a name for where it came from
-    val isBonus: Boolean = false,
+    val isReward: Boolean = true,
     val message: String = "You earned coins!",
 )

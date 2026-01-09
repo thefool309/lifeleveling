@@ -3,8 +3,9 @@ package com.lifeleveling.app.services.core
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.lifeleveling.app.data.CoinsBalance
-import com.lifeleveling.app.data.RewardEvent
+import com.lifeleveling.app.data.CoinsEvent
 import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -22,8 +23,8 @@ class CoinsTracker(
     val coinsBalance: CoinsBalance,
 ) {
 
-    private val _rewardEvents = MutableSharedFlow<RewardEvent>()
-    val rewardEvents = _rewardEvents.asSharedFlow()
+    private val _coinsEvents = MutableSharedFlow<CoinsEvent>()
+    val rewardEvents = _coinsEvents.asSharedFlow()
 
     companion object {
         val TAG: String = CoinsTracker::class.java.simpleName
@@ -49,24 +50,31 @@ class CoinsTracker(
     }
     /**
      * # startRewardTimer
-     * A function for handling the reward timer. It waits 60 seconds, updates the coin balance, returns a RewardEvent and emits a RewardEvent for UI components
+     * A function for handling the reward timer. It waits for a defined number of seconds,
+     * updates the coin balance, returns a RewardEvent and emits a RewardEvent for UI components
+     * can be set to 0 seconds if instant.
      * @see TimerViewModel
      * @sample TimerViewModel.awardCoins
      * @param seconds the number of seconds between the events defaults to 60
      * @param reward the number of coins to be awarded defaults to 10
      */
-    suspend fun startRewardTimer(seconds: Long = 60L, reward: Long = 10L) : RewardEvent {
+    suspend fun startRewardTimer(seconds: Long = 60L, reward: Long = 10L) : CoinsEvent {
         delay(seconds * 1000L)
-        val rewardEvent = RewardEvent(reward,"rewardEvent")
-        _rewardEvents.emit(rewardEvent)
-        return RewardEvent(reward, "rewardEvent")
+        val coinsEvent = CoinsEvent(reward,"rewardEvent")
+        _coinsEvents.emit(coinsEvent)
+        return CoinsEvent(reward, "rewardEvent")
     }
 
     /**
      * # saveCoinsBalance
      * a function for saving the coins balance to firebase. I chose to rewrite this here, as I felt like this was a more appropriate place for it to live.
+     * used to update the nested database table "coins" represented by the data class CoinsBalance
+     * @see TimerViewModel
+     * @sample TimerViewModel.serializeCoins
+     * @param userId the userId of the currently logged in user, so we update the correct record
+     * @param logger an interface for modifying the behavior of the logger
      */
-    suspend fun saveCoinsBalance(userId: String, logger: AndroidLogger = AndroidLogger()) {
+    suspend fun saveCoinsBalance(userId: String, logger: ILogger = AndroidLogger()) {
         val docRef = FirebaseFirestore.getInstance().collection("coins").document(userId)
         val data = coinsBalance
 

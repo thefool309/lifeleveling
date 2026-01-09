@@ -2,8 +2,9 @@ package com.lifeleveling.app.services.core
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.lifeleveling.app.data.CoinsBalance
-import com.lifeleveling.app.data.RewardEvent
+import com.lifeleveling.app.data.CoinsEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -16,12 +17,39 @@ import kotlinx.coroutines.launch
  */
 class TimerViewModel(val coinsBalance: CoinsBalance) : ViewModel() {
     val coinsTracker: CoinsTracker = CoinsTracker(coinsBalance)
+    val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-
+    /**
+     * # `awardCoins()`
+     * award coins to the user and update the tracker.
+     *
+     * can be placed on a timer or set to 0 if instant.
+     *
+     * @see CoinsTracker.addCoins
+     * @see CoinsTracker.startRewardTimer
+     * @param seconds the number of seconds to delay this coroutine before the award is awarded
+     * @param reward the number of coins to be awarded
+     */
     fun awardCoins(seconds: Long = 60L, reward: Long = 10L) {
         viewModelScope.launch(Dispatchers.IO) {
-            val rewardEvent: RewardEvent = coinsTracker.startRewardTimer(seconds, reward)
-            coinsTracker.addCoins(rewardEvent.coinsEarned)
+            val coinsEvent: CoinsEvent = coinsTracker.startRewardTimer(seconds, reward)
+            coinsTracker.addCoins(coinsEvent.coinsEarned)
+        }
+    }
+
+    fun reduceBalance(amount: Long = 1L) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val coinsEvent: CoinsEvent = coinsTracker.startRewardTimer(amount)
+        }
+    }
+    /**
+     * # `serializeCoins()`
+     * for controlling when we serialize a CoinsBalance model to the database.
+     * @see CoinsTracker.saveCoinsBalance
+     */
+    fun serializeCoins() {
+        viewModelScope.launch(Dispatchers.IO) {
+            coinsTracker.saveCoinsBalance(auth.currentUser!!.uid)
         }
     }
 }
