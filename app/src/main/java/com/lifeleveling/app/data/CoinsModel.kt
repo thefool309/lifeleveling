@@ -2,7 +2,7 @@ package com.lifeleveling.app.data
 import com.lifeleveling.app.services.core.CoinsTracker
 import com.lifeleveling.app.services.core.TimerViewModel
 /**
- * # CoinsBalance
+ * # `CoinsBalance`
  * A data class that will be nested inside the user data and used for keeping track of the user balance
  *
  * This will be saved to the database
@@ -17,7 +17,7 @@ data class CoinsBalance(
 ) {}
 
 /**
- * # CoinsEvent
+ * # `CoinsEvent`
  * the data associated with a specific coins event. For use with communicating with the UI, and other listening parts of the application.
  *
  * Can be a reward or a subtraction (purchase)

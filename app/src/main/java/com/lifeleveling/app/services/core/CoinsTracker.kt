@@ -17,6 +17,7 @@ import kotlinx.coroutines.tasks.await
  * This will not be saved into the database.
  * @see CoinsBalance
  * @sample TimerViewModel
+ * @author thefool309
  */
 
 class CoinsTracker(
@@ -45,7 +46,7 @@ class CoinsTracker(
         return coinsBalance.currCoins
     }
 
-    fun getLifeTimeCoins() : Long {
+    fun getLifetimeCoins(): Long {
         return coinsBalance.lifeTimeCoins
     }
     /**
@@ -54,15 +55,19 @@ class CoinsTracker(
      * updates the coin balance, returns a RewardEvent and emits a RewardEvent for UI components
      * can be set to 0 seconds if instant.
      * @see TimerViewModel
-     * @sample TimerViewModel.awardCoins
-     * @param seconds the number of seconds between the events defaults to 60
-     * @param reward the number of coins to be awarded defaults to 10
+     * @sample TimerViewModel.handleCoinsEvent
+     * @param delay the number of seconds between the events defaults to 60
+     * @param coins the number of coins to be awarded defaults to 10
+     * @param source a TAG intended to identify where the event was spawned from
+     * @param isReward defines whether it is a reward(add) or a purchase(subtract)
+     * @param message the message for the CoinsEvent to be passed to the UI or logger
+     * @author thefool309
      */
-    suspend fun startCoinEvent(seconds: Long = 60L, reward: Long = 10L) : CoinsEvent {
-        delay(seconds * 1000L)
-        val coinsEvent = CoinsEvent(reward,"rewardEvent")
+    suspend fun startCoinsEvent(delay: Long = 60L, coins: Long = 10L, source: String = "", isReward: Boolean = true, message: String = "You got coins!") : CoinsEvent {
+        delay(delay * 1000L)
+        val coinsEvent = CoinsEvent(coins,source, isReward, message)
         _coinsEvents.emit(coinsEvent)
-        return CoinsEvent(reward, "rewardEvent")
+        return CoinsEvent(coins, "rewardEvent")
     }
 
     /**
@@ -73,6 +78,7 @@ class CoinsTracker(
      * @sample TimerViewModel.serializeCoins
      * @param userId the userId of the currently logged in user, so we update the correct record
      * @param logger an interface for modifying the behavior of the logger
+     * @author thefool309
      */
     suspend fun saveCoinsBalance(userId: String, logger: ILogger = AndroidLogger()) {
         val docRef = FirebaseFirestore.getInstance().collection("coins").document(userId)

@@ -14,32 +14,54 @@ import kotlinx.coroutines.launch
  * 
  * @see CoinsTracker
  * @param coinsBalance the CoinBalance instance that is associated with the current user.
+ * @author thefool309
  */
 class TimerViewModel(val coinsBalance: CoinsBalance) : ViewModel() {
     val coinsTracker: CoinsTracker = CoinsTracker(coinsBalance)
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     /**
-     * # `awardCoins()`
-     * award coins to the user and update the tracker.
+     * # `handleCoinsEvent`
+     * an example of how to handle a `CoinsEvent` in a view model
+     *
+     * award or subtract coins from the user and update the tracker.
      *
      * can be placed on a timer or set to 0 if instant.
      *
      * @see CoinsTracker.addCoins
-     * @see CoinsTracker.startCoinEvent
-     * @param seconds the number of seconds to delay this coroutine before the award is awarded
+     * @see CoinsTracker.subtractCoins
+     * @see CoinsTracker.startCoinsEvent
+     * @param delay the number of seconds to delay this coroutine before the award is awarded
      * @param reward the number of coins to be awarded
+     * @param source a TAG intended to identify where the event was spawned from
+     * @param isReward defines whether it is a reward(add) or a purchase(subtract)
+     * @param message the message for the CoinsEvent to be passed to the UI or logger
+     * @author thefool309
      */
-    fun awardCoins(seconds: Long = 60L, reward: Long = 10L) {
+    fun handleCoinsEvent(delay: Long = 60L, reward: Long = 10L, source: String = "", isReward: Boolean = true, message: String = "You got coins!") {
         viewModelScope.launch(Dispatchers.IO) {
-            val coinsEvent: CoinsEvent = coinsTracker.startCoinEvent(seconds, reward)
-            coinsTracker.addCoins(coinsEvent.coins)
+            val coinsEvent: CoinsEvent = coinsTracker.startCoinsEvent(delay, reward, source, isReward, message)
+            if(coinsEvent.isReward) {
+                coinsTracker.addCoins(coinsEvent.coins)
+            }
+            else {
+                coinsTracker.subtractCoins(coinsEvent.coins)
+            }
         }
     }
 
-    fun reduceBalance(amount: Long = 1L) {
+    /**
+     * # `reduceBalance()`
+     * An example of how to use the CoinsEvent and CoinTracker to carry out a specific operation like subtracting coins from the users balance
+     * @see CoinsTracker.subtractCoins
+     * @see CoinsTracker.startCoinsEvent
+     * @param delay the number of seconds to delay this coroutine before the award is awarded
+     * @param amount the number of coins to be subtracted
+     * @author thefool309
+     */
+    fun reduceBalance(delay:Long = 0L, amount: Long = 1L, source: String = "Purchase") {
         viewModelScope.launch(Dispatchers.IO) {
-            val coinsEvent: CoinsEvent = coinsTracker.startCoinEvent(0L, amount)
+            val coinsEvent: CoinsEvent = coinsTracker.startCoinsEvent(delay, amount, source, isReward = false, "You just spent some coins! at $source")
             coinsTracker.subtractCoins(coinsEvent.coins)
         }
     }
@@ -47,6 +69,7 @@ class TimerViewModel(val coinsBalance: CoinsBalance) : ViewModel() {
      * # `serializeCoins()`
      * for controlling when we serialize a CoinsBalance model to the database.
      * @see CoinsTracker.saveCoinsBalance
+     * @author thefool309
      */
     fun serializeCoins() {
         viewModelScope.launch(Dispatchers.IO) {
