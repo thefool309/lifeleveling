@@ -5,21 +5,40 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.lifeleveling.app.data.CoinsBalance
 import com.lifeleveling.app.data.CoinsEvent
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * # TimerViewModel
+ * # CoinsViewModel
  * A ViewModel I created for the sake of an example of the code I'm adding into services. This is an example of how to use the CoinsTracker class
  * 
  * @see CoinsTracker
  * @param coinsBalance the CoinBalance instance that is associated with the current user.
  * @author thefool309
  */
-class TimerViewModel(val coinsBalance: CoinsBalance) : ViewModel() {
+
+
+class CoinsViewModel(val coinsBalance: CoinsBalance, val logger: ILogger = AndroidLogger()) : ViewModel() {
     val coinsTracker: CoinsTracker = CoinsTracker(coinsBalance)
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    companion object {
+         val TAG: String = this::class.java.simpleName
+    }
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            // I did this with a try catch statement but one could easily do this with a boolean flag of "newUser" or something of the like
+            try { coinsTracker.retrieveCoinsBalance(auth.currentUser!!.uid) }
+            catch(e: Exception) {
+                logger.d(TAG, "The users coins balance was not retrieved! Must be a new user...")
+                coinsTracker.coinsBalance = CoinsBalance(auth.currentUser!!.uid, 0, 0)
+                coinsTracker.saveCoinsBalance(auth.currentUser!!.uid)
+            }
+        }
+    }
     /**
      * # `handleCoinsEvent`
      * an example of how to handle a `CoinsEvent` in a view model
@@ -47,6 +66,19 @@ class TimerViewModel(val coinsBalance: CoinsBalance) : ViewModel() {
             else {
                 coinsTracker.subtractCoins(coinsEvent.coins)
             }
+        }
+    }
+
+    /**
+     * an example of using the coinsTracker's `retrieveCoinsBalance()` function
+     *
+     * the retrieveCoinsBalance function will load the coinsBalance into the coinsTracker and return null on failure. throwing a CoinsBalanceException in this case.
+     * @see CoinsTracker.retrieveCoinsBalance
+     * @author thefool309
+     */
+    fun loadFirestoreCoinsBalance() {
+        viewModelScope.launch(Dispatchers.IO) {
+            coinsTracker.retrieveCoinsBalance(auth.currentUser!!.uid) ?: throw CoinsBalanceException()
         }
     }
 

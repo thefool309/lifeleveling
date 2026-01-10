@@ -1,20 +1,20 @@
 package com.lifeleveling.app.data
 import com.lifeleveling.app.services.core.CoinsTracker
-import com.lifeleveling.app.services.core.TimerViewModel
+import com.lifeleveling.app.services.core.CoinsViewModel
 /**
  * # `CoinsBalance`
  * A data class that will be nested inside the user data and used for keeping track of the user balance
  *
  * This will be saved to the database
  * @see CoinsTracker
- * @see TimerViewModel
+ * @see CoinsViewModel
  * @author thefool309
  * @param userId the ID of the user this balance is related with.
  * @param currCoins the number of coins currently in the Users balance
  * @param lifetimeCoins the number of coins earned over the lifetime of the account
  */
 data class CoinsBalance(
-    val userId: Int,
+    val userId: String,
     var currCoins: Long,
     var lifetimeCoins: Long,
 ) {}
