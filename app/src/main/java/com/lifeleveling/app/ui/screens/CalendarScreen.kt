@@ -173,7 +173,16 @@ fun CalendarScreen(
                                 modifier = Modifier
                                     .background(color = Color.Transparent),
                                 state = state,
-                                dayContent = { Day(it, calendarReminders.value, LocalDate.now().year) },
+                                dayContent = { day ->
+                                    DayFirestore(
+                                        day = day,
+                                        reminders = monthReminders.value,
+                                        onDateClick = { clicked ->
+                                            jumpedDay.value = clicked
+                                            isMonthView.value = true // your Day view is when isMonthView == true
+                                        }
+                                    )
+                                },
                                 monthHeader = {
                                     Column(
                                         modifier = Modifier
