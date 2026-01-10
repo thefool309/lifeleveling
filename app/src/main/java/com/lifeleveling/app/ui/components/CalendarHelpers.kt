@@ -45,6 +45,7 @@ import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminders
+import com.lifeleveling.app.data.occursOn
 import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import kotlinx.datetime.Clock
@@ -53,6 +54,7 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.collections.toList
@@ -147,6 +149,57 @@ fun Day(
         )
     }
 }
+
+@Composable
+fun DayFirestore(
+    day: CalendarDay,
+    reminders: List<Reminders>,
+    onDateClick: (LocalDate) -> Unit,
+) {
+    val isOutDate = day.position != DayPosition.MonthDate
+    val date = day.date
+
+    // Filter reminders that are enabled AND active on this date
+    val zone = ZoneId.systemDefault()
+    val remindersForThisDate = reminders.filter { r ->
+        r.enabled && r.occursOn(date, zone)
+    }
+
+    Box(
+        modifier = Modifier
+            .border(
+                color = AppTheme.colors.Gray,
+                shape = RectangleShape,
+                width = 0.2.dp
+            )
+            .fillMaxWidth()
+            .height(70.dp)
+            .clickable { onDateClick(date) }, // tap day -> open Day view
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Text(
+            text = date.dayOfMonth.toString(),
+            color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
+        )
+
+        if (remindersForThisDate.isNotEmpty()) {
+            Row(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                remindersForThisDate.take(4).forEach { reminder ->
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .size(8.dp)
+                            .background(reminderDotColor(reminder), CircleShape)
+                    )
+                }
+            }
+        }
+    }
+}
+
 
 /**
  * This gives the days the title of M T W T F
@@ -792,4 +845,21 @@ fun iconResForNameCalendar(iconName: String?): Int {
         "doctor"         -> R.drawable.doctor
         else             -> R.drawable.bell
     }
+}
+
+@Composable
+private fun reminderDotColor(reminder: Reminders): Color {
+    val palette = listOf(
+        Color.Red,
+        Color.Blue,
+        Color.Green,
+        Color.Magenta,
+        Color.Yellow,
+        Color.Cyan,
+        Color.LightGray,
+        Color.White
+    )
+
+    val index = reminder.color.coerceIn(0, palette.lastIndex)
+    return palette[index]
 }
