@@ -8,7 +8,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.lifeleveling.app.data.UsersData
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 
@@ -23,6 +22,8 @@ class AuthModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val logger: ILogger
 ) {
+    val currentUser get() = auth.currentUser
+
 
     /**
      * Velma wuz here :3
@@ -31,8 +32,6 @@ class AuthModel(
     private fun getUserId() : String? {
         return auth.currentUser?.uid
     }
-    val currentUser get() = auth.currentUser
-
 
     // Listener to monitor Firebase authentication state changes
     /**
@@ -200,5 +199,15 @@ class AuthModel(
             logger.e("Firestore", "deleteUser failed for $uid", e)
             false
         }
+    }
+
+    /**
+     * Calls the Firebase auth function of sending a password reset email to the user.
+     * @param email The email the message needs to be sent to.
+     * @author fdesouze1992
+     */
+    suspend fun sendPasswordResetEmail(email: String) {
+        val trimmed = email.trim()
+        auth.sendPasswordResetEmail(trimmed).await()
     }
 }

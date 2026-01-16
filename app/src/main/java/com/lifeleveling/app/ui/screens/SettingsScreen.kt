@@ -431,7 +431,7 @@ fun SettingScreen(){
                     CustomButton(
                         onClick = {
                             showResetLifePointsDialog.value = false
-                            onResetLifePoints()
+                            userManager.updateStats(0,0,0,0,0,0)
                         },
                         width = 120.dp,
                         backgroundColor = AppTheme.colors.Error75

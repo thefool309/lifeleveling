@@ -2,15 +2,16 @@ package com.lifeleveling.app.data
 
 import android.util.Log
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
 import kotlin.Long
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
@@ -28,14 +29,10 @@ import kotlin.String
  */
 class FirestoreRepository(
     private val db: FirebaseFirestore = Firebase.firestore,
-    private val logger: ILogger
+    private val logger: ILogger,
 ) {
     companion object {
         private const val TAG = "FirestoreRepository"
-    }
-    // Helper functions
-    private fun getUserId() : String? {
-        return auth.currentUser?.uid
     }
 
     /**
@@ -151,7 +148,6 @@ class FirestoreRepository(
     suspend fun editUser(userId: String?, userData: Map<String, Any>) : Boolean {
         // the !! throws a null pointer exception if the currentUser is null
         // if the user is not authenticated then authenticate before calling this function
-//        val userId: String = auth.currentUser!!.uid
         if(userId.isNullOrBlank()) {
             logger.e("Firestore", "UserId is null or blank. Please login to Firebase.")
             return false
@@ -515,7 +511,7 @@ class FirestoreRepository(
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309, fd
      */
-    suspend fun addXp(xp: Double, userId: String?) : Users? {
+    suspend fun addXp(xp: Double, userId: String?) : UsersData? {
         if(userId == null) {
             logger.e(TAG,"ID is null. Please login to firebase.")
             return null
@@ -561,10 +557,7 @@ class FirestoreRepository(
      * @param logger
      * @return Boolean
      */
-    suspend fun setFirebaseToken(token: String?, logger: ILogger) : Boolean {
-
-        // get user ID
-        val uID: String? = getUserId()
+    suspend fun setFirebaseToken(token: String?, uID: String?) : Boolean {
         if(uID == null) {
             logger.e(TAG,"ID is null. Please login to firebase.")
             return false
@@ -589,16 +582,7 @@ class FirestoreRepository(
             return false
         }
     }
-    /**
-     * A function for retrieving the full `Users` object from the firebase. Returns null on failure
-     * @param uID the userId you're looking for
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @returns Users?
-     * @see Users
-     * @see ILogger
-     * @see com.lifeleveling.app.util.AndroidLogger
-     */
-    suspend fun getUser(uID: String?, logger: ILogger): Users? {
+
     /**
      * Pulls the user's information from the database and puts it into a UsersData object for local use
      * Pulls the UserBase information from firestore
@@ -620,19 +604,13 @@ class FirestoreRepository(
             return null
         }
 
-        var userDoc: Users? = null
-        val userSnap = docRef.get()
-            .await()
-        if (userSnap.exists() && userSnap != null) {
-            userDoc = userSnap.toObject(Users::class.java)
-            return userDoc
-        }
-        if (!userSnap.exists()) {
+        val snap = docRef.get().await()
+        if (!snap.exists()) {
             logger.e("Firestore", "users/$uID does not exist.")
             return null
         }
 
-        val data = userSnap.data ?: run {
+        val data = snap.data ?: run {
             logger.e("Firestore", "users/$uID has no data.")
             return null
         }
@@ -767,7 +745,6 @@ class FirestoreRepository(
      * 1. Checks for the user's ID. If there is not a user file associated with it, it will log it and stop.
      * 2. Delete any existing subcollections and logs errors but keeps going
      * 3. Delete the user document from the 'users' collection in Firestore Database
-//     * 4. Delete the Firebase Auth user account.
      *
      * If any of the steps fail, method will log the problem and return false so the caller knows delete didn't fully complete
      *
@@ -846,7 +823,6 @@ class FirestoreRepository(
         reminders: Reminder,
         uid: String?
     ): String? {
-//        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e("Reminders", "createReminder: user not authenticated.")
             return null
@@ -857,17 +833,19 @@ class FirestoreRepository(
             "reminderId" to (if (reminders.reminderId.isNotBlank()) reminders.reminderId else null),
             "title" to reminders.title,
             "notes" to reminders.notes,
-            "dueAt" to reminders.startingAt,
-            "isCompleted" to reminders.completed,
+            "dueAt" to reminders.dueAt,
+            "completed" to reminders.completed,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
             "lastUpdate" to FieldValue.serverTimestamp(),
-            "isDaily" to reminders.isDaily,
+            "daily" to reminders.daily,
             "timesPerHour" to reminders.timesPerHour,
             "timesPerDay" to reminders.timesPerDay,
             "timesPerMonth" to reminders.timesPerMonth,
             "colorToken" to reminders.colorToken,
             "iconName" to reminders.iconName,
+            "completedTally" to reminders.completedTally,
+            "enabled" to reminders.enabled,
             "repeatForever" to reminders.repeatForever,
             "repeatCount" to reminders.repeatCount,
             "repeatInterval" to reminders.repeatInterval,
@@ -972,9 +950,8 @@ class FirestoreRepository(
 
     suspend fun getRemindersForDay(
         date: LocalDate,
-        logger: ILogger
-    ): List<Reminders> {
-        val uid = getUserId()
+        uid: String?
+    ): List<Reminder> {
         if (uid.isNullOrBlank()) {
             logger.e("Reminders", "getRemindersForDay: user id is null/blank; sign in first.")
             return emptyList()
@@ -997,7 +974,7 @@ class FirestoreRepository(
                 .await()
 
             snap.documents.mapNotNull { doc ->
-                doc.toObject<Reminders>()?.copy(reminderId = doc.id)
+                doc.toObject<Reminder>()?.copy(reminderId = doc.id)
             }
         } catch (e: Exception) {
             logger.e("Reminders", "getRemindersForDay failed for $date", e)
@@ -1102,63 +1079,4 @@ class FirestoreRepository(
         updateTimestamp(uid)
     }
 
-    /**
-     * Resets the current user’s stats back to 0 and refunds all spent points into their lifePoints pool.
-     *
-     * Flow:
-     * 1. Look up the currently signed-in user’s ID.
-     * 2. Load their user document and read the current stats + lifePoints.
-     * 3. Sum all points spent across Health, Agility, Intelligence, Defense, and Strength.
-     * 4. Add those spent points back into lifePoints.
-     * 5. Write zeroed-out stats and the new lifePoints total back to Firestore.
-     * 6. Update the user’s timestamp so other parts of the app know the data changed.
-     *
-     * Example:
-     *  Stats: H=5, A=7, I=3, D=8, S=17  (total 40)
-     *  lifePoints = 5
-     *  After reset → all stats = 0, lifePoints = 45.
-     *
-     * @param logger Used to log any errors while resetting life points.
-     * @return true if the Firestore update succeeds, false otherwise.
-     * @author fdesouza1992
-     */
-    suspend fun resetLifePoints(logger: ILogger): Boolean {
-        val uid = getUserId()
-        if (uid == null) {
-            logger.e("Auth","ID is null. Please login to firebase.")
-            return false
-        }
-
-        // Loads current user
-        val user = getUser(uid, logger) ?: return false
-        val stats = user.stats
-
-        val usedLifePoint = stats.strength + stats.defense + stats.intelligence + stats.agility + stats.health
-        val currentLifePointsPool = user.lifePoints
-        val newLifePointsPool = usedLifePoint+currentLifePointsPool
-
-        val docRef = db.collection("users").document(uid)
-        return try {
-            val resetStats = Stats(
-                agility = 0L,
-                defense = 0L,
-                intelligence = 0L,
-                strength = 0L,
-                health = 0L
-            )
-
-            docRef.update(
-                mapOf(
-                    "stats" to resetStats,
-                    "lifePoints" to newLifePointsPool,
-                )
-            ).await()
-
-            updateTimestamp(uid, logger)
-            true
-        } catch (e: Exception) {
-            logger.e("Firestore", "Error resetting life points", e)
-            false
-        }
-    }
 }

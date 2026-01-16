@@ -85,7 +85,7 @@ fun ShowStreak(
                 ) {
                     ShadowedIcon(
                         modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(reminder.iconName),
+                        imageVector = ImageVector.vectorResource(R.drawable.(reminder.iconName)),
                         tint = if (reminder.colorToken == null) Color.Unspecified
                         else resolveEnumColor(reminder.colorToken),
                     )

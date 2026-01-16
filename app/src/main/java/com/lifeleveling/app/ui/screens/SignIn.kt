@@ -209,7 +209,7 @@ fun SignIn() {
                 color = AppTheme.colors.Gray,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { onForgotPassword() }
+                modifier = Modifier.clickable { navController.navigate("passwordReset") }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

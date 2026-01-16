@@ -40,18 +40,22 @@ data class Reminder(
     val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
     val title: String = "",
     val notes: String = "",
-    val startingAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
     val completed: Boolean = false,
     val completedAt: Timestamp? = null,  // set when marked complete
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
     val daily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
-    val timesPerDay: Long = 0,           // How many times per day
-    val timesPerMonth: Long = 0,         // How many times per month
-    val colorToken: EnumColor?,      // nullable like enumColor? in TestUser
-    val iconName: Int = 0,           // store icon key (ex: "water_drop"), not R.drawable.id
+    val timesPerHour: Int = 0,          // How many hour(s)
+    val timesPerDay: Int = 0,           // How many times per day
+    val timesPerMonth: Int = 0,         // How many times per month
+    val colorToken: String? = null,      // nullable like enumColor? in TestUser
+    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
     val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
     val enabled: Boolean = true,               // If the reminder is active or just saved
+    val repeatForever: Boolean = false,
+    val repeatCount: Long = 0,
+    val repeatInterval: Long = 0,
 )
 
 // One active streak the user is tracking
@@ -75,8 +79,8 @@ data class Streak(
     val streakId: String = "",                  // doc id inside streaks subcollection
     val reminderId: String = "",                // link to Reminders.reminderId
     val weekly: Boolean = false,              // "weekly" or "monthly"
-    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
-    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
+    val totalRequired: Int = 0,                // totalAmount in TestUser.kt
+    val numberCompleted: Int = 0,              // numberCompleted in TestUser.kt
     val repeat: Boolean = true,                 // Repeat flag
     val createdAt: Timestamp? = null,
     val endsAt: Timestamp? = null,

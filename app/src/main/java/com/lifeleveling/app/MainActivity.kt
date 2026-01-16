@@ -1,8 +1,6 @@
 package com.lifeleveling.app
 
 
-import android.app.AlarmManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -14,76 +12,36 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.lifeleveling.app.auth.AuthViewModel
-import com.lifeleveling.app.navigation.CustomNavBar
-import com.lifeleveling.app.ui.screens.*
-import com.lifeleveling.app.ui.theme.*
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.UserManager
 import com.lifeleveling.app.navigation.AppNavHost
-import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.LifelevelingTheme
-import com.lifeleveling.app.navigation.CustomNavBar
-//import com.lifeleveling.app.navigation.MainScreenNavigationHost
 import com.lifeleveling.app.ui.theme.SplashAnimationOverlay
-import com.lifeleveling.app.ui.screens.CalendarScreen
-import com.lifeleveling.app.ui.screens.CreateReminderScreen
-import com.lifeleveling.app.ui.screens.HomeScreen
-import com.lifeleveling.app.ui.screens.NotificationScreen
-import com.lifeleveling.app.ui.screens.SelfCareScreen
-import com.lifeleveling.app.ui.screens.SettingScreen
-import com.lifeleveling.app.ui.screens.StatsScreenRoute
-import com.lifeleveling.app.ui.screens.StreaksScreen
-import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
-import com.lifeleveling.app.ui.screens.UserJourneyScreen
-import com.lifeleveling.app.ui.screens.*
 import com.lifeleveling.app.ui.theme.HideSystemBars
 import com.lifeleveling.app.ui.theme.LevelUpOverlay
 import com.lifeleveling.app.ui.theme.LoadingOverlay
 import com.lifeleveling.app.ui.theme.StartLogic
 import com.lifeleveling.app.ui.theme.StartLogicFactory
-// Temp Check to ensure firebase connection
-import com.lifeleveling.app.util.AndroidLogger
-import com.lifeleveling.app.util.ILogger
-import kotlinx.coroutines.launch
-import com.lifeleveling.app.util.ILogger
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import android.Manifest
-import com.lifeleveling.app.ui.screens.MyRemindersScreen
 
 
 import kotlinx.coroutines.delay
@@ -100,7 +58,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val TAG = "MainActivity"
     }
-    val logger = AndroidLogger()
+//    val logger = AndroidLogger()
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
             // FCM handles everything here there is nothing else to do, but I added it in case we find something we wish to do here later
@@ -110,7 +68,7 @@ class MainActivity : ComponentActivity() {
             // pretty much anywhere you see a Toast message, it is a filler that can be replaced if you wish
             if (BuildConfig.DEBUG) {
                 Toast.makeText(applicationContext, R.string.permission_denied_notif, Toast.LENGTH_SHORT).show()
-                logger.d("Permissions", getString(R.string.permission_denied_notif))
+                userManager.logger.d("Permissions", getString(R.string.permission_denied_notif))
             }
         }
     }
@@ -170,24 +128,21 @@ class MainActivity : ComponentActivity() {
                 try{
                     Firebase.firestore.useEmulator("10.0.2.2", 8080)
                     Firebase.auth.useEmulator("10.0.2.2", 9099)
-                    logger.d(TAG, "Using Firebase Emulator...")
+                    userManager.logger.d(TAG, "Using Firebase Emulator...")
                 }
                 catch(ex: Exception) {
-                    logger.e(TAG, "Could not connect to Firebase Emulators. error message: ",ex)
+                    userManager.logger.e(TAG, "Could not connect to Firebase Emulators. error message: ",ex)
                 }
             }
             else {
-                logger.e(TAG, "Not in a Debug Build. Using the Production dataset...")
+                userManager.logger.e(TAG, "Not in a Debug Build. Using the Production dataset...")
             }
         }
         else {
-            logger.d(TAG, "useFirebaseEmulator is false. Using the Production dataset...")
+            userManager.logger.d(TAG, "useFirebaseEmulator is false. Using the Production dataset...")
 
         }
     }
-
-    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
-    private val authVm: AuthViewModel by viewModels()
 
     /**
      *  When the activity enters the Resumed state, it comes to the foreground, and the system invokes the onResume() callback. This is the state in which the app interacts with the user. The app stays in this state until something happens to take focus away from the app, such as the device receiving a phone call, the user navigating to another activity, or the device screen turning off.
@@ -324,118 +279,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-//
-//            Box(modifier = Modifier.fillMaxSize()) {
-//                // Hide system bars
-//                HideSystemBars()
-//
-//                // If app isn't ready, show splash
-//                if (!appReady) {
-//                    SplashAnimationOverlay()
-//                } else {
-//                    // Show SignIn when not authenticated; show your app when signed in
-//                    LifelevelingTheme(darkTheme = isDarkThemeState.value) {
-//                        if (authState.user == null) {
-//
-//                            val preAuthNav = rememberNavController()
-//                            NavHost(navController = preAuthNav, startDestination = "signIn") {
-//                                composable("signIn") {
-//                                    // -------- Sign In UI --------
-//                                    val email = remember { mutableStateOf("") }
-//                                    val password = remember { mutableStateOf("") }
-//                                    val logger : ILogger = AndroidLogger()
-//                                    val scope = rememberCoroutineScope()
-//                                    SignIn(
-//                                        // Auth using email and password
-//                                        onLogin = {
-//                                            scope.launch {
-//                                                try {
-//                                                    authVm.signInWithEmailPassword(email.value, password.value, logger)
-//                                                } catch (e: FirebaseAuthInvalidCredentialsException) {
-//                                                    logger.e(
-//                                                        "FB",
-//                                                        "createUserWithEmailAndPassword failed due to Invalid Credentials: ",
-//                                                        e
-//                                                    )
-//                                                }
-//                                            }
-//
-//                                            /* email/password auth */
-//                                        },
-//
-//                                        // Auth with Google Sign In
-//                                        onGoogleLogin = {
-//                                            authVm.beginGoogleSignIn()
-//                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
-//                                            googleLauncher.launch(intent)
-//                                        },
-//
-//                                        // Create account screen
-//                                        onCreateAccount = {
-//                                            preAuthNav.navigate("createAccount") {
-//                                                //launchSingleTop = false
-//                                            }
-//                                        },
-//                                        email,
-//                                        password,
-//                                        authState = authState,
-//                                        onDismissError = {authVm.clearError()}
-//                                    )
-//                                }
-//                                composable("createAccount") {
-//                                    val email = remember { mutableStateOf("") }
-//                                    val password = remember {mutableStateOf("")}
-//                                    val logger : ILogger = AndroidLogger()
-//                                    val scope = rememberCoroutineScope()
-//                                    CreateAccountScreen(
-//                                        onJoin = {/*TODO: Handle sign-up logic*/
-//                                            scope.launch {
-//                                                try {
-//                                                    authVm.createUserWithEmailAndPassword(email.value, password.value, logger)
-//                                                }
-//                                                catch (e: FirebaseAuthInvalidCredentialsException) {
-//                                                    logger.e("FB", "createUserWithEmailAndPassword failed due to Invalid Credentials: ", e)
-//                                                }
-//                                            }
-//                                                 },
-//                                        onGoogleLogin = {
-//                                            authVm.beginGoogleSignIn()
-//                                            val intent = authVm.googleClient(this@MainActivity).signInIntent
-//                                            googleLauncher.launch(intent)
-//                                        },
-//                                        onLog = {
-//                                            preAuthNav.navigate("signIn") // Back to Sign-In
-//                                        },
-//                                        email,
-//                                        password
-//                                    )
-//                                }
-//                            }
-//                        } else {
-//
-//                            // Main App UI
-//                            val navController = rememberNavController()
-//                            Surface(color = AppTheme.colors.Background) {
-//                                Scaffold(
-//                                    bottomBar = { CustomNavBar(navController = navController) },
-//                                ) { padding ->
-//                                    MainScreenNavigationHost(
-//                                        navController = navController,
-//                                        padding = padding,
-//                                        isDarkThemeState = isDarkThemeState,
-//                                        onSignOut = { authVm.signOut(this@MainActivity) },
-//                                        onDeleteAccount = {
-//                                            val logger = AndroidLogger()
-//                                            authVm.deleteAccount(logger)
-//                                        }
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

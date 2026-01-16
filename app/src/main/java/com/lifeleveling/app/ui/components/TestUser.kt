@@ -13,7 +13,7 @@ import com.lifeleveling.app.ui.theme.EnumColor
 * as well as the local save of user logic.
 */
 
-object TestingUser {
+object _TestingUser {
     var name by mutableStateOf("John Doe")
     var level by mutableStateOf(3)
     var currentExp by mutableStateOf(250)
@@ -64,31 +64,31 @@ object TestingUser {
     // ================= Reminder  handling =================================
     // All reminders
     private val reminders = mutableListOf (
-        TestReminder(1, "Drink Water", R.drawable.water_drop, null, true, 3, 0, 20),
-        TestReminder(2, "Laundry", R.drawable.shirt, EnumColor.BrandTwo, false, 0, 4, 2),
-        TestReminder(3, "Shower", R.drawable.shower_bath, null, false, 0, 15, 3),
-        TestReminder(4, "Read", R.drawable.person_reading, EnumColor.SecondaryTwo, false, 0, 8, 1),
-        TestReminder(5, "Run", R.drawable.person_running_color, null, false, 0, 4, 1),
-        TestReminder(6, "Make my bed", R.drawable.bed_color, null, true, 1, 0, 6),
-        TestReminder(7, "Brush teeth", R.drawable.toothbrush, null, true, 2, 0, 12),
-        TestReminder(8, "Wash Hair", R.drawable.shower_bath, null, false, 0, 9, 5),
-        TestReminder(9, "Feed the dog", R.drawable.grass, null, true, 2, 0, 13),
-        TestReminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0, 9),
+        _TestReminder(1, "Drink Water", R.drawable.water_drop, null, true, 3, 0, 20),
+        _TestReminder(2, "Laundry", R.drawable.shirt, EnumColor.BrandTwo, false, 0, 4, 2),
+        _TestReminder(3, "Shower", R.drawable.shower_bath, null, false, 0, 15, 3),
+        _TestReminder(4, "Read", R.drawable.person_reading, EnumColor.SecondaryTwo, false, 0, 8, 1),
+        _TestReminder(5, "Run", R.drawable.person_running_color, null, false, 0, 4, 1),
+        _TestReminder(6, "Make my bed", R.drawable.bed_color, null, true, 1, 0, 6),
+        _TestReminder(7, "Brush teeth", R.drawable.toothbrush, null, true, 2, 0, 12),
+        _TestReminder(8, "Wash Hair", R.drawable.shower_bath, null, false, 0, 9, 5),
+        _TestReminder(9, "Feed the dog", R.drawable.grass, null, true, 2, 0, 13),
+        _TestReminder(10, "Take Medication", R.drawable.med_bottle, null, true, 2, 0, 9),
     )
     // ================================= My Reminders Test stuff =================================
     val calendarReminders = mutableStateOf(listOf(
-        calReminder(1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
-        calReminder(2,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
-        calReminder(3,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0),
-        calReminder(4,"TEST", false,false,true,true,R.drawable.med_bottle, 1, 12, 0,0,0,0,0),
-        calReminder(5,"Run", false,false,true,true,R.drawable.person_running, 1, 12, 0,0,0,0,0),
-        calReminder(6,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0),
-        calReminder(7,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0),
-        calReminder(8,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(9,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(10,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(11,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
-        calReminder(12,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        _calReminder(1,"Go to store", false,false,true,true,R.drawable.shop_color, 1, 32, 1,5,2,3,1),
+        _calReminder(2,"shower", false,false,true,true,R.drawable.shower_bath, 1, 12, 0,0,0,0,0),
+        _calReminder(3,"Doctor", false,false,true,true,R.drawable.shirt_color, 1, 12, 0,0,0,0,0),
+        _calReminder(4,"TEST", false,false,true,true,R.drawable.med_bottle, 1, 12, 0,0,0,0,0),
+        _calReminder(5,"Run", false,false,true,true,R.drawable.person_running, 1, 12, 0,0,0,0,0),
+        _calReminder(6,"T3", false,false,true,true,R.drawable.bell, 1, 12, 0,0,0,0,0),
+        _calReminder(7,"T4", false,false,true,true,R.drawable.document, 1, 12, 0,0,0,0,0),
+        _calReminder(8,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        _calReminder(9,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        _calReminder(10,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        _calReminder(11,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
+        _calReminder(12,"T5", false,false,true,true,R.drawable.heart, 1, 12, 0,0,0,0,0),
 
         )
     )
@@ -104,7 +104,7 @@ object TestingUser {
     // Functions on reminders
     // Add a reminder
     fun addReminder(name: String, icon: Int, color: EnumColor?, daily: Boolean, timesPerDay: Int, timesPerMonth: Int) {
-        val newReminder = TestReminder(nextId++, name, icon, color, daily, timesPerDay, timesPerMonth, 0)
+        val newReminder = _TestReminder(nextId++, name, icon, color, daily, timesPerDay, timesPerMonth, 0)
         reminders.add(newReminder)
         updateLists()
     }
@@ -118,7 +118,7 @@ object TestingUser {
     }
 
     // Retrieve a reminder
-    fun getReminderById(id: Int): TestReminder? = reminderMap[id]
+    fun getReminderById(id: Int): _TestReminder? = reminderMap[id]
 
     // Put new reminders in weekly or monthly
     private fun updateLists() {
@@ -150,18 +150,18 @@ object TestingUser {
 
     // Streak Functions
     // Add to Streaks
-    fun addToWeeklyStreak(reminder: TestReminder) {
+    fun addToWeeklyStreak(reminder: _TestReminder) {
         if (reminderMap.containsKey(reminder.id) && weeklyStreaks.none { it.reminder.id == reminder.id }) {
             weeklyStreaks = weeklyStreaks + reminderToStreak(reminder)
         }
     }
-    fun addToMonthlyStreak(reminder: TestReminder) {
+    fun addToMonthlyStreak(reminder: _TestReminder) {
         if (reminderMap.containsKey(reminder.id) && monthlyStreaks.none { it.reminder.id == reminder.id }) {
             monthlyStreaks = monthlyStreaks + reminderToStreak(reminder)
         }
     }
     fun addStreak(
-        reminder: TestReminder,
+        reminder: _TestReminder,
         repeat: Boolean = false,
         repeatIndefinitely: Boolean = false,
         repeatNumber: Int = 0,
@@ -186,10 +186,10 @@ object TestingUser {
     }
 
     // Remove a streak
-    fun removeFromWeeklyStreak(reminder: TestReminder) {
+    fun removeFromWeeklyStreak(reminder: _TestReminder) {
         weeklyStreaks = weeklyStreaks.filter { it.reminder.id != reminder.id }
     }
-    fun removeFromMonthlyStreak(reminder: TestReminder) {
+    fun removeFromMonthlyStreak(reminder: _TestReminder) {
         monthlyStreaks = monthlyStreaks.filter { it.reminder.id != reminder.id }
     }
 
@@ -200,19 +200,19 @@ object TestingUser {
     }
 
     private fun reminderToStreak(
-        reminder: TestReminder,
+        reminder: _TestReminder,
         numberCompleted: Int = 0,
         repeat: Boolean = false,
         repeatIndefinitely: Boolean = false,
         repeatNumber: Int = 0,
         repeatInterval: String = "",
-    ): TestStreak {
+    ): _TestStreak {
         val total = if (reminder.daily) {
             reminder.timesPerDay * 7
         } else {
             reminder.timesPerMonth
         }
-        return TestStreak(
+        return _TestStreak(
             reminder = reminder,
             totalAmount = total,
             numberCompleted = numberCompleted,
@@ -223,14 +223,14 @@ object TestingUser {
         )
     }
 
-    fun incrementStreak(streak: TestStreak) {
+    fun incrementStreak(streak: _TestStreak) {
         streak.numberCompleted += 1
     }
 
     // =============== Badges ========================
     var allBadges by mutableStateOf(
         listOf(
-            TestBadge(
+            _TestBadge(
                 3,
                 R.drawable.flame,
                 EnumColor.BrandOne,
@@ -242,7 +242,7 @@ object TestingUser {
                     set(Calendar.MILLISECOND,0)
                 }.timeInMillis,
             ),
-            TestBadge(
+            _TestBadge(
                 2,
                 R.drawable.sun_glasses,
                 EnumColor.BrandOne,
@@ -254,7 +254,7 @@ object TestingUser {
                     set(Calendar.MILLISECOND,0)
                 }.timeInMillis,
             ),
-            TestBadge(
+            _TestBadge(
                 1,
                 R.drawable.one,
                 EnumColor.SecondaryTwo,
@@ -266,7 +266,7 @@ object TestingUser {
                     set(Calendar.MILLISECOND,0)
                 }.timeInMillis,
             ),
-            TestBadge(
+            _TestBadge(
                 4,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -274,7 +274,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 5,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -282,7 +282,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 6,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -290,7 +290,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 7,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -298,7 +298,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 8,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -306,7 +306,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 9,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -314,7 +314,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 10,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -322,7 +322,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 11,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -330,7 +330,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 12,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -338,7 +338,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 13,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -346,7 +346,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 14,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -354,7 +354,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 15,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -362,7 +362,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 16,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -370,7 +370,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 17,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -378,7 +378,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 18,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -386,7 +386,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 19,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -394,7 +394,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 20,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -402,7 +402,7 @@ object TestingUser {
                 "Other badges to be filled out.",
                 false
             ),
-            TestBadge(
+            _TestBadge(
                 21,
                 R.drawable.question_mark,
                 EnumColor.BrandTwo,
@@ -427,7 +427,7 @@ object TestingUser {
     }
 }
 
-data class TestReminder (
+data class _TestReminder (
     val id: Int,
     val name: String,
     val icon: Int,
@@ -438,8 +438,8 @@ data class TestReminder (
     val completedTally: Long
 )
 
-data class TestStreak (
-    val reminder: TestReminder,
+data class _TestStreak (
+    val reminder: _TestReminder,
     val totalAmount: Int,
     var numberCompleted: Int = 0,
     var repeat: Boolean = false,
@@ -448,7 +448,7 @@ data class TestStreak (
     var repeatInterval: String = "",
 )
 
-data class TestBadge (
+data class _TestBadge (
     val id: Int,
     val icon: Int,
     val color: EnumColor,
@@ -458,7 +458,7 @@ data class TestBadge (
     val completedOn: Long? = null,
 )
 
-data class calReminder(
+data class _calReminder(
     val id: Int,
     val name: String,
     val isDoNotRepeat: Boolean,

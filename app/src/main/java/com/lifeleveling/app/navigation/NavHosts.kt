@@ -11,8 +11,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.ui.screens.CalendarScreen
 import com.lifeleveling.app.ui.screens.CreateAccountScreen
+import com.lifeleveling.app.ui.screens.CreateReminderScreen
 import com.lifeleveling.app.ui.screens.HomeScreen
+import com.lifeleveling.app.ui.screens.MyRemindersScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
+import com.lifeleveling.app.ui.screens.PasswordResetScreen
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
@@ -60,7 +63,7 @@ fun AppNavHost(
             // Auth Screens
             composable("signIn") { SignIn() }
             composable("createAccount") { CreateAccountScreen() }
-//            composable("forgotPassword") { ForgotPasswordScreen() }
+            composable("passwordReset") { PasswordResetScreen() }
 
             // Main Screens
             composable("home") { HomeScreen() }
@@ -73,59 +76,8 @@ fun AppNavHost(
             composable("selfCare") { SelfCareScreen() }
             composable("termsAndPrivacy") { TermsAndPrivacyScreen() }
             composable("journeyStats") { UserJourneyScreen() }
+            composable("createReminder") { CreateReminderScreen() }
+            composable("myReminders") { MyRemindersScreen() }
         }
     }
 }
-
-
-//@Composable
-//fun MainScreenNavigationHost(
-//    navController: NavHostController,
-//    onSignOut: () -> Unit,
-//    onDeleteAccount: () -> Unit,
-//    padding: PaddingValues,
-//    isDarkThemeState: MutableState<Boolean>,
-//) {
-//    NavHost(
-//        navController = navController,
-//        startDestination = "home",
-//        modifier = Modifier.Companion.padding(paddingValues = padding),
-//        builder = {
-//            composable("calendar") {
-//                CalendarScreen()
-//            }
-//            composable("stats") {
-//                StatsScreenRoute()
-//            }
-//            composable("home") {
-//                HomeScreen()
-//            }
-//            composable("streaks") {
-//                StreaksScreen(navController = navController)
-//            }
-//            composable("settings") {
-//                SettingScreen(
-//                    navController = navController,
-//                    isDarkTheme = isDarkThemeState.value,
-//                    onThemeChange = { newIsDark ->
-//                        isDarkThemeState.value = newIsDark
-//                    },
-//                    onSignOut = onSignOut,
-//                    onDeleteAccount = onDeleteAccount
-//                )
-//            }
-//            composable("notifications") {
-//                NotificationScreen(navController = navController)
-//            }
-//            composable("selfCare") {
-//                SelfCareScreen(navController = navController)
-//            }
-//            composable("termsAndPrivacy") {
-//                TermsAndPrivacyScreen(navController = navController)
-//            }
-//            composable("journey_stats") {
-//                UserJourneyScreen(navController = navController)
-//            }
-//        }
-//    )
-//}

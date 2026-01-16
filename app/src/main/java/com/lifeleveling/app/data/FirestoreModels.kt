@@ -1,6 +1,5 @@
 package com.lifeleveling.app.data
 
-import android.media.session.MediaSession
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 
@@ -247,27 +246,6 @@ data class UsersData (
     fun calcWeeklyStreaks() : List<Streak> {
         return streaks.filter { it.weekly }
     }
-// Nested Models
-// A user's "reminder template" (the base CRUD)
-data class Reminders(
-    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
-    val title: String = "",
-    val notes: String = "",
-    val dueAt: Timestamp? = null,        // when the reminder should trigger (nullable)
-    val isCompleted: Boolean = false,
-    val completedAt: Timestamp? = null,  // set when marked complete
-    val createdAt: Timestamp? = null,    // serverTimestamp on create
-    val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
-    val isDaily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
-    val timesPerHour: Int = 0,          // How many hour(s)
-    val timesPerDay: Int = 0,           // How many day(s)
-    val timesPerMonth: Int = 0,         // How many month(s)
-    val colorToken: String? = null,      // nullable like enumColor? in TestUser
-    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
-    val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
-    val repeatCount: Int = 0,            // how many units
-    val repeatInterval: String? = null,  // days, weeks, months or years
-)
 
     /**
      * Separates the list of streaks into a list of monthly streaks.
@@ -278,25 +256,6 @@ data class Reminders(
         return streaks.filter { it.weekly }
     }
 }
-
-
-// One active streak the user is tracking
-/* Figma concept:
-   - Add a Week or Add a Month Streak
-   - Choose an existing reminder
-   - Track how many times they've completed it */
-data class Streak(
-    val streakId: String = "",                  // doc id inside streaks subcollection
-    val reminderId: String = "",                // link to Reminders.reminderId
-    val periodType: String = "weekly",          // "weekly" or "monthly"
-    val totalRequired: Long = 0,                // totalAmount in TestUser.kt
-    val numberCompleted: Long = 0,              // numberCompleted in TestUser.kt
-    val repeatIndefinitely: Boolean = false,
-    val repeatEveryAmount: Long? = null,        // future: "every 2", "every 3", etc
-    val repeatEveryUnit: String? = null,        // "days", "weeks", "months", "years"
-    val createdAt: Timestamp? = null,
-    val lastUpdate: Timestamp? = null,
-)
 
 data class FcmTokens(
     val uID: String = "",

@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import android.app.Activity
-import android.icu.util.Calendar
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.lifeleveling.app.R
 import kotlin.Int
 
 /**
@@ -27,7 +27,7 @@ import kotlin.Int
  * @author Elyseia
  */
 class UserManager(
-    private val logger: ILogger = AndroidLogger(),  // Put the creation of the logger here so that any function can access it if it is desired.
+    val logger: ILogger = AndroidLogger(),  // Put the creation of the logger here so that any function can access it if it is desired.
     private val authModel: AuthModel = AuthModel(logger = logger),
     private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger),
 ) : ViewModel() {
@@ -179,11 +179,16 @@ class UserManager(
 
     /**
      * This will take in a new set of stats and save them to the user's information
+     * Reset life points by setting all parameters to 0.
+     *
      * Flow:
-     * 1. Saves the stats and life points update to the user's local state.
-     * 2. Sends the updated stats and life point count to firestore
-     * 3. If the firestore write fails, the updates to the state rollback
-     * @author Elyseia
+     * 1. Pull the user's information for their stats and life points.
+     * 2. Set the stats and life points to the new values.
+     * 3. Update values to the user's local state.
+     * 4. Sends the updated stats and life point count to firestore
+     * 5. If the firestore write fails, the updates to the state rollback
+     *
+     * @author fdesouza1992, Elyseia
      */
     fun updateStats(
         strength: Long,
@@ -585,10 +590,55 @@ class UserManager(
         userData.update { it.copy(isLoggedIn = false, userBase = null) }
     }
 
+    /**
+     * Send a Firebase password reset email to the user's registered email address
+     *
+     * Flow:
+     * 1. Try to send the reset email using FirebaseAuth.
+     * 2. If it succeeds, call onResult with true and a friendly message.
+     * 3. If it fails, log and call onResult with false and a brief message.
+     * Note: This does NOT change AuthUiState
+     *
+     * @param email The email address to send the reset link to
+     * @param logger Used for logging errors and warnings.
+     * @param onResult Callback with successFlag, userFacingMessage
+     * @author fdesouza1992
+     */
+    fun sendPasswordResetEmail(
+        email: String,
+    ): Pair<Boolean, Int> {
+        var result = Pair<Boolean, Int> (false, 0)
+        userData.update { it.copy(isLoading = true, error = null) }
+        viewModelScope.launch {
+            try {
+                val trimmed = email.trim()
+                authModel.sendPasswordResetEmail(trimmed)
+                result = Pair(true, R.string.resetPasswordEmailSent)
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+                logger.e("FB", "Password reset: invalid email format", e)
+                result = Pair(false, (R.string.resetPasswordEmailError))
+            } catch (e: com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                logger.e("FB", "Password reset: invalid email format", e)
+                result = Pair(false, (R.string.resetPasswordEmailError))
+
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                logger.e("FB", "Password reset: FirebaseAuthException", e)
+                result = Pair(false, (R.string.resetPasswordFirebaseAuthError))
+
+            } catch (e: Exception) {
+                logger.e("FB", "Password reset: unexpected error", e)
+                result = Pair(false, (R.string.resetPasswordFirebaseAuthError))
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+        return result
+    }
+
     // ================== Firestore managing functions ==============================================
 
 
-    // Unsure if we want to make this function because it would require saving all the user data.
+    // TODO: Unsure if we want to make this function because it would require saving all the user data.
     // Can always be split into a smaller save for app closing saves
 //    // Write user into firestore
 //    suspend fun saveUser() {
@@ -603,7 +653,7 @@ class UserManager(
 //        }
 //    }
 
-    // This function would be passed to the application layer to save user data when the app is paused or closed.
+    // TODO: This function would be passed to the application layer to save user data when the app is paused or closed.
     // Can call above function or any new ones made
 //    fun saveOnPause() {
 //        viewModelScope.launch { saveUser() }

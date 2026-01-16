@@ -8,6 +8,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomDialog
 import com.lifeleveling.app.ui.components.CustomTextField
@@ -30,12 +34,14 @@ private fun isGoogleMailboxUi(email: String): Boolean =
     email.endsWith("@gmail.com", ignoreCase = true) ||
             email.endsWith("@googlemail.com", ignoreCase = true)
 
+@Preview(showBackground = true)
 @Composable
-fun PasswordResetScreen(
-    email: MutableState<String>,
-    onReset: (String, (Boolean, Int) -> Unit) -> Unit = { _, _ -> },
-    backToLogin: () -> Unit = {}
-) {
+fun PasswordResetScreen() {
+    val userManager = LocalUserManager.current
+    val navController = LocalNavController.current
+
+
+    val email = remember { mutableStateOf("") }
     val isGmail = isGoogleMailboxUi(email.value)
     val result = remember {mutableStateOf(Pair(true,R.string.resetPasswordMissingEmail))}
     val showPasswordResetDialog = remember { mutableStateOf(false) }
@@ -129,10 +135,8 @@ fun PasswordResetScreen(
                             }
 
                             // Normal email/password account calls
-                            onReset(emailTrimmed) { ok, message ->
-                                result.value = Pair(ok, message)
-                                showPasswordResetDialog.value = true
-                            }
+                            result.value = userManager.sendPasswordResetEmail(emailTrimmed)
+                            showPasswordResetDialog.value = true
                         },
                         enabled = !isGmail && email.value.isNotEmpty()
                     ) {
@@ -150,7 +154,7 @@ fun PasswordResetScreen(
                 color = AppTheme.colors.Gray,
                 textAlign = TextAlign.Center,
                 style = AppTheme.textStyles.DefaultUnderlined,
-                modifier = Modifier.clickable { backToLogin() }
+                modifier = Modifier.clickable { navController.navigate("signIn") }
             )
         }
     }
@@ -184,7 +188,7 @@ fun PasswordResetScreen(
                         showPasswordResetDialog.value = false
                         // Return to sign in only on success
                         if (result.value.first) {
-                            backToLogin()
+                            navController.navigate("signIn")
                         }
                     },
                     width = 120.dp,
@@ -198,16 +202,4 @@ fun PasswordResetScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewPasswordResetScreen() {
-    val email = remember { mutableStateOf("") }
-
-    PasswordResetScreen(
-        email = email,
-        onReset = {} as (String, (Boolean, Int) -> Unit) -> Unit,
-        backToLogin = {}
-    )
 }
