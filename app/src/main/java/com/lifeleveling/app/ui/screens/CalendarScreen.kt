@@ -29,7 +29,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
@@ -38,6 +37,8 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.minusMonths
 import com.kizitonwose.calendar.core.plusMonths
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.components.ShadowedIcon
@@ -53,9 +54,12 @@ import com.lifeleveling.app.ui.components.DailyRemindersList
 @Preview
 @OptIn(ExperimentalTime::class)
 @Composable
-fun CalendarScreen(
-    navController: NavController? = null,
-) {
+fun CalendarScreen() {
+
+//    val userManager = LocalUserManager.current
+//    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -285,7 +289,7 @@ fun CalendarScreen(
                         modifier = Modifier
                             .align(Alignment.Start)
                             .clickable {
-                                navController?.navigate("createReminderScreen")
+                                navController.navigate("createReminder")
                             },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -317,7 +321,7 @@ fun CalendarScreen(
                         modifier = Modifier
                             .align(Alignment.Start)
                             .clickable {
-                                navController?.navigate("MyReminders")
+                                navController.navigate("myReminders")
 
                             },
                         verticalAlignment = Alignment.CenterVertically,

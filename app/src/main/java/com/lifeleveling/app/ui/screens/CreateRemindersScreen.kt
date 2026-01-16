@@ -42,15 +42,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.lifeleveling.app.data.Reminders
 import kotlinx.coroutines.launch
 import com.google.firebase.Timestamp
+import com.lifeleveling.app.data.Reminder
 import java.util.Calendar
 
 
 @Preview
 @Composable
 fun CreateReminderScreen(
-    navController: NavController? = null,
-    repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = AndroidLogger(),
+//    navController: NavController? = null,
+//    repo: FirestoreRepository = FirestoreRepository(),
+//    logger: ILogger = AndroidLogger(),
 ){
 
     val scope = rememberCoroutineScope()
