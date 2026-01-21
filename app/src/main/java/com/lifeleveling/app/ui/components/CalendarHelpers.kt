@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+//import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+//import androidx.compose.foundation.shape.RoundedCornerShape
+//import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -31,7 +31,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringArrayResource
+//import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -46,7 +46,7 @@ import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.data.occursOn
-// import com.lifeleveling.app.ui.components.TestUser.calendarReminders
+//import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
@@ -59,7 +59,7 @@ import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.collections.toList
-import kotlin.collections.filter
+//import kotlin.collections.filter
 
 ///**
 // * This creates the day box on the calendar along with facilitating the dots for the reminders and the in and out dates of the calendar
@@ -187,7 +187,7 @@ import kotlin.collections.filter
 fun DayFirestore(
     day: CalendarDay,
     reminders: List<Reminders>,
-    onDateClick: (java.time.LocalDate) -> Unit,
+    onDateClick: (LocalDate) -> Unit,
 ) {
     val isOutDate = day.position != DayPosition.MonthDate
 
