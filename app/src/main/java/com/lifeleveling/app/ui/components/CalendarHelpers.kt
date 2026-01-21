@@ -151,6 +151,38 @@ import kotlin.collections.filter
 //    }
 //}
 
+/**
+ * Renders a single day cell inside the calendar Month View with Firestore-backed reminder dots.
+ *
+ * This composable is responsible for:
+ * - Displaying the day number inside the calendar grid.
+ * - Determining whether the day belongs to the current visible month (vs leading/trailing dates).
+ * - Filtering which reminders should appear on this date using:
+ *     - enabled == true
+ *     - occursOn(date, systemZone)
+ * - Rendering up to **4 reminder dots max** (UI constraint = 2x2 grid).
+ * - Handling click events so the parent screen can navigate or react to the selected date.
+ *
+ * Why this exists:
+ * - The calendar library provides dates as kotlinx.datetime.LocalDate.
+ * - The rest of the app uses java.time.LocalDate.
+ * - This component handles that conversion locally so the UI stays clean and consistent.
+ *
+ * Visual behavior:
+ * - Out-of-month dates render in a faded color.
+ * - In-month dates render normally.
+ * - If reminders exist for the day, colored dots appear centered in the cell.
+ * - Dot color is derived from the reminder type via reminderDotColor().
+ *
+ * Performance notes:
+ * - Filtering is done using a sequence to avoid unnecessary intermediate lists.
+ * - The list is hard-limited to 4 reminders to keep rendering predictable and cheap.
+ *
+ * @param day CalendarDay provided by the calendar library for this cell.
+ * @param reminders Full reminder list for the currently visible month (already fetched from Firestore).
+ * @param onDateClick Callback triggered when the user taps this day cell.
+ * @author fdesouza1992
+ */
 @Composable
 fun DayFirestore(
     day: CalendarDay,
