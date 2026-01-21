@@ -866,6 +866,10 @@ private fun reminderDotColor(reminder: Reminders): Color {
         Color.White
     )
 
-    val index: String = reminder.colorToken.coerceIn(0, palette.lastIndex)
+    // colorToken might be stored as "0", "1", "2"... or null
+    val raw = reminder.colorToken
+    val parsed = raw?.toIntOrNull() ?: 0
+    val index = parsed.coerceIn(0, palette.lastIndex)
+
     return palette[index]
 }
