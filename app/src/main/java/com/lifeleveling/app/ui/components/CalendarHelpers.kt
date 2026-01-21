@@ -159,17 +159,21 @@ fun DayFirestore(
 ) {
     val isOutDate = day.position != DayPosition.MonthDate
 
-    // Kizitonwose (kotlinx.datetime.LocalDate) here:
+    // Kizitonwose (your build) gives kotlinx.datetime.LocalDate here:
     val dateKx = day.date
-    // Converts from kotlinx.datetime.LocalDate to java.time.LocalDate
+
+    // Convert to java.time.LocalDate for the rest of your app:
     val date = dateKx.toJavaLocalDate()
 
-    // Filter reminders that are enabled AND active on this date
     val zone = ZoneId.systemDefault()
 
-    val remindersForThisDate = reminders.filter { r ->
-        r.enabled && r.occursOn(date, zone)
-    }
+    // enabled + occursOn (your Firestore rules)
+    val remindersForThisDate = reminders
+        .asSequence()
+        .filter { it.enabled }
+        .filter { it.occursOn(date, zone) }
+        .take(4) // hard limit of 4 dots
+        .toList()
 
     Box(
         modifier = Modifier
@@ -180,7 +184,7 @@ fun DayFirestore(
             )
             .fillMaxWidth()
             .height(70.dp)
-            .clickable { onDateClick(date) }, // tap day -> open Day view
+            .clickable { onDateClick(date) },
         contentAlignment = Alignment.TopCenter
     ) {
         Text(
@@ -189,17 +193,35 @@ fun DayFirestore(
         )
 
         if (remindersForThisDate.isNotEmpty()) {
-            Row(
+            // Arrange as 2x2 max
+            val topRow = remindersForThisDate.take(2)
+            val bottomRow = remindersForThisDate.drop(2).take(2)
+
+            Column(
                 modifier = Modifier.align(Alignment.Center),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                remindersForThisDate.take(4).forEach { reminder ->
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .size(8.dp)
-                            .background(reminderDotColor(reminder), CircleShape)
-                    )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    topRow.forEach { reminder ->
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(reminderDotColor(reminder), CircleShape)
+                        )
+                    }
+                }
+
+                if (bottomRow.isNotEmpty()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        bottomRow.forEach { reminder ->
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(reminderDotColor(reminder), CircleShape)
+                            )
+                        }
+                    }
                 }
             }
         }
