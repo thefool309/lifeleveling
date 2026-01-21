@@ -46,7 +46,7 @@ import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.data.occursOn
-import com.lifeleveling.app.ui.components.TestUser.calendarReminders
+// import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
@@ -70,85 +70,85 @@ import kotlin.collections.filter
  * 0 as the index being 2025 in the year selection.
  * @author sgcfsu1993 (Stephen C.)
  */
-@Composable
-fun Day(
-    day: CalendarDay,
-    reminders: List<calReminder>,
-    startYear:Int
-) {
-    val isOutDate = day.position != DayPosition.MonthDate
-    val date = day.date
-    val yearIndex = date.year - startYear
-    val monthValue = date.month.value
-    val dayValue = date.dayOfMonth
-    val toShowReminderInfo = remember {mutableStateOf(false)}
-    val hasReminder = reminders.filter { r ->
-        r.isEnabled && (
-                (r.year == yearIndex && r.month == monthValue && r.day == dayValue) || (r.isDaily && (yearIndex > r.year || (yearIndex == r.year && monthValue > r.month) || (yearIndex == r.year && monthValue == r.month && dayValue >= r.day))))
-    }
-    val colorOptions = listOf(
-        Color.Red,
-        Color.Blue,
-        Color.Green,
-        Color.Magenta,
-        Color.Yellow,
-        Color.Cyan,
-        Color.LightGray,
-        Color.White
-    )
-    val hourOptions = stringArrayResource(R.array.hour_array).toList()
-    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
-    val amOrPmOptions = listOf( stringResource(R.string.am), stringResource(R.string.pm))
-    val dayReminders = remember{mutableStateOf(hasReminder)}
-    Box(
-        modifier = Modifier
-            .border(
-                color = AppTheme.colors.Gray,
-                shape = RectangleShape,
-                width = 0.2.dp
-            )
-            .fillMaxWidth()
-            .height(70.dp),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Text(
-            text = dayValue.toString(),
-            color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
-        )
-        if (hasReminder.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ){
-                hasReminder.take(4).forEach { reminder -> // The .take(n=4) limits how many dots will be in Day cell
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .size(8.dp)
-                            .background(colorOptions[reminder.color], CircleShape)
-                            .clickable {
-                                toShowReminderInfo.value = true
-                                dayReminders.value = hasReminder
-                            }
-                    )
-                }
-            }
-        }
-    }
-    if (toShowReminderInfo.value) {
-
-        ShowCalendarReminders(
-            toShowReminderInfo,
-            dayReminders.value,
-            dayValue,
-            monthValue,
-            hourOptions,
-            minutesOptions,
-            amOrPmOptions
-        )
-    }
-}
+//@Composable
+//fun Day(
+//    day: CalendarDay,
+//    reminders: List<calReminder>,
+//    startYear:Int
+//) {
+//    val isOutDate = day.position != DayPosition.MonthDate
+//    val date = day.date
+//    val yearIndex = date.year - startYear
+//    val monthValue = date.month.value
+//    val dayValue = date.dayOfMonth
+//    val toShowReminderInfo = remember {mutableStateOf(false)}
+//    val hasReminder = reminders.filter { r ->
+//        r.isEnabled && (
+//                (r.year == yearIndex && r.month == monthValue && r.day == dayValue) || (r.isDaily && (yearIndex > r.year || (yearIndex == r.year && monthValue > r.month) || (yearIndex == r.year && monthValue == r.month && dayValue >= r.day))))
+//    }
+//    val colorOptions = listOf(
+//        Color.Red,
+//        Color.Blue,
+//        Color.Green,
+//        Color.Magenta,
+//        Color.Yellow,
+//        Color.Cyan,
+//        Color.LightGray,
+//        Color.White
+//    )
+//    val hourOptions = stringArrayResource(R.array.hour_array).toList()
+//    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
+//    val amOrPmOptions = listOf( stringResource(R.string.am), stringResource(R.string.pm))
+//    val dayReminders = remember{mutableStateOf(hasReminder)}
+//    Box(
+//        modifier = Modifier
+//            .border(
+//                color = AppTheme.colors.Gray,
+//                shape = RectangleShape,
+//                width = 0.2.dp
+//            )
+//            .fillMaxWidth()
+//            .height(70.dp),
+//        contentAlignment = Alignment.TopCenter
+//    ) {
+//        Text(
+//            text = dayValue.toString(),
+//            color = if (isOutDate) AppTheme.colors.FadedGray else AppTheme.colors.Gray
+//        )
+//        if (hasReminder.isNotEmpty()) {
+//            Row(
+//                modifier = Modifier
+//                    .align(Alignment.Center),
+//                horizontalArrangement = Arrangement.spacedBy(4.dp)
+//            ){
+//                hasReminder.take(4).forEach { reminder -> // The .take(n=4) limits how many dots will be in Day cell
+//                    Box(
+//                        modifier = Modifier
+//                            .align(Alignment.CenterVertically)
+//                            .size(8.dp)
+//                            .background(colorOptions[reminder.color], CircleShape)
+//                            .clickable {
+//                                toShowReminderInfo.value = true
+//                                dayReminders.value = hasReminder
+//                            }
+//                    )
+//                }
+//            }
+//        }
+//    }
+//    if (toShowReminderInfo.value) {
+//
+//        ShowCalendarReminders(
+//            toShowReminderInfo,
+//            dayReminders.value,
+//            dayValue,
+//            monthValue,
+//            hourOptions,
+//            minutesOptions,
+//            amOrPmOptions
+//        )
+//    }
+//}
 
 @Composable
 fun DayFirestore(
@@ -731,96 +731,96 @@ fun ShowReminder(
  * @param amOrPmOptions list of AM or PM - [reminder.amOrPm] gives the correct value(indices) to be used
  * @author sgcfsu1993 (Stephen C.)
  **/
-@Composable
-fun ShowCalendarReminders(
-    toShow: MutableState<Boolean>,
-    reminders: List<calReminder>,
-    day: Int,
-    month: Int,
-    hourOptions: List<String>,
-    minutesOptions: List<String>,
-    amOrPmOptions: List<String>
-){
-    if(reminders.isEmpty()){
-        return
-    }
-    val month = Month.of(month).getDisplayName(TextStyle.FULL, Locale.getDefault())
-    CustomDialog(
-        toShow = toShow,
-        dismissOnInsideClick = true
-    ){
-        Column(
-           verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Reminders for $month ${SuffixForDays(day)}",
-                style = AppTheme.textStyles.HeadingSix,
-                color = AppTheme.colors.SecondaryThree
-            )
-            HighlightCard(
-                modifier = Modifier
-
-                    .fillMaxWidth(),
-
-                outerPadding = 0.dp
-            ){
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-
-                ) {
-                    reminders.forEach { reminder: calReminder ->
-                        val hour = hourOptions[reminder.selectedHours]
-                        val min = minutesOptions[reminder.selectedMinutes]
-                        val amPm = amOrPmOptions[reminder.amOrPm]
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(AppTheme.colors.DarkerBackground, shape = RoundedCornerShape(12.dp)),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                ShadowedIcon(
-                                    modifier = Modifier.size(30.dp),
-                                    imageVector = ImageVector.vectorResource(reminder.icon),
-                                    tint = Color.Unspecified
-                                )
-                                Text(
-                                    text = reminder.name,
-                                    style = AppTheme.textStyles.Default,
-                                    color = AppTheme.colors.SecondaryThree
-                                )
-                                Text(
-                                    text = "$hour:$min $amPm",
-                                    style = AppTheme.textStyles.Default,
-                                    color = AppTheme.colors.Gray
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            CustomButton(
-                width = 120.dp,
-                onClick = { toShow.value = false },
-                backgroundColor = AppTheme.colors.Success75,
-            ) {
-                Text(
-                    text = stringResource(R.string.close),
-                    style = AppTheme.textStyles.HeadingSix,
-                    color = AppTheme.colors.Background
-                )
-            }
-        }
-    }
-}
+//@Composable
+//fun ShowCalendarReminders(
+//    toShow: MutableState<Boolean>,
+//    reminders: List<calReminder>,
+//    day: Int,
+//    month: Int,
+//    hourOptions: List<String>,
+//    minutesOptions: List<String>,
+//    amOrPmOptions: List<String>
+//){
+//    if(reminders.isEmpty()){
+//        return
+//    }
+//    val month = Month.of(month).getDisplayName(TextStyle.FULL, Locale.getDefault())
+//    CustomDialog(
+//        toShow = toShow,
+//        dismissOnInsideClick = true
+//    ){
+//        Column(
+//           verticalArrangement = Arrangement.spacedBy(16.dp),
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Text(
+//                text = "Reminders for $month ${SuffixForDays(day)}",
+//                style = AppTheme.textStyles.HeadingSix,
+//                color = AppTheme.colors.SecondaryThree
+//            )
+//            HighlightCard(
+//                modifier = Modifier
+//
+//                    .fillMaxWidth(),
+//
+//                outerPadding = 0.dp
+//            ){
+//                Column(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(150.dp)
+//                        .verticalScroll(rememberScrollState()),
+//                    verticalArrangement = Arrangement.spacedBy(8.dp)
+//
+//                ) {
+//                    reminders.forEach { reminder: calReminder ->
+//                        val hour = hourOptions[reminder.selectedHours]
+//                        val min = minutesOptions[reminder.selectedMinutes]
+//                        val amPm = amOrPmOptions[reminder.amOrPm]
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .background(AppTheme.colors.DarkerBackground, shape = RoundedCornerShape(12.dp)),
+//                            verticalArrangement = Arrangement.spacedBy(8.dp)
+//                        ) {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                            ) {
+//                                ShadowedIcon(
+//                                    modifier = Modifier.size(30.dp),
+//                                    imageVector = ImageVector.vectorResource(reminder.icon),
+//                                    tint = Color.Unspecified
+//                                )
+//                                Text(
+//                                    text = reminder.name,
+//                                    style = AppTheme.textStyles.Default,
+//                                    color = AppTheme.colors.SecondaryThree
+//                                )
+//                                Text(
+//                                    text = "$hour:$min $amPm",
+//                                    style = AppTheme.textStyles.Default,
+//                                    color = AppTheme.colors.Gray
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            CustomButton(
+//                width = 120.dp,
+//                onClick = { toShow.value = false },
+//                backgroundColor = AppTheme.colors.Success75,
+//            ) {
+//                Text(
+//                    text = stringResource(R.string.close),
+//                    style = AppTheme.textStyles.HeadingSix,
+//                    color = AppTheme.colors.Background
+//                )
+//            }
+//        }
+//    }
+//}
 
 
 fun formatReminderTime(reminder: Reminders): String {
@@ -860,6 +860,6 @@ private fun reminderDotColor(reminder: Reminders): Color {
         Color.White
     )
 
-    val index = reminder.color.coerceIn(0, palette.lastIndex)
+    val index: String = reminder.colorToken.coerceIn(0, palette.lastIndex)
     return palette[index]
 }
