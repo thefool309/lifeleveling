@@ -877,6 +877,23 @@ fun iconResForNameCalendar(iconName: String?): Int {
 
 @Composable
 private fun reminderDotColor(reminder: Reminders): Color {
+    val token = reminder.colorToken?.trim()?.lowercase()
+
+    // 1) Handles named tokens (string)
+    val named = when (token) {
+        "red" -> Color.Red
+        "blue" -> Color.Blue
+        "green" -> Color.Green
+        "magenta" -> Color.Magenta
+        "yellow" -> Color.Yellow
+        "cyan" -> Color.Cyan
+        "light_gray", "lightgrey", "light gray" -> Color.LightGray
+        "white" -> Color.White
+        else -> null
+    }
+    if (named != null) return named
+
+    // 2) Handles numeric tokens ("0", "1", ...)
     val palette = listOf(
         Color.Red,
         Color.Blue,
@@ -888,10 +905,6 @@ private fun reminderDotColor(reminder: Reminders): Color {
         Color.White
     )
 
-    // colorToken might be stored as "0", "1", "2"... or null
-    val raw = reminder.colorToken
-    val parsed = raw?.toIntOrNull() ?: 0
-    val index = parsed.coerceIn(0, palette.lastIndex)
-
+    val index = token?.toIntOrNull()?.coerceIn(0, palette.lastIndex) ?: 0
     return palette[index]
 }
