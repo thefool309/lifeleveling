@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ScrollFadeEdges
@@ -38,6 +40,8 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.UserJourneyToolTip
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -48,6 +52,12 @@ fun UserJourneyScreen(
 ) {
     val scrollState = rememberScrollState()
     val showJourneyTip = remember { mutableStateOf(false) }
+    val repo = remember{ FirestoreRepository() }
+    val logger: ILogger = remember { AndroidLogger() }
+    val totalRemindersCompletedState = remember { mutableStateOf<Long?>(null) }
+    LaunchedEffect(Unit) {
+        totalRemindersCompletedState.value = repo.getTotalReminderCompletions(logger)
+    }
     val profileCreatedDate = TestUser.profileCreatedDate.let {
         SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             .format(Date(it))
@@ -56,9 +66,21 @@ fun UserJourneyScreen(
     TestUser.updateTopReminder()
     val mostCompletedReminder = if (TestUser.mostCompletedReminder.first == "") stringResource(R.string.no_remiders)
                         else "${TestUser.mostCompletedReminder.first} ${TestUser.mostCompletedReminder.second.toString()}"
+    val totalRemindersCompletedDisplay = totalRemindersCompletedState.value?.toString() ?: "0"
 
     // Statistics to display
     val statistics = listOf(
+        // Reminders
+        JourneySection(
+            title = R.string.myReminders_title2,
+            items = listOf(
+                JourneyItem(
+                    R.string.total_reminders_completed,
+                    totalRemindersCompletedDisplay
+                )
+            )
+        ),
+
         // Streaks
         JourneySection(
           title = R.string.streaks,

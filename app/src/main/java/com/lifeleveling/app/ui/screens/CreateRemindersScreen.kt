@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,10 +49,13 @@ import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.util.ILogger
 import com.lifeleveling.app.util.AndroidLogger
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import com.lifeleveling.app.data.Reminders
 import kotlinx.coroutines.launch
 import com.google.firebase.Timestamp
+import java.time.LocalTime
 import java.util.Calendar
+import java.util.Date
 
 
 @Preview
@@ -62,26 +67,66 @@ fun CreateReminderScreen(
 ){
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
     //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed            @Todo Stephen Commented this out as not used
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
     //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed        @Todo Stephen Commented this out as not used
     var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
-    var selectedReminderIndex by remember { mutableStateOf(0) } // selected icon for reminder   <-- This is needed
+    var selectedReminderIndex by remember { mutableIntStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
-    var selectedHour by remember { mutableStateOf(0) }          // selected hour for reminder   <-- This is needed
-    val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
-    val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
-    var selectedMinute by remember { mutableStateOf(0) }        // selected minute                 <-- This is needed
-    var selectedAmOrPm by remember {mutableStateOf(0)}          // selected AM or PM                <-- This is needed
-    val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
+//    var selectedHour by remember { mutableIntStateOf(0) }          // selected hour for reminder   <-- This is needed
+//    val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
+//    val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
+//    var selectedMinute by remember { mutableIntStateOf(0) }        // selected minute                 <-- This is needed
+//    var selectedAmOrPm by remember {mutableIntStateOf(0)}          // selected AM or PM                <-- This is needed
+//    val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
+
+    val hourOptions = stringArrayResource(R.array.hour_array).toList()
+    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
+    val amOrPmOptions = listOf(
+        stringResource(R.string.am),
+        stringResource(R.string.pm),
+    )
+
+    // Defaulting to the user's "now" time
+    val nowTime = remember { LocalTime.now() }
+
+    val initialHourIndexAndAmPm = remember {
+        val hour24 = nowTime.hour                   // 0–23
+        val isPm = hour24 >= 12
+        val hour12 = when {
+            hour24 == 0 -> 12
+            hour24 > 12 -> hour24 - 12
+            else -> hour24
+        }
+        val idx = hourOptions.indexOf(hour12.toString())
+            .coerceAtLeast(0)
+        val amPmIdx = if (isPm) 1 else 0           // 0 = AM, 1 = PM
+        idx to amPmIdx
+    }
+
+    val initialMinuteIndex = remember {
+        val minuteStr = "%02d".format(nowTime.minute)   // "00".."59"
+        minutesOptions.indexOf(minuteStr).coerceAtLeast(0)
+    }
+
+    var selectedHour by remember { mutableIntStateOf(initialHourIndexAndAmPm.first) }
+    val selectedHourMenu = remember { mutableStateOf(false) }
+
+    var selectedMinute by remember { mutableIntStateOf(initialMinuteIndex) }
+    val selectedMinuteMenu = remember { mutableStateOf(false) }
+
+    var selectedAmOrPm by remember { mutableIntStateOf(initialHourIndexAndAmPm.second) }
+    val amOrPmOptionsMenu = remember { mutableStateOf(false) }
+
     var reminderAmountNumber by remember { mutableStateOf("") }       // how many times the reminder is set for ex 5 days , 5 weeks , 5 months, 5 years <-- This is needed
     val selectedReminderAmountMenu = remember { mutableStateOf(false) } // bool for menu
-    var selectedReminderAmountHourDayWeek by remember { mutableStateOf(0) }        // the reminder is set for hours , days, week    <-- This is needed
+    var selectedReminderAmountHourDayWeek by remember { mutableIntStateOf(0) }        // the reminder is set for hours , days, week    <-- This is needed
     var repeatAmount by remember { mutableStateOf("") }                     // how many times to repeat the reminder text entered by user   <-- This is needed
     val selectedRepeatAmountMenu = remember { mutableStateOf(false) }       // bool to show menu
-    var selectedRepeatAmount by remember { mutableStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
+    var selectedRepeatAmount by remember { mutableIntStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
     val iconOptions = listOf(
         Reminder(0, "", R.drawable.water_drop, null, false, 0, 0, 0),
         Reminder(1, "", R.drawable.bed_color, null, false, 0, 0, 0),
@@ -110,12 +155,7 @@ fun CreateReminderScreen(
         "document",      // 10
         "doctor"         // 11
     )
-    val hourOptions = stringArrayResource(R.array.hour_array).toList()
-    val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
-    val amOrPmOptions = listOf(
-        stringResource(R.string.am),
-        stringResource(R.string.pm),
-    )
+
     val hoursOrMins = listOf(
         stringResource(R.string.minutesShort),
         stringResource(R.string.hours),
@@ -128,55 +168,95 @@ fun CreateReminderScreen(
         stringResource(R.string.years)
     )
 
-    val today = LocalDate.now()                                                             // Current date
-    val startYear = today.year                                                               // Years list (current year + 5)
+    val today = LocalDate.now()
+
+    // Years: current year through +5
+    val startYear = today.year
     val endYear = startYear + 5
     val yearList = (startYear..endYear).toList()
-    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
-    var selectedMonth by remember { mutableStateOf(0) }
-    var selectedYear by remember { mutableStateOf(0) }
-    val userSelectedYear = yearList[selectedYear]                                                 // Actual selected values
-    val isCurrentYear = userSelectedYear == today.year                                            // checks if the year selected (userSelectedYear) is the current year
-    val firstAvailableMonth = if (isCurrentYear) {                                          // determines the first month that should be shown in the month picker.
-        today.monthValue                                                                     // if the selected year is the current year, the list starts at the current month
-    } else {
-        1                                                                                   //otherwise the list starts at January
-    }
-    val filteredMonthList = (firstAvailableMonth..12).map { monthNumber ->         // this creates the list starting at firstavailablemonth to december ensuring if need be past months are not shown
-        Month.of(monthNumber).getDisplayName(
-            TextStyle.SHORT,
-            Locale.getDefault()
-        )
-    }
-    selectedMonth = selectedMonth.coerceIn(0, filteredMonthList.size - 1)                    // makes sure the list does not go out of bounds by making sure the index is not less then 0 and is not going to a index greater then whats in filteredmonthlist, if so, reset it to the first index
-    val actualMonth = firstAvailableMonth + selectedMonth                                    // converts the month index to the actual calendar month
-    val daysInMonth = YearMonth(userSelectedYear, actualMonth).lengthOfMonth()  //gets the number of days in the selected month
-    val isCurrentMonthAndYear =                                                                 //checks if the user selected month and year is the current month (returns true if its current year and month)
-        userSelectedYear == today.year && actualMonth == today.monthValue
 
-    val firstAvailableDay = if (isCurrentMonthAndYear) {                                        // if iscurrentmonthandyear is true, firstavailableday would be todays date, if not will be 1
+    // Index into year list
+    var selectedYear by remember { mutableIntStateOf(0) }
+    val userSelectedYear = yearList[selectedYear]
+
+    // If the selected year is the current year, we only show months from "now" forward. Otherwise, show all 12 months.
+    val isCurrentYear = userSelectedYear == today.year
+    val firstAvailableMonth = if (isCurrentYear) {
+        today.monthValue
+    } else {
+        1                       // January for future years
+    }
+
+    // Months: Only months from firstAvailableMonth → December
+    val filteredMonthList = (firstAvailableMonth..12).map { monthNumber ->
+        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    }
+
+    // Index into filteredMonthList
+    var selectedMonth by remember { mutableIntStateOf(0) }
+    selectedMonth = selectedMonth.coerceIn(0, filteredMonthList.size - 1)
+
+    // Convert index back to actual calendar month value (1–12)
+    val actualMonth = firstAvailableMonth + selectedMonth
+
+    // Number of days in the selected month/year
+    val daysInMonth = YearMonth(userSelectedYear, actualMonth).lengthOfMonth()
+
+    // Current month and current year check
+    val isCurrentMonthAndYear =
+        isCurrentYear && actualMonth == today.monthValue
+
+    val firstAvailableDay = if (isCurrentMonthAndYear) {
         today.dayOfMonth
     } else {
         1
     }
 
-    val dayList = (firstAvailableDay..daysInMonth).map { day ->                             //build the list of days of firstavailableday, so if current year and month, the list will start
-        SuffixForDays(day)                                                                        //with today (current day) date
+    // Index into the day list (0 = firstAvailableDay)
+    var selectedDay by remember { mutableIntStateOf(0) }
+
+    // Day dropdown options: from firstAvailableDay → end of that month
+    val dayList = (firstAvailableDay..daysInMonth).map { day ->
+        SuffixForDays(day)
     }
-    LaunchedEffect(userSelectedYear, actualMonth) {                                 // Since the day selection depends on the month, launchedeffect is used
-        selectedDay = if (isCurrentMonthAndYear) {                                                  // as when the values it watches change (userSelectedYear,actualMonth) it redoes the list
-            0                                                                                      // so here if the selected year and selected month equal current month and year
-        }else {                                                                                    // it will show the current date in the list due to the above firstavailableday determining what would be the valid day
-            0
-        }                                                                                 // else it will show the start of the list which at this point will be made up of the full list of days (1st - end of month)
-    }
-    LaunchedEffect(userSelectedYear) {                                              //when the userselectedyear is changed, reset month to first available in the list
+
+    // When the year changes, reset month and day to the first valid entries.
+    LaunchedEffect(userSelectedYear) {
         selectedMonth = 0
+        selectedDay = 0
     }
+
+    // When the month changes, reset day to the first valid entry for that month.
+    LaunchedEffect(userSelectedYear, actualMonth) {
+        selectedDay = 0
+    }
+
     val selectedMonthMenu = remember { mutableStateOf(false) }
     val selectedDayMenu = remember { mutableStateOf(false) }
     val selectedYearMenu = remember { mutableStateOf(false) }
-    var selectedColorIndex by remember { mutableStateOf(0) }
+
+
+//    val today = LocalDate.now()                                                             // Current date
+//    val monthList = (1..12).map { monthNumber ->
+//        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())   // Months list
+//    }
+//    val startYear = today.year                                                               // Years list (current year + 5)
+//    val endYear = startYear + 5
+//    val yearList = (startYear..endYear).toList()
+//    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
+//    var selectedMonth by remember { mutableStateOf(today.monthValue - 1) }
+//    var selectedYear by remember { mutableStateOf(0) }
+//    val actualYear = yearList[selectedYear]                                                 // Actual selected values
+//    val actualMonth = selectedMonth + 1
+//    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
+//    val dayList = (1..daysInMonth).map { day ->
+//        SuffixForDays(day)
+//    }
+//    val selectedMonthMenu = remember { mutableStateOf(false) }
+//
+//    val selectedDayMenu = remember { mutableStateOf(false) }
+//    val selectedYearMenu = remember { mutableStateOf(false) }
+    var selectedColorIndex by remember { mutableIntStateOf(0) }
     val colorMenu = remember { mutableStateOf(false) }
     val colorOptions = listOf(
         Color.Red,
@@ -201,9 +281,7 @@ fun CreateReminderScreen(
         "white"
     )
 
-    Surface(
-
-    ){
+    Surface{
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -539,15 +617,16 @@ fun CreateReminderScreen(
 
                             scope.launch {
                                 try {
-                                    // ---1. Resolve date and time into a Timestamp
+                                    // 1. Resolve date and time into a Timestamp
 
                                     // From Date Pickers
-                                    // From your date pickers:
-                                    val year = yearList.getOrNull(selectedYear) ?: today.year
-                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
-                                    val day = (selectedDay + 1).coerceAtMost(
-                                        YearMonth(year, month).lengthOfMonth()
-                                    )
+//                                    val year = yearList.getOrNull(selectedYear) ?: today.year
+//                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
+//                                    val day = (selectedDay + 1).coerceAtMost(
+//                                        YearMonth(year, month).lengthOfMonth()
+//                                    )
+                                    val year = userSelectedYear
+                                    val day = firstAvailableDay + selectedDay
 
                                     // From your time pickers:
                                     val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
@@ -568,7 +647,7 @@ fun CreateReminderScreen(
                                     val now = Calendar.getInstance()
                                     val cal = now.apply {
                                         set(Calendar.YEAR, year)
-                                        set(Calendar.MONTH, month - 1) // Calendar months are 0-based
+                                        set(Calendar.MONTH, actualMonth - 1) // Calendar months are 0-based
                                         set(Calendar.DAY_OF_MONTH, day)
                                         set(Calendar.HOUR_OF_DAY, hour24)
                                         set(Calendar.MINUTE, minute)
@@ -577,9 +656,20 @@ fun CreateReminderScreen(
                                     }
 
                                     val dueAt = Timestamp(cal.time)
+                                    // Block user from adding a reminder in the past
+                                    if(dueAt.toDate().before(Date())){
+                                        logger.w("Reminders", "CreateReminderScreen: selected date/time is in the past, not saving.")
+                                        // Using toast for now but will ask @stephen and cass to help get it onto the UI language of the app
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.cannot_create_past_reminder),
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        return@launch
+                                    }
                                     val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
-                                    // --- 2. "Set as daily" + "Remind me every:" ---
+                                    // 2. "Set as daily" + "Remind me every:"
                                     val isDaily = asDaily
                                     var timesPerMinute = 0
                                     var timesPerHour = 0
@@ -602,8 +692,7 @@ fun CreateReminderScreen(
                                     // timesPerMonth is unused for now
                                     val timesPerMonth = 0
 
-                                    // ---- 3. “Repeat this reminder” (duration) ----
-
+                                    // 3. “Repeat this reminder” (duration)
                                     var repeatForever = false
                                     var repeatCount = 0
                                     var repeatInterval: String? = null
@@ -620,16 +709,15 @@ fun CreateReminderScreen(
                                                 else -> null
                                             }
                                         } else {
-                                            // User checked the box but didn't give a number:
-                                            // treat this as "repeat forever" for now.
+                                            // User checked the box but didn't give a number is being treated as "repeat forever" for now.
                                             repeatForever = true
                                         }
                                     }
 
-                                    // ---- 4. Color token from dropdown ----
+                                    // 4. Color token from dropdown
                                     val colorToken = colorTokenOptions.getOrNull(selectedColorIndex)
 
-                                    // ---- 5. Build Reminders model ----
+                                    // 5. Build Reminders model
                                     val reminder = Reminders(
                                         reminderId = "",                    // Firestore will generate ID
                                         title = createdReminderTitle.trim(),
@@ -651,7 +739,7 @@ fun CreateReminderScreen(
                                         iconName = iconName
                                     )
 
-                                    // ---- 6. Persist in Firestore ----
+                                    // 6. Persist in Firestore
                                     val id = repo.createReminder(reminder, logger)
                                     if (id != null) {
                                         navController?.popBackStack()
