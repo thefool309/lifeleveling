@@ -64,7 +64,7 @@ import kotlin.collections.toList
 ///**
 // * This creates the day box on the calendar along with facilitating the dots for the reminders and the in and out dates of the calendar
 // * @param day from Kizitonwose Calendar (https://github.com/kizitonwose/Calendar?utm_source=chatgpt.com) helps get the date for the box and its position in the calendar (in/out date or normal date range)
-// * @param remidners list of users reminders that is filtered to find if its enabled, if its a daily, and the day/month/year for the reminder so its dot can be placed on the calendar
+// * @param reminders list of users reminders that is filtered to find if its enabled, if it's a daily, and the day/month/year for the reminder so its dot can be placed on the calendar
 // * @param startYear the base calendar year used to calculate the year offset when matching reminders to calendar dates, day.date is the
 // * current year so when matching the index chosen by the user (date.year - startYear) for example date.year would be the current year the
 // * user is looking at on the calendar, and 2025 is the current year given by the param startYear by localDate.now().year, so this will give
@@ -263,7 +263,7 @@ fun DayFirestore(
 
 /**
  * This gives the days the title of M T W T F
- * @param daysOfWeek A ordered list of days used for creating the weekday headers matching teh calendars configured first day.
+ * @param daysOfWeek An ordered list of days used for creating the weekday headers matching teh calendars configured first day.
  * @author sgcfsu1993 (Stephen C.)
  **/
 @Composable
@@ -622,7 +622,7 @@ fun SuffixForDays(
 }
 
 /**
- * This brings up the pop up in the My Reminders that show the information on the reminder
+ * This brings up the pop-up in the My Reminders that show the information on the reminder
  * @param toShow The bool value to show or not to show the dialog
  * @param passedReminder the users reminders
  * @param hourOptions full list of hour options - [reminder.selectedHours] gives the correct value(indices) to be used
@@ -781,11 +781,11 @@ fun ShowReminder(
 }
 
 /**
- * This brings up the pop up on the calendar to show the reminders for that day (used in Day())
+ * This brings up the pop-up on the calendar to show the reminders for that day (used in Day())
  * @param toShow The bool value to show or not to show the dialog
  * @param reminders the users reminders
- * @param day the day of the month for the reminder - used in the title for the pop up
- * @param month the month for the reminder - used in the title for the pop up
+ * @param day the day of the month for the reminder - used in the title for the pop-up
+ * @param month the month for the reminder - used in the title for the pop-up
  * @param hourOptions full list of hour options - [reminder.selectedHours] gives the correct value(indices) to be used
  * @param minutesOptions full list of minute options - [reminder.selectedMinutes] gives the correct value(indices) to be used
  * @param amOrPmOptions list of AM or PM - [reminder.amOrPm] gives the correct value(indices) to be used
