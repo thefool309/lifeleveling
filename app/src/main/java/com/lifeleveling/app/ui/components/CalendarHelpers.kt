@@ -155,13 +155,18 @@ import kotlin.collections.filter
 fun DayFirestore(
     day: CalendarDay,
     reminders: List<Reminders>,
-    onDateClick: (LocalDate) -> Unit,
+    onDateClick: (java.time.LocalDate) -> Unit,
 ) {
     val isOutDate = day.position != DayPosition.MonthDate
-    val date = day.date
+
+    // Kizitonwose (kotlinx.datetime.LocalDate) here:
+    val dateKx = day.date
+    // Converts from kotlinx.datetime.LocalDate to java.time.LocalDate
+    val date = dateKx.toJavaLocalDate()
 
     // Filter reminders that are enabled AND active on this date
     val zone = ZoneId.systemDefault()
+
     val remindersForThisDate = reminders.filter { r ->
         r.enabled && r.occursOn(date, zone)
     }
