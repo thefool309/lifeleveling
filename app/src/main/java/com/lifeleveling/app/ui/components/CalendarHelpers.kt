@@ -885,7 +885,7 @@ fun ShowReminder(
 
 fun formatReminderTime(reminder: Reminders): String {
     val date = reminder.startingAt?.toDate() ?: return "--:--"
-    val zoned = date.toInstant().atZone(java.time.ZoneId.systemDefault())
+    val zoned = date.toInstant().atZone(ZoneId.systemDefault())
     return java.time.format.DateTimeFormatter.ofPattern("h:mm a").format(zoned)
 }
 
