@@ -1,5 +1,6 @@
 package com.lifeleveling.app.data
 
+import androidx.annotation.DrawableRes
 import com.google.firebase.Timestamp
 import com.lifeleveling.app.ui.theme.EnumColor
 import com.lifeleveling.app.R
@@ -23,18 +24,22 @@ data class Stats (
  * @param reminderId Unique ID of the reminder
  * @param title Name of the reminder
  * @param notes
- * @param startingAt When the reminder will trigger
+ * @param dueAt When the reminder will trigger
  * @param completed
  * @param completedAt
  * @param createdAt The timestamp of when the reminder was created
  * @param lastUpdate The last time the reminder was updated
  * @param daily If this is a daily occurring reminder or a reminder with intervals between instances.
+ * @param timesPerHour How many hours(s)
  * @param timesPerDay If it is a daily, the number of times it will go off in a day
  * @param timesPerMonth If it is not a daily, the number of times it will go off in a month
  * @param colorToken The color associated with the reminder
  * @param iconName The icon chosen for the reminder
  * @param completedTally The number of times that this reminder has been completed (For UserJourney information)
  * @param enabled If the reminder is actively on the calendar or not. Also controls if the reminder will be available to make a streak from.
+ * @param repeatForever
+ * @param repeatCount
+ * @param repeatInterval
  */
 data class Reminder(
     val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
@@ -49,13 +54,13 @@ data class Reminder(
     val timesPerHour: Int = 0,          // How many hour(s)
     val timesPerDay: Int = 0,           // How many times per day
     val timesPerMonth: Int = 0,         // How many times per month
-    val colorToken: String? = null,      // nullable like enumColor? in TestUser
-    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val colorToken: EnumColor? = null,      // nullable like enumColor? in TestUser TODO: save as a string and change it? Would an int be better for enum?
+    val iconName: String,           // store icon key (ex: "water_drop"), not R.drawable.id TODO: Ask Felipe if he made a way to change a string to the icon to save this as string
     val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
     val enabled: Boolean = true,               // If the reminder is active or just saved
     val repeatForever: Boolean = false,
     val repeatCount: Long = 0,
-    val repeatInterval: Long = 0,
+    val repeatInterval: String? = null,
 )
 
 // One active streak the user is tracking

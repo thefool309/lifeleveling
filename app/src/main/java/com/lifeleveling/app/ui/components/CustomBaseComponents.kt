@@ -8,7 +8,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,6 +48,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.EnumColor
 import com.lifeleveling.app.ui.theme.InnerShadow
 import com.lifeleveling.app.ui.theme.resolveEnumColor
 
@@ -1213,7 +1217,7 @@ fun DropDownReminderMenu(
             ) {
                 options.forEachIndexed { index, reminder ->
                     val alreadyInStreaks = userState.weeklyStreaks.any { it.reminderId == reminder.reminderId } ||
-                            userState.weeklyStreaks.any { it.reminderId == reminder.reminderId }
+                            userState.monthlyStreaks.any { it.reminderId == reminder.reminderId }
 
                     if (!alreadyInStreaks) {
                         val isSelected = index == selectedIndex
@@ -1250,6 +1254,250 @@ fun DropDownReminderMenu(
                                 .background(backgroundColor)
                                 .fillMaxWidth()
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Creates a dropdown menu for a list of icon options
+ * @param options List of icons to display
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
+ * @param iconSize The size of the icons to be displayed
+ * @param arrowSize Changes the size of the arrow on the dropdown box
+ * @param iconTint The color of the icons if they should all be the same
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ *
+ * @author Elyseia
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownIconMenu(
+    modifier: Modifier = Modifier,
+    options: List<Int>,
+    selectedIndex: Int,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
+    iconSize: Dp = 24.dp,
+    arrowSize: Dp = 20.dp,
+    iconTint: Color? = null,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+) {
+    Box(
+        modifier = modifier
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
+                value = "",
+                onValueChange = { },
+                readOnly = readOnly,
+                leadingIcon = {
+                    options.getOrNull(selectedIndex)?.let { icon ->
+                        ShadowedIcon(
+                            modifier = Modifier.size(iconSize),
+                            imageVector = ImageVector.vectorResource(icon),
+                            tint = iconTint ?: Color.Unspecified,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    val icon = ImageVector.vectorResource(R.drawable.left_arrow)
+                    ShadowedIcon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = AppTheme.colors.Gray,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    disabledBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                )
+            )
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
+            ) {
+                options.forEachIndexed { index, icon ->
+                    val isSelected = index == selectedIndex
+                    val isEven = index % 2 == 0
+                    val backgroundColor =
+                        if (isSelected) selectedBackground
+                        else if (isEven) backgroundMainColor
+                        else accentColor
+                    DropdownMenuItem(
+                        text = {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ){
+                                ShadowedIcon(
+                                    modifier = Modifier.size(iconSize),
+                                    imageVector = ImageVector.vectorResource(icon),
+                                    tint = Color.Unspecified
+                                )
+                            }
+                        },
+                        onClick = {
+                            onSelectedChange(index)
+                            expanded.value = false
+                        },
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Creates a dropdown menu with a grid of icon options
+ * @param options List of icons to display
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
+ * @param iconSize The size of the icons to be displayed
+ * @param arrowSize Changes the size of the arrow on the dropdown box
+ * @param iconTint The color of the icons if they should all be the same
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @param columns The number of columns to display in the dropdown menu
+ *
+ * @author Elyseia
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownIconGridMenu(
+    modifier: Modifier = Modifier,
+    options: List<Int>,
+    selectedIndex: Int,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
+    iconSize: Dp = 24.dp,
+    arrowSize: Dp = 20.dp,
+    iconTint: Color? = null,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    columns: Int = 3,
+) {
+    Box(
+        modifier = modifier
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
+                value = "",
+                onValueChange = { },
+                readOnly = readOnly,
+                leadingIcon = {
+                    options.getOrNull(selectedIndex)?.let { icon ->
+                        ShadowedIcon(
+                            modifier = Modifier.size(iconSize),
+                            imageVector = ImageVector.vectorResource(icon),
+                            tint = iconTint ?: Color.Unspecified,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    val icon = ImageVector.vectorResource(R.drawable.left_arrow)
+                    ShadowedIcon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = AppTheme.colors.Gray,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    disabledBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                )
+            )
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(columns),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .widthIn(max = 300.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    itemsIndexed(options) { index, icon ->
+                        val isSelected = index == selectedIndex
+
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (isSelected) selectedBackground
+                                    else Color.Transparent
+                                )
+                                .clickable {
+                                    onSelectedChange(index)
+                                    expanded.value = false
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ShadowedIcon(
+                                modifier = Modifier.size(iconSize),
+                                imageVector = ImageVector.vectorResource(icon),
+                                tint = iconTint ?: Color.Unspecified,
+                            )
+                        }
                     }
                 }
             }

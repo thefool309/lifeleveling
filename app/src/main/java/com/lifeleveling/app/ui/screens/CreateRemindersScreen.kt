@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,28 +32,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.lifeleveling.app.R
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.util.ILogger
-import com.lifeleveling.app.util.AndroidLogger
 import androidx.compose.runtime.rememberCoroutineScope
-import com.lifeleveling.app.data.Reminders
-import kotlinx.coroutines.launch
-import com.google.firebase.Timestamp
-import com.lifeleveling.app.data.Reminder
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.buildReminderDraft
 import java.util.Calendar
 
 
 @Preview
 @Composable
-fun CreateReminderScreen(
-//    navController: NavController? = null,
-//    repo: FirestoreRepository = FirestoreRepository(),
-//    logger: ILogger = AndroidLogger(),
-){
+fun CreateReminderScreen(){
+    val userManager = LocalUserManager.current
+//    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
 
     val scope = rememberCoroutineScope()
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
@@ -76,18 +71,18 @@ fun CreateReminderScreen(
     val selectedRepeatAmountMenu = remember { mutableStateOf(false) }       // bool to show menu
     var selectedRepeatAmount by remember { mutableStateOf(0) }              // menu selection for if the reminder is to repeat for days, weeks, months, years   <-- This is needed
     val iconOptions = listOf(
-        Reminder(0, "", R.drawable.water_drop, null, false, 0, 0, 0),
-        Reminder(1, "", R.drawable.bed_color, null, false, 0, 0, 0),
-        Reminder(2, "", R.drawable.shirt_color, null, false, 0, 0, 0),
-        Reminder(3, "", R.drawable.med_bottle, null, false, 0, 0, 0),
-        Reminder(4, "", R.drawable.shower_bath, null, false, 0, 0, 0),
-        Reminder(5, "", R.drawable.shop_color, null, false, 0, 0, 0),
-        Reminder(6, "", R.drawable.person_running, null, false, 0, 0, 0),
-        Reminder(7, "", R.drawable.heart, null, false, 0, 0, 0),
-        Reminder(8, "", R.drawable.bell, null, false, 0, 0, 0),
-        Reminder(9, "", R.drawable.brain, null, false, 0, 0, 0),
-        Reminder(10, "", R.drawable.document, null, false, 0, 0, 0),
-        Reminder(11, "", R.drawable.doctor, null, false, 0, 0, 0)
+        R.drawable.water_drop,
+        R.drawable.bed_color,
+        R.drawable.shirt_color,
+        R.drawable.med_bottle,
+        R.drawable.shower_bath,
+        R.drawable.shop_color,
+        R.drawable.person_running,
+        R.drawable.heart,
+        R.drawable.bell,
+        R.drawable.brain,
+        R.drawable.document,
+        R.drawable.doctor,
     )
     val iconNameOptions = listOf(
         "water_drop",    // 0
@@ -191,7 +186,7 @@ fun CreateReminderScreen(
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
-                            DropDownReminderMenu(
+                            DropDownIconGridMenu(
                                 modifier = Modifier
                                     .width(108.dp)
                                     .height(32.dp)
@@ -256,7 +251,8 @@ fun CreateReminderScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
                             Text(
-                                text = stringResource(R.string.remind_me_every),                                color = AppTheme.colors.SecondaryOne,
+                                text = stringResource(R.string.remind_me_every),
+                                color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
                             Row(
@@ -311,7 +307,8 @@ fun CreateReminderScreen(
                                         }
                                     )
                                     Text(
-                                        text = stringResource(R.string.checkbox_setdaily),                                        style = AppTheme.textStyles.Default,
+                                        text = stringResource(R.string.checkbox_setdaily),
+                                        style = AppTheme.textStyles.Default,
                                         color = AppTheme.colors.Gray
                                     )
                                 }
@@ -339,7 +336,8 @@ fun CreateReminderScreen(
                                             }
                                         )
                                         Text(
-                                            text = stringResource(R.string.checkbox_weekdays),                                            style = AppTheme.textStyles.Default,
+                                            text = stringResource(R.string.checkbox_weekdays),
+                                            style = AppTheme.textStyles.Default,
                                             color = AppTheme.colors.Gray
                                         )
                                     }
@@ -351,7 +349,8 @@ fun CreateReminderScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
                             Text(
-                                text = stringResource(R.string.repeat_for),                                color = AppTheme.colors.SecondaryOne,
+                                text = stringResource(R.string.repeat_for),
+                                color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
                             Row(
@@ -452,7 +451,7 @@ fun CreateReminderScreen(
                     CustomButton(
                         width = 120.dp,
                         onClick = {
-                            navController?.popBackStack()
+                            navController.popBackStack()
                         },
                         backgroundColor = AppTheme.colors.Error75,
                     ) {
@@ -468,119 +467,32 @@ fun CreateReminderScreen(
                         onClick = {
                             // Basic validation that we can build upon if needed
                             if (createdReminderTitle.isBlank()){
-                                logger.w("Reminders", "CreateReminderScreen: title is blank, not saving.")
+                                userManager.logger.w("Reminders", "CreateReminderScreen: title is blank, not saving.")
                                 return@CustomButton
                             }
 
-                            scope.launch {
-                                try {
-                                    val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
-                                    val minuteStr = minutesOptions.getOrNull(selectedMinute) ?: "0"
-                                    val rawHour = hourStr.toIntOrNull() ?: 0
-                                    val minute = minuteStr.toIntOrNull() ?: 0
+                            // Build the draft with all proper calculations
+                            val draft = buildReminderDraft(
+                                title = createdReminderTitle.trim(),
+                                selectedHour = selectedHour,
+                                selectedMinute = selectedMinute,
+                                selectedAmOrPm = selectedAmOrPm,
+                                selectedReminderIndex = selectedReminderIndex,
+                                iconNameOptions = iconNameOptions,
+                                asDaily = asDaily,
+                                asWeekDay = asWeekDay,
+                                reminderAmountNumber = reminderAmountNumber,
+                                selectedReminderAmountHourDayWeek = selectedReminderAmountHourDayWeek,
+                                doNotRepeat = doNotRepeat,
+                                indefinitelyRepeat = indefinitelyRepeat,
+                                repeatAmount = repeatAmount,
+                                selectedRepeatAmount = selectedRepeatAmount,
+                            )
 
-                                    // This block converts the chosen AM/PM hour into a proper 24-hour format,
-                                    // handling the special cases for 12 AM and 12 PM.
-                                    val hour24 = if (selectedAmOrPm == 1) {
-                                        // PM
-                                        if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
-                                    } else {
-                                        // AM
-                                        rawHour % 12
-                                    }
-                                    // --- Starting time: move to tomorrow if time already passed today ---
-                                    val now = Calendar.getInstance()
-                                    val cal = Calendar.getInstance().apply{
-                                        set(Calendar.HOUR_OF_DAY, hour24)
-                                        set(Calendar.MINUTE, minute)
-                                        set(Calendar.SECOND, 0)
-                                        set(Calendar.MILLISECOND, 0)
-                                    }
-                                    // If time is earlier than "now", we will move to the next day
-                                    if (cal.before(now)){
-                                        cal.add(Calendar.DAY_OF_YEAR,1)
-                                    }
-                                    val dueAt = Timestamp(cal.time)
-                                    val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
+                            userManager.addReminder(draft)
 
-                                    // --- "Remind me every" section ---
-                                    val isDaily = asDaily || asWeekDay
-                                    var timesPerHour = 0
-                                    var timesPerDay = 0
-                                    var timesPerMonth = 0
-
-                                    val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
-                                    if (everyCount > 0) {
-                                        when (selectedReminderAmountHourDayWeek) {
-                                            0 -> {
-                                                // Example: "Remind me every 8 Hours"
-                                                // We store "8" in timesPerHour.
-                                                timesPerHour = everyCount
-                                            }
-                                            1 -> {
-                                                // Example: "Remind me every 3 Days"
-                                                // For now we store the number 3 in timesPerDay.
-                                                timesPerDay = everyCount
-                                            }
-                                            2 -> {
-                                                // Example: "Remind me every 2 Weeks"
-                                                // For now we store the number 2 in timesPerMonth
-                                                timesPerMonth = everyCount
-                                            }
-                                        }
-                                    }
-
-                                    // --- "Repeat for" [ amount + (Days/Weeks/Months/Years) ]
-                                    val repeatForever = indefinitelyRepeat
-                                    var repeatCount = 0
-                                    var repeatInterval: String? = null
-
-                                    if (!doNotRepeat && !repeatForever) {
-                                        val count = repeatAmount.toIntOrNull() ?: 0
-                                        if (count > 0) {
-                                            repeatCount = count
-                                            repeatInterval = when (selectedRepeatAmount) {
-                                                0 -> "days"
-                                                1 -> "weeks"
-                                                2 -> "months"
-                                                3 -> "years"
-                                                else -> null
-                                            }
-                                        }
-                                    }
-
-                                    val reminder = Reminders(
-                                        reminderId = "",                    // Firestore auto-generates
-                                        title = createdReminderTitle.trim(),
-                                        notes = "",                         // no notes field in UI yet, but here if needed
-                                        dueAt = dueAt,
-                                        isCompleted = false,
-                                        completedAt = null,
-                                        createdAt = null,
-                                        lastUpdate = null,
-                                        isDaily = isDaily,
-                                        timesPerHour = timesPerHour,
-                                        timesPerDay = timesPerDay,
-                                        timesPerMonth = timesPerMonth,
-                                        repeatForever = repeatForever,
-                                        repeatCount = repeatCount,
-                                        repeatInterval = repeatInterval,
-                                        colorToken = null,
-                                        iconName = iconName           // fallback to empty if somehow null
-                                    )
-
-                                    val id = repo.createReminder(reminder, logger)
-                                    if (id != null) {
-                                        navController?.popBackStack()
-                                    } else {
-                                        logger.e("Reminders", "CreateReminderScreen: createReminder returned null.")
-                                        // TODO: show a user-facing error dialog box
-                                    }
-                                } catch (e: Exception) {
-                                    logger.e("Reminders", "CreateReminderScreen: failed to create reminder", e)
-                                    // TODO: show a user-facing error dialog box
-                                }
-                            }
+                            navController.popBackStack()
+                            // TODO: show a user-facing error dialog box
                         },
                         backgroundColor = AppTheme.colors.Success75,
                     ) {

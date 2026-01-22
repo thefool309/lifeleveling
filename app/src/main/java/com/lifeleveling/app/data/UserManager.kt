@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
+import java.util.Calendar
 import kotlin.Int
 
 /**
@@ -322,6 +323,61 @@ class UserManager(
      */
     fun retrieveReminder(id: String) : Reminder? {
         return userData.value.reminders.find { it.reminderId == id }
+    }
+
+    /**
+     * Takes in a ReminderDraft object from the UI and turns it into a full reminder.
+     * Passes that reminder to the repo to be written to firestore.
+     * Updates the firestore id returned from adding it.
+     * Adds the full reminder to the user state and updates the dependencies
+     * @author fdesouza1992, Elyseia
+     */
+    fun addReminder(draft: ReminderDraft) {
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                // Build Reminder from draft
+                val reminder = Reminder(
+                    reminderId = "",
+                    title = draft.title,
+                    notes = "",
+                    dueAt = draft.dueAt,
+                    completed = false,
+                    completedAt = null,
+                    lastUpdate = null,
+                    daily = draft.daily,
+                    timesPerHour = draft.timesPerHour,
+                    timesPerDay = draft.timesPerDay,
+                    timesPerMonth = draft.timesPerMonth,
+                    repeatForever = draft.repeatForever,
+                    repeatCount = draft.repeatCount,
+                    repeatInterval = draft.repeatInterval,
+                    colorToken = draft.colorToken,
+                    iconName = draft.iconName,
+                )
+
+                // Write to firestore
+                val reminderId = fireRepo.createReminder(reminder, uid)
+                    ?: error("Failed to create reminder")
+
+                val reminderWithId = reminder.copy(reminderId = reminderId)
+
+                // Update UI ONLY after success
+                userData.update { current ->
+                    current.copy(
+                        reminders = current.reminders + reminderWithId,
+                    ).updateReminderDependencies()
+                }
+            } catch (e: Exception) {
+                logger.e("FB", "Error adding reminder", e)
+                userData.update { it.copy(error = "Error adding reminder") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
     }
 
     // ============ Streak Functions ===============================================

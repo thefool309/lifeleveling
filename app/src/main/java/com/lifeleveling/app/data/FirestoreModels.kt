@@ -157,6 +157,17 @@ data class UsersData (
     }
 
     /**
+     * Recalculates which reminders are enabled
+     * @return a UsersData object for updating the state
+     * @author Elyseia
+     */
+    fun updateReminderDependencies(): UsersData {
+        return this.copy(
+            enabledReminders = calculateEnabledReminders()
+        )
+    }
+
+    /**
      * Calculated the experience needed to reach the next level
      * @return A long value to pass into the UsersData
      * @author Elyseia
