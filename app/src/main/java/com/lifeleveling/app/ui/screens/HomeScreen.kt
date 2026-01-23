@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.components.TestUser
+// import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.EquipmentDisplay
 import com.lifeleveling.app.ui.components.HealthDisplay
@@ -43,6 +43,13 @@ import com.lifeleveling.app.ui.components.ProgressBar
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
 import com.lifeleveling.app.ui.models.StatsUi
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.setValue
+import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 
 
 //@Preview
@@ -51,6 +58,15 @@ fun HomeScreen() {
     val showLevelTip = remember { mutableStateOf(false) }
     val showHealthTip = remember { mutableStateOf(false) }
     val fightMeditateSwitch = remember { mutableStateOf(0) }
+    val repo = remember { FirestoreRepository() }
+    val logger: ILogger = remember { AndroidLogger() }
+
+    var coinsBalance by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(Unit) {
+        val user = repo.getCurrentUser(logger)
+        coinsBalance = user?.coinsBalance ?: 0L
+    }
 
     // Main screen pulling everything in 16.dp from edge
     Box(
@@ -149,7 +165,7 @@ fun HomeScreen() {
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = stringResource(R.string.coins, TestUser.coins),
+                                    text = stringResource(R.string.coins, coinsBalance),
                                     style = AppTheme.textStyles.Default,
                                     color = AppTheme.colors.Gray
                                 )
