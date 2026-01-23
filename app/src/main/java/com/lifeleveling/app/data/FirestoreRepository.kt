@@ -298,55 +298,24 @@ class FirestoreRepository {
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
      */
 
-    suspend fun setStats(newStats: Stats, logger: ILogger): Boolean {
-        val uid = getUserId()
-        if (uid.isNullOrBlank()) {
-            logger.e(TAG, "ID is null. Please login to firebase.")
+    suspend fun setStats(stats: Stats, logger: ILogger) : Boolean {
+        val userId: String? = getUserId()
+        if (userId == null) {
+            logger.e(TAG,"ID is null. Please login to firebase.")
+            return false
+        }
+        val docRef = db.collection("users")
+            .document(userId)
+        try{
+            docRef.update("stats", stats).await()
+            updateTimestamp(userId, logger)
+            return true
+        }
+        catch (e: Exception){
+            logger.e(TAG, "Error Updating User: ", e)
             return false
         }
 
-        val userRef = db.collection("users").document(uid)
-
-        return try {
-            db.runTransaction { tx ->
-                val snap = tx.get(userRef)
-
-                val oldStats = snap.toObject(Users::class.java)?.stats ?: Stats(0,0,0,0,0)
-                val oldCurrHealth = (snap.getLong("currHealth") ?: 0L)
-
-                fun maxHealthFrom(stats: Stats): Long {
-                    val base = 100L
-                    val perPoint = 5L
-                    return base + (stats.health * perPoint)
-                }
-
-                val oldMax = maxHealthFrom(oldStats)
-                val newMax = maxHealthFrom(newStats)
-
-                val delta = (newMax - oldMax).coerceAtLeast(0L)
-
-                // Option A (recommended): increase current by the same delta (like you “gained” that health)
-                val newCurrHealth = (oldCurrHealth + delta).coerceAtMost(oldMax)
-                // Option B (full heal on upgrade): val newCurrHealth = newMax
-
-                tx.update(
-                    userRef,
-                    mapOf(
-                        "stats" to newStats,
-                        "currHealth" to newCurrHealth,
-                        "lastUpdate" to FieldValue.serverTimestamp(),
-                    )
-                )
-
-                null
-            }.await()
-
-            updateTimestamp(uid, logger)
-            true
-        } catch (e: Exception) {
-            logger.e(TAG, "Error Updating Stats (with health sync): ", e)
-            false
-        }
     }
 
     /**
