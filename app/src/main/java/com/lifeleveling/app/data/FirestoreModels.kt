@@ -2,6 +2,8 @@ package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * The base of the user information. Everything inside of this are values that can be written into firestore
@@ -173,6 +175,65 @@ data class Reminders(
             maxHealth = calculateMaxHealth(),
         )
     }
+/**
+ * Checks if this reminder should be shown on a specific day.
+ *
+ * This is mainly used by the Day View to figure out which reminders belong on the selected date.
+ *
+ * It takes into account:
+ * - When the reminder starts
+ * - Whether it is daily
+ * - Whether it repeats (and for how long)
+ *
+ * @param date The calendar day being evaluated.
+ * @param zone The device time zone used to safely convert timestamps to dates.
+ * @return true if the reminder applies to the given date, false if it does not.
+ * @author fdesouza1992
+ */
+
+fun Reminders.occursOn(date: LocalDate, zone: ZoneId): Boolean {
+    val start = this.startingAt?.toDate() ?: return false
+    val startDate = start.toInstant().atZone(zone).toLocalDate()
+
+    if (date.isBefore(startDate)) return false
+
+    // If it’s a one-off, only show on its start date.
+    val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
+    if (!daily && !hasRepeatRule) {
+        return date == startDate
+    }
+
+    // If it’s daily with no duration rule, show every day from start onward.
+    if (daily && !hasRepeatRule) return true
+
+    // If it repeats forever, allow it as long as date >= start.
+    if (repeatForever) return true
+
+    // Otherwise it repeats with a finite duration rule.
+    val interval = repeatInterval ?: return false
+    val count = repeatCount
+
+    val endDate = when (interval) {
+        "days" -> startDate.plusDays(count.toLong())
+        "weeks" -> startDate.plusWeeks(count.toLong())
+        "months" -> startDate.plusMonths(count.toLong())
+        "years" -> startDate.plusYears(count.toLong())
+        else -> return false
+    }
+
+    if (date.isAfter(endDate)) return false
+
+    return true
+}
+
+// Player stat block (Stats Screen)
+data class Stats (
+    val agility: Long = 0,
+    val defense: Long = 0,
+    val intelligence: Long = 0,
+    val strength: Long = 0,
+    val health: Long = 0,
+)
 
     /**
      * Separates the streaks pulled from firestore into two lists of weekly and monthly.

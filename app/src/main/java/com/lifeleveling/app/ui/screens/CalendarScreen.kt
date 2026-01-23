@@ -43,16 +43,22 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
-import com.lifeleveling.app.ui.components.TestUser.calendarReminders
+//import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.time.ExperimentalTime
 import com.lifeleveling.app.ui.components.DailyRemindersList
+import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Reminders
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
+import java.time.ZoneId
 
 
-@Preview
+
+//@Preview
 @OptIn(ExperimentalTime::class)
 @Composable
 fun CalendarScreen() {
@@ -80,6 +86,9 @@ fun CalendarScreen() {
         val isMonthView = remember { mutableStateOf(true) }
         val jumpedDay = remember { mutableStateOf(LocalDate.now()) }
         val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
+        val repo = remember { FirestoreRepository() }
+        val logger: ILogger = AndroidLogger()
+        val monthReminders = remember { mutableStateOf<List<Reminders>>(emptyList()) }
 
         val state = rememberCalendarState(
             startMonth = startMonth,
@@ -88,6 +97,11 @@ fun CalendarScreen() {
             firstDayOfWeek = daysOfWeek.first(),
             outDateStyle = OutDateStyle.EndOfGrid
         )
+        LaunchedEffect(Unit) {
+            val all = repo.getAllReminders(logger)
+            monthReminders.value = all.filter { it.enabled }
+        }
+
         LaunchedEffect(jumpedMonth.value) {
             jumpedMonth.value?.let { date ->
                 val myYearMonth = YearMonth(date.year, date.month.ordinal + 1)
@@ -163,7 +177,16 @@ fun CalendarScreen() {
                                 modifier = Modifier
                                     .background(color = Color.Transparent),
                                 state = state,
-                                dayContent = { Day(it, calendarReminders.value, LocalDate.now().year) },
+                                dayContent = { day ->
+                                    DayFirestore(
+                                        day = day,
+                                        reminders = monthReminders.value,
+                                        onDateClick = { clicked ->
+                                            jumpedDay.value = clicked
+                                            isMonthView.value = true // your Day view is when isMonthView == true
+                                        }
+                                    )
+                                },
                                 monthHeader = {
                                     Column(
                                         modifier = Modifier
