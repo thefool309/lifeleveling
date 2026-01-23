@@ -102,7 +102,7 @@ class FirestoreRepositoryIntegrationTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
         val createdUser = auth.currentUser
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.createUser(
             mapOf(
                 "displayName" to testUsername,
@@ -118,7 +118,7 @@ class FirestoreRepositoryIntegrationTest {
             auth.signOut()
         }
         val logger = AndroidLogger()
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
 
             val result = repo.createUser(
                 mapOf(
@@ -137,7 +137,7 @@ class FirestoreRepositoryIntegrationTest {
         // auth.createUserWithEmailAndPassword(testEmail, testPassword).await()
         auth.signInWithEmailAndPassword(testEmail, testPassword).await()
         val logger = AndroidLogger()
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         repo.createUser(mapOf(
             "displayName" to testUsername,
             "email" to testEmail,
@@ -156,7 +156,7 @@ class FirestoreRepositoryIntegrationTest {
         if (!authSuccess) {
             throw Exception("Check Logs for Auth")
         }
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
 
         repo.createUser(mapOf(
             "displayName" to testUsername,
@@ -172,7 +172,7 @@ class FirestoreRepositoryIntegrationTest {
     @Test
     fun getUserExpectNullNegativeTest() = runTest {
         val logger = AndroidLogger()
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.getUser("not a user id")
         //if create user returns a null user something went wrong
         assert(result == null)
@@ -181,7 +181,7 @@ class FirestoreRepositoryIntegrationTest {
     @Test
     fun getUserBlankIDNegativeTest() = runTest {
         val logger = AndroidLogger()
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.getUser("     ")
         assert(result == null)
     }
@@ -192,7 +192,7 @@ class FirestoreRepositoryIntegrationTest {
             auth.signOut()
         }
         val logger = AndroidLogger()
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         // if someone were to pass null in as the userID it also gracefully fails
         // if you use a non-null asserted operator (auth.currentUser!!.uid) here it will throw a nullpointer exception
         // when calling getUser it is safer to use a "Safe" operator as below
@@ -214,7 +214,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editDisplayNamePositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editDisplayName("Tingle", auth.currentUser!!.uid)
         assert(result)
     }
@@ -223,7 +223,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editDisplayNameIsEmptyNegativeTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editDisplayName("", auth.currentUser!!.uid)
         assert(!result)
     }
@@ -232,7 +232,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editDisplayNameIsBlankNegativeTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editDisplayName("    ", auth.currentUser!!.uid)
         assert(!result)
     }
@@ -241,7 +241,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editEmailPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editEmail("tingle@annoyingasscharacters.com", auth.currentUser!!.uid)
         assert(result)
     }
@@ -250,7 +250,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editEmailIsEmptyNegativeTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editEmail("", auth.currentUser!!.uid)
         assert(!result)
     }
@@ -259,7 +259,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editEmailIsBlankNegativeTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editEmail("    ", auth.currentUser!!.uid)
         assert(!result)
     }
@@ -268,7 +268,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editPhotoUrlPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editPhotoUrl("www.reallycoolpicture.com/123456789.png", auth.currentUser!!.uid)
         assert(result)
     }
@@ -277,7 +277,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editPhotoUrlIsEmptyNegativeTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editPhotoUrl("", auth.currentUser!!.uid)
         assert(!result)
     }
@@ -286,7 +286,7 @@ class FirestoreRepositoryIntegrationTest {
     fun editPhotoUrlIsBlankNegativeTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         val result = repo.editPhotoUrl("    ", auth.currentUser!!.uid)
         assert(!result)
     }
@@ -314,7 +314,7 @@ class FirestoreRepositoryIntegrationTest {
     fun setCurrHealthPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid)
         var health = user!!.userBase!!.currHealth
@@ -327,7 +327,7 @@ class FirestoreRepositoryIntegrationTest {
     fun setCoinsPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid)
         var coins = user!!.userBase!!.coinsBalance
@@ -340,7 +340,7 @@ class FirestoreRepositoryIntegrationTest {
     fun addCoinsPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger= logger)
+        val repo = FirestoreRepository(db = firestore, logger= logger)
         resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid)
         val oldCoins = user!!.userBase!!.coinsBalance
@@ -353,7 +353,7 @@ class FirestoreRepositoryIntegrationTest {
     fun subtractCoinsPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository(logger = logger)
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid)
         val oldCoins = user!!.userBase!!.coinsBalance
@@ -367,9 +367,10 @@ class FirestoreRepositoryIntegrationTest {
     fun deleteUserPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository()
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
-        val result = repo.deleteUser(logger)
+        val uid = auth.currentUser!!.uid
+        val result = repo.deleteUser(uid)
         assert(result)
     }
 
@@ -377,13 +378,14 @@ class FirestoreRepositoryIntegrationTest {
     fun setLifePointsPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository()
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
-        var user = repo.getUser(auth.currentUser!!.uid, logger)
-        val oldLife = user!!.lifePoints
-        val result = repo.setLifePoints(52L, logger)
-        user = repo.getUser(auth.currentUser!!.uid, logger)
-        val newLife = user!!.lifePoints
+        var user = repo.getUser(auth.currentUser!!.uid,)
+        val oldLife = user!!.userBase!!.lifePointsTotal
+        val uid = auth.currentUser!!.uid
+        val result = repo.setLifePoints(52L, uid)
+        user = repo.getUser(auth.currentUser!!.uid,)
+        val newLife = user!!.userBase!!.lifePointsTotal
         assert(newLife == 52L)
         assert(result)
     }
@@ -392,13 +394,13 @@ class FirestoreRepositoryIntegrationTest {
     fun addXpPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository()
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
-        var user = repo.getUser(auth.currentUser!!.uid, logger)
-        val currXp = user!!.currentXp
-        val result = repo.addXp(100.00, logger)
-        user = repo.getUser(auth.currentUser!!.uid, logger)
-        val newXp = user!!.currentXp
+        var user = repo.getUser(auth.currentUser!!.uid)
+        val currXp = user!!.userBase!!.currentXp
+        val result = repo.addXp(100.00, auth.currentUser!!.uid)
+        user = repo.getUser(auth.currentUser!!.uid)
+        val newXp = user!!.userBase!!.currentXp
         assert(newXp == (currXp + 100.00))
         assert(result != null)
     }
@@ -407,10 +409,10 @@ class FirestoreRepositoryIntegrationTest {
     fun resetLifePointsPositiveTest() = runTest {
         val logger = AndroidLogger()
         authorizeFirebaseUser(logger)
-        val repo = FirestoreRepository()
+        val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
-        var user = repo.getUser(auth.currentUser!!.uid, logger)
-        val result = repo.resetLifePoints(logger)
+        var user = repo.getUser(auth.currentUser!!.uid)
+        val result = repo.resetLifePoints(auth.currentUser!!.uid)
         assert(result)
     }
 }

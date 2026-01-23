@@ -42,6 +42,7 @@ class UserManager(
     private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger, db = db),
     private val reminderRepo: ReminderRepository = ReminderRepository(logger, db),
 ) : ViewModel() {
+    //region SetUp
     private val userData = MutableStateFlow(UsersData())
     val uiState: StateFlow<UsersData> = userData.asStateFlow()  // Makes everything react to changes
 
@@ -86,11 +87,12 @@ class UserManager(
 
     override fun onCleared() { authModel.removeAuthStateListener(listener) }
 
+    //endregion
 
-    // ========================================== Functions =======================================================
+    //region User Functions
 
 
-    // ============ Functions for changing variables ===============================================
+    //region Functions for changing variables
     /**
      * Handles adding experience to the user.
      * Will do level up logic if needed.
@@ -245,8 +247,9 @@ class UserManager(
             }
         }
     }
+    //endregion
 
-    // ============ Calculation Functions ===============================================
+    //region Calculation Functions
     /**
      * Calculates the number of coins to give the user for completing a reminder.
      * Uses 10 coins as the base value.
@@ -323,8 +326,9 @@ class UserManager(
 
         return (yearsSection + daysSection).trim()
     }
+    //endregion
 
-    // ============ Reminder Functions ===============================================
+    //region Reminder Functions
     /**
      * Retrieves a reminder's information out of the reminder list based on the id
      * @param id ID of the reminder
@@ -581,8 +585,9 @@ class UserManager(
         }
         return result
     }
+    //endregion
 
-    // ============ Streak Functions ===============================================
+    //region Streak Functions
     /**
      * This function takes the UI supplied draft and a reminder information to create a full streak object.
      * @param streakId The new ID for the streak.
@@ -692,8 +697,11 @@ class UserManager(
             }
         }
     }
+    //endregion
 
-    // ================== Auth Functions ==========================================================
+    //endregion
+
+    //region Auth Functions
 
     /**
      * Handles the Google sign-in result Intent returned to the Activity.
@@ -893,7 +901,9 @@ class UserManager(
         return result
     }
 
-    // ================== Firestore managing functions ==============================================
+    //endregion
+
+    //region Firestore managing functions
 
 
     // TODO: Unsure if we want to make this function because it would require saving all the user data.
@@ -1055,4 +1065,6 @@ class UserManager(
             }
         }
     }
+
+    //endregion
 }
