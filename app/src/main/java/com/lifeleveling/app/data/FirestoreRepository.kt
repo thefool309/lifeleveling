@@ -817,6 +817,37 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Awards XP, coins, and progression updates when a reminder is completed.
+     *
+     * This method is the single source of truth for applying gameplay rewards tied to reminder completion.
+     * It performs two major responsibilities:
+     * 1) Records the reminder completion for the given date.
+     * 2) Atomically updates the user's progression inside a Firestore transaction:
+     *    - XP gain
+     *    - Level ups (if applicable)
+     *    - Life points increase on level up
+     *    - Coin rewards (including level-up bonus coins)
+     *
+     * Flow overview:
+     * - Validates that the user is authenticated.
+     * - Increments the reminder completion count for the selected reminder/date.
+     * - Loads the current user snapshot inside a Firestore transaction.
+     * - Calculates EXP and coins using RewardsCalculator.
+     * - Applies level-up logic if XP crosses the next level threshold:
+     *     - Carries over leftover XP.
+     *     - Increments the user's level.
+     *     - Grants +5 life points.
+     *     - Awards additional bonus coins for leveling up.
+     * - Persists all updated values atomically to prevent race conditions.
+     *
+     * @param reminderId Firestore ID of the completed reminder.
+     * @param reminderTitle Human-readable title (used for completion tracking / logs).
+     * @param date The date the reminder was completed for.
+     * @param logger Logger used for diagnostics and error reporting.
+     * @return true if the reward transaction succeeds; false otherwise.
+     * @author fdesouza1992
+     */
     suspend fun awardForReminderCompletion(
         reminderId: String,
         reminderTitle: String,
