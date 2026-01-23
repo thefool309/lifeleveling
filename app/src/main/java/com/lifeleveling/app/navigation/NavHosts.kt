@@ -22,6 +22,7 @@ import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreen
 import com.lifeleveling.app.ui.screens.StreaksScreen
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
+import com.lifeleveling.app.ui.screens.UserAccountScreen
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
 
 /**
@@ -78,6 +79,7 @@ fun AppNavHost(
             composable("journeyStats") { UserJourneyScreen() }
             composable("createReminder") { CreateReminderScreen() }
             composable("myReminders") { MyRemindersScreen() }
+            composable("userAccount") { UserAccountScreen() }
         }
     }
 }

@@ -13,10 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-//import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-//import androidx.compose.foundation.shape.RoundedCornerShape
-//import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -31,7 +28,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-//import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -44,10 +40,11 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.data.occursOn
-//import com.lifeleveling.app.ui.components.TestUser.calendarReminders
+import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.iconResForNameCalendar
+import com.lifeleveling.app.ui.theme.reminderDotColor
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Month
@@ -59,7 +56,6 @@ import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.collections.toList
-//import kotlin.collections.filter
 
 ///**
 // * This creates the day box on the calendar along with facilitating the dots for the reminders and the in and out dates of the calendar
@@ -186,7 +182,7 @@ import kotlin.collections.toList
 @Composable
 fun DayFirestore(
     day: CalendarDay,
-    reminders: List<Reminders>,
+    reminders: List<Reminder>,
     onDateClick: (LocalDate) -> Unit,
 ) {
     val isOutDate = day.position != DayPosition.MonthDate
@@ -633,11 +629,11 @@ fun SuffixForDays(
 @Composable
 fun ShowReminder(
     toShow: MutableState<Boolean>,
-    passedReminder: MutableState<Reminders?>,
+    passedReminder: MutableState<Reminder?>,
     hourOptions: List<String>,
     minutesOptions: List<String>,
     amOrPmOptions: List<String>,
-    onDelete: (Reminders) -> Unit
+    onDelete: (Reminder) -> Unit
 ) {
     val reminder = passedReminder.value ?: return
     var delete by remember { mutableStateOf(false) }
@@ -780,17 +776,17 @@ fun ShowReminder(
     }
 }
 
-/**
- * This brings up the pop-up on the calendar to show the reminders for that day (used in Day())
- * @param toShow The bool value to show or not to show the dialog
- * @param reminders the users reminders
- * @param day the day of the month for the reminder - used in the title for the pop-up
- * @param month the month for the reminder - used in the title for the pop-up
- * @param hourOptions full list of hour options - [reminder.selectedHours] gives the correct value(indices) to be used
- * @param minutesOptions full list of minute options - [reminder.selectedMinutes] gives the correct value(indices) to be used
- * @param amOrPmOptions list of AM or PM - [reminder.amOrPm] gives the correct value(indices) to be used
- * @author sgcfsu1993 (Stephen C.)
- **/
+///**
+// * This brings up the pop-up on the calendar to show the reminders for that day (used in Day())
+// * @param toShow The bool value to show or not to show the dialog
+// * @param reminders the users reminders
+// * @param day the day of the month for the reminder - used in the title for the pop-up
+// * @param month the month for the reminder - used in the title for the pop-up
+// * @param hourOptions full list of hour options - [reminder.selectedHours] gives the correct value(indices) to be used
+// * @param minutesOptions full list of minute options - [reminder.selectedMinutes] gives the correct value(indices) to be used
+// * @param amOrPmOptions list of AM or PM - [reminder.amOrPm] gives the correct value(indices) to be used
+// * @author sgcfsu1993 (Stephen C.)
+// **/
 //@Composable
 //fun ShowCalendarReminders(
 //    toShow: MutableState<Boolean>,
@@ -883,60 +879,8 @@ fun ShowReminder(
 //}
 
 
-fun formatReminderTime(reminder: Reminders): String {
-    val date = reminder.startingAt?.toDate() ?: return "--:--"
+fun formatReminderTime(reminder: Reminder): String {
+    val date = reminder.dueAt?.toDate() ?: return "--:--"
     val zoned = date.toInstant().atZone(ZoneId.systemDefault())
     return java.time.format.DateTimeFormatter.ofPattern("h:mm a").format(zoned)
-}
-
-fun iconResForNameCalendar(iconName: String?): Int {
-    return when (iconName) {
-        "water_drop"     -> R.drawable.water_drop
-        "bed_color"      -> R.drawable.bed_color
-        "shirt_color"    -> R.drawable.shirt_color
-        "med_bottle"     -> R.drawable.med_bottle
-        "shower_bath"    -> R.drawable.shower_bath
-        "shop_color"     -> R.drawable.shop_color
-        "person_running" -> R.drawable.person_running
-        "heart"          -> R.drawable.heart
-        "bell"           -> R.drawable.bell
-        "brain"          -> R.drawable.brain
-        "document"       -> R.drawable.document
-        "doctor"         -> R.drawable.doctor
-        else             -> R.drawable.bell
-    }
-}
-
-@Composable
-private fun reminderDotColor(reminder: Reminders): Color {
-    val token = reminder.colorToken?.trim()?.lowercase()
-
-    // 1) Handles named tokens (string)
-    val named = when (token) {
-        "red" -> Color.Red
-        "blue" -> Color.Blue
-        "green" -> Color.Green
-        "magenta" -> Color.Magenta
-        "yellow" -> Color.Yellow
-        "cyan" -> Color.Cyan
-        "light_gray", "lightgrey", "light gray" -> Color.LightGray
-        "white" -> Color.White
-        else -> null
-    }
-    if (named != null) return named
-
-    // 2) Handles numeric tokens ("0", "1", ...)
-    val palette = listOf(
-        Color.Red,
-        Color.Blue,
-        Color.Green,
-        Color.Magenta,
-        Color.Yellow,
-        Color.Cyan,
-        Color.LightGray,
-        Color.White
-    )
-
-    val index = token?.toIntOrNull()?.coerceIn(0, palette.lastIndex) ?: 0
-    return palette[index]
 }

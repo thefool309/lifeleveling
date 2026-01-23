@@ -22,7 +22,7 @@ import java.util.Date
  * @author fdesouza1992
  */
 class ReminderRepository(
-    private val auth: FirebaseAuth,
+    private val logger: ILogger,
     private val db: FirebaseFirestore
 ) {
 

@@ -4,6 +4,8 @@ import androidx.annotation.DrawableRes
 import com.google.firebase.Timestamp
 import com.lifeleveling.app.ui.theme.EnumColor
 import com.lifeleveling.app.R
+import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * Stats object to store the stat values
@@ -51,16 +53,21 @@ data class Reminder(
     val createdAt: Timestamp? = null,    // serverTimestamp on create
     val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
     val daily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
+    val timesPerMinute: Int = 0,        // How many minutes(s)
     val timesPerHour: Int = 0,          // How many hour(s)
     val timesPerDay: Int = 0,           // How many times per day
     val timesPerMonth: Int = 0,         // How many times per month
-    val colorToken: EnumColor? = null,      // nullable like enumColor? in TestUser TODO: save as a string and change it? Would an int be better for enum?
+    val colorToken: String? = null,      // nullable like enumColor? in TestUser TODO: save as a string and change it? Would an int be better for enum?
     val iconName: String,           // store icon key (ex: "water_drop"), not R.drawable.id TODO: Ask Felipe if he made a way to change a string to the icon to save this as string
     val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
     val enabled: Boolean = true,               // If the reminder is active or just saved
     val repeatForever: Boolean = false,
     val repeatCount: Long = 0,
     val repeatInterval: String? = null,
+    val selectedMinutes: Int = 0,
+    val amOrPm: Int = 0,
+    val selectedHours: Int = 0,
+    val color: Int = 0,
 )
 
 // One active streak the user is tracking
@@ -112,3 +119,54 @@ data class Badge(
     val completed: Boolean = false,
     val unlockedAt: Timestamp? = null,   // When badge was earned
 )
+
+/**
+ * Checks if this reminder should be shown on a specific day.
+ *
+ * This is mainly used by the Day View to figure out which reminders belong on the selected date.
+ *
+ * It takes into account:
+ * - When the reminder starts
+ * - Whether it is daily
+ * - Whether it repeats (and for how long)
+ *
+ * @param date The calendar day being evaluated.
+ * @param zone The device time zone used to safely convert timestamps to dates.
+ * @return true if the reminder applies to the given date, false if it does not.
+ * @author fdesouza1992
+ */
+
+fun Reminder.occursOn(date: LocalDate, zone: ZoneId): Boolean {
+    val start = this.dueAt?.toDate() ?: return false
+    val startDate = start.toInstant().atZone(zone).toLocalDate()
+
+    if (date.isBefore(startDate)) return false
+
+    // If it’s a one-off, only show on its start date.
+    val hasRepeatRule = repeatForever || (repeatCount > 0 && !repeatInterval.isNullOrBlank())
+    if (!daily && !hasRepeatRule) {
+        return date == startDate
+    }
+
+    // If it’s daily with no duration rule, show every day from start onward.
+    if (daily && !hasRepeatRule) return true
+
+    // If it repeats forever, allow it as long as date >= start.
+    if (repeatForever) return true
+
+    // Otherwise it repeats with a finite duration rule.
+    val interval = repeatInterval ?: return false
+    val count = repeatCount
+
+    val endDate = when (interval) {
+        "days" -> startDate.plusDays(count.toLong())
+        "weeks" -> startDate.plusWeeks(count.toLong())
+        "months" -> startDate.plusMonths(count.toLong())
+        "years" -> startDate.plusYears(count.toLong())
+        else -> return false
+    }
+
+    if (date.isAfter(endDate)) return false
+
+    return true
+}

@@ -31,7 +31,7 @@ class FirestoreRepository(
     private val db: FirebaseFirestore = Firebase.firestore,
     private val logger: ILogger,
 ) {
-    private val reminderRepo = ReminderRepository(auth, db)
+    private val reminderRepo = ReminderRepository(logger, db)
 
     companion object {
         private const val TAG = "FirestoreRepository"
