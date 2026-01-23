@@ -28,25 +28,13 @@ data class Users(
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
     // for this reason xpToNextLevel is not included in the primary constructor meaning it won't be serialized
-    var xpToNextLevel: Long = 0L
-    var maxHealth: Long = 0L
+    val xpToNextLevel: Long
+        get() = level * 100L
+
     val baseHealth: Long = 60L
-    init {
-        calculateXpToNextLevel()
-        calculateMaxHealth()
-    }
-
-    fun calculateXpToNextLevel() {
-        xpToNextLevel = level * 100L
-    }
-
-    fun calculateMaxHealth() {
-        val healthStat = stats.health
-        maxHealth = baseHealth + (healthStat * 5)
-    }
+    val maxHealth: Long
+        get() = baseHealth + (stats.health * 5)
 }
-
-
 
 // Nested Models
 // A user's "reminder template" (the base CRUD)
