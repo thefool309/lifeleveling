@@ -13,6 +13,8 @@ import kotlin.Long
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
+import com.google.firebase.firestore.Transaction
+import kotlin.math.max
 
 /**
  * A library of CRUD functions for our Firestore Cloud Database.
@@ -811,6 +813,80 @@ class FirestoreRepository {
             true
         } catch (e: Exception) {
             logger.e("Firestore", "Error resetting life points", e)
+            false
+        }
+    }
+
+    suspend fun awardForReminderCompletion(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate,
+        logger: ILogger,
+    ): Boolean {
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e(TAG, "awardForReminderCompletion: user not authenticated")
+            return false
+        }
+
+        return try {
+            val completionOk = reminderRepo.incrementReminderCompletionForDate(
+                reminderId = reminderId,
+                reminderTitle = reminderTitle,
+                date = date,
+                logger = logger
+            )
+            if (!completionOk) return false
+
+            val userRef = db.collection("users").document(uid)
+
+            db.runTransaction { tx: Transaction ->
+                val snap = tx.get(userRef)
+                val user = snap.toObject(Users::class.java)
+                    ?: throw IllegalStateException("User doc missing")
+
+                val expEarned = RewardsCalculator.calcExpForReminderCompletion(user)
+                val coinsEarned = RewardsCalculator.calcCoinsForReminderCompletion(user)
+
+                val currentLevel = user.level
+                val currentXp = user.currentXp
+                val nextXp = user.xpToNextLevel.toDouble() // derived from level
+
+                var newLevel = currentLevel
+                var newXp = currentXp + expEarned
+                var newLifePoints = user.lifePoints
+                var extraLevelCoins = 0L
+
+                // Level up logic
+                if (newXp >= nextXp) {
+                    val leftover = newXp - nextXp
+                    newLevel = currentLevel + 1
+                    newXp = leftover
+                    newLifePoints = user.lifePoints + 5
+
+                    extraLevelCoins = RewardsCalculator.levelUpBonusCoins(
+                        newLevel = newLevel,
+                        completionCoins = coinsEarned
+                    ) - coinsEarned
+                }
+
+                val totalCoinsToAdd = coinsEarned + extraLevelCoins
+
+                // Update fields in Firestore
+                tx.update(userRef, mapOf(
+                    "level" to newLevel,
+                    "currentXp" to newXp,
+                    "lifePoints" to newLifePoints,
+                    "coinsBalance" to (user.coinsBalance + totalCoinsToAdd),
+                    "lastUpdate" to FieldValue.serverTimestamp(),
+                ))
+
+                null
+            }.await()
+
+            true
+        } catch (e: Exception) {
+            logger.e(TAG, "awardForReminderCompletion failed", e)
             false
         }
     }
