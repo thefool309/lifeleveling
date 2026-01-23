@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.auth.AuthModel
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
@@ -16,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
-import java.util.Calendar
 import kotlin.Int
 
 /**
@@ -29,8 +31,10 @@ import kotlin.Int
  */
 class UserManager(
     val logger: ILogger = AndroidLogger(),  // Put the creation of the logger here so that any function can access it if it is desired.
+    private val db: FirebaseFirestore = Firebase.firestore,
     private val authModel: AuthModel = AuthModel(logger = logger),
-    private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger),
+    private val fireRepo: FirestoreRepository = FirestoreRepository(logger = logger, db = db),
+    private val reminderRepo: ReminderRepository = ReminderRepository(logger, db),
 ) : ViewModel() {
     private val userData = MutableStateFlow(UsersData())
     val uiState: StateFlow<UsersData> = userData.asStateFlow()  // Makes everything react to changes
@@ -349,18 +353,19 @@ class UserManager(
                     completedAt = null,
                     lastUpdate = null,
                     daily = draft.daily,
+                    timesPerMinute = draft.timesPerMinute,
                     timesPerHour = draft.timesPerHour,
                     timesPerDay = draft.timesPerDay,
                     timesPerMonth = draft.timesPerMonth,
+                    iconName = draft.iconName,
                     repeatForever = draft.repeatForever,
                     repeatCount = draft.repeatCount,
                     repeatInterval = draft.repeatInterval,
-                    colorToken = draft.colorToken,
-                    iconName = draft.iconName,
+                    dotColor = draft.dotColor,
                 )
 
                 // Write to firestore
-                val reminderId = fireRepo.createReminder(reminder, uid)
+                val reminderId = reminderRepo.createReminder(reminder, uid)
                     ?: error("Failed to create reminder")
 
                 val reminderWithId = reminder.copy(reminderId = reminderId)
@@ -778,6 +783,9 @@ class UserManager(
             val uid = authModel.currentUser?.uid
 
             try {
+                // Delete subcollections (Just reminders for now)
+                reminderRepo.deleteAllRemindersForUser(uid!!)
+
                 // Delete Firestore user data
                 val ok = fireRepo.deleteUser(uid)
                 if (!ok) {

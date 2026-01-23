@@ -1,8 +1,6 @@
 package com.lifeleveling.app.data
 
-import androidx.annotation.DrawableRes
 import com.google.firebase.Timestamp
-import com.lifeleveling.app.ui.theme.EnumColor
 import com.lifeleveling.app.R
 import java.time.LocalDate
 import java.time.ZoneId
@@ -57,17 +55,18 @@ data class Reminder(
     val timesPerHour: Int = 0,          // How many hour(s)
     val timesPerDay: Int = 0,           // How many times per day
     val timesPerMonth: Int = 0,         // How many times per month
-    val colorToken: String? = null,      // nullable like enumColor? in TestUser TODO: save as a string and change it? Would an int be better for enum?
     val iconName: String,           // store icon key (ex: "water_drop"), not R.drawable.id TODO: Ask Felipe if he made a way to change a string to the icon to save this as string
-    val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
-    val enabled: Boolean = true,               // If the reminder is active or just saved
     val repeatForever: Boolean = false,
-    val repeatCount: Long = 0,
+    val repeatCount: Int = 0,
     val repeatInterval: String? = null,
-    val selectedMinutes: Int = 0,
-    val amOrPm: Int = 0,
-    val selectedHours: Int = 0,
-    val color: Int = 0,
+    val dotColor: String?,                 // Used for dot
+    val enabled: Boolean = true,               // If the reminder is active or just saved
+    val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
+
+    val colorToken: String? = null,      // nullable like enumColor? in TestUser used for icon color
+//    val selectedMinutes: Int = 0,
+//    val amOrPm: Int = 0,
+//    val selectedHours: Int = 0,
 )
 
 // One active streak the user is tracking

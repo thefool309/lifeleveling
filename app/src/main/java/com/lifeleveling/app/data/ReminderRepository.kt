@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -61,15 +60,14 @@ class ReminderRepository(
      * On failure, we log the error and return null so the caller can handle it.
      *
      * @param reminders The reminder data we want to store.
-     * @param logger Used to log success or failures during write.
+     * @param uid The ID of the user to write to
      * @return The Firestore document ID for this reminder, or `null` if something went wrong.
      * @author fdesouza1992
      * **/
     suspend fun createReminder(
-        reminders: Reminders,
-        logger: ILogger
+        reminders: Reminder,
+        uid: String?,
     ): String? {
-        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e("Reminders", "createReminder: user not authenticated.")
             return null
@@ -80,7 +78,7 @@ class ReminderRepository(
             "reminderId" to (reminders.reminderId.ifBlank { null }),
             "title" to reminders.title,
             "notes" to reminders.notes,
-            "startingAt" to reminders.startingAt,
+            "dueAt" to reminders.dueAt,
             "completed" to reminders.completed,
             "completedAt" to reminders.completedAt,
             "createdAt" to FieldValue.serverTimestamp(),
@@ -90,12 +88,13 @@ class ReminderRepository(
             "timesPerHour" to reminders.timesPerHour,
             "timesPerDay" to reminders.timesPerDay,
             "timesPerMonth" to reminders.timesPerMonth,
-            "colorToken" to reminders.colorToken,
             "iconName" to reminders.iconName,
             "repeatForever" to reminders.repeatForever,
             "repeatCount" to reminders.repeatCount,
             "repeatInterval" to reminders.repeatInterval,
             "enabled" to reminders.enabled,
+            "dotColor" to reminders.dotColor,
+            "completedTally" to reminders.completedTally,
         ).filterValues { it != null } // don't write null reminderId if empty
 
         return try {
@@ -129,15 +128,14 @@ class ReminderRepository(
      *
      * @param reminderId The Firestore document ID for the reminder we want to update.
      * @param updates A map of fields we want to modify. Only these fields get changed.
-     * @param logger For debug/error messages.
+     * @param uid The ID of the user to write to
      * @author fdesouza1992
      */
     suspend fun updateReminder(
         reminderId: String,
         updates: Map<String, Any?>,
-        logger: ILogger
+        uid: String?
     ): Boolean {
-        val uid = getUserId()
         if (uid == null) {
             logger.e("Reminders", "updateReminder: user not authenticated.")
             return false
@@ -165,15 +163,14 @@ class ReminderRepository(
     *
     * @param reminderId The ID of the reminder to update.
     * @param completed Whether the reminder is done or not.
-    * @param logger For logging success/failure messages.
+     * @param uid The ID of the user to write to
      * @author fdesouza1992
     */
     suspend fun setReminderCompleted(
         reminderId: String,
         completed: Boolean,
-        logger: ILogger
+        uid: String?
     ): Boolean {
-        val uid = getUserId()
         if (uid == null) {
             logger.e("Reminders", "setReminderCompleted: user not authenticated.")
             return false
@@ -200,11 +197,10 @@ class ReminderRepository(
      * Returns true if delete worked, false if something failed.
      *
      * @param reminderId The ID of the reminder we want to remove.
-     * @param logger Used to report errors if Firestore doesn't cooperate.
+     * @param uid The ID of the user to write to
      * @author fdesouzq1992
      */
-    suspend fun deleteReminder(reminderId: String, logger: ILogger): Boolean {
-        val uid = getUserId()
+    suspend fun deleteReminder(reminderId: String, uid: String?): Boolean {
         if (uid == null) {
             logger.e("Reminders", "deleteReminder: user not authenticated.")
             return false
@@ -236,15 +232,14 @@ class ReminderRepository(
      * - If Firestore read fails -> logs + returns emptyList()
      *
      * @param date The day the calendar is showing.
-     * @param logger Logger used for debug/error messages.
+     * @param uid The ID of the user to write to
      * @return List of reminders that should appear on [date], sorted by due time.
      * @author fdesouza1992
      */
     suspend fun getRemindersForDate(
         date: LocalDate,
-        logger: ILogger
-    ): List<Reminders> {
-        val uid = getUserId()
+        uid: String?
+    ): List<Reminder> {
         if (uid.isNullOrBlank()) {
             logger.e("Reminders", "getRemindersForDate: user id is null/blank; sign in first.")
             return emptyList()
@@ -264,12 +259,12 @@ class ReminderRepository(
                 .await()
 
             val all = snap.documents.mapNotNull { doc ->
-                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
+                doc.toObject(Reminder::class.java)?.copy(reminderId = doc.id)
             }
 
             all
                 .filter { it.occursOn(date, zone) }
-                .sortedBy { it.startingAt?.toDate() } // keeps a nice ordering
+                .sortedBy { it.dueAt?.toDate() } // keeps a nice ordering
         } catch (e: Exception) {
             logger.e("Reminders", "getRemindersForDate failed for $date", e)
             emptyList()
@@ -340,12 +335,11 @@ class ReminderRepository(
      * - If the user is not authenticated → logs + returns `emptyList()`.
      * - If the Firestore read fails → logs the exception + returns `emptyList()`.
      *
-     * @param logger Logger used for debug/error messaging.
+     * @param uid The ID of the user to write to
      * @return A chronologically sorted list of all reminders belonging to the signed-in user.
      * @author fdesouza1992
      */
-    suspend fun getAllReminders(logger: ILogger): List<Reminders> {
-        val uid = getUserId()
+    suspend fun getAllReminders(uid: String?): List<Reminder> {
         if (uid.isNullOrBlank()) {
             logger.e("Reminders", "getAllReminders: user id is null/blank; sign in first.")
             return emptyList()
@@ -355,8 +349,8 @@ class ReminderRepository(
             val snap = remindersCol(uid).get().await()
 
             snap.documents.mapNotNull { doc ->
-                doc.toObject(Reminders::class.java)?.copy(reminderId = doc.id)
-            }.sortedBy { it.startingAt?.toDate() }
+                doc.toObject(Reminder::class.java)?.copy(reminderId = doc.id)
+            }.sortedBy { it.dueAt?.toDate() }
         } catch (e: Exception) {
             logger.e("Reminders", "getAllReminders failed", e)
             emptyList()
@@ -370,10 +364,9 @@ class ReminderRepository(
      * If something goes wrong, we log the error but don't throw — this keeps the delete user flow moving instead of crashing out.
      *
      * @param uid The user ID whose reminders we want to clear.
-     * @param logger For reporting any issues that happen during deletion.
      * @author fdesouza1992
      */
-    suspend fun deleteAllRemindersForUser(uid: String, logger: ILogger) {
+    suspend fun deleteAllRemindersForUser(uid: String) {
         try {
             val remindersSnap = remindersCol(uid).get().await()
             if (!remindersSnap.isEmpty) {
@@ -408,7 +401,7 @@ class ReminderRepository(
      * @param reminderId The reminder we’re counting for.
      * @param reminderTitle Title saved for future reference (nice for UI stats/history)
      * @param date The day this completion happened.
-     * @param logger For logging success/fail messages.
+     * @param uid The ID of the user to write to
      * @return `true` if increment works, `false` if something failed.
      * @author fdesouza1992
      */
@@ -416,9 +409,8 @@ class ReminderRepository(
         reminderId: String,
         reminderTitle: String,
         date: LocalDate,
-        logger: ILogger
+        uid: String?
     ): Boolean = withContext(Dispatchers.IO) {
-        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e(TAG, "incrementReminderCompletionForDate: no logged in user.")
             return@withContext false
@@ -469,7 +461,7 @@ class ReminderRepository(
      * @param reminderId ID of the reminder being undone
      * @param reminderTitle Title saved for future reference (nice for UI stats/history)
      * @param date The day we're adjusting completion for
-     * @param logger Used to log errors instead of crashing
+     * @param uid The ID of the user to write to
      * @return true if decrement works, false if something failed
      * @author fdesouza1992
      */
@@ -477,9 +469,8 @@ class ReminderRepository(
         reminderId: String,
         reminderTitle: String,
         date: LocalDate,
-        logger: ILogger
+        uid: String?
     ): Boolean = withContext(Dispatchers.IO) {
-        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e(TAG, "decrementReminderCompletionForDate: no logged in user.")
             return@withContext false
@@ -522,15 +513,14 @@ class ReminderRepository(
      *  - “Did I complete workout 3 times?”
      *
      * @param date The day we want completion stats for.
-     * @param logger Logs errors if something breaks.
+     * @param uid The ID of the user to write to
      * @return A map of reminderId to completion count for that date.
      * @author fdesouza1992
      */
     suspend fun getReminderCompletionsForDate(
         date: LocalDate,
-        logger: ILogger
+        uid: String?
     ): Map<String, Int> = withContext(Dispatchers.IO) {
-        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e(TAG, "getReminderCompletionsForDate: no logged in user.")
             return@withContext emptyMap()
@@ -565,14 +555,13 @@ class ReminderRepository(
      * We read every document inside `reminderCompletions` and sum the `count` values. Great for showing progress in "My Journey" or achievement screens.
      * If something goes wrong, we return 0 instead of crashing the app.
      *
-     * @param logger For logging issues if Firestore read fails.
+     * @param uid The ID of the user to write to
      * @return The total count of completions across all reminders.
      * @author fdesouza1992
      */
     suspend fun getTotalReminderCompletions(
-        logger: ILogger
+        uid: String?,
     ): Long = withContext(Dispatchers.IO) {
-        val uid = auth.currentUser?.uid
         if (uid == null) {
             logger.e(TAG, "getTotalReminderCompletions: no logged in user.")
             return@withContext 0L

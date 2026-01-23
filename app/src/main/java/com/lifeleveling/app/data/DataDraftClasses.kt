@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
-import com.lifeleveling.app.ui.theme.EnumColor
 import java.util.Calendar
 
 /**
@@ -22,46 +21,35 @@ data class ReminderDraft(
     val title: String,
     val dueAt: Timestamp,
     val daily: Boolean,
+    val timesPerMinute: Int,
     val timesPerHour: Int,
     val timesPerDay: Int,
     val timesPerMonth: Int,
     val repeatForever: Boolean,
-    val repeatCount: Long,
+    val repeatCount: Int,
     val repeatInterval: String?,
-    val colorToken: EnumColor?,
-    val iconName: String, // TODO: Update this
+    val dotColor: String?,
+    val iconName: String,
 )
 
 /**
- * Builds the reminder draft from the information on the UI form
+ * Turns raw data from create reminders screen into an usable timestamp for dueAt
  * @param selectedAmOrPm 0 = AM, 1 = PM
- * @param selectedReminderAmountHourDayWeek 0 = hours, 1 = days, 2 = weeks
- * @param selectedRepeatAmount 0 = days, 1, = weeks, 2 = months, 3 = years
  * @author fdesouza1992
  */
-fun buildReminderDraft(
-    title: String,
-    selectedHour: Int,
-    selectedMinute: Int,
+fun buildTimestamp(
+    year: Int,
+    month: Int,
+    day: Int,
+    hourStr: String,
+    minuteStr: String,
     selectedAmOrPm: Int, // 0 = AM, 1 = PM
-    selectedReminderIndex: Int,
-    iconNameOptions: List<String>,
-    asDaily: Boolean,
-    asWeekDay: Boolean,
-    reminderAmountNumber: String,
-    selectedReminderAmountHourDayWeek: Int, // 0 = hours, 1 = days, 2 = weeks
-    doNotRepeat: Boolean,
-    indefinitelyRepeat: Boolean,
-    repeatAmount: String,
-    selectedRepeatAmount: Int, // 0 = days, 1 = weeks, 2 = months, 3 = years
-): ReminderDraft {
-    // Time calculations
-    val hourStr = selectedHour.toString()
-    val minuteStr = selectedMinute.toString()
+): Timestamp {
+    // 1. Resolve date and time into a Timestamp
     val rawHour = hourStr.toIntOrNull() ?: 0
     val minute = minuteStr.toIntOrNull() ?: 0
-    // This block converts the chosen AM/PM hour into a proper 24-hour format,
-    // handling the special cases for 12 AM and 12 PM.
+
+    // Convert to a 24-hr clock
     val hour24 = if (selectedAmOrPm == 1) {
         // PM
         if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
@@ -69,54 +57,71 @@ fun buildReminderDraft(
         // AM
         rawHour % 12
     }
-    // --- Starting time: move to tomorrow if time already passed today ---
+
+    // Built a java.util.Date for the chosen year/month/day/time
     val now = Calendar.getInstance()
-    val cal = Calendar.getInstance().apply{
+    val cal = now.apply {
+        set(Calendar.YEAR, year)
+        set(Calendar.MONTH, month - 1) // Calendar months are 0-based
+        set(Calendar.DAY_OF_MONTH, day)
         set(Calendar.HOUR_OF_DAY, hour24)
         set(Calendar.MINUTE, minute)
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
     }
-    // If time is earlier than "now", we will move to the next day
-    if (cal.before(now)){
-        cal.add(Calendar.DAY_OF_YEAR,1)
-    }
-    val dueAt = Timestamp(cal.time)
-    val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
 
-    // --- "Remind me every" section ---
-    val isDaily = asDaily || asWeekDay
+    return Timestamp(cal.time)
+}
+
+/**
+ * Builds the reminder draft from the information on the UI form
+ * @param selectedReminderAmountHourDayWeek 0 = minutes, 1 = hours
+ * @param selectedRepeatAmount 0 = days, 1, = weeks, 2 = months, 3 = years
+ * @author fdesouza1992
+ */
+fun buildReminderDraft(
+    title: String,
+    dueAt: Timestamp,
+    asDaily: Boolean,
+    reminderAmountNumber: String,
+    selectedReminderAmountHourDayWeek: Int, // 0 = minutes, 1 = hours
+    repeatReminder: Boolean,
+    repeatAmount: String,
+    selectedRepeatAmount: Int, // 0 = days, 1 = weeks, 2 = months, 3 = years
+    dotColor: String?,
+    iconName: String,
+): ReminderDraft {
+
+    // 1. "Set as daily" + "Remind me every:"
+    val isDaily = asDaily
+    var timesPerMinute = 0
     var timesPerHour = 0
-    var timesPerDay = 0
-    var timesPerMonth = 0
-
+    val timesPerDay = 0
     val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
-    if (everyCount > 0) {
+
+    if (isDaily && everyCount > 0) {
         when (selectedReminderAmountHourDayWeek) {
             0 -> {
-                // Example: "Remind me every 8 Hours"
-                // We store "8" in timesPerHour.
-                timesPerHour = everyCount
+                // "Reminder me every X Mins"
+                timesPerMinute = everyCount
             }
             1 -> {
-                // Example: "Remind me every 3 Days"
-                // For now we store the number 3 in timesPerDay.
-                timesPerDay = everyCount
-            }
-            2 -> {
-                // Example: "Remind me every 2 Weeks"
-                // For now we store the number 2 in timesPerMonth
-                timesPerMonth = everyCount
+                // "Remind me every X Hours"
+                timesPerHour = everyCount
             }
         }
     }
-    // --- "Repeat for" [ amount + (Days/Weeks/Months/Years) ]
-    val repeatForever = indefinitelyRepeat
-    var repeatCount: Long = 0
+
+    // timesPerMonth is unused for now
+    val timesPerMonth = 0
+
+    // 2. "Repeat this reminder" (duration)
+    var repeatForever = false
+    var repeatCount = 0
     var repeatInterval: String? = null
 
-    if (!doNotRepeat && !repeatForever) {
-        val count = repeatAmount.toLongOrNull() ?: 0L
+    if (repeatReminder) {
+        val count = repeatAmount.toIntOrNull() ?: 0
         if (count > 0) {
             repeatCount = count
             repeatInterval = when (selectedRepeatAmount) {
@@ -126,20 +131,25 @@ fun buildReminderDraft(
                 3 -> "years"
                 else -> null
             }
+        } else {
+            // User checked the box but didn't give a number is being treated as "repeat forever" for now.
+            repeatForever = true
         }
     }
-    // Build the draft
+
+    // 3. Build the draft
     return ReminderDraft(
         title = title.trim(),
         dueAt = dueAt,
         daily = isDaily,
+        timesPerMinute = timesPerMinute,
         timesPerHour = timesPerHour,
         timesPerDay = timesPerDay,
         timesPerMonth = timesPerMonth,
         repeatForever = repeatForever,
         repeatCount = repeatCount,
         repeatInterval = repeatInterval,
-        colorToken = null,
+        dotColor = dotColor,
         iconName = iconName           // fallback to empty if somehow null
     )
 }

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.kizitonwose.calendar.core.YearMonth
 import com.kizitonwose.calendar.core.lengthOfMonth
 import com.lifeleveling.app.R
@@ -46,20 +44,15 @@ import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
-import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.util.ILogger
-import com.lifeleveling.app.util.AndroidLogger
 import androidx.compose.runtime.rememberCoroutineScope
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.buildReminderDraft
 import androidx.compose.ui.platform.LocalContext
-import com.lifeleveling.app.data.Reminders
-import kotlinx.coroutines.launch
-import com.google.firebase.Timestamp
+import com.lifeleveling.app.data.buildTimestamp
 import java.time.LocalTime
-import java.util.Calendar
 import java.util.Date
+import kotlin.String
 
 
 @Preview
@@ -618,150 +611,43 @@ fun CreateReminderScreen(){
                                 return@CustomButton
                             }
 
-                            // Build the draft with all proper calculations
-                            val draft = buildReminderDraft(
-                                title = createdReminderTitle.trim(),
-                                selectedHour = selectedHour,
-                                selectedMinute = selectedMinute,
+                            val dueAt = buildTimestamp(
+                                year = userSelectedYear,
+                                month = actualMonth,
+                                day = (firstAvailableDay + selectedDay),
+                                hourStr = hourOptions.getOrNull(selectedHour) ?: "0",
+                                minuteStr = minutesOptions.getOrNull(selectedMinute) ?: "0",
                                 selectedAmOrPm = selectedAmOrPm,
-                                selectedReminderIndex = selectedReminderIndex,
-                                iconNameOptions = iconNameOptions,
-                                asDaily = asDaily,
-                                asWeekDay = asWeekDay,
-                                reminderAmountNumber = reminderAmountNumber,
-                                selectedReminderAmountHourDayWeek = selectedReminderAmountHourDayWeek,
-                                doNotRepeat = doNotRepeat,
-                                indefinitelyRepeat = indefinitelyRepeat,
-                                repeatAmount = repeatAmount,
-                                selectedRepeatAmount = selectedRepeatAmount,
                             )
-                            scope.launch {
-                                try {
-                                    // 1. Resolve date and time into a Timestamp
 
-                                    // From Date Pickers
-//                                    val year = yearList.getOrNull(selectedYear) ?: today.year
-//                                    val month = (selectedMonth + 1).coerceIn(1, 12)        // 1–12
-//                                    val day = (selectedDay + 1).coerceAtMost(
-//                                        YearMonth(year, month).lengthOfMonth()
-//                                    )
-                                    val year = userSelectedYear
-                                    val day = firstAvailableDay + selectedDay
+                            // Block user from adding a reminder in the past
+                            if(dueAt.toDate().before(Date())){
+                                userManager.logger.w("Reminders", "CreateReminderScreen: selected date/time is in the past, not saving.")
+                                // Using toast for now but will ask @stephen and cass to help get it onto the UI language of the app
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.cannot_create_past_reminder),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                // Build the draft with all proper calculations
+                                val draft = buildReminderDraft(
+                                    title = createdReminderTitle.trim(),
+                                    dueAt = dueAt,
+                                    asDaily = asDaily,
+                                    reminderAmountNumber = reminderAmountNumber,
+                                    selectedReminderAmountHourDayWeek = selectedReminderAmountHourDayWeek,
+                                    repeatReminder = repeatReminder,
+                                    repeatAmount = repeatAmount,
+                                    selectedRepeatAmount = selectedRepeatAmount,
+                                    iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: "",
+                                    dotColor = colorTokenOptions.getOrNull(selectedColorIndex)
+                                )
 
-                                    // From your time pickers:
-                                    val hourStr = hourOptions.getOrNull(selectedHour) ?: "0"
-                                    val minuteStr = minutesOptions.getOrNull(selectedMinute) ?: "0"
-                                    val rawHour = hourStr.toIntOrNull() ?: 0
-                                    val minute = minuteStr.toIntOrNull() ?: 0
+                                userManager.addReminder(draft)
 
-                                    // Converts to a 24-hr clock
-                                    val hour24 = if (selectedAmOrPm == 1) {
-                                        // PM
-                                        if (rawHour % 12 == 0) 12 else (rawHour % 12 + 12)
-                                    } else {
-                                        // AM
-                                        rawHour % 12
-                                    }
-
-                                    // Built a java.util.Date for the chosen year/month/day/time
-                                    val now = Calendar.getInstance()
-                                    val cal = now.apply {
-                                        set(Calendar.YEAR, year)
-                                        set(Calendar.MONTH, actualMonth - 1) // Calendar months are 0-based
-                                        set(Calendar.DAY_OF_MONTH, day)
-                                        set(Calendar.HOUR_OF_DAY, hour24)
-                                        set(Calendar.MINUTE, minute)
-                                        set(Calendar.SECOND, 0)
-                                        set(Calendar.MILLISECOND, 0)
-                                    }
-
-                                    val dueAt = Timestamp(cal.time)
-                                    // Block user from adding a reminder in the past
-                                    if(dueAt.toDate().before(Date())){
-                                        logger.w("Reminders", "CreateReminderScreen: selected date/time is in the past, not saving.")
-                                        // Using toast for now but will ask @stephen and cass to help get it onto the UI language of the app
-                                        Toast.makeText(
-                                            context,
-                                            context.getString(R.string.cannot_create_past_reminder),
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        return@launch
-                                    }
-                                    val iconName = iconNameOptions.getOrNull(selectedReminderIndex) ?: ""
-
-                                    // 2. "Set as daily" + "Remind me every:"
-                                    val isDaily = asDaily
-                                    var timesPerMinute = 0
-                                    var timesPerHour = 0
-                                    val timesPerDay = 0
-                                    val everyCount = reminderAmountNumber.toIntOrNull() ?: 0
-
-                                    if (isDaily && everyCount > 0) {
-                                        when (selectedReminderAmountHourDayWeek) {
-                                            0 -> {
-                                                // "Remind me every X Mins"
-                                                timesPerMinute = everyCount
-                                            }
-                                            1 -> {
-                                                // "Remind me every X Hours"
-                                                timesPerHour = everyCount
-                                            }
-                                        }
-                                    }
-
-                                    // timesPerMonth is unused for now
-                                    val timesPerMonth = 0
-
-                                    // 3. “Repeat this reminder” (duration)
-                                    var repeatForever = false
-                                    var repeatCount = 0
-                                    var repeatInterval: String? = null
-
-                                    if (repeatReminder) {
-                                        val count = repeatAmount.toIntOrNull() ?: 0
-                                        if (count > 0) {
-                                            repeatCount = count
-                                            repeatInterval = when (selectedRepeatAmount) {
-                                                0 -> "days"
-                                                1 -> "weeks"
-                                                2 -> "months"
-                                                3 -> "years"
-                                                else -> null
-                                            }
-                                        } else {
-                                            // User checked the box but didn't give a number is being treated as "repeat forever" for now.
-                                            repeatForever = true
-                                        }
-                                    }
-
-                                    // 4. Color token from dropdown
-                                    val colorToken = colorTokenOptions.getOrNull(selectedColorIndex)
-
-                                    // 5. Build Reminders model
-                                    val reminder = Reminders(
-                                        reminderId = "",                    // Firestore will generate ID
-                                        title = createdReminderTitle.trim(),
-                                        notes = "",
-                                        startingAt = dueAt,
-                                        completed = false,
-                                        completedAt = null,
-                                        createdAt = null,
-                                        lastUpdate = null,
-                                        daily = isDaily,
-                                        timesPerMinute = timesPerMinute,
-                                        timesPerHour = timesPerHour,
-                                        timesPerDay = timesPerDay,
-                                        timesPerMonth = timesPerMonth,
-                                        repeatForever = repeatForever,
-                                        repeatCount = repeatCount,
-                                        repeatInterval = repeatInterval,
-                                        colorToken = colorToken,
-                                        iconName = iconName
-                                    )
-
-                            userManager.addReminder(draft)
-
-                            navController.popBackStack()
+                                navController.popBackStack()
+                            }
                             // TODO: show a user-facing error dialog box
                         },
                         backgroundColor = AppTheme.colors.Success75,

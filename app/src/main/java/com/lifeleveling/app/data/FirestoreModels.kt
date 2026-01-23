@@ -147,16 +147,6 @@ data class UsersData (
         )
     }
 
-
-// Player stat block (Stats Screen)
-data class Stats (
-    val agility: Long = 0,
-    val defense: Long = 0,
-    val intelligence: Long = 0,
-    val strength: Long = 0,
-    val health: Long = 0,
-)
-
     /**
      * Separates the streaks pulled from firestore into two lists of weekly and monthly.
      * @return A UsersData object for updating the state
