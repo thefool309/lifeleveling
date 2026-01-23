@@ -545,7 +545,7 @@ class FirestoreRepository {
                     logger.e(TAG, "Level increment failed")
                 }
                 user = getUser(userId, logger) ?: return null
-                user.calculateXpToNextLevel()
+                user.xpToNextLevel
             }
             user
         } catch (e: Exception) {
