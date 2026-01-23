@@ -5,7 +5,11 @@ import androidx.compose.ui.graphics.Color
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminder
 
-fun iconResForNameCalendar(iconName: String?): Int {
+/**
+ * Map stored iconName → drawable id. Falls back to the bell icon if we don’t recognize it (can be updated to the correct error icon).
+ * @author fdesouza1992
+ */
+fun iconResForName(iconName: String?): Int {
     return when (iconName) {
         "water_drop"     -> R.drawable.water_drop
         "bed_color"      -> R.drawable.bed_color
@@ -56,7 +60,7 @@ fun resolveColor(color: String?): Color {
 }
 
 fun reminderDotColor(reminder: Reminder): Color {
-    val token = reminder.colorToken?.trim()?.lowercase()
+    val token = reminder.dotColor?.trim()?.lowercase()
 
     // 1) Handles named tokens (string)
     val named = when (token) {

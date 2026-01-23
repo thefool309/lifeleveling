@@ -43,7 +43,7 @@ import com.lifeleveling.app.R
 import com.lifeleveling.app.data.occursOn
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.iconResForNameCalendar
+import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.reminderDotColor
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
@@ -657,7 +657,7 @@ fun ShowReminder(
                 ) {
                     ShadowedIcon(
                         modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(id = iconResForNameCalendar(reminder.iconName)),
+                        imageVector = ImageVector.vectorResource(id = iconResForName(reminder.iconName)),
                         tint =  Color.Unspecified
 
                     )

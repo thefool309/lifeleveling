@@ -15,6 +15,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,7 +29,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -43,29 +44,21 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
-//import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.time.ExperimentalTime
 import com.lifeleveling.app.ui.components.DailyRemindersList
-import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.data.Reminder
-import com.lifeleveling.app.data.Reminders
-import com.lifeleveling.app.util.AndroidLogger
-import com.lifeleveling.app.util.ILogger
-import java.time.ZoneId
-
 
 
 //@Preview
 @OptIn(ExperimentalTime::class)
 @Composable
 fun CalendarScreen() {
-
-//    val userManager = LocalUserManager.current
-//    val userState by userManager.uiState.collectAsState()
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
 
     Surface(
@@ -87,8 +80,6 @@ fun CalendarScreen() {
         val isMonthView = remember { mutableStateOf(true) }
         val jumpedDay = remember { mutableStateOf(LocalDate.now()) }
         val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
-        val repo = remember { FirestoreRepository() }
-        val logger: ILogger = AndroidLogger()
         val monthReminders = remember { mutableStateOf<List<Reminder>>(emptyList()) }
 
         val state = rememberCalendarState(
@@ -99,7 +90,7 @@ fun CalendarScreen() {
             outDateStyle = OutDateStyle.EndOfGrid
         )
         LaunchedEffect(Unit) {
-            val all = repo.getAllReminders(logger)
+            val all = userState.reminders
             monthReminders.value = all.filter { it.enabled }
         }
 
@@ -295,10 +286,22 @@ fun CalendarScreen() {
                                     )
                                 }
 
-                                    // Todo add in display of daily reminders
-                                    DailyRemindersList(
-                                        date = dayInfo,
-                                    )
+                                val pair = userManager.getRemindersForDate(dayInfo)
+
+                                // Todo add in display of daily reminders
+                                DailyRemindersList(
+                                    date = dayInfo,
+                                    reminders = pair.first,
+                                    completionsByReminderId = pair.second,
+                                    isLoading = userState.isLoading,
+                                    onChecked = { reminderId, reminderTitle, increment ->
+                                        if (increment) {
+                                            userManager.incrementReminderCompletionForDate(reminderId, reminderTitle, dayInfo)
+                                        } else {
+                                            userManager.decrementReminderCompletionForDate(reminderId,reminderTitle, dayInfo)
+                                        }
+                                    }
+                                )
                                 }
 
                         }

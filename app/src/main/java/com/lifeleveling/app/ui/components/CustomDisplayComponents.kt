@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,13 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.ui.models.StatsUi
+import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.util.AndroidLogger
-import com.lifeleveling.app.util.ILogger
-import com.lifeleveling.app.data.Reminders
-import kotlinx.coroutines.launch
+import com.lifeleveling.app.ui.theme.iconResForName
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -64,137 +59,116 @@ fun LevelAndProgress(
     currentExp: Double,
     expToNextLevel: Long,
 ) {
-    val formattedExp = String.format("%.2f", currentExp)
-
-        Column(
-            modifier = modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Level and info icon
-            Row(
-                modifier = Modifier
-                    .align(Alignment.Start),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                // Level Display
-                Text(
-                    text = stringResource(R.string.level, level),
-                    color = AppTheme.colors.SecondaryOne,
-                    style = AppTheme.textStyles.HeadingThree.copy(
-                        shadow = Shadow(
-                            color = AppTheme.colors.DropShadow,
-                            offset = Offset(3f, 4f),
-                            blurRadius = 6f,
-                        )
-                    ),
-                )
-                // Info Icon
-                ShadowedIcon(
-                    imageVector = ImageVector.vectorResource(R.drawable.info),
-                    tint = AppTheme.colors.FadedGray,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .offset(y = 9.74.dp)
-                        .clickable {
-                            showLevelTip.value = !showLevelTip.value
-                        }
-                )
-            }
-
-            // Progress Bar
-            ProgressBar(
-                progress = currentExp.toFloat() / expToNextLevel.toFloat(),
-            )
-
-            // Experience Display
-            Text(
-                text = stringResource(R.string.exp_display, formattedExp, expToNextLevel),
-                color = AppTheme.colors.Gray,
-                style = AppTheme.textStyles.Default,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-}
-
-@Composable
-fun HealthDisplay(
-    //modifier: Modifier = Modifier,
-    showHealthTip: MutableState<Boolean>,
-    fightMeditateSwitch: MutableState<Int>,
-    repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = AndroidLogger(),
-) {
-    var currentHealth by remember { mutableStateOf(0) }
-    var maxHealth by remember { mutableStateOf(1) }   // avoid divide-by-zero
-
-    // Load current user once, like LevelAndProgress
-    LaunchedEffect(Unit) {
-        val user = repo.getCurrentUser(logger)
-        if (user != null) {
-            currentHealth = user.currHealth.toInt()
-            maxHealth = user.maxHealth.toInt()
-        } else {
-            logger.e("Home", "HealthDisplay: could not load current user.")
-        }
-    }
-
-    val safeMax = maxHealth.coerceAtLeast(1)
-    val progress = (currentHealth.toFloat() / safeMax.toFloat()).coerceIn(0f, 1f)
+    val formattedExp = String.format(Locale.getDefault(), "%.2f", currentExp)
 
     Column(
-        modifier = Modifier
-            //.weight(.2f)
+        modifier = modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Level and info icon
+        Row(
+            modifier = Modifier
+                .align(Alignment.Start),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            // Level Display
+            Text(
+                text = stringResource(R.string.level, level),
+                color = AppTheme.colors.SecondaryOne,
+                style = AppTheme.textStyles.HeadingThree.copy(
+                    shadow = Shadow(
+                        color = AppTheme.colors.DropShadow,
+                        offset = Offset(3f, 4f),
+                        blurRadius = 6f,
+                    )
+                ),
+            )
+            // Info Icon
+            ShadowedIcon(
+                imageVector = ImageVector.vectorResource(R.drawable.info),
+                tint = AppTheme.colors.FadedGray,
+                modifier = Modifier
+                    .size(20.dp)
+                    .offset(y = 9.74.dp)
+                    .clickable {
+                        showLevelTip.value = !showLevelTip.value
+                    }
+            )
+        }
+
+        // Progress Bar
+        ProgressBar(
+            progress = currentExp.toFloat() / expToNextLevel.toFloat(),
+        )
+
+        // Experience Display
+        Text(
+            text = stringResource(R.string.exp_display, formattedExp, expToNextLevel),
+            color = AppTheme.colors.Gray,
+            style = AppTheme.textStyles.Default,
+            modifier = Modifier.align(Alignment.End)
+        )
+    }
+}
+
+/**
+ * A display of the user's health in two forms:
+ * a number representation and a progress bar based on the percentage between current health and max health.
+ * Takes in parameters from the user state instead of recollecting it.
+ * This will allow only the pieces that change to be updated instead of recollecting all over again with every change.
+ * @param showHealthTip A boolean tht controls if the health tooltip overlay will display
+ * @param currentHealth Pass in the state handling of the currentHealth value from the user state
+ * @param maxHealth Pass in the state handling of the maxHealth value from the user state
+ * @author fdesouza1992, Elyseia
+ */
+@Composable
+fun HealthDisplay(
+    modifier: Modifier = Modifier,
+    showHealthTip: MutableState<Boolean>,
+    currentHealth: Long,
+    maxHealth: Long,
+) {
+    Column(
+        modifier = modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {// This line of health display
+    ) {
+        // This line of health display
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Heart
             ShadowedIcon(
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier
+                    .size(20.dp),
                 imageVector = ImageVector.vectorResource(R.drawable.heart),
                 tint = AppTheme.colors.SecondaryThree,
                 shadowOffset = Offset(4f, 4f)
             )
-
-            // Health text
+            // Health Text
             Text(
                 text = stringResource(R.string.health_display, currentHealth, maxHealth),
                 style = AppTheme.textStyles.Default,
                 color = AppTheme.colors.Gray
             )
-
-            // Info pop-up button
+            // Info Pop-up Button
             ShadowedIcon(
                 imageVector = ImageVector.vectorResource(R.drawable.info),
                 tint = AppTheme.colors.FadedGray,
                 modifier = Modifier
                     .size(20.dp)
                     .clickable {
-                        //showHealthTip.value = !showHealthTip.value
-                        if(!showHealthTip.value) {showHealthTip.value = true} else {showHealthTip.value = false}
+                        showHealthTip.value = !showHealthTip.value
                     }
             )
         }
 
-        // Health progress bar
+        // Progress bar
         ProgressBar(
-            progress = progress,
+            progress = currentHealth.toFloat() / maxHealth,
             progressColor = AppTheme.colors.SecondaryThree
-        )
-
-        // Fight / Meditate switch
-        SlidingSwitch(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            options = listOf(
-                stringResource(R.string.fight),
-                stringResource(R.string.meditate)
-            ),
-            selectedIndex = fightMeditateSwitch.value,
-            onOptionSelected = { fightMeditateSwitch.value = it },
         )
     }
 }
@@ -349,67 +323,6 @@ fun EquipmentDisplay(
 }
 
 /**
- * A display of the user's health in two forms:
- * a number representation and a progress bar based on the percentage between current health and max health.
- * Takes in parameters from the user state instead of recollecting it.
- * This will allow only the pieces that change to be updated instead of recollecting all over again with every change.
- * @param showHealthTip A boolean tht controls if the health tooltip overlay will display
- * @param currentHealth Pass in the state handling of the currentHealth value from the user state
- * @param maxHealth Pass in the state handling of the maxHealth value from the user state
- * @author fdesouza1992, Elyseia
- */
-@Composable
-fun HealthDisplay(
-    modifier: Modifier = Modifier,
-    showHealthTip: MutableState<Boolean>,
-    currentHealth: Long,
-    maxHealth: Long,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        // This line of health display
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Heart
-            ShadowedIcon(
-                modifier = Modifier
-                    .size(20.dp),
-                imageVector = ImageVector.vectorResource(R.drawable.heart),
-                tint = AppTheme.colors.SecondaryThree,
-                shadowOffset = Offset(4f, 4f)
-            )
-            // Health Text
-            Text(
-                text = stringResource(R.string.health_display, currentHealth, maxHealth),
-                style = AppTheme.textStyles.Default,
-                color = AppTheme.colors.Gray
-            )
-            // Info Pop-up Button
-            ShadowedIcon(
-                imageVector = ImageVector.vectorResource(R.drawable.info),
-                tint = AppTheme.colors.FadedGray,
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable {
-                        showHealthTip.value = !showHealthTip.value
-                    }
-            )
-        }
-
-        // Progress bar
-        ProgressBar(
-            progress = currentHealth.toFloat() / maxHealth,
-            progressColor = AppTheme.colors.SecondaryThree
-        )
-    }
-}
-
-/**
  * Shows all reminders for a specific day in the Day View screen.
  *
  * What this composable does:
@@ -430,28 +343,11 @@ fun HealthDisplay(
 @Composable
 fun DailyRemindersList(
     date: LocalDate,
-    repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = AndroidLogger(),
+    reminders: List<Reminder>,
+    completionsByReminderId: Map<String, Int>,
+    isLoading: Boolean,
+    onChecked: (reminderId: String, reminderTitle: String, increment: Boolean) -> Unit
 ) {
-    var isLoading by remember { mutableStateOf(true) }
-    var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
-    var completionsByReminderId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
-
-    LaunchedEffect(date) {
-        isLoading = true
-        try {
-            val dayReminders = repo.getRemindersForDate(date, logger)
-            reminders = dayReminders
-            completionsByReminderId = repo.getReminderCompletionsForDate(date, logger)
-        } catch (e: Exception) {
-            logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
-            reminders = emptyList()
-            completionsByReminderId = emptyMap()
-        } finally {
-            isLoading = false
-        }
-    }
-
     when {
         isLoading -> {
             // Small inline loader so the user sees *something*
@@ -497,8 +393,8 @@ fun DailyRemindersList(
                         reminder = reminder,
                         date = date,
                         initialCompletedSlots = initialCompletedSlots,
-                        repo = repo,
-                        logger = logger)
+                        onChecked = onChecked
+                        )
 
                     // Separator line
                     if (index != reminders.lastIndex) {
@@ -536,11 +432,10 @@ fun DailyRemindersList(
  */
 @Composable
 private fun DailyReminderRow(
-    reminder: Reminders,
+    reminder: Reminder,
     date: LocalDate,
     initialCompletedSlots: Int,
-    repo: FirestoreRepository,
-    logger: ILogger,
+    onChecked: (reminderId: String, reminderTitle: String, increment: Boolean) -> Unit,
 ) {
     val checkboxCount = calculateDailySlots(reminder)
     val scope = rememberCoroutineScope()
@@ -573,7 +468,7 @@ private fun DailyReminderRow(
                     color = AppTheme.colors.Gray
                 )
 
-                val dueText = reminder.startingAt?.toDate()?.let { date ->
+                val dueText = reminder.dueAt?.toDate()?.let { date ->
                     // Use whatever formatting style you prefer
                     val local = date.toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
@@ -619,38 +514,12 @@ private fun DailyReminderRow(
                         CustomCheckbox(
                             checked = checked,
                             onCheckedChange = { new ->
-                                if(!checked && new) {
-                                    // false -> true: increment
-                                    checked = true
+                                val increment = new && !checked
+                                val decrement = !new && !checked
 
-                                    scope.launch {
-                                        val ok = repo.incrementReminderCompletionForDate(
-                                            reminderId = reminder.reminderId,
-                                            reminderTitle = reminder.title,
-                                            date = date,
-                                            logger = logger
-                                        )
-                                        if (!ok){
-                                            logger.e("Reminders", "Failed to increment completion for ${reminder.reminderId} on $date")
-                                        }
-                                    }
-                                } else if (checked && !new) {
-                                    // true -> false: decrement
-                                    checked = false
-                                    scope.launch {
-                                        val ok = repo.decrementReminderCompletionForDate(
-                                            reminderId = reminder.reminderId,
-                                            reminderTitle = reminder.title,   // 🔹 keep title in sync
-                                            date = date,
-                                            logger = logger
-                                        )
-                                        if (!ok) {
-                                            logger.e(
-                                                "Reminders",
-                                                "Failed to decrement completion for ${reminder.reminderId} on $date"
-                                            )
-                                        }
-                                    }
+                                if (increment || decrement) {
+                                    checked = new
+                                    onChecked(reminder.reminderId, reminder.title, increment)
                                 }
                             },
                             size = 18.dp,
@@ -690,7 +559,7 @@ private fun DailyReminderRow(
  * @return The number of daily slots (checkboxes) to render.
  * @author fdesouza1992
  */
-private fun calculateDailySlots(reminder: Reminders): Int {
+private fun calculateDailySlots(reminder: Reminder): Int {
     val mins = reminder.timesPerMinute
     val hours = reminder.timesPerHour
     val perDay = reminder.timesPerDay
@@ -704,23 +573,3 @@ private fun calculateDailySlots(reminder: Reminders): Int {
         else -> 1
     }
 }
-
-/**
- * Map stored iconName → drawable id. Falls back to the bell icon if we don’t recognize it (can be updated to the correct error icon).
- */
-private fun iconResForName(iconName: String?): Int? =
-    when (iconName) {
-        "water_drop"     -> R.drawable.water_drop
-        "bed_color"      -> R.drawable.bed_color
-        "shirt_color"    -> R.drawable.shirt_color
-        "med_bottle"     -> R.drawable.med_bottle
-        "shower_bath"    -> R.drawable.shower_bath
-        "shop_color"     -> R.drawable.shop_color
-        "person_running" -> R.drawable.person_running
-        "heart"          -> R.drawable.heart
-        "bell"           -> R.drawable.bell
-        "brain"          -> R.drawable.brain
-        "document"       -> R.drawable.document
-        "doctor"         -> R.drawable.doctor
-        else             -> R.drawable.bell
-    }

@@ -2,6 +2,11 @@ package com.lifeleveling.app.data
 
 import android.app.Activity
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
@@ -20,6 +25,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
 import kotlin.Int
+import java.time.LocalDate
 
 /**
  * Manages the local state of the user.
@@ -379,6 +385,114 @@ class UserManager(
             } catch (e: Exception) {
                 logger.e("FB", "Error adding reminder", e)
                 userData.update { it.copy(error = "Error adding reminder") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    /**
+     * Retrieves a list of reminders for the user on the selected date and total completed reminders
+     * 1. Puts up the loading overlay
+     * 2. Pulls the reminder list for the day from reminderRepo
+     * 3. Pulls the completion of reminders for that day from reminderRepo
+     * 4. Gives empty lists if failed
+     * 5. Clears the loading overlay and returns the list and map
+     * @param date The date to look up in the user's reminder collection
+     * @return A pair that contains a list of reminders for the given date and a map of how many are completed
+     * @author fdesouza1992
+     */
+    fun getRemindersForDate(date: LocalDate): Pair<List<Reminder>, Map<String, Int>> {
+        var reminders: List<Reminder> = emptyList()
+        var completionsByReminderId: Map<String, Int> = emptyMap()
+
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                reminders = reminderRepo.getRemindersForDate(date, uid)
+                completionsByReminderId = reminderRepo.getReminderCompletionsForDate(date, uid)
+            } catch (e: Exception) {
+                logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
+                userData.update { it.copy(error = "DailyRemindersList: failed to load for $date") }
+                reminders = emptyList()
+                completionsByReminderId = emptyMap()
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+
+        return Pair(reminders, completionsByReminderId)
+    }
+
+    /**
+     * Increases the "completed" count for a reminder on a specific day.
+     *
+     * This is what we call when the user checks off a reminder in the Day View.
+     * Only counts one tap at a time, so we call this every time a checkbox goes from not done → done.
+     *
+     * @param reminderId The reminder we’re counting for.
+     * @param reminderTitle Title saved for future reference (nice for UI stats/history)
+     * @param date The day this completion happened.
+     * @author fdesouza1992
+     */
+    fun incrementReminderCompletionForDate(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate
+    ) {
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                val ok = reminderRepo.incrementReminderCompletionForDate(reminderId, reminderTitle, date, uid)
+                if (!ok) {
+                    logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
+                    userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+                }
+            } catch (e: Exception) {
+                logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
+                userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    /**
+     * Decreases the completion count for a reminder on a specific day.
+     *
+     * This is basically the opposite of `incrementReminderCompletionForDate`.
+     * We call this when the user unchecks a reminder that was previously marked complete.
+     *
+     * @param reminderId The reminder we’re counting for.
+     * @param reminderTitle Title saved for future reference (nice for UI stats/history)
+     * @param date The day this completion happened.
+     * @author fdesouza1992
+     */
+    fun decrementReminderCompletionForDate(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate
+    ) {
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                val ok = reminderRepo.decrementReminderCompletionForDate(reminderId, reminderTitle, date, uid)
+                if (!ok) {
+                    logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
+                    userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+                }
+            } catch (e: Exception) {
+                logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
+                userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
             }

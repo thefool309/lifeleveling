@@ -49,7 +49,7 @@ import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.InnerShadow
-import com.lifeleveling.app.ui.theme.iconResForNameCalendar
+import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.resolveColor
 
 /*
@@ -1181,7 +1181,7 @@ fun DropDownReminderMenu(
                     val item = options[selectedIndex]
                     ShadowedIcon(
                         modifier = Modifier.size(arrowSize),
-                        imageVector = ImageVector.vectorResource(iconResForNameCalendar(item.iconName)),
+                        imageVector = ImageVector.vectorResource(iconResForName(item.iconName)),
                         tint = item.colorToken?.let { resolveColor(it) } ?: Color.Unspecified
                     )
                 },
@@ -1235,7 +1235,7 @@ fun DropDownReminderMenu(
                                 ) {
                                     ShadowedIcon(
                                         modifier = Modifier.size(arrowSize),
-                                        imageVector = ImageVector.vectorResource(iconResForNameCalendar(reminder.iconName)),
+                                        imageVector = ImageVector.vectorResource(iconResForName(reminder.iconName)),
                                         tint = reminder.colorToken?.let { resolveColor(it) } ?: Color.Unspecified
                                     )
                                     Spacer(Modifier.width(8.dp))

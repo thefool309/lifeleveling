@@ -41,6 +41,7 @@ import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.data.Streak
 import com.lifeleveling.app.data.StreakDraft
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.resolveColor
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,7 +84,7 @@ fun ShowStreak(
                 ) {
                     ShadowedIcon(
                         modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(R.drawable.(reminder.iconName)),
+                        imageVector = ImageVector.vectorResource(iconResForName(reminder.iconName)),
                         tint = if (reminder.colorToken == null) Color.Unspecified
                         else resolveColor(reminder.colorToken),
                     )

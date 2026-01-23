@@ -504,7 +504,7 @@ class FirestoreRepository(
      * @param xp A double representing the amount of xp to be added
      * @param logger A double representing the amount of xp to be added
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     * @author thefool309, fd
+     * @author thefool309, fdesouza1992
      */
     suspend fun addXp(xp: Double, userId: String?) : UsersData? {
         if(userId == null) {

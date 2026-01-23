@@ -2,8 +2,6 @@ package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
-import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * The base of the user information. Everything inside of this are values that can be written into firestore
