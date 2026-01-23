@@ -626,7 +626,17 @@ private fun DailyReminderRow(
                                             date = date,
                                             logger = logger
                                         )
-                                        if (!ok){
+                                        if (ok) {
+                                            val rewardOk = repo.awardForReminderCompletion(
+                                                reminderId = reminder.reminderId,
+                                                reminderTitle = reminder.title,
+                                                date = date,
+                                                logger = logger
+                                            )
+                                            if (!rewardOk) {
+                                                logger.e("Rewards", "Award failed for ${reminder.reminderId} on $date")
+                                            }
+                                        } else {
                                             logger.e("Reminders", "Failed to increment completion for ${reminder.reminderId} on $date")
                                         }
                                     }
