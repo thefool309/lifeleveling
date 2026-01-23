@@ -115,7 +115,7 @@ data class Badge(
     val badgeName: String = "",
     val badgeDescription: String = "",
     val iconName: Int = R.drawable.question_mark,           // Stores the name, not the R.drawable
-    val colorToken: EnumColor,
+    val colorToken: String? = null,
     val completed: Boolean = false,
     val unlockedAt: Timestamp? = null,   // When badge was earned
 )

@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -31,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.Navigator
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomButton
 import com.lifeleveling.app.ui.components.CustomTextField
@@ -40,11 +44,13 @@ import com.lifeleveling.app.ui.theme.AppTheme
 
 //@Preview
 @Composable
-fun UserAccountScreen(
-navController: NavController
-){
-    val displayName = rememberSaveable { mutableStateOf("Bobby") }
-    val email = rememberSaveable { mutableStateOf("bobbyemail@fakeemail.com") }
+fun UserAccountScreen(){
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
+    val displayName = rememberSaveable { mutableStateOf(userState.userBase!!.displayName) }
+    val email = rememberSaveable { mutableStateOf(userState.userBase!!.email) }
     val password = rememberSaveable { mutableStateOf("") }
     val passwordConfirmed = rememberSaveable { mutableStateOf("") }
     val editUserName = rememberSaveable { mutableStateOf(false) }
@@ -285,7 +291,7 @@ navController: NavController
                     }
 
                     CustomButton(
-                        onClick = {},
+                        onClick = { /* TODO Add save logic */ },
                         enabled = !displayName.value.isEmpty() && !email.value.isEmpty() && (!editPassword.value || (password.value == passwordConfirmed.value && password.value.isNotEmpty())),
                         content = {
                             Text(

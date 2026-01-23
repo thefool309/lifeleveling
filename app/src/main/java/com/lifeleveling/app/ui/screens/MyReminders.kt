@@ -21,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,21 +51,25 @@ import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.lifeleveling.app.data.LocalNavController
+import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.components.formatReminderTime
 import com.lifeleveling.app.ui.components.iconResForNameCalendar
+import com.lifeleveling.app.ui.theme.iconResForNameCalendar
 import com.lifeleveling.app.util.AndroidLogger
 
 @Composable
-fun MyRemindersScreen(
-    navController: NavController? = null,
-    repo: FirestoreRepository = FirestoreRepository(),
-    logger: ILogger = AndroidLogger(),
-){
+fun MyRemindersScreen(){
+    val userManager = LocalUserManager.current
+    val userState by userManager.uiState.collectAsState()
+    val navController = LocalNavController.current
+
     val scope = rememberCoroutineScope()
 
     // Loading, Data, and Error
     var isLoading by remember { mutableStateOf(true) }
-    var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
+    var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
     var loadError by remember { mutableStateOf<String?>(null) }
     val genericErrorText = stringResource(R.string.error_loading_reminders)
 
@@ -73,7 +78,7 @@ fun MyRemindersScreen(
 
     // Detail dialog using ShowReminders() composable
     val toShowReminderInfo = remember { mutableStateOf(false) }
-    val reminderToShow = remember { mutableStateOf<Reminders?>(null) }
+    val reminderToShow = remember { mutableStateOf<Reminder?>(null) }
 
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
@@ -89,7 +94,7 @@ fun MyRemindersScreen(
         try {
             reminders = repo.getAllReminders(logger)
         } catch (e: Exception) {
-            logger.e("Reminders", "MyRemindersScreen: failed to load reminders", e)
+            userManager.logger.e("Reminders", "MyRemindersScreen: failed to load reminders", e)
             loadError = genericErrorText
             reminders = emptyList()
         } finally {
@@ -277,7 +282,7 @@ fun MyRemindersScreen(
                                                     logger = logger
                                                 )
                                                 if (!ok) {
-                                                    logger.e(
+                                                    userManager.logger.e(
                                                         "Reminders",
                                                         "MyReminders: failed to update enabled for ${reminder.reminderId}"
                                                     )
@@ -316,7 +321,7 @@ fun MyRemindersScreen(
                         if (ok) {
                             reminders = reminders.filter { it.reminderId != r.reminderId }
                         } else {
-                            logger.e("Reminders", "MyReminders: delete failed for ${r.reminderId}")
+                            userManager.logger.e("Reminders", "MyReminders: delete failed for ${r.reminderId}")
                         }
                     }
                 }

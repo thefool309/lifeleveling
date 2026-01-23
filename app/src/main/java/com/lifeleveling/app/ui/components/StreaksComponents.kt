@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -38,12 +37,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.Badge
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.data.Streak
 import com.lifeleveling.app.data.StreakDraft
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.ui.theme.resolveEnumColor
+import com.lifeleveling.app.ui.theme.resolveColor
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -87,7 +85,7 @@ fun ShowStreak(
                         modifier = Modifier.size(30.dp),
                         imageVector = ImageVector.vectorResource(R.drawable.(reminder.iconName)),
                         tint = if (reminder.colorToken == null) Color.Unspecified
-                        else resolveEnumColor(reminder.colorToken),
+                        else resolveColor(reminder.colorToken),
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
@@ -448,7 +446,7 @@ fun AllBadgesDisplay(
                         toShow.value = true
                     },
                     backgroundColor = if (!badge.completed) AppTheme.colors.FadedGray
-                    else resolveEnumColor(badge.color),
+                    else resolveColor(badge.color),
                     elevation = 12.dp
                 )
             }
@@ -487,7 +485,7 @@ fun SingleBadgeDisplay(
                     imageVector = ImageVector.vectorResource(badge.icon),
                     onClick = { toShow.value = false },
                     backgroundColor = if (!badge.completed) AppTheme.colors.FadedGray
-                    else resolveEnumColor(badge.color),
+                    else resolveColor(badge.color),
                     elevation = 12.dp,
                     size = 50.dp
                 )

@@ -64,30 +64,3 @@ enum class EnumColor {
     Error75,
     Warning,
 }
-
-/**
- * Turns the enum color name into an actual color value
- * @param color The enum name of a color
- * @return Returns a proper color value
- * @author Elyseia
- */
-@Composable
-fun resolveEnumColor(color: EnumColor): Color = when (color) {
-    EnumColor.BrandOne -> AppTheme.colors.BrandOne
-    EnumColor.BrandTwo -> AppTheme.colors.BrandTwo
-    EnumColor.SecondaryOne -> AppTheme.colors.SecondaryOne
-    EnumColor.SecondaryTwo -> AppTheme.colors.SecondaryTwo
-    EnumColor.SecondaryThree -> AppTheme.colors.SecondaryThree
-    EnumColor.Background -> AppTheme.colors.Background
-    EnumColor.DarkerBackground -> AppTheme.colors.DarkerBackground
-    EnumColor.PopUpBackground -> AppTheme.colors.PopUpBackground
-    EnumColor.DropShadow -> AppTheme.colors.DropShadow
-    EnumColor.LightShadow -> AppTheme.colors.LightShadow
-    EnumColor.Gray -> AppTheme.colors.Gray
-    EnumColor.FadedGray -> AppTheme.colors.FadedGray
-    EnumColor.Success -> AppTheme.colors.Success
-    EnumColor.Success75 -> AppTheme.colors.Success75
-    EnumColor.Error -> AppTheme.colors.Error
-    EnumColor.Error75 -> AppTheme.colors.Error75
-    EnumColor.Warning -> AppTheme.colors.Warning
-}

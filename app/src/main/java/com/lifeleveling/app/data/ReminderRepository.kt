@@ -26,14 +26,14 @@ class ReminderRepository(
     private val db: FirebaseFirestore
 ) {
 
-    /**
-     * Convenience helper for getting the currently signed-in user's UID.
-     *
-     * This simply reads `auth.currentUser?.uid` and returns it, or `null` if there is no authenticated Firebase user at the moment
-     * @return The current Firebase Auth user's UID, or `null` if no user is signed in.
-     * @author fdesouza1992
-     */
-    private fun getUserId(): String? = auth.currentUser?.uid
+//    /**
+//     * Convenience helper for getting the currently signed-in user's UID.
+//     *
+//     * This simply reads `auth.currentUser?.uid` and returns it, or `null` if there is no authenticated Firebase user at the moment
+//     * @return The current Firebase Auth user's UID, or `null` if no user is signed in.
+//     * @author fdesouza1992
+//     */
+//    private fun getUserId(): String? = auth.currentUser?.uid
 
     /**
      * Helper to get this user's 'reminders' collection in Firestore.

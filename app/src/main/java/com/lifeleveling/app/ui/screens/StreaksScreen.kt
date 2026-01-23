@@ -41,7 +41,7 @@ import com.lifeleveling.app.ui.components.ShowStreak
 import com.lifeleveling.app.ui.components.SingleBadgeDisplay
 import com.lifeleveling.app.ui.components.StreaksToolTip
 import com.lifeleveling.app.ui.components.TestingUser
-import com.lifeleveling.app.ui.theme.resolveEnumColor
+import com.lifeleveling.app.ui.theme.resolveColor
 
 /**
  * Main screen that shows the user's streaks information and badges.
@@ -167,7 +167,7 @@ fun StreaksScreen() {
                                     ShadowedIcon(
                                         imageVector = ImageVector.vectorResource(reminder?.iconName ?: R.drawable.question_mark),
                                         tint = if (reminder?.colorToken == null) Color.Unspecified
-                                                else resolveEnumColor(reminder.colorToken),
+                                                else resolveColor(reminder.colorToken),
                                         modifier = Modifier
                                             .size(20.dp)
                                     )
@@ -270,7 +270,7 @@ fun StreaksScreen() {
                                     ShadowedIcon(
                                         imageVector = ImageVector.vectorResource(reminder?.iconName ?: R.drawable.question_mark),
                                         tint = if (reminder?.colorToken == null) Color.Unspecified
-                                        else resolveEnumColor(reminder.colorToken),
+                                        else resolveColor(reminder.colorToken),
                                         modifier = Modifier
                                             .size(20.dp)
                                     )

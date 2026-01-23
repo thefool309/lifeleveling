@@ -51,6 +51,7 @@ import java.util.Locale
 import kotlin.time.ExperimentalTime
 import com.lifeleveling.app.ui.components.DailyRemindersList
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
@@ -88,7 +89,7 @@ fun CalendarScreen() {
         val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
         val repo = remember { FirestoreRepository() }
         val logger: ILogger = AndroidLogger()
-        val monthReminders = remember { mutableStateOf<List<Reminders>>(emptyList()) }
+        val monthReminders = remember { mutableStateOf<List<Reminder>>(emptyList()) }
 
         val state = rememberCalendarState(
             startMonth = startMonth,

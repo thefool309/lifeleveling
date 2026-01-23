@@ -23,6 +23,38 @@ fun iconResForNameCalendar(iconName: String?): Int {
     }
 }
 
+
+
+/**
+ * Turns the enum color name into an actual color value
+ * @param color The enum name of a color
+ * @return Returns a proper color value
+ * @author Elyseia
+ */
+@Composable
+fun resolveColor(color: String?): Color {
+    return when (color) {
+        "BrandOne" -> AppTheme.colors.BrandOne
+        "BrandTwo" -> AppTheme.colors.BrandTwo
+        "SecondaryOne" -> AppTheme.colors.SecondaryOne
+        "SecondaryTwo" -> AppTheme.colors.SecondaryTwo
+        "SecondaryThree" -> AppTheme.colors.SecondaryThree
+        "Background" -> AppTheme.colors.Background
+        "DarkerBackground" -> AppTheme.colors.DarkerBackground
+        "PopUpBackground" -> AppTheme.colors.PopUpBackground
+        "DropShadow" -> AppTheme.colors.DropShadow
+        "LightShadow" -> AppTheme.colors.LightShadow
+        "Gray" -> AppTheme.colors.Gray
+        "FadedGray" -> AppTheme.colors.FadedGray
+        "Success" -> AppTheme.colors.Success
+        "Success75" -> AppTheme.colors.Success75
+        "Error" -> AppTheme.colors.Error
+        "Error75" -> AppTheme.colors.Error75
+        "Warning" -> AppTheme.colors.Warning
+        else -> { Color.Unspecified }
+    }
+}
+
 fun reminderDotColor(reminder: Reminder): Color {
     val token = reminder.colorToken?.trim()?.lowercase()
 
