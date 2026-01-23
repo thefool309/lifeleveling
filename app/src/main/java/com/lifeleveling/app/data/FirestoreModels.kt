@@ -133,6 +133,36 @@ data class UsersData (
         )
     }
 
+
+// Nested Models
+// A user's "reminder template" (the base CRUD)
+data class Reminders(
+    val reminderId: String = "",         // Firestore doc id (also stored in doc for convenience)
+    val title: String = "",
+    val notes: String = "",
+    val startingAt: Timestamp? = null,        // when the reminder should trigger (nullable)
+    val completed: Boolean = false,
+    val completedAt: Timestamp? = null,  // set when marked complete
+    val createdAt: Timestamp? = null,    // serverTimestamp on create
+    val lastUpdate: Timestamp? = null,    // serverTimestamp on any write
+    val daily: Boolean = true,         // daily = weekly streaks source, false = monthly streak source
+    val timesPerMinute: Int = 0,        // How many minutes(s)
+    val timesPerHour: Int = 0,          // How many hour(s)
+    val timesPerDay: Int = 0,           // How many day(s)
+    val timesPerMonth: Int = 0,         // How many month(s)
+    val colorToken: String? = null,      // nullable like enumColor? in TestUser
+    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id
+    val repeatForever: Boolean = false,  // true if "Repeats indefinitely" checked
+    val repeatCount: Int = 0,            // how many units
+    val repeatInterval: String? = null,  // days, weeks, months or years
+    val enabled: Boolean = true,
+    val selectedMinutes: Int = 0,
+    val amOrPm: Int = 0,
+    val selectedHours: Int = 0
+) {
+
+}
+
     /**
      * Recalculates the max health after the stats item has been updated
      * @return A UsersData object for updating the state
@@ -272,4 +302,11 @@ data class FcmTokens(
     val uID: String = "",
     val token: String = "",
     val lastUpdate: Timestamp? = null
+)
+
+data class ReminderCompletionLog(
+    val reminderId: String = "",
+    val dateKey: String = "",
+    val count: Long = 0L,
+    val reminderTitle: String = "",
 )

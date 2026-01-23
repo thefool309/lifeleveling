@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
+import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ScrollFadeEdges
@@ -40,6 +42,8 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.UserJourneyToolTip
 import com.lifeleveling.app.ui.theme.AppTheme
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -67,9 +71,27 @@ fun UserJourneyScreen() {
     userManager.userJourneyCalculations()
     val mostCompletedReminder = if (userState.userBase?.mostCompletedReminder?.first == "") stringResource(R.string.no_remiders_completed)
                         else "${userState.userBase?.mostCompletedReminder?.first} ${userState.userBase?.mostCompletedReminder?.second.toString()}"
+    val repo = remember{ FirestoreRepository() }
+    val logger: ILogger = remember { AndroidLogger() }
+    val totalRemindersCompletedState = remember { mutableStateOf<Long?>(null) }
+    LaunchedEffect(Unit) {
+        totalRemindersCompletedState.value = repo.getTotalReminderCompletions(logger)
+    }
+    val totalRemindersCompletedDisplay = totalRemindersCompletedState.value?.toString() ?: "0"
 
     // Statistics to display
     val statistics = listOf(
+        // Reminders
+        JourneySection(
+            title = R.string.myReminders_title2,
+            items = listOf(
+                JourneyItem(
+                    R.string.total_reminders_completed,
+                    totalRemindersCompletedDisplay
+                )
+            )
+        ),
+
         // Streaks
         JourneySection(
           title = R.string.streaks,

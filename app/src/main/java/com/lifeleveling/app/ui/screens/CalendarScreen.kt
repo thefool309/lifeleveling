@@ -43,6 +43,7 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.*
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.SlidingSwitch
+import com.lifeleveling.app.ui.components.TestUser.calendarReminders
 import com.lifeleveling.app.ui.theme.AppTheme
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -162,7 +163,7 @@ fun CalendarScreen() {
                                 modifier = Modifier
                                     .background(color = Color.Transparent),
                                 state = state,
-                                dayContent = { Day(it) },
+                                dayContent = { Day(it, calendarReminders.value, LocalDate.now().year) },
                                 monthHeader = {
                                     Column(
                                         modifier = Modifier
@@ -198,77 +199,77 @@ fun CalendarScreen() {
                             val isToday = dayInfo == currentDay
 
 
-                                Column(
+                            Column(
 
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(all = 16.dp)
                                 ) {
+                                    ShadowedIcon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                                        contentDescription = null,
+                                        tint = AppTheme.colors.BrandTwo,
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clickable { jumpedDay.value = jumpedDay.value.minusDays(1) }
+                                            .align(Alignment.CenterStart),
+                                    )
                                     Box(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(all = 16.dp)
+                                            .then(
+                                                when {
+                                                    isToday -> Modifier.border(
+                                                        width = 1.dp,
+                                                        color = AppTheme.colors.SecondaryThree
+                                                    )
+
+                                                    else -> Modifier
+                                                }
+                                            )
+                                            .padding(8.dp)
+                                            .align(Alignment.Center),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        ShadowedIcon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
-                                            contentDescription = null,
-                                            tint = AppTheme.colors.BrandTwo,
-                                            modifier = Modifier
-                                                .size(28.dp)
-                                                .clickable { jumpedDay.value = jumpedDay.value.minusDays(1) }
-                                                .align(Alignment.CenterStart),
-                                        )
-                                        Box(
-                                            modifier = Modifier
-                                                .then(
-                                                    when {
-                                                        isToday -> Modifier.border(
-                                                            width = 1.dp,
-                                                            color = AppTheme.colors.SecondaryThree
-                                                        )
-
-                                                        else -> Modifier
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ){
+                                            Text(
+                                                text = "$dayName",
+                                                style = AppTheme.textStyles.HeadingSix,
+                                                color = AppTheme.colors.BrandOne,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier
+                                                    .clickable {
+                                                        showDays.value = true
                                                     }
-                                                )
-                                                .padding(8.dp)
-                                                .align(Alignment.Center),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Column(
-                                                horizontalAlignment = Alignment.CenterHorizontally
-                                            ){
-                                                Text(
-                                                    text = "$dayName",
-                                                    style = AppTheme.textStyles.HeadingSix,
-                                                    color = AppTheme.colors.BrandOne,
-                                                    textAlign = TextAlign.Center,
-                                                    modifier = Modifier
-                                                        .clickable {
-                                                            showDays.value = true
-                                                        }
 
-                                                )
-                                                Text(
-                                                    text = "$monthName ${dayInfo.dayOfMonth}, ${dayInfo.year}",
-                                                    style = AppTheme.textStyles.HeadingSix,
-                                                    color = AppTheme.colors.BrandOne,
-                                                    textAlign = TextAlign.Center,
-                                                    modifier = Modifier
-                                                        .clickable {
-                                                            showDays.value = true
-                                                        }
+                                            )
+                                            Text(
+                                                text = "$monthName ${dayInfo.dayOfMonth}, ${dayInfo.year}",
+                                                style = AppTheme.textStyles.HeadingSix,
+                                                color = AppTheme.colors.BrandOne,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier
+                                                    .clickable {
+                                                        showDays.value = true
+                                                    }
 
-                                                )
-                                            }
-
+                                            )
                                         }
-                                        ShadowedIcon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.right_arrow),
-                                            contentDescription = null,
-                                            tint = AppTheme.colors.BrandTwo,
-                                            modifier = Modifier
-                                                .size(28.dp)
-                                                .clickable { jumpedDay.value = jumpedDay.value.plusDays(1) }
-                                                .align(Alignment.CenterEnd),
-                                        )
+
                                     }
+                                    ShadowedIcon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.right_arrow),
+                                        contentDescription = null,
+                                        tint = AppTheme.colors.BrandTwo,
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clickable { jumpedDay.value = jumpedDay.value.plusDays(1) }
+                                            .align(Alignment.CenterEnd),
+                                    )
+                                }
 
                                     // Todo add in display of daily reminders
                                     DailyRemindersList(

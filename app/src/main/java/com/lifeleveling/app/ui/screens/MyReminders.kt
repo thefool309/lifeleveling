@@ -15,93 +15,107 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Surface
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lifeleveling.app.R
-import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Reminders
+import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.MyRemindersToolTip
 import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowReminder
-import com.lifeleveling.app.ui.components.TestUser
-import com.lifeleveling.app.ui.components.TestUser.calendarReminders
-import com.lifeleveling.app.ui.components.calReminder
 import com.lifeleveling.app.ui.theme.AppTheme
-import kotlin.collections.forEach
+import com.lifeleveling.app.util.ILogger
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import com.lifeleveling.app.ui.components.formatReminderTime
+import com.lifeleveling.app.ui.components.iconResForNameCalendar
+import com.lifeleveling.app.util.AndroidLogger
 
-@Preview
 @Composable
 fun MyRemindersScreen(
-    navController: NavController? = null
+    navController: NavController? = null,
+    repo: FirestoreRepository = FirestoreRepository(),
+    logger: ILogger = AndroidLogger(),
 ){
-    var toShowReminderInfo = remember { mutableStateOf(false) }
-    val reminderToShow = remember { mutableStateOf(TestUser.calendarReminders.value[0]) }
+    val scope = rememberCoroutineScope()
 
+    // Loading, Data, and Error
+    var isLoading by remember { mutableStateOf(true) }
+    var reminders by remember { mutableStateOf<List<Reminders>>(emptyList()) }
+    var loadError by remember { mutableStateOf<String?>(null) }
+    val genericErrorText = stringResource(R.string.error_loading_reminders)
+
+    // Tool Tip
     val showMyRemindersToolTip = remember { mutableStateOf(false) }
+
+    // Detail dialog using ShowReminders() composable
+    val toShowReminderInfo = remember { mutableStateOf(false) }
+    val reminderToShow = remember { mutableStateOf<Reminders?>(null) }
+
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
     val amOrPmOptions = listOf(
         stringResource(R.string.am),
         stringResource(R.string.pm),
     )
-    val hoursDaysWeeks = listOf(
-        stringResource(R.string.hours),
-        stringResource(R.string.days),
-        stringResource(R.string.weeks)
-    )
-    val daysWeeksMonthsYearsList = listOf(
-        stringResource(R.string.days),
-        stringResource(R.string.weeks),
-        stringResource(R.string.months),
-        stringResource(R.string.years)
-    )
+
+    // Loads all reminders from Firestore when the screen appears
+    LaunchedEffect(Unit) {
+        isLoading = true
+        loadError = null
+        try {
+            reminders = repo.getAllReminders(logger)
+        } catch (e: Exception) {
+            logger.e("Reminders", "MyRemindersScreen: failed to load reminders", e)
+            loadError = genericErrorText
+            reminders = emptyList()
+        } finally {
+            isLoading = false
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = AppTheme.colors.Background)
             .padding(16.dp)
-
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopStart),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-
-            ) {
+        ) {
+            // Header row
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ){
+            ) {
                 Text(
-                    text = stringResource(R.string.myReminders_title),
+                    text = stringResource(R.string.myReminders_title) + "\n" +
+                            stringResource(R.string.myReminders_title2),
                     color = AppTheme.colors.SecondaryOne,
                     style = AppTheme.textStyles.HeadingThree.copy(
                         shadow = Shadow(
@@ -110,8 +124,7 @@ fun MyRemindersScreen(
                             blurRadius = 6f,
                         )
                     ),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
                 ShadowedIcon(
                     imageVector = ImageVector.vectorResource(R.drawable.info),
@@ -121,13 +134,21 @@ fun MyRemindersScreen(
                         .offset(y = 9.74.dp)
                         .clickable { showMyRemindersToolTip.value = !showMyRemindersToolTip.value }
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+                CircleButton(
+                    modifier = Modifier,
+                    onClick = { navController?.popBackStack() },
+                    imageVector = ImageVector.vectorResource(R.drawable.back_arrow)
+                )
             }
 
+            // "Enable or disable" label
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
-            ){
+            ) {
                 Text(
                     text = stringResource(R.string.enable_or_disable),
                     color = AppTheme.colors.SecondaryOne,
@@ -147,95 +168,160 @@ fun MyRemindersScreen(
                     .height(450.dp),
                 outerPadding = 0.dp
             ) {
-                val remindersList = TestUser.calendarReminders.value
-                val isEnabled = remember {
-                    mutableStateListOf<Boolean>().apply {
-                        addAll(List(remindersList.size) { true })
+                when {
+                    isLoading -> {
+                        // Inline loader
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = AppTheme.colors.SecondaryTwo
+                            )
+                        }
                     }
-                }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ){
+                    loadError != null -> {
+                        // Error state
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = loadError ?: "",
+                                style = AppTheme.textStyles.Default,
+                                color = AppTheme.colors.Error75,
+                            )
+                        }
+                    }
 
-                    remindersList.forEachIndexed { index ,calReminder ->
-                        val hour = hourOptions[calReminder.selectedHours]
-                        val minutes = minutesOptions[calReminder.selectedMinutes]
-                        val ampm = amOrPmOptions[calReminder.amOrPm]
-                        Row(
+                    reminders.isEmpty() -> {
+                        // Empty state
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_reminders_for_day),
+                                style = AppTheme.textStyles.Default,
+                                color = AppTheme.colors.FadedGray,
+                            )
+                        }
+                    }
+
+                    else -> {
+                        // Scrollable list of reminders
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    toShowReminderInfo.value = true
-                                    reminderToShow.value = calReminder
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
+                            reminders.forEachIndexed { index, reminder ->
+                                val timeLabel = formatReminderTime(reminder)
 
-                            ShadowedIcon(
-                                modifier = Modifier
-                                    .size(32.dp),
-                                imageVector = ImageVector.vectorResource(id=calReminder.icon),
-                                contentDescription = null,
-                                tint = Color.Unspecified
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            toShowReminderInfo.value = true
+                                            reminderToShow.value = reminder
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    val iconRes = iconResForNameCalendar(reminder.iconName)
+                                    ShadowedIcon(
+                                        modifier = Modifier.size(32.dp),
+                                        imageVector = ImageVector.vectorResource(id = iconRes),
+                                        contentDescription = null,
+                                        tint = Color.Unspecified
+                                    )
 
-                            )
-                            Spacer(Modifier.width(20.dp))
-                            Text(
-                                text = calReminder.name,
-                                style = AppTheme.textStyles.HeadingSix,
-                                color = AppTheme.colors.Gray
-                            )
-                            Spacer(modifier = Modifier.size(8.dp))
-                            Text(
-                                text = "$hour:$minutes $ampm",
-                                style = AppTheme.textStyles.HeadingSix,
-                                color = AppTheme.colors.Gray
-                            )
+                                    Spacer(Modifier.width(20.dp))
 
-                            Spacer(Modifier.weight(1f))
-                            Box(
-                                modifier = Modifier
+                                    Text(
+                                        text = reminder.title,
+                                        style = AppTheme.textStyles.HeadingSix,
+                                        color = AppTheme.colors.Gray
+                                    )
 
-                            ){
-                                CustomCheckbox(
-                                    checked = isEnabled[index],
-                                    onCheckedChange = { newValue ->
-                                        isEnabled[index] = newValue
-                                    }
-                                )
+                                    Spacer(modifier = Modifier.size(8.dp))
+
+                                    Text(
+                                        text = timeLabel,
+                                        style = AppTheme.textStyles.HeadingSix,
+                                        color = AppTheme.colors.Gray
+                                    )
+
+                                    Spacer(Modifier.weight(1f))
+
+                                    CustomCheckbox(
+                                        checked = reminder.enabled,
+                                        onCheckedChange = { newValue ->
+                                            // Optimistic UI update
+                                            reminders = reminders.toMutableList().also { list ->
+                                                list[index] = list[index].copy(enabled = newValue)
+                                            }
+
+                                            // Persist to Firestore
+                                            scope.launch {
+                                                val ok = repo.updateReminder(
+                                                    reminderId = reminder.reminderId,
+                                                    updates = mapOf("enabled" to newValue),
+                                                    logger = logger
+                                                )
+                                                if (!ok) {
+                                                    logger.e(
+                                                        "Reminders",
+                                                        "MyReminders: failed to update enabled for ${reminder.reminderId}"
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+
+                                if (index < reminders.lastIndex) {
+                                    SeparatorLine()
+                                }
                             }
-
-
-
-                        }
-
-                        if (index < remindersList.lastIndex) {
-                            SeparatorLine()
                         }
                     }
-
                 }
             }
         }
-    }
 
-    if(showMyRemindersToolTip.value){
-        MyRemindersToolTip(showMyRemindersToolTip)
-    }
+        // Tool tip
+        if (showMyRemindersToolTip.value) {
+            MyRemindersToolTip(showMyRemindersToolTip)
+        }
 
-    if (toShowReminderInfo.value) {
-        ShowReminder(
-            toShow = toShowReminderInfo,
-            passedReminder = reminderToShow,
-            hourOptions = hourOptions,
-            minutesOptions = minutesOptions,
-            amOrPmOptions = amOrPmOptions
-        )
+        // Detail bottom sheet / dialog using ShowReminder with delete and refresh
+        if (toShowReminderInfo.value && reminderToShow.value != null) {
+            ShowReminder(
+                toShow = toShowReminderInfo,
+                passedReminder = reminderToShow,
+                hourOptions = hourOptions,
+                minutesOptions = minutesOptions,
+                amOrPmOptions = amOrPmOptions,
+                onDelete = { r ->
+                    scope.launch {
+                        val ok = repo.deleteReminder(r.reminderId, logger)
+                        if (ok) {
+                            reminders = reminders.filter { it.reminderId != r.reminderId }
+                        } else {
+                            logger.e("Reminders", "MyReminders: delete failed for ${r.reminderId}")
+                        }
+                    }
+                }
+            )
+        }
     }
 }
 

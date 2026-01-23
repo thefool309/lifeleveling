@@ -733,7 +733,7 @@ fun ProgressBar(
                     top = 1.5.dp,
                     end = 1.5.dp,
                     bottom = 1.5.dp,
-                    )
+                )
                 .fillMaxHeight()
                 .fillMaxWidth(progress.coerceIn(0f, 1f))
                 .clip(RoundedCornerShape(cornerRadius - 1.dp))
@@ -1561,6 +1561,7 @@ fun CustomTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     supportingUnit: (@Composable () -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    enabled: Boolean = true,
 ) {
     OutlinedTextField(
         modifier = modifier
@@ -1572,6 +1573,7 @@ fun CustomTextField(
                 onValueChange(input)
             }
         },
+        enabled = enabled,
         singleLine = singleLine,
         textStyle = textStyle.copy(color = textColor),
         colors = OutlinedTextFieldDefaults.colors(
@@ -1717,6 +1719,114 @@ fun LazyColumnFadeEdges(
                     )
                     .align(Alignment.BottomCenter)
             )
+        }
+    }
+}
+
+/**
+ * Creates a dropdown menu for string options
+ * @param colors list of color choices
+ * @param selectedIndex Variable for storing the selected option index
+ * @param onSelectedChange What to do when an option is selected. Pass in { selectedIndex = it } for selected Index to be updated
+ * @param expanded The boolean that controls if the menu shows or not
+ * @param readOnly Controls if the inner text field can be typed into or only read
+ * @param arrowSize Changes the size of the arrow on the dropdown box
+ * @param textColor Sets the color of all the text and the arrow
+ * @param backgroundMainColor Main color of the text field. Is also used in the menu as one of the alternating colors
+ * @param accentColor The second color of the alternating colors in the menu
+ * @param outlineColor Color of the text field outline
+ * @param selectedBackground A highlight to the option that is currently selected
+ * @author sgcfsu1993 (Stephen C.) (Made from Elyseia's original DropDownTextMenu)
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownColorMenu(
+    modifier: Modifier = Modifier,
+    colors: List<Color>,
+    selectedIndex: Int,
+    onSelectedChange: (Int) -> Unit,
+    expanded: MutableState<Boolean>,
+    readOnly: Boolean = true,
+    arrowSize: Dp = 20.dp,
+    backgroundMainColor: Color = AppTheme.colors.Background,
+    accentColor: Color = AppTheme.colors.PopUpBackground,
+    outlineColor: Color = AppTheme.colors.FadedGray,
+    selectedBackground: Color = AppTheme.colors.SecondaryTwo.copy(alpha = .3f),
+    textColor: Color = AppTheme.colors.Gray,
+) {
+    Box(modifier = modifier) {
+        ExposedDropdownMenuBox(
+            expanded = expanded.value,
+            onExpandedChange = { expanded.value = !expanded.value },
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
+                    .fillMaxWidth()
+                    .widthIn(max = 300.dp),
+                value = "",
+                onValueChange = { },
+                readOnly = readOnly,
+                leadingIcon = {
+
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(colors[selectedIndex], shape = CircleShape)
+                    )
+                },
+                trailingIcon = {
+                    ShadowedIcon(
+                        imageVector = ImageVector.vectorResource(R.drawable.left_arrow),
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .rotate(if (expanded.value) 90f else 270f)
+                            .size(arrowSize)
+                    )
+                },
+                textStyle = AppTheme.textStyles.Default,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = backgroundMainColor,
+                    unfocusedContainerColor = backgroundMainColor,
+                    focusedBorderColor = outlineColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = Color.Transparent,
+                )
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .shadow(12.dp, RoundedCornerShape(8.dp))
+                    .border(1.dp, outlineColor, RoundedCornerShape(8.dp))
+                    .background(backgroundMainColor)
+            ) {
+                colors.forEachIndexed { index, color ->
+                    val isSelected = index == selectedIndex
+                    val backgroundColor =
+                        if (isSelected) selectedBackground else if (index % 2 == 0) backgroundMainColor else accentColor
+
+                    DropdownMenuItem(
+                        text = {
+
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(color, shape = CircleShape)
+                            )
+                        },
+                        onClick = {
+                            onSelectedChange(index)
+                            expanded.value = false
+                        },
+                        modifier = Modifier
+                            .background(backgroundColor)
+                            .fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }

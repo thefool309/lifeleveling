@@ -160,6 +160,7 @@
     <string name="account_age">Account Age:</string>
     <string name="no_remiders_completed">You have not completed any reminders yet.</string>
     <string name="most_completed_reminder">Most completed reminder:</string>
+    <string name="total_reminders_completed">Total reminders completed</string>
 
     <!-- Stats tips -->
     <string name="stats">Stats</string>
@@ -222,12 +223,13 @@
     <string name="title_colon">Title:</string>
     <string name="reminder_title">Reminder Title</string>
     <string name="icon">Icon</string>
-    <string name="starting_at">Starting at:</string>
+    <string name="starting_at">Starting:</string>
     <string name="hour_minute_colon">:</string>
     <string name="remind_me_every">Remind me every</string>
     <string name="checkbox_setdaily">Set as daily</string>
     <string name="checkbox_weekdays">Set up week days</string>
     <string name="repeat_for">Repeat for:</string>
+    <string name="minutesShort">Mins</string>
     <string name="days">Days</string>
     <string name="weeks">Weeks</string>
     <string name="months">Months</string>
@@ -235,6 +237,8 @@
     <string name="years">Years</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
+    <string name="color">Color</string>
+    <string name="repeat_reminder">Repeat this reminder</string>
     <string-array name="hour_array">
         <item>1</item>
         <item>2</item>
@@ -318,13 +322,16 @@
     <string name="repeat_for_tooltip">In Repeat for, you can choose how long you want the reminder repeated for in the future. You can make it repeated indefinitely(forever), repeated for a certain period of time such as for one month, or is it not repeated and only a one time reminder.</string>
 
     <!-- MyReminders Screen -->
-    <string name="myReminders_title">My Reminders</string>
+    <string name="myReminders_title">My</string>
+    <string name="myReminders_title2">Reminders</string>
     <string name="myReminders_tipstitle">My Reminders Tips</string>
     <string name="enable_or_disable">Enable/Disable</string>
     <string name="myReminders_tooltip1">Here in My Reminders you will see a list of all reminders you created.</string>
     <string name="myReminders_tooltip2">You can choose to enable or disable them with the checkbox.</string>
     <string name="myReminders_tooltip3">Taping on a reminder will display its repeat information and give you the option to delete it.</string>
     <string name="no_reminders_for_day">No reminders for this day yet.</string>
+    <string name="error_loading_reminders">There was a problem loading your reminders. Please try again.</string>
+    <string name="cannot_create_past_reminder">You can not create a reminder in the past. Please pick a future time.</string>
 
     <!-- FCM/androidSettings -->
     <string name="reminder_channel">Reminders</string>

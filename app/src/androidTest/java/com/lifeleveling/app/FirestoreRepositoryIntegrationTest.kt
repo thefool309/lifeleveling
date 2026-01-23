@@ -362,4 +362,55 @@ class FirestoreRepositoryIntegrationTest {
         val newCoins = user!!.userBase!!.coinsBalance
         assert(newCoins == (oldCoins - 52L))
     }
+
+    @Test
+    fun deleteUserPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        val result = repo.deleteUser(logger)
+        assert(result)
+    }
+
+    @Test
+    fun setLifePointsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val oldLife = user!!.lifePoints
+        val result = repo.setLifePoints(52L, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newLife = user!!.lifePoints
+        assert(newLife == 52L)
+        assert(result)
+    }
+
+    @Test
+    fun addXpPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val currXp = user!!.currentXp
+        val result = repo.addXp(100.00, logger)
+        user = repo.getUser(auth.currentUser!!.uid, logger)
+        val newXp = user!!.currentXp
+        assert(newXp == (currXp + 100.00))
+        assert(result != null)
+    }
+
+    @Test
+    fun resetLifePointsPositiveTest() = runTest {
+        val logger = AndroidLogger()
+        authorizeFirebaseUser(logger)
+        val repo = FirestoreRepository()
+        resetUser(logger, repo)
+        var user = repo.getUser(auth.currentUser!!.uid, logger)
+        val result = repo.resetLifePoints(logger)
+        assert(result)
+    }
 }

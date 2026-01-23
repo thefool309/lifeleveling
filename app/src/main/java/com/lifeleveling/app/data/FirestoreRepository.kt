@@ -31,6 +31,8 @@ class FirestoreRepository(
     private val db: FirebaseFirestore = Firebase.firestore,
     private val logger: ILogger,
 ) {
+    private val reminderRepo = ReminderRepository(auth, db)
+
     companion object {
         private const val TAG = "FirestoreRepository"
     }
@@ -299,7 +301,6 @@ class FirestoreRepository(
     /**
      * set the number coins to the Users firebase balance
      * @return Boolean
-     * @param health  a long that contains the new balance
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
      */
 
@@ -505,8 +506,8 @@ class FirestoreRepository(
     }
 
     /**
-    * A function for adding Xp to the users firestore data
-    * @param xp A double representing the amount of xp to be added
+     * A function for adding Xp to the users firestore data
+     * @param xp A double representing the amount of xp to be added
      * @param logger A double representing the amount of xp to be added
      * @see ILogger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
      * @author thefool309, fd
@@ -572,8 +573,8 @@ class FirestoreRepository(
         try {
             val docRef = db.collection("fcmTokens").document(uID)
             docRef.update(mapOf("token" to token,
-                                        "uID" to uID,
-                                        "lastUpdate" to Timestamp.now())
+                "uID" to uID,
+                "lastUpdate" to Timestamp.now())
             ).await()
             return true
         }
@@ -760,19 +761,7 @@ class FirestoreRepository(
 
         return try {
             // Delete subcollections (Just reminders for now)
-            try {
-                val remindersSnap = remindersCol(uid).get().await()
-                if (!remindersSnap.isEmpty) {
-                    val batch = db.batch()
-                    for (doc in remindersSnap.documents) {
-                        batch.delete(doc.reference)
-                    }
-                    batch.commit().await()
-                }
-            } catch (e: Exception) {
-                // Log but continue so we at least try to delete the user document & auth user
-                logger.e("Firestore", "Failed to delete reminders for user $uid", e)
-            }
+            reminderRepo.deleteAllRemindersForUser(uid, logger)
 
             // Delete user document in Firestore
             try {
@@ -1079,4 +1068,62 @@ class FirestoreRepository(
         updateTimestamp(uid)
     }
 
+}
+
+    // Thin Wrapper Helpers to maintain all the existing behavior on all files.
+    // Reminder API: Delegated to ReminderRepository
+
+    suspend fun createReminder(
+        reminders: Reminders,
+        logger: ILogger
+    ): String? = reminderRepo.createReminder(reminders, logger)
+
+    suspend fun updateReminder(
+        reminderId: String,
+        updates: Map<String, Any?>,
+        logger: ILogger
+    ): Boolean = reminderRepo.updateReminder(reminderId, updates, logger)
+
+    suspend fun setReminderCompleted(
+        reminderId: String,
+        completed: Boolean,
+        logger: ILogger
+    ): Boolean = reminderRepo.setReminderCompleted(reminderId, completed, logger)
+
+    suspend fun deleteReminder(
+        reminderId: String,
+        logger: ILogger
+    ): Boolean = reminderRepo.deleteReminder(reminderId, logger)
+
+    suspend fun getRemindersForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): List<Reminders> = reminderRepo.getRemindersForDate(date, logger)
+
+    suspend fun getAllReminders(
+        logger: ILogger
+    ): List<Reminders> = reminderRepo.getAllReminders(logger)
+
+    suspend fun incrementReminderCompletionForDate(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate,
+        logger: ILogger
+    ) : Boolean = reminderRepo.incrementReminderCompletionForDate(reminderId, reminderTitle, date, logger)
+
+    suspend fun decrementReminderCompletionForDate(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate,
+        logger: ILogger
+    ) : Boolean = reminderRepo.decrementReminderCompletionForDate(reminderId, reminderTitle, date, logger)
+
+    suspend fun getReminderCompletionsForDate(
+        date: LocalDate,
+        logger: ILogger
+    ): Map<String, Int> = reminderRepo.getReminderCompletionsForDate(date, logger)
+
+    suspend fun getTotalReminderCompletions(
+        logger: ILogger
+    ): Long = reminderRepo.getTotalReminderCompletions(logger)
 }

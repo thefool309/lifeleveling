@@ -4,8 +4,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("org.jetbrains.dokka") version "2.0.0"
 }
-
+tasks.dokkaHtml.configure {
+    moduleName = "Life Leveling"
+}
 android {
     namespace = "com.lifeleveling.app"
     compileSdk = 36

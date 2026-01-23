@@ -121,8 +121,6 @@ fun SettingScreen(){
 
                     SeparatorLine()
 
-                    // TODO: Add in another option to edit user information: email, username, so on
-
                     // Notification Settings
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -177,7 +175,37 @@ fun SettingScreen(){
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { TODO("Add in navigation to all reminders") }
+                                .clickable { navController.navigate("MyReminders") }
+                        )
+                    }
+
+                    SeparatorLine()
+
+                    // User's Account Settings
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ){
+                        ShadowedIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.person),
+                            tint = AppTheme.colors.SecondaryOne,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
+
+                        )
+                        Text(
+                            text = "Account Settings",
+                            color = AppTheme.colors.Gray,
+                            style = AppTheme.textStyles.HeadingSix.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .clickable { navController?.navigate("userAccountScreen") }
                         )
                     }
 
@@ -302,37 +330,6 @@ fun SettingScreen(){
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .clickable { navController.navigate("termsAndPrivacy") }
-                        )
-                    }
-
-                    SeparatorLine()
-
-                    // Delete Account
-                    // TODO: Move into the control of account edits
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
-
-                        ShadowedIcon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.trash_solid_full),
-                            tint = AppTheme.colors.Error,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                        Text(
-                            text = stringResource(R.string.deleteAccount),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(2f, 2f),
-                                    blurRadius = 2f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .clickable { showDeleteDialog.value = true }
                         )
                     }
 
