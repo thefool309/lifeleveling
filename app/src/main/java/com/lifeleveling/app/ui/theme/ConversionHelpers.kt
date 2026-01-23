@@ -23,6 +23,10 @@ fun iconResForName(iconName: String?): Int {
         "brain"          -> R.drawable.brain
         "document"       -> R.drawable.document
         "doctor"         -> R.drawable.doctor
+        "question_mark"  -> R.drawable.question_mark
+        "flame"          -> R.drawable.flame
+        "one"            -> R.drawable.one
+        "sun_glasses"    -> R.drawable.sun_glasses
         else             -> R.drawable.bell
     }
 }

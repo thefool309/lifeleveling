@@ -20,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,10 +34,7 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.FirestoreRepository
-import com.lifeleveling.app.data.Reminders
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomCheckbox
 import com.lifeleveling.app.ui.components.HighlightCard
@@ -47,7 +43,6 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowReminder
 import com.lifeleveling.app.ui.theme.AppTheme
-import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -55,9 +50,7 @@ import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.ui.components.formatReminderTime
-import com.lifeleveling.app.ui.components.iconResForNameCalendar
-import com.lifeleveling.app.ui.theme.iconResForNameCalendar
-import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.ui.theme.iconResForName
 
 @Composable
 fun MyRemindersScreen(){
@@ -69,7 +62,7 @@ fun MyRemindersScreen(){
 
     // Loading, Data, and Error
     var isLoading by remember { mutableStateOf(true) }
-    var reminders by remember { mutableStateOf<List<Reminder>>(emptyList()) }
+    var reminders = userState.reminders
     var loadError by remember { mutableStateOf<String?>(null) }
     val genericErrorText = stringResource(R.string.error_loading_reminders)
 
@@ -87,20 +80,20 @@ fun MyRemindersScreen(){
         stringResource(R.string.pm),
     )
 
-    // Loads all reminders from Firestore when the screen appears
-    LaunchedEffect(Unit) {
-        isLoading = true
-        loadError = null
-        try {
-            reminders = repo.getAllReminders(logger)
-        } catch (e: Exception) {
-            userManager.logger.e("Reminders", "MyRemindersScreen: failed to load reminders", e)
-            loadError = genericErrorText
-            reminders = emptyList()
-        } finally {
-            isLoading = false
-        }
-    }
+//    // Loads all reminders from Firestore when the screen appears
+//    LaunchedEffect(Unit) {
+//        isLoading = true
+//        loadError = null
+//        try {
+//            reminders = repo.getAllReminders(logger)
+//        } catch (e: Exception) {
+//            userManager.logger.e("Reminders", "MyRemindersScreen: failed to load reminders", e)
+//            loadError = genericErrorText
+//            reminders = emptyList()
+//        } finally {
+//            isLoading = false
+//        }
+//    }
 
     Box(
         modifier = Modifier
@@ -240,7 +233,7 @@ fun MyRemindersScreen(){
                                         },
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    val iconRes = iconResForNameCalendar(reminder.iconName)
+                                    val iconRes = iconResForName(reminder.iconName)
                                     ShadowedIcon(
                                         modifier = Modifier.size(32.dp),
                                         imageVector = ImageVector.vectorResource(id = iconRes),
@@ -275,19 +268,10 @@ fun MyRemindersScreen(){
                                             }
 
                                             // Persist to Firestore
-                                            scope.launch {
-                                                val ok = repo.updateReminder(
-                                                    reminderId = reminder.reminderId,
-                                                    updates = mapOf("enabled" to newValue),
-                                                    logger = logger
-                                                )
-                                                if (!ok) {
-                                                    userManager.logger.e(
-                                                        "Reminders",
-                                                        "MyReminders: failed to update enabled for ${reminder.reminderId}"
-                                                    )
-                                                }
-                                            }
+                                            userManager.updateReminder(
+                                                reminderId = reminder.reminderId,
+                                                updates = mapOf("enabled" to newValue)
+                                            )
                                         }
                                     )
                                 }
@@ -315,14 +299,12 @@ fun MyRemindersScreen(){
                 hourOptions = hourOptions,
                 minutesOptions = minutesOptions,
                 amOrPmOptions = amOrPmOptions,
-                onDelete = { r ->
-                    scope.launch {
-                        val ok = repo.deleteReminder(r.reminderId, logger)
-                        if (ok) {
-                            reminders = reminders.filter { it.reminderId != r.reminderId }
-                        } else {
-                            userManager.logger.e("Reminders", "MyReminders: delete failed for ${r.reminderId}")
-                        }
+                onDelete = {r ->
+                    val ok = userManager.deleteReminder(r.reminderId)
+                    if (ok) {
+                        reminders = reminders.filter { it.reminderId != r.reminderId }
+                    } else {
+                        userManager.logger.e("Reminders", "MyReminders: delete failed for ${r.reminderId}")
                     }
                 }
             )

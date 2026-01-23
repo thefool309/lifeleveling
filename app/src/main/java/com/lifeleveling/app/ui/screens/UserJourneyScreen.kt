@@ -71,12 +71,8 @@ fun UserJourneyScreen() {
     userManager.userJourneyCalculations()
     val mostCompletedReminder = if (userState.userBase?.mostCompletedReminder?.first == "") stringResource(R.string.no_remiders_completed)
                         else "${userState.userBase?.mostCompletedReminder?.first} ${userState.userBase?.mostCompletedReminder?.second.toString()}"
-    val repo = remember{ FirestoreRepository() }
-    val logger: ILogger = remember { AndroidLogger() }
     val totalRemindersCompletedState = remember { mutableStateOf<Long?>(null) }
-    LaunchedEffect(Unit) {
-        totalRemindersCompletedState.value = repo.getTotalReminderCompletions(logger)
-    }
+    totalRemindersCompletedState.value = userManager.getTotalReminderCompletion()
     val totalRemindersCompletedDisplay = totalRemindersCompletedState.value?.toString() ?: "0"
 
     // Statistics to display

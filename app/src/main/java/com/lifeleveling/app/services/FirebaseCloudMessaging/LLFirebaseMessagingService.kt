@@ -9,11 +9,14 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lifeleveling.app.BuildConfig
 import com.lifeleveling.app.MainActivity
 import com.lifeleveling.app.R
+import com.lifeleveling.app.auth.AuthModel
 import com.lifeleveling.app.data.FirestoreRepository
 import com.lifeleveling.app.services.FirebaseCloudMessaging.LLWorker
 import com.lifeleveling.app.util.AndroidLogger
@@ -39,7 +42,8 @@ companion object {
     const val TAG = "FirebaseMessagingService"
     const val NOTIFICATION_ID = 1   // may be taken out later if we decide to have more than one type of notification
 }
-    val repo = FirestoreRepository()
+    val repo = FirestoreRepository(logger = logger, db = Firebase.firestore)
+    val authModel: AuthModel = AuthModel(logger = logger)
 
     constructor(logger: ILogger) : this() {
         this.logger = logger
@@ -109,8 +113,9 @@ companion object {
      * A wrapper function for starting a coroutine to send the registration to the server.
      */
     private fun sendRegistrationToServer(token: String?) {
+        val uid = authModel.currentUser?.uid ?: error("User not logged in")
         // send token to the Firestore.
-        runBlocking { repo.setFirebaseToken(token, logger) }
+        runBlocking { repo.setFirebaseToken(token, uid) }
         logger.d(TAG, "sendRegistrationTokenToServer($token)")
     }
 

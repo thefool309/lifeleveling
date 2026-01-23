@@ -499,6 +499,89 @@ class UserManager(
         }
     }
 
+    /**
+     * Updates a reminder by its document ID.
+     *
+     * We pass in a map of fields we want to change (title, notes, color, etc.) and Firestore will only update those fields instead of overwriting everything.
+     * Also sneaks in a `lastUpdate` timestamp automatically so we always know when this reminder was last touched.
+     * @param reminderId The Firestore document ID for the reminder we want to update.
+     * @param updates A map of fields we want to modify. Only these fields get changed.
+     * @param uid The ID of the user to write to
+     * @author fdesouza1992
+     */
+    fun updateReminder(
+        reminderId: String,
+        updates: Map<String, Any?>,
+    ) {
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                val ok = reminderRepo.updateReminder(reminderId, updates, uid)
+                if (!ok) {
+                    logger.e("Reminders", "MyReminders: failed to update enabled for ${reminderId}")
+                    userData.update { it.copy(error = "MyReminders: failed to update enabled for ${reminderId}") }
+                }
+            } catch (e: Exception) {
+                logger.e("Reminders", "MyReminders: failed to update enabled for ${reminderId}")
+                userData.update { it.copy(error = "MyReminders: failed to update enabled for ${reminderId}") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    fun deleteReminder(
+        reminderId: String,
+    ): Boolean {
+        var result: Boolean = false
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                result = reminderRepo.deleteReminder(reminderId, uid)
+            } catch (e: Exception) {
+                logger.e("Reminders", "MyReminders: delete failed for ${reminderId}")
+                userData.update { it.copy(error = "MyReminders: delete failed for ${reminderId}") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+        return result
+    }
+
+    /**
+     * Returns total number of reminder completions across all time.
+     *
+     * We read every document inside `reminderCompletions` and sum the `count` values. Great for showing progress in "My Journey" or achievement screens.
+     * If something goes wrong, we return 0 instead of crashing the app.
+     *
+     * @return The total count of completions across all reminders.
+     * @author fdesouza1992
+     */
+    fun getTotalReminderCompletion(): Long {
+        var result: Long = 0
+        viewModelScope.launch {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+
+                result = reminderRepo.getTotalReminderCompletions(uid)
+            } catch (e: Exception) {
+                logger.e("Reminders", "Retrieval of Total Reminder Completions failed.")
+                userData.update { it.copy(error = "Retrieval of Total Reminder Completions failed.") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+        return result
+    }
+
     // ============ Streak Functions ===============================================
     /**
      * This function takes the UI supplied draft and a reminder information to create a full streak object.

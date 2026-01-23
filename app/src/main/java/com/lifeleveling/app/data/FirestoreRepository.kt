@@ -873,4 +873,30 @@ class FirestoreRepository(
             .await()
         updateTimestamp(uid)
     }
+
+    /**
+     * Returns doc object on success or returns null on failure
+     * @param db FireStore instance giving access to firestore
+     * @param onComplete callback - receives terms if success or null if failure - used cause FB is async- have to wait for data to return - when returns
+     *@author sgcfsu1993
+     */
+    fun termsFireBaseFetch(db: FirebaseFirestore, onComplete: (Terms?) -> Unit) {
+        db.collection("legalDocuments").document("terms").get()
+            .addOnSuccessListener {
+                    doc -> onComplete(doc.toObject(Terms::class.java))
+            }.addOnFailureListener { onComplete(null)}
+    }
+
+    /**
+     * Returns doc object on success or returns null on failure
+     * @param db FireStore instance giving access to firestore
+     * @param onComplete callback - receives terms if success or null if failure - used cause FB is async- have to wait for data to return - when returns
+     *@author sgcfsu1993
+     */
+    fun privacyFireBaseFetch(db: FirebaseFirestore, onComplete: (Privacy?) -> Unit) {
+        db.collection("legalDocuments").document("privacy").get()
+            .addOnSuccessListener {
+                    doc -> onComplete(doc.toObject(Privacy::class.java))
+            }.addOnFailureListener { onComplete(null)}
+    }
 }

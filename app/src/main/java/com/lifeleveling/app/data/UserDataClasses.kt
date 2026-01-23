@@ -169,3 +169,17 @@ fun Reminder.occursOn(date: LocalDate, zone: ZoneId): Boolean {
 
     return true
 }
+
+data class Terms(
+    val content: String = "",
+    val version: String = "",
+    val lastUpdate: Timestamp? = null,
+    val title: String = ""
+)
+
+data class Privacy(
+    val content: String = "",
+    val version: String = "",
+    val lastUpdate: Timestamp? = null,
+    val title: String = ""
+)

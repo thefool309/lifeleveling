@@ -37,6 +37,7 @@ import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.CustomButton
+import com.lifeleveling.app.ui.components.CustomDialog
 import com.lifeleveling.app.ui.components.CustomTextField
 import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.ShadowedIcon
@@ -332,6 +333,76 @@ fun UserAccountScreen(){
 
                 )
                 Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+    }
+
+
+    // Delete Account Dialog Box
+    if (showDeleteDialog.value) {
+        CustomDialog(
+            toShow = showDeleteDialog,
+            dismissOnInsideClick = false,     // keep dialog open while interacting with buttons
+            dismissOnOutsideClick = true
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.deleteAccountQuestion),
+                    color = AppTheme.colors.SecondaryOne,
+                    style = AppTheme.textStyles.HeadingFour.copy(
+                        shadow = Shadow(
+                            color = AppTheme.colors.DropShadow,
+                            offset = Offset(3f, 4f),
+                            blurRadius = 6f,
+                        )
+                    )
+                )
+                Text(
+                    text = stringResource(R.string.deleteDialogBoxWarning),
+                    color = AppTheme.colors.Gray,
+                    style = AppTheme.textStyles.Default
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Cancel button
+                    CustomButton(
+                        onClick = { showDeleteDialog.value = false },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Success75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    // Confirm delete
+                    CustomButton(
+                        onClick = {
+                            showDeleteDialog.value = false
+                            userManager.deleteAccount()
+                        },
+                        width = 120.dp,
+                        backgroundColor = AppTheme.colors.Error75
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            color = AppTheme.colors.DarkerBackground,
+                            style = AppTheme.textStyles.HeadingSix
+                        )
+                    }
+                }
             }
         }
     }
