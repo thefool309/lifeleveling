@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestore
 import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.data.Stats
 import com.lifeleveling.app.util.AndroidLogger
 import com.lifeleveling.app.util.ILogger
 import kotlinx.coroutines.tasks.await
@@ -412,7 +413,20 @@ class FirestoreRepositoryIntegrationTest {
         val repo = FirestoreRepository(db = firestore, logger = logger)
         resetUser(logger, repo)
         var user = repo.getUser(auth.currentUser!!.uid)
-        val result = repo.resetLifePoints(auth.currentUser!!.uid)
+        val newStats = Stats(
+            strength = 0,
+            defense = 0,
+            intelligence = 0,
+            agility = 0,
+            health = 0,
+        )
+        val result = repo.editUser(
+            user!!.userBase!!.userId,
+            mapOf(
+                "stats" to newStats,
+                "lifePointsUsed" to 0,
+            ),
+        )
         assert(result)
     }
 }
