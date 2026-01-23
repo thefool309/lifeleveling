@@ -50,24 +50,24 @@ fun SettingScreen(
     isDarkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit,
     onSignOut: () -> Unit ={},
-    onDeleteAccount: () -> Unit = {},
     onResetLifePoints: () -> Unit = {},
-){
+) {
     val scrollState = rememberScrollState()
 
-    val showDeleteDialog = remember {mutableStateOf(false)}
+    val showDeleteDialog = remember { mutableStateOf(false) }
     val showResetLifePointsDialog = remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
             .fillMaxSize(),
         color = AppTheme.colors.Background
-    ){
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-        ){
+        ) {
             Text(
                 text = stringResource(R.string.settings),
                 color = AppTheme.colors.SecondaryOne,
@@ -84,17 +84,18 @@ fun SettingScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 outerPadding = 0.dp
-            ){
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
-                ){
+                ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Spacer(modifier = Modifier.height(8.dp))
                         SlidingSwitch(
                             options = listOf(stringResource(R.string.darkMode), stringResource(R.string.lightMode)),
@@ -111,7 +112,7 @@ fun SettingScreen(
                             textStyle = AppTheme.textStyles.HeadingSix,
                             extraWidth = 52.dp,
 
-                        )
+                            )
                     }
 
                     SeparatorLine()
@@ -119,7 +120,7 @@ fun SettingScreen(
                     // Notification Settings
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.bell),
                             tint = AppTheme.colors.BrandTwo,
@@ -150,7 +151,7 @@ fun SettingScreen(
                     // All Reminders
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.bars_solid_full),
                             tint = AppTheme.colors.BrandOne,
@@ -180,7 +181,7 @@ fun SettingScreen(
                     // User's Account Settings
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.person),
                             tint = AppTheme.colors.SecondaryOne,
@@ -210,7 +211,7 @@ fun SettingScreen(
                     // User's Journey
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.badge),
                             tint = AppTheme.colors.SecondaryTwo,
@@ -240,7 +241,7 @@ fun SettingScreen(
                     // Reset Life Points
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.reset_arrows),
                             tint = AppTheme.colors.SecondaryOne,
@@ -271,7 +272,7 @@ fun SettingScreen(
                     // Self Care Tips
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.heart),
                             tint = AppTheme.colors.SecondaryThree,
@@ -301,7 +302,7 @@ fun SettingScreen(
                     // Terms and Privacy Policy
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.document),
                             tint = AppTheme.colors.SecondaryTwo,
@@ -331,7 +332,7 @@ fun SettingScreen(
                     // Logout
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ){
+                    ) {
 
                         ShadowedIcon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.logout),
@@ -436,94 +437,24 @@ fun SettingScreen(
         }
     }
 
-    // Delete Account Dialog Box
-    if (showDeleteDialog.value) {
-        CustomDialog(
-            toShow = showDeleteDialog,
-            dismissOnInsideClick = false,     // keep dialog open while interacting with buttons
-            dismissOnOutsideClick = true
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.deleteAccountQuestion),
-                    color = AppTheme.colors.SecondaryOne,
-                    style = AppTheme.textStyles.HeadingFour.copy(
-                        shadow = Shadow(
-                            color = AppTheme.colors.DropShadow,
-                            offset = Offset(3f, 4f),
-                            blurRadius = 6f,
-                        )
-                    )
-                )
-                Text(
-                    text = stringResource(R.string.deleteDialogBoxWarning),
-                    color = AppTheme.colors.Gray,
-                    style = AppTheme.textStyles.Default
-                )
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Cancel button
-                    CustomButton(
-                        onClick = { showDeleteDialog.value = false },
-                        width = 120.dp,
-                        backgroundColor = AppTheme.colors.Success75
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cancel),
-                            color = AppTheme.colors.DarkerBackground,
-                            style = AppTheme.textStyles.HeadingSix
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.width(20.dp))
+    @Composable
+    fun PreviewSettingScreen() {
+        // Create a mock navController
+        val navController = rememberNavController()
 
-                    // Confirm delete
-                    CustomButton(
-                        onClick = {
-                            showDeleteDialog.value = false
-                            onDeleteAccount()
-                        },
-                        width = 120.dp,
-                        backgroundColor = AppTheme.colors.Error75
-                    ) {
-                        Text(
-                            text = stringResource(R.string.delete),
-                            color = AppTheme.colors.DarkerBackground,
-                            style = AppTheme.textStyles.HeadingSix
-                        )
-                    }
-                }
-            }
-        }
+        // Create a state variable for the theme toggle
+        var isDarkTheme by remember { mutableStateOf(false) }
+
+        SettingScreen(
+            navController = navController,
+            isDarkTheme = isDarkTheme,
+            onThemeChange = { newIsDark ->
+                isDarkTheme = newIsDark // update the state in preview
+            },
+            onSignOut = {},
+            onResetLifePoints = {}
+        )
     }
-}
-
-@Preview(showBackground = true)
-
-@Composable
-fun PreviewSettingScreen() {
-    // Create a mock navController
-    val navController = rememberNavController()
-
-    // Create a state variable for the theme toggle
-    var isDarkTheme by remember { mutableStateOf(false) }
-
-    SettingScreen(
-        navController = navController,
-        isDarkTheme = isDarkTheme,
-        onThemeChange = { newIsDark ->
-            isDarkTheme = newIsDark // update the state in preview
-        },
-        onSignOut = {},
-        onDeleteAccount = {},
-        onResetLifePoints = {}
-    )
 }
