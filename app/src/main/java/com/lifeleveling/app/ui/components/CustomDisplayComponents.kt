@@ -615,33 +615,19 @@ private fun DailyReminderRow(
                         CustomCheckbox(
                             checked = checked,
                             onCheckedChange = { new ->
-                                if(!checked && new) {
-                                    // false -> true: increment
+                                if (!checked && new) {
                                     checked = true
-
                                     scope.launch {
-                                        val ok = repo.incrementReminderCompletionForDate(
+                                        val ok = repo.awardForReminderCompletion(
                                             reminderId = reminder.reminderId,
                                             reminderTitle = reminder.title,
                                             date = date,
                                             logger = logger
                                         )
-                                        if (ok) {
-                                            val rewardOk = repo.awardForReminderCompletion(
-                                                reminderId = reminder.reminderId,
-                                                reminderTitle = reminder.title,
-                                                date = date,
-                                                logger = logger
-                                            )
-                                            if (!rewardOk) {
-                                                logger.e("Rewards", "Award failed for ${reminder.reminderId} on $date")
-                                            }
-                                        } else {
-                                            logger.e("Reminders", "Failed to increment completion for ${reminder.reminderId} on $date")
-                                        }
+                                        if (!ok) logger.e("Rewards", "Award failed for ${reminder.reminderId} on $date")
                                     }
                                 } else if (checked && !new) {
-                                    // true -> false: decrement
+                                    // false: decrement
                                     checked = false
                                     scope.launch {
                                         val ok = repo.decrementReminderCompletionForDate(
