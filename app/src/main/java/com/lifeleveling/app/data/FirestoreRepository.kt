@@ -880,7 +880,7 @@ class FirestoreRepository(
      * @param onComplete callback - receives terms if success or null if failure - used cause FB is async- have to wait for data to return - when returns
      *@author sgcfsu1993
      */
-    fun termsFireBaseFetch(db: FirebaseFirestore, onComplete: (Terms?) -> Unit) {
+    fun termsFireBaseFetch(onComplete: (Terms?) -> Unit) {
         db.collection("legalDocuments").document("terms").get()
             .addOnSuccessListener {
                     doc -> onComplete(doc.toObject(Terms::class.java))
@@ -893,7 +893,7 @@ class FirestoreRepository(
      * @param onComplete callback - receives terms if success or null if failure - used cause FB is async- have to wait for data to return - when returns
      *@author sgcfsu1993
      */
-    fun privacyFireBaseFetch(db: FirebaseFirestore, onComplete: (Privacy?) -> Unit) {
+    fun privacyFireBaseFetch(onComplete: (Privacy?) -> Unit) {
         db.collection("legalDocuments").document("privacy").get()
             .addOnSuccessListener {
                     doc -> onComplete(doc.toObject(Privacy::class.java))

@@ -1040,4 +1040,19 @@ class UserManager(
             }
         }
     }
+
+    fun termsFireBaseFetch(onComplete: (Terms?) -> Unit) {
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                fireRepo.termsFireBaseFetch(onComplete)
+            } catch (e: Exception) {
+                logger.e("FB", "Terms fetch failed.", e)
+                userData.update { it.copy(error = "Terms fetch failed.") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+    }
 }
