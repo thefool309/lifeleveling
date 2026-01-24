@@ -602,6 +602,13 @@ class FirestoreRepository(
             health        = (statsMap["health"] as? Number)?.toLong() ?: 0L,
         )
 
+        // Badges are stored as a nested map
+        val badgeMap = data["completedBadges"] as? Map<*, *> ?: emptyMap<String, Any>()
+        val comBadges = listOf(
+            Pair(badgeMap["badgeId"] as? String, badgeMap["unlockedAt"] as? Timestamp),
+            // TODO Update this
+        )
+
         val mostCompletedMap = data["mostCompletedReminder"] as? Map<*, *> ?: emptyMap<String, Any>()
         val mostCompleted = Pair(
             mostCompletedMap["name"] as? String ?: "",
@@ -625,7 +632,7 @@ class FirestoreRepository(
             // support either "currentXp" (new) or "currXp" (legacy)
             currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
             currHealth         = num("currHealth"),
-            badges             = emptyList(),   // TODO: map arrays if/when needed
+            completedBadges    = emptyList(),   // TODO: map arrays if/when needed
             fightOrMeditate    = (data["fightOrMeditate"] as? Number)?.toInt() ?: 0,
             weekStreaksCompleted = num("weekStreaksCompleted"),
             monthStreaksCompleted = num("monthStreaksCompleted"),
@@ -655,10 +662,22 @@ class FirestoreRepository(
             emptyList()
         }
 
+        // Load in badges
+        val badges = try {
+            badgeCol()
+                .get().await().documents.mapNotNull { doc ->
+                    doc.toObject(Badge::class.java)?.copy(badgeId = doc.id)
+                }
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error loading badge list", e)
+            emptyList()
+        }
+
         return UsersData(
             userBase = user,
             reminders = remindersList,
             streaks = streaksList,
+            badges = badges,
         )
     }
 
@@ -720,6 +739,13 @@ class FirestoreRepository(
     //endregion
 
     //region Badge Handling
+
+    /**
+     * A reference to the path of the badge collection
+     * @author Elyseia
+     */
+    fun badgeCol() =
+        db.collection("badges")
 
     // TODO: Adjust this to write the map of the badges list
 //    suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger, uid: String?) : Boolean {

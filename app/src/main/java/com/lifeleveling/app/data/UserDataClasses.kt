@@ -106,8 +106,9 @@ data class Streak(
  * @param badgeDescription Description of the badge, usually how it is achieved
  * @param iconName The name of the picture that will be shown when the badge is completed
  * @param colorToken The color the badge will be when it is completed
- * @param completed A boolean value to signal if the badge has been achieved or not
- * @param unlockedAt If the badge has been received, this is the time stamp of when it was achieved
+// * @param completed A boolean value to signal if the badge has been achieved or not
+// * @param unlockedAt If the badge has been received, this is the time stamp of when it was achieved
+ * @author Elyseia
  */
 data class Badge(
     val badgeId: String = "",
@@ -115,8 +116,8 @@ data class Badge(
     val badgeDescription: String = "",
     val iconName: Int = R.drawable.question_mark,           // Stores the name, not the R.drawable
     val colorToken: String? = null,
-    val completed: Boolean = false,
-    val unlockedAt: Timestamp? = null,   // When badge was earned
+//    val completed: Boolean = false,
+//    val unlockedAt: Timestamp? = null,   // When badge was earned
 )
 
 /**

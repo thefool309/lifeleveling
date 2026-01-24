@@ -25,7 +25,7 @@ data class UsersBase(
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
     val currHealth: Long = 60,          // Default 60 at start
     // Badges can be stored in arrays of Badge objects on user doc.
-    val badges: List<Badge> = emptyList(),       // greyed out badges/ secret badges TODO: Write new badges in Firebase and put completed and IDs here
+    val completedBadges: List<Pair<String, Timestamp>> = emptyList(),       // greyed out badges/ secret badges TODO: Write new badges in Firebase and put completed and IDs here
     val fightOrMeditate: Int = 0,
     // User Journey Stats to be saved
     val weekStreaksCompleted: Long = 0,
@@ -51,6 +51,7 @@ data class UsersData (
     // Run time collections that loading from firestore directly could affect
     val reminders: List<Reminder> = emptyList(),
     val streaks: List<Streak> = emptyList(),
+    val badges: List<Badge> = emptyList(),
 
     //Lists
     var enabledReminders: List<Reminder> = emptyList(),
@@ -211,7 +212,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateBadgesEarned() : Long {
-        return (userBase?.badges?.filter { it.completed })?.size?.toLong() ?: 0
+        return (userBase?.completedBadges?.size)?.toLong() ?: 0
     }
 
     /**
