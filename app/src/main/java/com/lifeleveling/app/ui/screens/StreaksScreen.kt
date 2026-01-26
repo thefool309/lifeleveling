@@ -40,7 +40,7 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowStreak
 import com.lifeleveling.app.ui.components.SingleBadgeDisplay
 import com.lifeleveling.app.ui.components.StreaksToolTip
-import com.lifeleveling.app.ui.components.TestingUser
+import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.resolveColor
 
 /**
@@ -62,7 +62,7 @@ fun StreaksScreen() {
     val showBadgesTip = remember { mutableStateOf(false) }
     val showBadge = remember { mutableStateOf(false) }
     val showStreakInfo = remember { mutableStateOf(false) }
-    val badgeToDisplay = remember { mutableStateOf(TestingUser.allBadges[0])}
+    val badgeToDisplay = remember { mutableStateOf(userState.badgeDisplay[0])}
     val streakToShow = remember { mutableStateOf(userState.streaks[0])}
     val addWeekStreak = remember { mutableStateOf(false) }
     val addMonthStreak = remember { mutableStateOf(false) }
@@ -165,7 +165,7 @@ fun StreaksScreen() {
                                     verticalAlignment = Alignment.CenterVertically,
                                 ){
                                     ShadowedIcon(
-                                        imageVector = ImageVector.vectorResource(reminder?.iconName ?: R.drawable.question_mark),
+                                        imageVector = ImageVector.vectorResource(iconResForName(reminder?.iconName)),
                                         tint = if (reminder?.colorToken == null) Color.Unspecified
                                                 else resolveColor(reminder.colorToken),
                                         modifier = Modifier
@@ -268,7 +268,7 @@ fun StreaksScreen() {
                                     verticalAlignment = Alignment.CenterVertically,
                                 ){
                                     ShadowedIcon(
-                                        imageVector = ImageVector.vectorResource(reminder?.iconName ?: R.drawable.question_mark),
+                                        imageVector = ImageVector.vectorResource(iconResForName(reminder?.iconName)),
                                         tint = if (reminder?.colorToken == null) Color.Unspecified
                                         else resolveColor(reminder.colorToken),
                                         modifier = Modifier
@@ -374,7 +374,7 @@ fun StreaksScreen() {
             ) {
                 AllBadgesDisplay(
                     toShow = showBadge,
-                    badges = TestingUser.allBadges,
+                    badges = userState.badgeDisplay,
                     showBadge = badgeToDisplay,
                     scrollState = gridState
                 )
@@ -388,7 +388,7 @@ fun StreaksScreen() {
     // Badge Popup
     if (showBadge.value) {
         SingleBadgeDisplay(
-            badge = badgeToDisplay.value,
+            badgeDisplay = badgeToDisplay.value,
             toShow = showBadge,
         )
     }
@@ -435,9 +435,9 @@ fun StreaksScreen() {
         ShowStreak(
             toShow = showStreakInfo,
             streak = streakToShow.value,
-            reminder = userManager.retrieveReminder(streakToShow.value?.reminderId ?: "") ?: Reminder(colorToken = null),
+            reminder = userManager.retrieveReminder(streakToShow.value.reminderId) ?: Reminder(),
             onDelete = {
-                streakToShow.value?.streakId?.let { userManager.removeStreak(it) }
+                streakToShow.value.streakId.let { userManager.removeStreak(it) }
             }
         )
     }

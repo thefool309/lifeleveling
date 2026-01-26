@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.BadgeDisplay
 import com.lifeleveling.app.data.Reminder
 import com.lifeleveling.app.data.Streak
 import com.lifeleveling.app.data.StreakDraft
@@ -44,7 +46,6 @@ import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.resolveColor
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 /**
@@ -403,7 +404,6 @@ fun AddStreak(
     }
 }
 
-// TODO: Update this after badges created
 /**
  * Displays the players badges in a grid of clickable circles.
  * Takes in parameters of the userState to avoid recollecting state.
@@ -421,8 +421,8 @@ fun AllBadgesDisplay(
     modifier: Modifier = Modifier,
     columns: Int = 5,
     toShow: MutableState<Boolean>,
-    badges: List<TestBadge>,
-    showBadge: MutableState<TestBadge>,
+    badges: List<BadgeDisplay>,
+    showBadge: MutableState<BadgeDisplay>,
     scrollState: LazyGridState,
 ) {
     LazyVerticalGrid(
@@ -432,7 +432,9 @@ fun AllBadgesDisplay(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         state = scrollState,
     ) {
-        items(badges) { badge ->
+        items(badges) { badgeDisplay ->
+            val badge = badgeDisplay.badge
+
             Box(
                 modifier = Modifier
                     .aspectRatio(1f)
@@ -441,13 +443,13 @@ fun AllBadgesDisplay(
             ) {
                 CircleButton(
                     modifier = Modifier.fillMaxSize(),
-                    imageVector = ImageVector.vectorResource(badge.icon),
+                    imageVector = ImageVector.vectorResource(iconResForName(badge.iconName)),
                     onClick = {
-                        showBadge.value = badge
+                        showBadge.value = badgeDisplay
                         toShow.value = true
                     },
-                    backgroundColor = if (!badge.completed) AppTheme.colors.FadedGray
-                    else resolveColor(badge.color),
+                    backgroundColor = if (!badgeDisplay.isCompleted) AppTheme.colors.FadedGray
+                    else resolveColor(badge.colorToken),
                     elevation = 12.dp
                 )
             }
@@ -455,20 +457,21 @@ fun AllBadgesDisplay(
     }
 }
 
-// TODO: Update this after badges created
 /**
  * Shows the information of a single badge in a popup window.
  * @param toShow A boolean to determine if the window shows
- * @param badge The badge item to be displayed
+ * @param badgeDisplay The badge item to be displayed
  *
  * @author Elyseia
  */
 @Composable
 fun SingleBadgeDisplay(
     modifier: Modifier = Modifier,
-    badge: TestBadge,
+    badgeDisplay: BadgeDisplay,
     toShow: MutableState<Boolean>,
 ) {
+    val badge = badgeDisplay.badge
+
     CustomDialog(
         toShow = toShow,
         modifier = modifier,
@@ -483,16 +486,16 @@ fun SingleBadgeDisplay(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CircleButton(
-                    imageVector = ImageVector.vectorResource(badge.icon),
+                    imageVector = ImageVector.vectorResource(iconResForName(badge.iconName)),
                     onClick = { toShow.value = false },
-                    backgroundColor = if (!badge.completed) AppTheme.colors.FadedGray
-                    else resolveColor(badge.color),
+                    backgroundColor = if (!badgeDisplay.isCompleted) AppTheme.colors.FadedGray
+                    else resolveColor(badge.colorToken),
                     elevation = 12.dp,
                     size = 50.dp
                 )
                 Spacer(Modifier.width(16.dp))
                 Text(
-                    text = badge.title,
+                    text = badge.badgeName,
                     color = AppTheme.colors.SecondaryThree,
                     textAlign = TextAlign.Center,
                     style = AppTheme.textStyles.HeadingSix.copy(
@@ -506,22 +509,17 @@ fun SingleBadgeDisplay(
             }
 
             Text(
-                text = badge.description,
+                text = badge.badgeDescription,
                 color = AppTheme.colors.Gray,
                 style = AppTheme.textStyles.Default,
                 textAlign = TextAlign.Center,
             )
 
-            if (badge.completed) {
-                val date = badge.completedOn?.let {
+            if (badgeDisplay.isCompleted) {
+                val date = badgeDisplay.completedAt?.let {
                     SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                        .format(Date(it))
+                        .format(it)
                 } ?: "NotCompleted"
-//                    ?.toDate()
-//                    ?.let {
-//                        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-//                            .format(it)
-//                    } ?: "Not Completed"
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

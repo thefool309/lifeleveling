@@ -55,11 +55,11 @@ data class Reminder(
     val timesPerHour: Int = 0,          // How many hour(s)
     val timesPerDay: Int = 0,           // How many times per day
     val timesPerMonth: Int = 0,         // How many times per month
-    val iconName: String,           // store icon key (ex: "water_drop"), not R.drawable.id TODO: Ask Felipe if he made a way to change a string to the icon to save this as string
+    val iconName: String = "",           // store icon key (ex: "water_drop"), not R.drawable.id TODO: Ask Felipe if he made a way to change a string to the icon to save this as string
     val repeatForever: Boolean = false,
     val repeatCount: Int = 0,
     val repeatInterval: String? = null,
-    val dotColor: String?,                 // Used for dot
+    val dotColor: String? = "",                 // Used for dot
     val enabled: Boolean = true,               // If the reminder is active or just saved
     val completedTally: Long = 0,           // Used for calculating the most completed reminders for the user journey stats
 
@@ -106,18 +106,25 @@ data class Streak(
  * @param badgeDescription Description of the badge, usually how it is achieved
  * @param iconName The name of the picture that will be shown when the badge is completed
  * @param colorToken The color the badge will be when it is completed
-// * @param completed A boolean value to signal if the badge has been achieved or not
-// * @param unlockedAt If the badge has been received, this is the time stamp of when it was achieved
  * @author Elyseia
  */
 data class Badge(
     val badgeId: String = "",
     val badgeName: String = "",
     val badgeDescription: String = "",
-    val iconName: Int = R.drawable.question_mark,           // Stores the name, not the R.drawable
+    val iconName: String = "",           // Stores the name, not the R.drawable
     val colorToken: String? = null,
-//    val completed: Boolean = false,
-//    val unlockedAt: Timestamp? = null,   // When badge was earned
+)
+
+/**
+ * Data class for creating a list of which badges are completed.
+ * Filled in using the badge list and the completed badge map in userData
+ * @author Elyseia
+ */
+data class BadgeDisplay(
+    val badge: Badge,
+    val completedAt: Timestamp? = null,
+    val isCompleted:Boolean = false,
 )
 
 /**

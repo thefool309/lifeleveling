@@ -25,7 +25,7 @@ data class UsersBase(
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
     val currHealth: Long = 60,          // Default 60 at start
     // Badges can be stored in arrays of Badge objects on user doc.
-    val completedBadges: List<Pair<String, Timestamp>> = emptyList(),       // greyed out badges/ secret badges TODO: Write new badges in Firebase and put completed and IDs here
+    val completedBadges: Map<String, Timestamp> = emptyMap(),       // greyed out badges/ secret badges
     val fightOrMeditate: Int = 0,
     // User Journey Stats to be saved
     val weekStreaksCompleted: Long = 0,
@@ -57,6 +57,7 @@ data class UsersData (
     var enabledReminders: List<Reminder> = emptyList(),
     var weeklyStreaks: List<Streak> = emptyList(),
     var monthlyStreaks: List<Streak> = emptyList(),
+    var badgeDisplay: List<BadgeDisplay> = emptyList(),
 
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
@@ -101,6 +102,7 @@ data class UsersData (
             coinsSpent = calculateCoinsSpent(),
             weeklyStreaks = calcWeeklyStreaks(),
             monthlyStreaks = calcMonthlyStreaks(),
+            badgeDisplay = getBadgeDisplayList()
         )
     }
 
@@ -131,6 +133,16 @@ data class UsersData (
             xpToNextLevel = calculateXpToNextLevel(),
             coinsSpent = calculateCoinsSpent(),
             allExpEver = calculateAllExp(),
+        )
+    }
+
+    /**
+     * Calls the function that sets up a badge display list based on completed badges.
+     * @author Elyseia
+     */
+    fun recalculateAfterBadgeCompletion() : UsersData {
+        return this.copy(
+            badgeDisplay = getBadgeDisplayList()
         )
     }
 
@@ -267,6 +279,26 @@ data class UsersData (
      */
     fun calcMonthlyStreaks() : List<Streak> {
         return streaks.filter { it.weekly }
+    }
+
+    /**
+     * Creates a list of badges from the badge list and user's completed badges.
+     * Sorts them by newest completed first
+     * Then the rest of the badges alphabetically
+     * @author Elyseia
+     */
+    fun getBadgeDisplayList(): List<BadgeDisplay> {
+        return badges.map { badge ->
+            val ts = userBase?.completedBadges[badge.badgeId]
+            BadgeDisplay(
+                badge = badge,
+                completedAt = ts,
+                isCompleted = ts != null,
+            )
+        }
+            .sortedWith(compareByDescending<BadgeDisplay> { it. completedAt != null }
+                .thenByDescending { it.completedAt }
+                .thenBy { it.badge.badgeName.lowercase() })
     }
 }
 

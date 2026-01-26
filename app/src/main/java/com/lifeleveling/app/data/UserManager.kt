@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
+import kotlinx.coroutines.Dispatchers
 import kotlin.Int
 import java.time.LocalDate
 
@@ -244,6 +245,45 @@ class UserManager(
                 logger.e("FB", "Error updating stats", e)
                 // Will roll back if write to firestore fails
                 userData.update { it.copy(userBase = user, isLoading = false, error = "Error updating stats").recalculateStatDependencies() }
+            }
+        }
+    }
+
+    /**
+     * Updates the UI State to include the new completed badge.
+     * Saves the completed badge to Firestore
+     * @param badgeId The ID of the badge that is completed
+     * @author Elyseia
+     */
+    fun completeBadge(badgeId: String) {
+        viewModelScope.launch() {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            val now = Timestamp.now()
+
+            userData.update { current ->
+                val base = current.userBase
+                if (base != null) {
+                    val updatedUserBase = base.copy(
+                        completedBadges = base.completedBadges + (badgeId to now)
+                    )
+                    current.copy(userBase = updatedUserBase).recalculateAfterBadgeCompletion()
+                } else {
+                    current
+                }
+            }
+            val uid = authModel.currentUser?.uid
+            if (uid == null) {
+                userData.update { it.copy(isLoading = false, error = "User ID missing") }
+                return@launch
+            }
+            try {
+                fireRepo.saveCompletedBadge(uid, badgeId, now)
+            } catch (e: Exception) {
+                userData.update { it.copy(error = "Error saving completed badge $badgeId")}
+                logger.e("UserManager", "Error saving completed badge $badgeId", e)
+            } finally {
+                userData.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -840,6 +880,7 @@ class UserManager(
     private fun postLoginBookkeeping(provider: String) = viewModelScope.launch {
         val user = authModel.currentUser ?: return@launch
         try {
+            val now = Timestamp.now()
             fireRepo.ensureUserCreated(user)
         } catch (e: Exception) {
             logger.w("FB", "ensureUserCreated failed: ${e.message}")

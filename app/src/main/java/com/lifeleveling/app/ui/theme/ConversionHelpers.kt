@@ -5,30 +5,30 @@ import androidx.compose.ui.graphics.Color
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.Reminder
 
+private val iconMap = mapOf(
+    "water_drop"     to R.drawable.water_drop,
+    "bed_color"      to R.drawable.bed_color,
+    "shirt_color"    to R.drawable.shirt_color,
+    "med_bottle"     to R.drawable.med_bottle,
+    "shower_bath"    to R.drawable.shower_bath,
+    "shop_color"     to R.drawable.shop_color,
+    "person_running" to R.drawable.person_running,
+    "heart"          to R.drawable.heart,
+    "bell"           to R.drawable.bell,
+    "brain"          to R.drawable.brain,
+    "document"       to R.drawable.document,
+    "doctor"         to R.drawable.doctor,
+    "question_mark"  to R.drawable.question_mark,
+    "flame"          to R.drawable.flame,
+    "one"            to R.drawable.one,
+    "sun_glasses"    to R.drawable.sun_glasses,
+)
 /**
  * Map stored iconName → drawable id. Falls back to the bell icon if we don’t recognize it (can be updated to the correct error icon).
  * @author fdesouza1992
  */
 fun iconResForName(iconName: String?): Int {
-    return when (iconName) {
-        "water_drop"     -> R.drawable.water_drop
-        "bed_color"      -> R.drawable.bed_color
-        "shirt_color"    -> R.drawable.shirt_color
-        "med_bottle"     -> R.drawable.med_bottle
-        "shower_bath"    -> R.drawable.shower_bath
-        "shop_color"     -> R.drawable.shop_color
-        "person_running" -> R.drawable.person_running
-        "heart"          -> R.drawable.heart
-        "bell"           -> R.drawable.bell
-        "brain"          -> R.drawable.brain
-        "document"       -> R.drawable.document
-        "doctor"         -> R.drawable.doctor
-        "question_mark"  -> R.drawable.question_mark
-        "flame"          -> R.drawable.flame
-        "one"            -> R.drawable.one
-        "sun_glasses"    -> R.drawable.sun_glasses
-        else             -> R.drawable.bell
-    }
+    return iconMap[iconName] ?: R.drawable.question_mark
 }
 
 
@@ -41,26 +41,26 @@ fun iconResForName(iconName: String?): Int {
  */
 @Composable
 fun resolveColor(color: String?): Color {
-    return when (color) {
-        "BrandOne" -> AppTheme.colors.BrandOne
-        "BrandTwo" -> AppTheme.colors.BrandTwo
-        "SecondaryOne" -> AppTheme.colors.SecondaryOne
-        "SecondaryTwo" -> AppTheme.colors.SecondaryTwo
-        "SecondaryThree" -> AppTheme.colors.SecondaryThree
-        "Background" -> AppTheme.colors.Background
-        "DarkerBackground" -> AppTheme.colors.DarkerBackground
-        "PopUpBackground" -> AppTheme.colors.PopUpBackground
-        "DropShadow" -> AppTheme.colors.DropShadow
-        "LightShadow" -> AppTheme.colors.LightShadow
-        "Gray" -> AppTheme.colors.Gray
-        "FadedGray" -> AppTheme.colors.FadedGray
-        "Success" -> AppTheme.colors.Success
-        "Success75" -> AppTheme.colors.Success75
-        "Error" -> AppTheme.colors.Error
-        "Error75" -> AppTheme.colors.Error75
-        "Warning" -> AppTheme.colors.Warning
-        else -> { Color.Unspecified }
-    }
+    val colorMap = mapOf(
+        "BrandOne"          to AppTheme.colors.BrandOne,
+        "BrandTwo"          to AppTheme.colors.BrandTwo,
+        "SecondaryOne"      to AppTheme.colors.SecondaryOne,
+        "SecondaryTwo"      to AppTheme.colors.SecondaryTwo,
+        "SecondaryThree"    to AppTheme.colors.SecondaryThree,
+        "Background"        to AppTheme.colors.Background,
+        "DarkerBackground"  to AppTheme.colors.DarkerBackground,
+        "PopUpBackground"   to AppTheme.colors.PopUpBackground,
+        "DropShadow"        to AppTheme.colors.DropShadow,
+        "LightShadow"       to AppTheme.colors.LightShadow,
+        "Gray"              to AppTheme.colors.Gray,
+        "FadedGray"         to AppTheme.colors.FadedGray,
+        "Success"           to AppTheme.colors.Success,
+        "Success75"         to AppTheme.colors.Success75,
+        "Error"             to AppTheme.colors.Error,
+        "Error75"           to AppTheme.colors.Error75,
+        "Warning"           to AppTheme.colors.Warning,
+    )
+    return colorMap[color] ?: Color.Unspecified
 }
 
 fun reminderDotColor(reminder: Reminder): Color {

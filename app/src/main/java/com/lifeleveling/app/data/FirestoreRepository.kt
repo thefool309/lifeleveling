@@ -53,12 +53,15 @@ class FirestoreRepository(
      * Checks if the user has been created and makes an initial UsersData object
      * @param user A firebase user to check the information for.
      */
-    suspend fun ensureUserCreated(user: FirebaseUser): Boolean {
+    suspend fun ensureUserCreated(
+        user: FirebaseUser,
+    ): Boolean {
         val uid = user.uid
         val docRef = db.collection("users").document(uid)
 
         val snap = docRef.get().await()
         val firstTime = !snap.exists()
+        val now = Timestamp.now()
 
         if (firstTime) {
             // first creation: write the full payload
@@ -71,6 +74,9 @@ class FirestoreRepository(
                     "createdAt" to FieldValue.serverTimestamp(),
                     "lastUpdate" to FieldValue.serverTimestamp(),
                     "onboardingComplete" to false,
+                    "completedBadges" to mapOf(
+                        "E2QAGgjfhPGAQf2fo17W" to now,
+                    )
                 )
             ).await()
         } else {
@@ -91,9 +97,10 @@ class FirestoreRepository(
      * @author thefool309, fdesouza1992
      * @return UsersData?
      */
-    suspend fun createUser(userData: Map<String, Any>, currentUser: FirebaseUser?): UsersData? {
-//        val currentUser = auth.currentUser
-
+    suspend fun createUser(
+        userData: Map<String, Any>,
+        currentUser: FirebaseUser?,
+    ): UsersData? {
         if (currentUser == null) {
             logger.e("Auth", "UID is null. Please authenticate user before calling CreateUser...")
             return null
@@ -102,6 +109,7 @@ class FirestoreRepository(
         val uid = currentUser.uid
         val docRef = db.collection("users")
                         .document(uid)
+        val now = Timestamp.now()
 
         val base = mapOf(
             "userId" to uid,
@@ -109,7 +117,10 @@ class FirestoreRepository(
             "email" to userData["email"].toString(),
             "photoUrl" to userData["photoUrl"].toString(),
             "createdAt" to FieldValue.serverTimestamp(),
-            "lastUpdate" to FieldValue.serverTimestamp()
+            "lastUpdate" to FieldValue.serverTimestamp(),
+            "completedBadges" to mapOf(
+                "E2QAGgjfhPGAQf2fo17W" to now
+            )
         )
         return try {
             docRef.set(base).await()
@@ -117,7 +128,10 @@ class FirestoreRepository(
                 userId = uid,
                 displayName = userData["displayName"].toString(),
                 email = userData["email"].toString(),
-                photoUrl = userData["photoUrl"].toString()
+                photoUrl = userData["photoUrl"].toString(),
+                completedBadges = mapOf(
+                    "E2QAGgjfhPGAQf2fo17W" to now
+                )
             )
             UsersData(userBase = base)
         }
@@ -126,7 +140,6 @@ class FirestoreRepository(
             logger.e(TAG, "Error Saving User: ", e)
             null
         }
-
     }
 
     // function to edit user in firebase this function is unsafe and can
@@ -603,11 +616,12 @@ class FirestoreRepository(
         )
 
         // Badges are stored as a nested map
-        val badgeMap = data["completedBadges"] as? Map<*, *> ?: emptyMap<String, Any>()
-        val comBadges = listOf(
-            Pair(badgeMap["badgeId"] as? String, badgeMap["unlockedAt"] as? Timestamp),
-            // TODO Update this
-        )
+        val completedBadges =
+            (data["completedBadges"] as? Map<*, *>)?.mapNotNull { (key, value) ->
+                val badgeId = key as? String ?: return@mapNotNull null
+                val ts = value as? Timestamp ?: return@mapNotNull null
+                badgeId to ts
+            }?.toMap() ?: emptyMap()
 
         val mostCompletedMap = data["mostCompletedReminder"] as? Map<*, *> ?: emptyMap<String, Any>()
         val mostCompleted = Pair(
@@ -632,7 +646,7 @@ class FirestoreRepository(
             // support either "currentXp" (new) or "currXp" (legacy)
             currentXp          = if (data.containsKey("currentXp")) dbl("currentXp") else dbl("currXp"),
             currHealth         = num("currHealth"),
-            completedBadges    = emptyList(),   // TODO: map arrays if/when needed
+            completedBadges    = completedBadges,
             fightOrMeditate    = (data["fightOrMeditate"] as? Number)?.toInt() ?: 0,
             weekStreaksCompleted = num("weekStreaksCompleted"),
             monthStreaksCompleted = num("monthStreaksCompleted"),
@@ -747,47 +761,29 @@ class FirestoreRepository(
     fun badgeCol() =
         db.collection("badges")
 
-    // TODO: Adjust this to write the map of the badges list
-//    suspend fun setBadgesLocked(newBadgesLocked: List<Badge>, logger: ILogger, uid: String?) : Boolean {
-////        val uid: String? = getUserId()
-//        if (uid == null) {
-//            logger.e("Auth", "User ID is null. Please login to firebase.")
-//            return false
-//        }
-//        val docRef = db.collection("users").document(uid)
-//        try {
-//            docRef.update("badgesLocked", newBadgesLocked).await()
-//            updateTimestamp(uid)
-//            return true
-//        }
-//        catch(e: Exception) {
-//            logger.e("Firestore", "Error Updating User: ", e)
-//            return false
-//        }
-//    }
+    /**
+     * Adds the ID and time stamp of the completed badge to Firestore.
+     */
+    suspend fun saveCompletedBadge(
+        uid: String,
+        badgeId: String,
+        completedAt: Timestamp,
+    ) {
+        try {
+            val updateMap = mapOf(
+                "completedBadges.$badgeId" to Timestamp.now()
+            )
 
-//    suspend fun setBadgesUnlocked(newBadgesUnlocked: List<Badge>, logger: ILogger) : Boolean {
-//        val uid: String? = getUserId()
-//        if (uid == null) {
-//            logger.e("Auth", "User ID is null. Please login to firebase.")
-//            return false
-//        }
-//        val docRef = db.collection("users").document(uid)
-//        try {
-//            docRef.update("badgesUnlocked", newBadgesUnlocked).await()
-//            updateTimestamp(uid, logger)
-//            return true
-//        }
-//        catch(e: Exception) {
-//            logger.e("Firestore", "Error Updating User: ", e)
-//            return false
-//        }
-//    }
+            db.collection("users")
+                .document(uid)
+                .update(updateMap)
+                .await()
 
-//    suspend fun setBadges(newBadgesLocked: List<Badge>, newBadgesUnlocked: List<Badge>, logger: ILogger) {
-//        setBadgesLocked(newBadgesLocked, logger)
-//        setBadgesUnlocked(newBadgesUnlocked, logger)
-//    }
+            logger.d("Firestore", "Badge $badgeId marked completed")
+        } catch (e: Exception) {
+            logger.e("Firestore", "Error saving completed badge $badgeId", e)
+        }
+    }
 
     //endregion
 
