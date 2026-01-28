@@ -64,13 +64,13 @@ fun UserJourneyScreen() {
     val showJourneyTip = remember { mutableStateOf(false) }
 
     // Extra calculations for some stats
-    val profileCreatedDate: String = userState.userBase?.createdAt?.toDate()?.let {date ->
+    val profileCreatedDate: String = userState.userBase.createdAt?.toDate()?.let { date ->
         SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
     } ?: "Unknown"
     val timeSinceCreated = userManager.calcTimeSinceCreatedDate()
     userManager.userJourneyCalculations()
-    val mostCompletedReminder = if (userState.userBase?.mostCompletedReminder?.first == "") stringResource(R.string.no_remiders_completed)
-                        else "${userState.userBase?.mostCompletedReminder?.first} ${userState.userBase?.mostCompletedReminder?.second.toString()}"
+    val mostCompletedReminder = if (userState.userBase.mostCompletedReminder.first == "") stringResource(R.string.no_remiders_completed)
+                        else "${userState.userBase.mostCompletedReminder.first} ${userState.userBase.mostCompletedReminder.second.toString()}"
     val totalRemindersCompletedState = remember { mutableStateOf<Long?>(null) }
     totalRemindersCompletedState.value = userManager.getTotalReminderCompletion()
     val totalRemindersCompletedDisplay = totalRemindersCompletedState.value?.toString() ?: "0"
@@ -100,12 +100,12 @@ fun UserJourneyScreen() {
                 // Total weekly streaks completed
                 JourneyItem(
                     R.string.weekly_streaks_completed,
-                    userState.userBase?.weekStreaksCompleted.toString()
+                    userState.userBase.weekStreaksCompleted.toString()
                 ),
                 // Total monthly streaks completed
                 JourneyItem(
                     R.string.monthly_streaks_completed,
-                    userState.userBase?.monthStreaksCompleted.toString()
+                    userState.userBase.monthStreaksCompleted.toString()
                 )
             )
         ),
@@ -132,7 +132,7 @@ fun UserJourneyScreen() {
                 // Total coins
                 JourneyItem(
                     R.string.total_coins,
-                    userState.userBase?.allCoinsEarned.toString()
+                    userState.userBase.allCoinsEarned.toString()
                 ),
                 // Coins spent
                 JourneyItem(

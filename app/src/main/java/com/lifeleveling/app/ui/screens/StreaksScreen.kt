@@ -427,7 +427,7 @@ fun StreaksScreen() {
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .clickable { navController.navigate("journey_stats") },
+                        .clickable { navController.navigate("journeyStats") },
                     text = stringResource(R.string.my_journey_stats),
                     color = AppTheme.colors.SecondaryThree,
                     style = AppTheme.textStyles.DefaultUnderlined,
