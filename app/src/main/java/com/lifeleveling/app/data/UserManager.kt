@@ -1107,5 +1107,20 @@ class UserManager(
         }
     }
 
+    fun privacyFireBaseFetch(onComplete: (Privacy?) -> Unit) {
+        userData.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch {
+            try {
+                fireRepo.privacyFireBaseFetch(onComplete)
+            } catch (e: Exception) {
+                logger.e("FB", "Privacy fetch failed.", e)
+                userData.update { it.copy(error = "Privacy fetch failed.") }
+            } finally {
+                userData.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
     //endregion
 }
