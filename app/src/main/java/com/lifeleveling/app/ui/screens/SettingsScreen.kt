@@ -204,7 +204,7 @@ fun SettingScreen(){
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .clickable { navController?.navigate("userAccountScreen") }
+                                .clickable { navController.navigate("userAccount") }
                         )
                     }
 
