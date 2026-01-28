@@ -46,7 +46,7 @@ data class UsersBase(
  * @param levelUpFlag A flag that triggers an overlay congratulations message to the user for their level up.
  */
 data class UsersData (
-    var userBase: UsersBase? = null,
+    var userBase: UsersBase = UsersBase(),
 
     // Run time collections that loading from firestore directly could affect
     val reminders: List<Reminder> = emptyList(),
@@ -81,8 +81,16 @@ data class UsersData (
     val levelUpFlag: Boolean = false,
 ) {
 
-    init {
-        recalculateAll()
+//    init {
+//        recalculateAll()
+//    }
+
+    /**
+     * To set the recalculate function to go off.
+     * Doing an init sets off a loop
+     */
+    fun withBase(newBase: UsersBase): UsersData {
+        return this.copy(userBase = newBase).recalculateAll()
     }
 
     /**
@@ -90,7 +98,7 @@ data class UsersData (
      */
     fun recalculateAll() : UsersData {
         return this.copy(
-            userBase = userBase?.copy(
+            userBase = userBase.copy(
                 mostCompletedReminder = calculateMostCompletedReminder(),
             ),
             xpToNextLevel = calculateXpToNextLevel(),
@@ -113,7 +121,7 @@ data class UsersData (
      */
     fun recalculatingUserJourney() : UsersData {
         return this.copy(
-            userBase = userBase?.copy(
+            userBase = userBase.copy(
                 mostCompletedReminder = calculateMostCompletedReminder(),
             ),
             totalStreaksCompleted = calculateTotalStreaks(),
@@ -187,7 +195,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateXpToNextLevel() : Long {
-        return (userBase?.level ?: 1) * 100L
+        return (userBase.level) * 100L
     }
 
     /**
@@ -196,8 +204,8 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateMaxHealth() : Long {
-        val healthStat = userBase?.stats?.health
-        return baseHealth + ((healthStat ?: 0) * 5)
+        val healthStat = userBase.stats.health
+        return baseHealth + ((healthStat) * 5)
     }
 
     /**
@@ -215,7 +223,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateTotalStreaks() : Long {
-        return (userBase?.weekStreaksCompleted ?: 0) + (userBase?.monthStreaksCompleted ?: 0)
+        return (userBase.weekStreaksCompleted) + (userBase.monthStreaksCompleted)
     }
 
     /**
@@ -224,7 +232,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateBadgesEarned() : Long {
-        return (userBase?.completedBadges?.size)?.toLong() ?: 0
+        return (userBase.completedBadges.size).toLong()
     }
 
     /**
@@ -233,9 +241,9 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateAllExp() : Double {
-        val level = userBase?.level ?: 1
+        val level = userBase.level
         val exp = 100L * (level - 1) * level / 2
-        return (userBase?.currentXp ?: 0.0) + exp
+        return userBase.currentXp + exp
     }
 
     /**
@@ -244,7 +252,7 @@ data class UsersData (
      * @author Elyseia
      */
     fun calculateCoinsSpent() : Long {
-        return (userBase?.allCoinsEarned ?: 0) - (userBase?.coinsBalance ?: 0)
+        return userBase.allCoinsEarned - userBase.coinsBalance
     }
 
     /**
@@ -255,11 +263,11 @@ data class UsersData (
     fun calculateMostCompletedReminder() : Pair<String, Long> {
         val highest = reminders.maxByOrNull { it.completedTally }
         if (highest != null) {
-            if (userBase!!.mostCompletedReminder.second < highest.completedTally) {
+            if (userBase.mostCompletedReminder.second < highest.completedTally) {
                 return Pair(highest.title, highest.completedTally)
             }
         }
-        return userBase!!.mostCompletedReminder
+        return userBase.mostCompletedReminder
     }
 
     // TODO: Separate Streak list into week and month
@@ -289,7 +297,7 @@ data class UsersData (
      */
     fun getBadgeDisplayList(): List<BadgeDisplay> {
         return badges.map { badge ->
-            val ts = userBase?.completedBadges[badge.badgeId]
+            val ts = userBase.completedBadges[badge.badgeId]
             BadgeDisplay(
                 badge = badge,
                 completedAt = ts,

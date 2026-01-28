@@ -113,7 +113,11 @@ companion object {
      * A wrapper function for starting a coroutine to send the registration to the server.
      */
     private fun sendRegistrationToServer(token: String?) {
-        val uid = authModel.currentUser?.uid ?: error("User not logged in")
+        val uid = authModel.currentUser?.uid /* ?: error("User not logged in") */
+        if (uid == null || token == null) {
+            logger.w(TAG, "User ID is null or empty; token not sent")
+            return
+        }
         // send token to the Firestore.
         runBlocking { repo.setFirebaseToken(token, uid) }
         logger.d(TAG, "sendRegistrationTokenToServer($token)")

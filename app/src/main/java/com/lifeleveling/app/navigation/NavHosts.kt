@@ -46,6 +46,10 @@ fun AppNavHost(
             navController.navigate("signIn") {
                 popUpTo(0)
             }
+        } else {
+            navController.navigate("home") {
+                popUpTo("createAccount") { inclusive = true }
+            }
         }
     }
 

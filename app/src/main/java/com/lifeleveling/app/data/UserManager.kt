@@ -2,11 +2,6 @@ package com.lifeleveling.app.data
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
@@ -24,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
-import kotlinx.coroutines.Dispatchers
 import kotlin.Int
 import java.time.LocalDate
 
@@ -65,14 +59,14 @@ class UserManager(
                 fireRepo.ensureUserCreated(user)
 
                 // Load profile
-                val loaded = fireRepo.getUser(user.uid)
+                val loaded = fireRepo.getUser(user.uid) ?: throw Exception("Failed to load user data")
 
                 // Update UI
-                userData.value = loaded!!.copy(
+                userData.value = loaded.copy(
                     isLoggedIn = true,
                     fbUser = user,
                     isLoading = false
-                )
+                ).recalculateAll()
             } catch (e: Exception) {
                 Log.e("FirestoreRepository", "Error creating user", e)
                 userData.update { it.copy(isLoading = false, error = "Error creating user") }
@@ -103,7 +97,7 @@ class UserManager(
      * @author Elyseia
      */
     fun addExp(amount: Double) {
-        val user = userData.value.userBase ?: return
+        val user = userData.value.userBase
         val next = userData.value.xpToNextLevel
         val newExp = user.currentXp + amount
         val updated: UsersBase
@@ -144,7 +138,7 @@ class UserManager(
      * @author Elyseia
      */
     fun updateTheme(isDark: Boolean) {
-        val current = userData.value.userBase ?: return
+        val current = userData.value.userBase
         val updated = current.copy(isDarkTheme = isDark)
         userData.update { current ->
             current.copy(
@@ -186,7 +180,7 @@ class UserManager(
      * @author Elyseia
      */
     fun setFightOrMeditate(value: Int) {
-        val user = userData.value.userBase ?: return
+        val user = userData.value.userBase
         val updatedUser = user.copy(fightOrMeditate = value)
         userData.update { it.copy(userBase = updatedUser) }
     }
@@ -212,7 +206,7 @@ class UserManager(
         health: Long,
         usedPoints: Long
     ) {
-        val user = userData.value.userBase ?: return
+        val user = userData.value.userBase
         val newStats = user.stats.copy(
             strength = strength,
             defense = defense,
@@ -256,20 +250,18 @@ class UserManager(
      * @author Elyseia
      */
     fun completeBadge(badgeId: String) {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             userData.update { it.copy(isLoading = true, error = null) }
 
             val now = Timestamp.now()
 
             userData.update { current ->
                 val base = current.userBase
-                if (base != null) {
+                run {
                     val updatedUserBase = base.copy(
                         completedBadges = base.completedBadges + (badgeId to now)
                     )
                     current.copy(userBase = updatedUserBase).recalculateAfterBadgeCompletion()
-                } else {
-                    current
                 }
             }
             val uid = authModel.currentUser?.uid
@@ -300,7 +292,7 @@ class UserManager(
      * @author Elyseia
      */
     fun calcCoinsForReminderCompletion() : Long {
-        val user = userData.value.userBase ?: return 0
+        val user = userData.value.userBase
         val coins = 10 +
                 (10 *
                 (
@@ -322,7 +314,7 @@ class UserManager(
      * @author Elyseia
      */
     fun calcExpForReminderCompletion() : Double {
-        val user = userData.value.userBase ?: return 0.0
+        val user = userData.value.userBase
         val exp = 15 +
                 (15 *
                 (
@@ -350,7 +342,7 @@ class UserManager(
      * @author Elyseia
      */
     fun calcTimeSinceCreatedDate(): String {
-        val createdAtTimestamp = userData.value.userBase?.createdAt ?: return "Unknown"
+        val createdAtTimestamp = userData.value.userBase.createdAt ?: return "Unknown"
         val createdAtDate = createdAtTimestamp.toDate()
         val now = System.currentTimeMillis()
         val timeDifference = now - createdAtDate.time
@@ -495,12 +487,12 @@ class UserManager(
 
                 val ok = reminderRepo.incrementReminderCompletionForDate(reminderId, reminderTitle, date, uid)
                 if (!ok) {
-                    logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
-                    userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+                    logger.e("Reminders", "Failed to increment completion for $reminderId on $date")
+                    userData.update { it.copy(error = "Failed to increment completion for $reminderId on $date") }
                 }
             } catch (e: Exception) {
-                logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
-                userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+                logger.e("Reminders", "Failed to increment completion for $reminderId on $date", e)
+                userData.update { it.copy(error = "Failed to increment completion for $reminderId on $date") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
             }
@@ -531,12 +523,12 @@ class UserManager(
 
                 val ok = reminderRepo.decrementReminderCompletionForDate(reminderId, reminderTitle, date, uid)
                 if (!ok) {
-                    logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
-                    userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+                    logger.e("Reminders", "Failed to increment completion for $reminderId on $date")
+                    userData.update { it.copy(error = "Failed to increment completion for $reminderId on $date") }
                 }
             } catch (e: Exception) {
-                logger.e("Reminders", "Failed to increment completion for ${reminderId} on $date")
-                userData.update { it.copy(error = "Failed to increment completion for ${reminderId} on $date") }
+                logger.e("Reminders", "Failed to increment completion for $reminderId on $date", e)
+                userData.update { it.copy(error = "Failed to increment completion for $reminderId on $date") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
             }
@@ -565,12 +557,12 @@ class UserManager(
 
                 val ok = reminderRepo.updateReminder(reminderId, updates, uid)
                 if (!ok) {
-                    logger.e("Reminders", "MyReminders: failed to update enabled for ${reminderId}")
-                    userData.update { it.copy(error = "MyReminders: failed to update enabled for ${reminderId}") }
+                    logger.e("Reminders", "MyReminders: failed to update enabled for $reminderId")
+                    userData.update { it.copy(error = "MyReminders: failed to update enabled for $reminderId") }
                 }
             } catch (e: Exception) {
-                logger.e("Reminders", "MyReminders: failed to update enabled for ${reminderId}")
-                userData.update { it.copy(error = "MyReminders: failed to update enabled for ${reminderId}") }
+                logger.e("Reminders", "MyReminders: failed to update enabled for $reminderId", e)
+                userData.update { it.copy(error = "MyReminders: failed to update enabled for $reminderId") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
             }
@@ -580,7 +572,7 @@ class UserManager(
     fun deleteReminder(
         reminderId: String,
     ): Boolean {
-        var result: Boolean = false
+        var result = false
         viewModelScope.launch {
             userData.update { it.copy(isLoading = true, error = null) }
 
@@ -589,8 +581,8 @@ class UserManager(
 
                 result = reminderRepo.deleteReminder(reminderId, uid)
             } catch (e: Exception) {
-                logger.e("Reminders", "MyReminders: delete failed for ${reminderId}")
-                userData.update { it.copy(error = "MyReminders: delete failed for ${reminderId}") }
+                logger.e("Reminders", "MyReminders: delete failed for $reminderId", e)
+                userData.update { it.copy(error = "MyReminders: delete failed for $reminderId") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
             }
@@ -617,7 +609,7 @@ class UserManager(
 
                 result = reminderRepo.getTotalReminderCompletions(uid)
             } catch (e: Exception) {
-                logger.e("Reminders", "Retrieval of Total Reminder Completions failed.")
+                logger.e("Reminders", "Retrieval of Total Reminder Completions failed.", e)
                 userData.update { it.copy(error = "Retrieval of Total Reminder Completions failed.") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
@@ -764,7 +756,7 @@ class UserManager(
                 val user = authModel.firebaseAuthWithGoogle(idToken)
                     ?: throw Exception("Firebase user null")
                 Log.d("FB", "Google sign-in success: uid=${user.uid}")
-                postLoginBookkeeping("google")
+                postLoginBookkeeping("google").join()
                 userData.update { it.copy(isLoggedIn = true, isLoading = false, error = null) }
             } catch (e: ApiException) {
                 Log.e("FB", "Google sign-in failed", e)
@@ -800,7 +792,7 @@ class UserManager(
             try {
                 // If this email is Google-only, this call will fail with InvalidCredentials.
                 authModel.signInWithEmailPassword(email.trim(), password)
-                postLoginBookkeeping(provider = "password")
+                postLoginBookkeeping(provider = "password").join()
                 userData.update { it.copy(isLoggedIn = true, isLoading = false, error = null) }
 
             } catch (e: com.google.firebase.auth.FirebaseAuthInvalidUserException) {
@@ -880,12 +872,12 @@ class UserManager(
     private fun postLoginBookkeeping(provider: String) = viewModelScope.launch {
         val user = authModel.currentUser ?: return@launch
         try {
-            val now = Timestamp.now()
-            fireRepo.ensureUserCreated(user)
+            val base = fireRepo.ensureUserCreated(user)
+            userData.update { it.withBase(base) }
+            fireRepo.writeBookkeeping(provider, user)
         } catch (e: Exception) {
-            logger.w("FB", "ensureUserCreated failed: ${e.message}")
+            logger.w("FB", "postLoginBookkeeping failed: ${e.message}")
         }
-        fireRepo.writeBookkeeping(provider, user)
     }
 
     /**
@@ -894,7 +886,7 @@ class UserManager(
      * @author Elyseia
      */
     fun setLoggedOut() {
-        userData.update { it.copy(isLoggedIn = false, userBase = null) }
+        userData.update { it.copy(isLoggedIn = false, userBase = UsersBase()) }
     }
 
     /**
@@ -907,8 +899,6 @@ class UserManager(
      * Note: This does NOT change AuthUiState
      *
      * @param email The email address to send the reset link to
-     * @param logger Used for logging errors and warnings.
-     * @param onResult Callback with successFlag, userFacingMessage
      * @author fdesouza1992
      */
     fun sendPasswordResetEmail(
@@ -989,7 +979,7 @@ class UserManager(
 
             try {
                 authModel.createUserWithEmailAndPassword(email.trim(), password)
-                postLoginBookkeeping(provider = "password")
+                postLoginBookkeeping(provider = "password").join()
                 userData.update { it.copy(isLoggedIn = true, isLoading = false, error = null) }
 
             } catch (e: com.google.firebase.auth.FirebaseAuthUserCollisionException) {
@@ -1068,7 +1058,7 @@ class UserManager(
      * @author Elyseia
      */
     fun writeLevelUp() {
-        val user = userData.value.userBase ?: return
+        val user = userData.value.userBase
         userData.update { it.copy(isLoading = true, error = null) }
 
         viewModelScope.launch {
