@@ -55,15 +55,15 @@ class FirestoreRepository(
      */
     suspend fun ensureUserCreated(
         user: FirebaseUser,
-    ): Boolean {
+    ): UsersBase {
         val uid = user.uid
         val docRef = db.collection("users").document(uid)
 
         val snap = docRef.get().await()
         val firstTime = !snap.exists()
-        val now = Timestamp.now()
 
         if (firstTime) {
+            val now = Timestamp.now()
             // first creation: write the full payload
             docRef.set(
                 mapOf(
@@ -79,13 +79,24 @@ class FirestoreRepository(
                     )
                 )
             ).await()
+
+            //Return the new base data
+            return UsersBase(
+                userId = uid,
+                displayName = user.displayName ?: "",
+                email = user.email ?: "",
+                photoUrl = user.photoUrl?.toString() ?: "",
+                createdAt = now,
+                onboardingComplete = false,
+                completedBadges = mapOf(
+                    "E2QAGgjfhPGAQf2fo17W" to now,
+                )
+            )
         } else {
             // existing user: only bump lastUpdate (do NOT overwrite stats/lifePoints)
             docRef.update("lastUpdate", FieldValue.serverTimestamp()).await() //Update is a smaller payload
+            return snap.toObject(UsersBase::class.java) ?: UsersBase()
         }
-
-        Log.d("FB", "users/$uid created=$firstTime")
-        return firstTime
     }
 
     /**

@@ -23,6 +23,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.Badge
+import com.lifeleveling.app.data.BadgeDisplay
 import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.data.Reminder
@@ -40,6 +42,7 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowStreak
 import com.lifeleveling.app.ui.components.SingleBadgeDisplay
 import com.lifeleveling.app.ui.components.StreaksToolTip
+import com.lifeleveling.app.ui.theme.LoadingOverlay
 import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.resolveColor
 
@@ -56,14 +59,28 @@ fun StreaksScreen() {
     val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
 
+    val backupPlaceholderBadge = listOf(
+        BadgeDisplay(
+            badge = Badge(
+                badgeId = "",
+                badgeName = "",
+                badgeDescription = "",
+                iconName = "",
+                colorToken = null,
+            ),
+            completedAt = null,
+            isCompleted = false,
+        )
+    )
+
     // Pop up tips
     val showLevelTip = remember { mutableStateOf(false) }
     val showStreaksTip = remember { mutableStateOf(false) }
     val showBadgesTip = remember { mutableStateOf(false) }
     val showBadge = remember { mutableStateOf(false) }
     val showStreakInfo = remember { mutableStateOf(false) }
-    val badgeToDisplay = remember { mutableStateOf(userState.badgeDisplay[0])}
-    val streakToShow = remember { mutableStateOf(userState.streaks[0])}
+    val badgeToDisplay = remember { mutableStateOf(userState.badgeDisplay.firstOrNull() ?: backupPlaceholderBadge[0])}
+    val streakToShow = remember { mutableStateOf(userState.streaks.firstOrNull())}
     val addWeekStreak = remember { mutableStateOf(false) }
     val addMonthStreak = remember { mutableStateOf(false) }
     val gridState = rememberLazyGridState()
@@ -143,53 +160,79 @@ fun StreaksScreen() {
                     // Separator
                     SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
-                    // Display of streaks
-                    userState.weeklyStreaks.forEach { streak ->
-                        val reminder = userManager.retrieveReminder(streak.reminderId)
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .clickable {
-                                    streakToShow.value = streak
-                                    showStreakInfo.value = true
-                                },
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Row(
+                    if (userState.isLoading) {
+                        Text(
+                            text = "Loading streaks...",
+                            color = AppTheme.colors.BrandTwo,
+                            style = AppTheme.textStyles.HeadingFive.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                        )
+                    } else if (userState.weeklyStreaks.isNotEmpty()) {
+                        // Display of streaks
+                        userState.weeklyStreaks.forEach { streak ->
+                            val reminder = userManager.retrieveReminder(streak.reminderId)
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .clickable {
+                                        streakToShow.value = streak
+                                        showStreakInfo.value = true
+                                    },
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
-                                ){
-                                    ShadowedIcon(
-                                        imageVector = ImageVector.vectorResource(iconResForName(reminder?.iconName)),
-                                        tint = if (reminder?.colorToken == null) Color.Unspecified
-                                                else resolveColor(reminder.colorToken),
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                    )
-                                    Spacer(Modifier.width(8.dp))
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        ShadowedIcon(
+                                            imageVector = ImageVector.vectorResource(iconResForName(reminder?.iconName)),
+                                            tint = if (reminder?.colorToken == null) Color.Unspecified
+                                            else resolveColor(reminder.colorToken),
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(
+                                            text = reminder?.title ?: "",
+                                            style = AppTheme.textStyles.HeadingSix,
+                                            color = AppTheme.colors.Gray
+                                        )
+                                    }
+                                    Spacer(Modifier.weight(1f))
                                     Text(
-                                        text = reminder?.title ?: "",
+                                        text = "${streak.numberCompleted} / ${streak.totalRequired}",
                                         style = AppTheme.textStyles.HeadingSix,
-                                        color = AppTheme.colors.Gray
+                                        color = AppTheme.colors.Gray,
                                     )
                                 }
-                                Spacer(Modifier.weight(1f))
-                                Text(
-                                    text = "${streak.numberCompleted} / ${streak.totalRequired}",
-                                    style = AppTheme.textStyles.HeadingSix,
-                                    color = AppTheme.colors.Gray,
+                                val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
+                                ProgressBar(
+                                    progress = percentageCompleted,
                                 )
                             }
-                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
-                            ProgressBar(
-                                progress = percentageCompleted,
-                            )
                         }
+                    } else {
+                        Text(
+                            text = "No weekly streaks yet.",
+                            color = AppTheme.colors.BrandTwo,
+                            style = AppTheme.textStyles.HeadingFive.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                        )
                     }
 
                     // Add goal
@@ -247,52 +290,78 @@ fun StreaksScreen() {
                     SeparatorLine(color = AppTheme.colors.SecondaryTwo)
 
                     // Display of streaks
-                    userState.monthlyStreaks.forEach { streak ->
-                        val reminder = userManager.retrieveReminder(streak.reminderId)
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .clickable {
-                                    streakToShow.value = streak
-                                    showStreakInfo.value = true
-                                },
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Row(
+                    if (userState.isLoading) {
+                        Text(
+                            text = "Loading streaks...",
+                            color = AppTheme.colors.BrandTwo,
+                            style = AppTheme.textStyles.HeadingFive.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                        )
+                    } else if (userState.monthlyStreaks.isNotEmpty()) {
+                        userState.monthlyStreaks.forEach { streak ->
+                            val reminder = userManager.retrieveReminder(streak.reminderId)
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .clickable {
+                                        streakToShow.value = streak
+                                        showStreakInfo.value = true
+                                    },
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
-                                ){
-                                    ShadowedIcon(
-                                        imageVector = ImageVector.vectorResource(iconResForName(reminder?.iconName)),
-                                        tint = if (reminder?.colorToken == null) Color.Unspecified
-                                        else resolveColor(reminder.colorToken),
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                    )
-                                    Spacer(Modifier.width(8.dp))
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        ShadowedIcon(
+                                            imageVector = ImageVector.vectorResource(iconResForName(reminder?.iconName)),
+                                            tint = if (reminder?.colorToken == null) Color.Unspecified
+                                            else resolveColor(reminder.colorToken),
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(
+                                            text = reminder?.title ?: "",
+                                            style = AppTheme.textStyles.HeadingSix,
+                                            color = AppTheme.colors.Gray
+                                        )
+                                    }
+                                    Spacer(Modifier.weight(1f))
                                     Text(
-                                        text = reminder?.title ?: "",
+                                        text = "${streak.numberCompleted}/${streak.totalRequired}",
                                         style = AppTheme.textStyles.HeadingSix,
-                                        color = AppTheme.colors.Gray
+                                        color = AppTheme.colors.Gray,
                                     )
                                 }
-                                Spacer(Modifier.weight(1f))
-                                Text(
-                                    text = "${streak.numberCompleted}/${streak.totalRequired}",
-                                    style = AppTheme.textStyles.HeadingSix,
-                                    color = AppTheme.colors.Gray,
+                                val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
+                                ProgressBar(
+                                    progress = percentageCompleted,
                                 )
                             }
-                            val percentageCompleted = streak.numberCompleted.toFloat() / streak.totalRequired
-                            ProgressBar(
-                                progress = percentageCompleted,
-                            )
                         }
+                    } else {
+                        Text(
+                            text = "No monthly streaks yet.",
+                            color = AppTheme.colors.BrandTwo,
+                            style = AppTheme.textStyles.HeadingFive.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                        )
                     }
 
                     // Add goal
@@ -372,23 +441,42 @@ fun StreaksScreen() {
                 outerPadding = 0.dp,
                 height = 200.dp
             ) {
-                AllBadgesDisplay(
-                    toShow = showBadge,
-                    badges = userState.badgeDisplay,
-                    showBadge = badgeToDisplay,
-                    scrollState = gridState
-                )
+                if (userState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Loading Badges...",
+                            color = AppTheme.colors.BrandTwo,
+                            style = AppTheme.textStyles.HeadingFive.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                        )
+                    }
+                } else {
+                    AllBadgesDisplay(
+                        toShow = showBadge,
+                        badges = userState.badgeDisplay,
+                        showBadge = badgeToDisplay,
+                        scrollState = gridState
+                    )
 
-                LazyColumnFadeEdges(
-                    gridState = gridState
-                )
+                    LazyColumnFadeEdges(
+                        gridState = gridState
+                    )
+                }
             }
         }
     }
     // Badge Popup
     if (showBadge.value) {
         SingleBadgeDisplay(
-            badgeDisplay = badgeToDisplay.value,
+            badgeDisplay = badgeToDisplay.value!!,
             toShow = showBadge,
         )
     }
@@ -435,9 +523,9 @@ fun StreaksScreen() {
         ShowStreak(
             toShow = showStreakInfo,
             streak = streakToShow.value,
-            reminder = userManager.retrieveReminder(streakToShow.value.reminderId) ?: Reminder(),
+            reminder = userManager.retrieveReminder(streakToShow.value!!.reminderId) ?: Reminder(),
             onDelete = {
-                streakToShow.value.streakId.let { userManager.removeStreak(it) }
+                streakToShow.value!!.streakId.let { userManager.removeStreak(it) }
             }
         )
     }
