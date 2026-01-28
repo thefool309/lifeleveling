@@ -16,11 +16,13 @@ import com.lifeleveling.app.ui.screens.HomeScreen
 import com.lifeleveling.app.ui.screens.MyRemindersScreen
 import com.lifeleveling.app.ui.screens.NotificationScreen
 import com.lifeleveling.app.ui.screens.PasswordResetScreen
+import com.lifeleveling.app.ui.screens.PrivacyScreenFun
 import com.lifeleveling.app.ui.screens.SelfCareScreen
 import com.lifeleveling.app.ui.screens.SettingScreen
 import com.lifeleveling.app.ui.screens.SignIn
 import com.lifeleveling.app.ui.screens.StatsScreen
 import com.lifeleveling.app.ui.screens.StreaksScreen
+import com.lifeleveling.app.ui.screens.TermsAndConditionsScreenFun
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.screens.UserAccountScreen
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
@@ -84,6 +86,8 @@ fun AppNavHost(
             composable("createReminder") { CreateReminderScreen() }
             composable("myReminders") { MyRemindersScreen() }
             composable("userAccount") { UserAccountScreen() }
+            composable("termsandconditions") { TermsAndConditionsScreenFun() }
+            composable("privacypolicy") { PrivacyScreenFun() }
         }
     }
 }
