@@ -1,5 +1,6 @@
 package com.lifeleveling.app.ui.theme
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.lifeleveling.app.R
@@ -28,7 +29,10 @@ private val iconMap = mapOf(
  * @author fdesouza1992
  */
 fun iconResForName(iconName: String?): Int {
-    return iconMap[iconName] ?: R.drawable.question_mark
+    val res = iconMap[iconName]
+    // Debugging for making sure names convert correctly
+//    Log.d("IconMapping", "iconName = '$iconName', resolved=${res != null}")
+    return res ?: R.drawable.question_mark
 }
 
 
@@ -60,7 +64,7 @@ fun resolveColor(color: String?): Color {
         "Error75"           to AppTheme.colors.Error75,
         "Warning"           to AppTheme.colors.Warning,
     )
-    return colorMap[color] ?: Color.Unspecified
+    return colorMap[color?.trim()] ?: Color.Unspecified
 }
 
 fun reminderDotColor(reminder: Reminder): Color {

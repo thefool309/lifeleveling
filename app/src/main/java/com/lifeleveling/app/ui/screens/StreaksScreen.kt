@@ -42,7 +42,6 @@ import com.lifeleveling.app.ui.components.ShadowedIcon
 import com.lifeleveling.app.ui.components.ShowStreak
 import com.lifeleveling.app.ui.components.SingleBadgeDisplay
 import com.lifeleveling.app.ui.components.StreaksToolTip
-import com.lifeleveling.app.ui.theme.LoadingOverlay
 import com.lifeleveling.app.ui.theme.iconResForName
 import com.lifeleveling.app.ui.theme.resolveColor
 
@@ -63,10 +62,10 @@ fun StreaksScreen() {
         BadgeDisplay(
             badge = Badge(
                 badgeId = "",
-                badgeName = "",
-                badgeDescription = "",
-                iconName = "",
-                colorToken = null,
+                badgename = "",
+                badgedescription = "",
+                iconname = "",
+                colortoken = null,
             ),
             completedAt = null,
             isCompleted = false,
@@ -428,7 +427,7 @@ fun StreaksScreen() {
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .clickable { navController.navigate("journey_stats") },
+                        .clickable { navController.navigate("journeyStats") },
                     text = stringResource(R.string.my_journey_stats),
                     color = AppTheme.colors.SecondaryThree,
                     style = AppTheme.textStyles.DefaultUnderlined,
@@ -476,7 +475,7 @@ fun StreaksScreen() {
     // Badge Popup
     if (showBadge.value) {
         SingleBadgeDisplay(
-            badgeDisplay = badgeToDisplay.value!!,
+            badgeDisplay = badgeToDisplay.value,
             toShow = showBadge,
         )
     }
@@ -488,7 +487,7 @@ fun StreaksScreen() {
             daily = true,
             reminders = userState.enabledReminders.filter { it.daily },
             streaksAlreadyCreated = userState.weeklyStreaks,
-            navigateToAddReminder = { /* TODO: Navigate to create a reminder */ },
+            navigateToAddReminder = { navController.navigate("createReminder") },
             onCreate = { draft ->
                 userManager.addStreak(draft)
             }
@@ -500,7 +499,7 @@ fun StreaksScreen() {
             daily = false,
             reminders = userState.enabledReminders.filter { !it.daily },
             streaksAlreadyCreated = userState.monthlyStreaks,
-            navigateToAddReminder = { /* TODO: Add navigation to create a reminder */ },
+            navigateToAddReminder = { navController.navigate("createReminder") },
             onCreate = { draft ->
                 userManager.addStreak(draft)
             }

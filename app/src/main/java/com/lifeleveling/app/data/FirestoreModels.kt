@@ -21,7 +21,7 @@ data class UsersBase(
     // variables that were missing during our first introduction of the Users collection
     var level: Long = 1,
     val lifePointsUsed: Long = 0,           // used lifePoints
-    val lifePointsTotal: Long = 0,      // all lifePoints - saving the total in case we want to add to the total for badge completion
+    val lifePointsTotal: Long = 5,      // all lifePoints - saving the total in case we want to add to the total for badge completion
     val currentXp: Double = 0.0,        // Current Experience // Experience needed to level up
     val currHealth: Long = 60,          // Default 60 at start
     // Badges can be stored in arrays of Badge objects on user doc.
@@ -306,7 +306,7 @@ data class UsersData (
         }
             .sortedWith(compareByDescending<BadgeDisplay> { it. completedAt != null }
                 .thenByDescending { it.completedAt }
-                .thenBy { it.badge.badgeName.lowercase() })
+                .thenBy { it.badge.badgename.lowercase() })
     }
 }
 

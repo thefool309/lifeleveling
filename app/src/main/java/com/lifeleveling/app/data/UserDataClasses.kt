@@ -1,7 +1,6 @@
 package com.lifeleveling.app.data
 
 import com.google.firebase.Timestamp
-import com.lifeleveling.app.R
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -102,18 +101,19 @@ data class Streak(
 /**
  * Badge object to craft badges for the list
  * @param badgeId Unique ID for each badge
- * @param badgeName Name of the badge
- * @param badgeDescription Description of the badge, usually how it is achieved
- * @param iconName The name of the picture that will be shown when the badge is completed
- * @param colorToken The color the badge will be when it is completed
+ * @param badgename Name of the badge
+ * @param badgedescription Description of the badge, usually how it is achieved
+ * @param iconname The name of the picture that will be shown when the badge is completed
+ * @param colortoken The color the badge will be when it is completed
  * @author Elyseia
  */
 data class Badge(
     val badgeId: String = "",
-    val badgeName: String = "",
-    val badgeDescription: String = "",
-    val iconName: String = "",           // Stores the name, not the R.drawable
-    val colorToken: String? = null,
+    // Badge names in lowercase right now because of a firestore mix up TODO: Update Firestore badges to Camel Case
+    val badgename: String = "",
+    val badgedescription: String = "",
+    val iconname: String = "",           // Stores the name, not the R.drawable
+    val colortoken: String? = null,
 )
 
 /**

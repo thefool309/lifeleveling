@@ -443,13 +443,13 @@ fun AllBadgesDisplay(
             ) {
                 CircleButton(
                     modifier = Modifier.fillMaxSize(),
-                    imageVector = ImageVector.vectorResource(iconResForName(badge.iconName)),
+                    imageVector = ImageVector.vectorResource(iconResForName(badge.iconname)),
                     onClick = {
                         showBadge.value = badgeDisplay
                         toShow.value = true
                     },
                     backgroundColor = if (!badgeDisplay.isCompleted) AppTheme.colors.FadedGray
-                    else resolveColor(badge.colorToken),
+                    else resolveColor(badge.colortoken),
                     elevation = 12.dp
                 )
             }
@@ -486,16 +486,16 @@ fun SingleBadgeDisplay(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 CircleButton(
-                    imageVector = ImageVector.vectorResource(iconResForName(badge.iconName)),
+                    imageVector = ImageVector.vectorResource(iconResForName(badge.iconname)),
                     onClick = { toShow.value = false },
                     backgroundColor = if (!badgeDisplay.isCompleted) AppTheme.colors.FadedGray
-                    else resolveColor(badge.colorToken),
+                    else resolveColor(badge.colortoken),
                     elevation = 12.dp,
                     size = 50.dp
                 )
                 Spacer(Modifier.width(16.dp))
                 Text(
-                    text = badge.badgeName,
+                    text = badge.badgename,
                     color = AppTheme.colors.SecondaryThree,
                     textAlign = TextAlign.Center,
                     style = AppTheme.textStyles.HeadingSix.copy(
@@ -509,14 +509,14 @@ fun SingleBadgeDisplay(
             }
 
             Text(
-                text = badge.badgeDescription,
+                text = badge.badgedescription,
                 color = AppTheme.colors.Gray,
                 style = AppTheme.textStyles.Default,
                 textAlign = TextAlign.Center,
             )
 
             if (badgeDisplay.isCompleted) {
-                val date = badgeDisplay.completedAt?.let {
+                val date = badgeDisplay.completedAt?.toDate()?.let {
                     SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
                         .format(it)
                 } ?: "NotCompleted"
