@@ -60,6 +60,7 @@ fun CalendarScreen() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
+//    val dailyReminders by userManager.dailyRemindersState.collectAsState()
 
     Surface(
         modifier = Modifier
@@ -80,7 +81,10 @@ fun CalendarScreen() {
         val isMonthView = remember { mutableStateOf(true) }
         val jumpedDay = remember { mutableStateOf(LocalDate.now()) }
         val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
-        val monthReminders = remember { mutableStateOf<List<Reminder>>(emptyList()) }
+//        val monthReminders = remember { mutableStateOf<List<Reminder>>(emptyList()) }
+        val monthReminders = remember(userState.reminders) {
+            userState.reminders.filter { it.enabled }
+        }
 
         val state = rememberCalendarState(
             startMonth = startMonth,
@@ -89,9 +93,10 @@ fun CalendarScreen() {
             firstDayOfWeek = daysOfWeek.first(),
             outDateStyle = OutDateStyle.EndOfGrid
         )
-        LaunchedEffect(Unit) {
-            val all = userState.reminders
-            monthReminders.value = all.filter { it.enabled }
+        LaunchedEffect(jumpedDay) {
+            userManager.getRemindersForDate(jumpedDay.value)
+//            val all = userState.reminders
+//            monthReminders.value = all.filter { it.enabled }
         }
 
         LaunchedEffect(jumpedMonth.value) {
@@ -172,7 +177,7 @@ fun CalendarScreen() {
                                 dayContent = { day ->
                                     DayFirestore(
                                         day = day,
-                                        reminders = monthReminders.value,
+                                        reminders = monthReminders,
                                         onDateClick = { clicked ->
                                             jumpedDay.value = clicked
                                             isMonthView.value = true // your Day view is when isMonthView == true
@@ -286,14 +291,14 @@ fun CalendarScreen() {
                                     )
                                 }
 
-                                val pair = userManager.getRemindersForDate(dayInfo)
+//                                val pair = userManager.getRemindersForDate(dayInfo)
 
                                 // Todo add in display of daily reminders
                                 DailyRemindersList(
                                     date = dayInfo,
-                                    reminders = pair.first,
-                                    completionsByReminderId = pair.second,
-                                    isLoading = userState.isLoading,
+                                    reminders = userState.reminders,
+                                    completionsByReminderId = userState.reminderCompletions,
+                                    isLoading = userState.isCalendarLoading,
                                     onChecked = { reminderId, reminderTitle, increment ->
                                         if (increment) {
                                             userManager.incrementReminderCompletionForDate(reminderId, reminderTitle, dayInfo)

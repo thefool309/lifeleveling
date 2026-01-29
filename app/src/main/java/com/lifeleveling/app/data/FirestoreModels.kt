@@ -33,6 +33,7 @@ data class UsersBase(
     var mostCompletedReminder: Pair<String, Long> = Pair("", 0L),
     // Settings to be saved
     val isDarkTheme: Boolean = true,
+
     )
 
 /**
@@ -58,6 +59,7 @@ data class UsersData (
     var weeklyStreaks: List<Streak> = emptyList(),
     var monthlyStreaks: List<Streak> = emptyList(),
     var badgeDisplay: List<BadgeDisplay> = emptyList(),
+    val reminderCompletions: Map<String, Int> = emptyMap(),
 
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
@@ -71,6 +73,10 @@ data class UsersData (
     var badgesEarned: Long = 0L,
     var allExpEver: Double = 0.0,
     var coinsSpent: Long = 0L,
+    val profileCreatedDate: String = "Unknown",
+    val timeSinceCreated: String = "",
+    val totalRemindersCompleted: Long = 0,
+    val mostCompletedReminderDisplay: String = "",
 
     // Flags
     var error: String? = null,
@@ -79,6 +85,7 @@ data class UsersData (
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     val levelUpFlag: Boolean = false,
+    val isCalendarLoading: Boolean = false,
 ) {
 
 //    init {
