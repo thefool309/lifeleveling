@@ -2,7 +2,7 @@
 <html class="no-js">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>calculateXpToNextLevel</title>
+    <title>calcExpForReminderCompletion</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
     <script>var pathToRoot = "../../../";</script>
     <script>document.documentElement.classList.replace("no-js","js");</script>
@@ -104,12 +104,12 @@
                 </div>
             </div>
             <div id="main">
-<div class="main-content" data-page-type="member" id="content" pageIds="Life Leveling::com.lifeleveling.app.data/Users/calculateXpToNextLevel/#/PointingToDeclaration//492899073">
-  <div class="breadcrumbs"><a href="../../../index.html">Life Leveling</a><span class="delimiter">/</span><a href="../index.html">com.lifeleveling.app.data</a><span class="delimiter">/</span><a href="index.html">Users</a><span class="delimiter">/</span><span class="current">calculateXpToNextLevel</span></div>
+<div class="main-content" data-page-type="member" id="content" pageIds="Life Leveling::com.lifeleveling.app.data/RewardsCalculator/calcExpForReminderCompletion/#com.lifeleveling.app.data.Users/PointingToDeclaration//492899073">
+  <div class="breadcrumbs"><a href="../../../index.html">Life Leveling</a><span class="delimiter">/</span><a href="../index.html">com.lifeleveling.app.data</a><span class="delimiter">/</span><a href="index.html">RewardsCalculator</a><span class="delimiter">/</span><span class="current">calcExpForReminderCompletion</span></div>
   <div class="cover ">
-    <h1 class="cover"><span>calculate</span><wbr></wbr><span>Xp</span><wbr></wbr><span>To</span><wbr></wbr><span>Next</span><wbr></wbr><span><span>Level</span></span></h1>
+    <h1 class="cover"><span>calc</span><wbr></wbr><span>Exp</span><wbr></wbr><span>For</span><wbr></wbr><span>Reminder</span><wbr></wbr><span><span>Completion</span></span></h1>
   </div>
-  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="calculate-xp-to-next-level.html"><span class="token function">calculateXpToNextLevel</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="calc-exp-for-reminder-completion.html"><span class="token function">calcExpForReminderCompletion</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">user<span class="token operator">: </span><a href="../-users/index.html">Users</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-double/index.html">Double</a></div><p class="paragraph">Calculates how much EXP a user earns when completing a reminder.</p><p class="paragraph">The formula starts with a base EXP value and applies bonus scaling based on the user's current stats:</p><ul><li><p class="paragraph">Strength → +5% EXP per point</p></li><li><p class="paragraph">Defense  → +3% EXP per point</p></li><li><p class="paragraph">Agility  → +2% EXP per point</p></li></ul><p class="paragraph">Example: If BASE_EXP = 15 and the combined stat bonus multiplier is 0.20, the final EXP awarded will be: 15 + (15 * 0.20) = 18 EXP</p><span class="kdoc-tag"><h4 class="">Return</h4><p class="paragraph">Final EXP value to award for this reminder completion.</p></span><span class="kdoc-tag"><h4 class="">Author</h4><p class="paragraph">fdesouza1992</p></span><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":app:dokkaHtml/release" data-filterable-set=":app:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>user</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The current user whose stats are used for the calculation.</p></div></div></div></div></div></div></div>
 </div>
     <div class="footer">
         <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
