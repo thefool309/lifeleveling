@@ -60,7 +60,7 @@ fun CalendarScreen() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
-    val dailyReminders by userManager.dailyRemindersState.collectAsState()
+//    val dailyReminders by userManager.dailyRemindersState.collectAsState()
 
     Surface(
         modifier = Modifier
@@ -296,9 +296,9 @@ fun CalendarScreen() {
                                 // Todo add in display of daily reminders
                                 DailyRemindersList(
                                     date = dayInfo,
-                                    reminders = dailyReminders.reminders,
-                                    completionsByReminderId = dailyReminders.completions,
-                                    isLoading = dailyReminders.isLoading,
+                                    reminders = userState.reminders,
+                                    completionsByReminderId = userState.reminderCompletions,
+                                    isLoading = userState.isCalendarLoading,
                                     onChecked = { reminderId, reminderTitle, increment ->
                                         if (increment) {
                                             userManager.incrementReminderCompletionForDate(reminderId, reminderTitle, dayInfo)

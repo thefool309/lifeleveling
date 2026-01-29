@@ -477,14 +477,6 @@ class UserManager(
         }
     }
 
-    private val _dailyRemindersState = MutableStateFlow(
-        DailyRemindersState(
-            reminders = emptyList(),
-            completions = emptyMap(),
-            isLoading = false
-        )
-    )
-    val dailyRemindersState: StateFlow<DailyRemindersState> = _dailyRemindersState
     /**
      * Retrieves a list of reminders for the user on the selected date and total completed reminders
      * 1. Puts up the loading overlay
@@ -501,7 +493,7 @@ class UserManager(
 //        var completionsByReminderId: Map<String, Int> = emptyMap()
 
         viewModelScope.launch(Dispatchers.Default) {
-            _dailyRemindersState.update { it.copy(isLoading = true) }
+            userData.update { it.copy(isCalendarLoading = true) }
 
             try {
                 val uid = authModel.currentUser?.uid ?: error("User not logged in")
@@ -509,16 +501,23 @@ class UserManager(
                 val reminders = reminderRepo.getRemindersForDate(date, uid)
                 val completionsByReminderId = reminderRepo.getReminderCompletionsForDate(date, uid)
 
-                _dailyRemindersState.update {
+                userData.update {
                     it.copy(
                         reminders = reminders,
-                        completions = completionsByReminderId,
-                        isLoading = false
+                        reminderCompletions = completionsByReminderId,
+                        isCalendarLoading = false
                     )
                 }
             } catch (e: Exception) {
                 logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
-                _dailyRemindersState.update { it.copy(isLoading = false, reminders = emptyList(), completions = emptyMap()) }
+                userData.update {
+                    it.copy(
+                        isCalendarLoading = false,
+                        reminders = emptyList(),
+                        reminderCompletions = emptyMap(),
+                        error = "DailyRemindersList: failed to load for $date",
+                        )
+                }
 //                userData.update { it.copy(error = "DailyRemindersList: failed to load for $date") }
 //                reminders = emptyList()
 //                completionsByReminderId = emptyMap()

@@ -59,6 +59,7 @@ data class UsersData (
     var weeklyStreaks: List<Streak> = emptyList(),
     var monthlyStreaks: List<Streak> = emptyList(),
     var badgeDisplay: List<BadgeDisplay> = emptyList(),
+    val reminderCompletions: Map<String, Int> = emptyMap(),
 
     // for a derived property like this it is not necessary to include in firebase
     // since it's calculated everytime a user is instantiated
@@ -84,6 +85,7 @@ data class UsersData (
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     val levelUpFlag: Boolean = false,
+    val isCalendarLoading: Boolean = false,
 ) {
 
 //    init {
