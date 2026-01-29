@@ -290,6 +290,7 @@ fun CreateReminderScreen(){
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ){
+                // Page Title
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ){
@@ -327,6 +328,7 @@ fun CreateReminderScreen(){
                             .fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ){
+                        // Title of reminder
                         Text(
                             text = stringResource(R.string.title_colon),
                             color = AppTheme.colors.SecondaryOne,
@@ -337,6 +339,7 @@ fun CreateReminderScreen(){
                             onValueChange = { createdReminderTitle = it },
                             placeholderText = stringResource(R.string.reminder_title),
                         )
+                        // Icon and Color selection
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -347,7 +350,7 @@ fun CreateReminderScreen(){
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
-                            DropDownIconGridMenu(
+                            DropDownIconMenu(
                                 modifier = Modifier
                                     .width(108.dp)
                                     .height(32.dp),
@@ -377,6 +380,7 @@ fun CreateReminderScreen(){
                             modifier = Modifier,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ){
+                            // When to start
                             Text(
                                 text = stringResource(R.string.starting_at),
                                 color = AppTheme.colors.SecondaryOne,
@@ -387,6 +391,7 @@ fun CreateReminderScreen(){
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ){
+                                // Select day
                                 DropDownTextMenu(
                                     options = filteredMonthList,
                                     selectedIndex = selectedMonth,
@@ -417,6 +422,7 @@ fun CreateReminderScreen(){
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ){
+                                // Select time
                                 DropDownTextMenu(
                                     options = hourOptions,
                                     selectedIndex = selectedHour,
@@ -452,6 +458,7 @@ fun CreateReminderScreen(){
                             }
 
                         }
+                        // Daily check box
                         Column(
                             modifier = Modifier,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -474,6 +481,7 @@ fun CreateReminderScreen(){
                                 )
                             }
                             if(asDaily) {
+                                // Reminder interval for daily
                                 Text(
                                     text = stringResource(R.string.remind_me_every),
                                     color = AppTheme.colors.SecondaryOne,
@@ -517,6 +525,7 @@ fun CreateReminderScreen(){
                             }
 
                         }
+                        // Repeat options
                         Column(
                             modifier = Modifier,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -542,6 +551,7 @@ fun CreateReminderScreen(){
                                 )
                             }
                             if(repeatReminder) {
+                                // Repeat interval
                                 Text(
                                     text = stringResource(R.string.repeat_for), color = AppTheme.colors.SecondaryOne,
                                     style = AppTheme.textStyles.HeadingFive
@@ -588,6 +598,7 @@ fun CreateReminderScreen(){
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    // Cancel creation
                     CustomButton(
                         width = 120.dp,
                         onClick = {
@@ -602,6 +613,7 @@ fun CreateReminderScreen(){
                         )
                     }
                     Spacer(Modifier.width(20.dp))
+                    // Create button
                     CustomButton(
                         width = 120.dp,
                         onClick = {
