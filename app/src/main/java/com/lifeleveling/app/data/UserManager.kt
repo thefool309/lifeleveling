@@ -19,8 +19,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import kotlin.Int
 import java.time.LocalDate
+import java.util.Locale
 
 /**
  * Manages the local state of the user.
@@ -357,6 +361,60 @@ class UserManager(
         val daysSection = "$remainingDays day${if (remainingDays != 1L) "s" else ""}"
 
         return (yearsSection + daysSection).trim()
+    }
+
+    /**
+     * This function fills in all the information needed for the UserJourney stats page.
+     * Calls on functions in Firestore Models to calculate base pieces.
+     * Formats base pieces for display
+     * Pulls reminder information from firestore
+     * Updates UI state for stats screen
+     * @author Elyseia
+     */
+    fun loadUserJourneyStats() {
+        viewModelScope.launch(Dispatchers.Default) {
+            userData.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                // Recalculate base stats into state
+                userData.update { it.recalculatingUserJourney() }
+
+                val user = userData.value.userBase
+
+                // Profile created date
+                val profileDate = user.createdAt?.toDate()?.let { date ->
+                    SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
+                } ?: "Unknown"
+
+                // Time since created
+                val timeSinceCreated = calcTimeSinceCreatedDate()
+
+                // Most completed reminder display
+                val mostCompletedReminder =
+                    if (user.mostCompletedReminder.first.isBlank()) "No reminder completed"
+                    else "${user.mostCompletedReminder.first} ${user.mostCompletedReminder.second}"
+
+                // Total reminders completed
+                val uid = authModel.currentUser?.uid ?: error("User not logged in")
+                val totalRemindersCompleted = withContext(Dispatchers.IO) {
+                    reminderRepo.getTotalReminderCompletions(uid)
+                }
+
+                // Update stats
+                userData.update {
+                    it.copy(
+                        profileCreatedDate = profileDate,
+                        timeSinceCreated = timeSinceCreated,
+                        mostCompletedReminderDisplay = mostCompletedReminder,
+                        totalRemindersCompleted = totalRemindersCompleted,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                logger.e("UserManager", "Failed loading journey stats", e)
+                userData.update {it.copy(isLoading = false, error = "Error loading journey stats")}
+            }
+        }
     }
     //endregion
 

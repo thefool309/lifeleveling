@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.toString
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -63,17 +64,13 @@ fun UserJourneyScreen() {
     val scrollState = rememberScrollState()
     val showJourneyTip = remember { mutableStateOf(false) }
 
-    // Extra calculations for some stats
-    val profileCreatedDate: String = userState.userBase.createdAt?.toDate()?.let { date ->
-        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
-    } ?: "Unknown"
-    val timeSinceCreated = userManager.calcTimeSinceCreatedDate()
-    userManager.userJourneyCalculations()
-    val mostCompletedReminder = if (userState.userBase.mostCompletedReminder.first == "") stringResource(R.string.no_remiders_completed)
-                        else "${userState.userBase.mostCompletedReminder.first} ${userState.userBase.mostCompletedReminder.second.toString()}"
-    val totalRemindersCompletedState = remember { mutableStateOf<Long?>(null) }
-    totalRemindersCompletedState.value = userManager.getTotalReminderCompletion()
-    val totalRemindersCompletedDisplay = totalRemindersCompletedState.value?.toString() ?: "0"
+    LaunchedEffect(Unit) {
+        userManager.loadUserJourneyStats()
+    }
+    val profileCreatedDate = userState.profileCreatedDate
+    val timeSinceCreated = userState.timeSinceCreated
+    val mostCompletedReminder = userState.mostCompletedReminderDisplay
+    val totalRemindersCompletedDisplay = userState.totalRemindersCompleted.toString()
 
     // Statistics to display
     val statistics = listOf(
@@ -191,7 +188,7 @@ fun UserJourneyScreen() {
                         )
                     ),
                     modifier = Modifier
-                        .weight(1f)
+//                        .weight(1f)
                         .align(Alignment.Top)
                 )
                 Spacer(Modifier.width(8.dp))
@@ -207,7 +204,7 @@ fun UserJourneyScreen() {
                         }
                         .align(Alignment.Top)
                 )
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.weight(1f))
                 CircleButton(
                     modifier = Modifier.align(Alignment.Top),
                     onClick = { navController.popBackStack() },
@@ -228,42 +225,58 @@ fun UserJourneyScreen() {
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // Sections
-                    statistics.forEachIndexed { index, section ->
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            // Title
-                            Text(
-                                text = stringResource(section.title),
-                                color = AppTheme.colors.SecondaryThree,
-                                style = AppTheme.textStyles.HeadingSix
-                            )
+                    if (userState.isLoading) {
+                        Text(
+                            text = "Loading Stats...",
+                            color = AppTheme.colors.BrandTwo,
+                            style = AppTheme.textStyles.HeadingFive.copy(
+                                shadow = Shadow(
+                                    color = AppTheme.colors.DropShadow,
+                                    offset = Offset(2f, 2f),
+                                    blurRadius = 2f,
+                                )
+                            ),
+                        )
+                    } else {
+                        statistics.forEachIndexed { index, section ->
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                // Title
+                                Text(
+                                    text = stringResource(section.title),
+                                    color = AppTheme.colors.SecondaryThree,
+                                    style = AppTheme.textStyles.HeadingSix
+                                )
 
-                            // Items inside
-                            section.items.forEach { item ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ){
-                                    Text(
-                                        modifier = Modifier.weight(1f)
-                                            .align(Alignment.CenterVertically),
-                                        text = stringResource(item.name),
-                                        color = AppTheme.colors.Gray,
-                                        style = AppTheme.textStyles.Default
-                                    )
-                                    Text(
-                                        modifier = Modifier.weight(.45f)
-                                            .align(Alignment.CenterVertically),
-                                        text = item.value,
-                                        color = AppTheme.colors.Gray,
-                                        style = AppTheme.textStyles.Default
-                                    )
+                                // Items inside
+                                section.items.forEach { item ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            modifier = Modifier.weight(1f)
+                                                .align(Alignment.CenterVertically),
+                                            text = stringResource(item.name),
+                                            color = AppTheme.colors.Gray,
+                                            style = AppTheme.textStyles.Default
+                                        )
+                                        Text(
+                                            modifier = Modifier.weight(.45f)
+                                                .align(Alignment.CenterVertically),
+                                            text = item.value,
+                                            color = AppTheme.colors.Gray,
+                                            style = AppTheme.textStyles.Default
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        // Separator
-                        if (index < statistics.lastIndex){ SeparatorLine() }
+                            // Separator
+                            if (index < statistics.lastIndex) {
+                                SeparatorLine()
+                            }
+                        }
                     }
                 }
 

@@ -235,7 +235,6 @@ fun SettingScreen(){
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .clickable {
-                                    userManager.userJourneyCalculations()
                                     navController.navigate("journeyStats")
                                 }
                         )

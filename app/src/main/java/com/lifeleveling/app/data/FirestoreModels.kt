@@ -33,6 +33,7 @@ data class UsersBase(
     var mostCompletedReminder: Pair<String, Long> = Pair("", 0L),
     // Settings to be saved
     val isDarkTheme: Boolean = true,
+
     )
 
 /**
@@ -71,6 +72,10 @@ data class UsersData (
     var badgesEarned: Long = 0L,
     var allExpEver: Double = 0.0,
     var coinsSpent: Long = 0L,
+    val profileCreatedDate: String = "Unknown",
+    val timeSinceCreated: String = "",
+    val totalRemindersCompleted: Long = 0,
+    val mostCompletedReminderDisplay: String = "",
 
     // Flags
     var error: String? = null,
