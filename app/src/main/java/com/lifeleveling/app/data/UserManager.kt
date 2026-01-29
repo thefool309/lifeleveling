@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Transaction
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.auth.AuthModel
@@ -19,6 +21,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
+import com.lifeleveling.app.data.FirestoreRepository.Companion.TAG
+import kotlinx.coroutines.tasks.await
 import kotlin.Int
 import java.time.LocalDate
 
@@ -130,6 +134,140 @@ class UserManager(
         }
     }
 
+    /**
+     * Awards XP, coins, and progression updates when a reminder is completed.
+     *
+     * This method is the single source of truth for applying gameplay rewards tied to reminder completion.
+     * It performs two major responsibilities:
+     * 1) Records the reminder completion for the given date.
+     * 2) Atomically updates the user's progression inside a Firestore transaction:
+     *    - XP gain
+     *    - Level ups (if applicable)
+     *    - Life points increase on level up
+     *    - Coin rewards (including level-up bonus coins)
+     *
+     * Flow overview:
+     * - Validates that the user is authenticated.
+     * - Increments the reminder completion count for the selected reminder/date.
+     * - Loads the current user snapshot inside a Firestore transaction.
+     * - Calculates EXP and coins using RewardsCalculator.
+     * - Applies level-up logic if XP crosses the next level threshold:
+     *     - Carries over leftover XP.
+     *     - Increments the user's level.
+     *     - Grants +5 life points.
+     *     - Awards additional bonus coins for leveling up.
+     * - Persists all updated values atomically to prevent race conditions.
+     *
+     * @param reminderId Firestore ID of the completed reminder.
+     * @param reminderTitle Human-readable title (used for completion tracking / logs).
+     * @param date The date the reminder was completed for.
+     * @param logger Logger used for diagnostics and error reporting.
+     * @return true if the reward transaction succeeds; false otherwise.
+     * @author fdesouza1992
+     */
+    suspend fun awardForReminderCompletion(
+        reminderId: String,
+        reminderTitle: String,
+        date: LocalDate,
+        logger: ILogger,
+    ): Boolean {
+        val current = userData.value.userBase
+        val expEarned = RewardsCalculator.calcExpForReminderCompletion(current)
+        val newExp = current.
+        val coinsEarned = RewardsCalculator.calcCoinsForReminderCompletion(current)
+        addExp(expEarned)
+
+        val updated = current.copy(
+            coinsBalance = current.coinsBalance + coinsEarned,
+            allCoinsEarned = current.allCoinsEarned + coinsEarned
+        )
+        userData.update { current ->
+            current.copy(
+                userBase = updated,
+                isLoading = true,
+                error = null
+            )
+        }
+        viewModelScope.launch {
+            try {
+                fireRepo.editUser(
+                    current.userId,
+                    mapOf(),
+                )
+                userData.update { it.copy(isLoading = false, error = null) }
+            } catch (e: Exception) {
+                logger.e("FB", "Error updating theme preference to firestore", e)
+                userData.update { it.copy(isLoading = false, error = "Error writing theme preference to firestore") }
+            }
+        }
+
+        val uid = getUserId()
+        if (uid.isNullOrBlank()) {
+            logger.e(TAG, "awardForReminderCompletion: user not authenticated")
+            return false
+        }
+
+        return try {
+            val completionOk = reminderRepo.incrementReminderCompletionForDate(
+                reminderId = reminderId,
+                reminderTitle = reminderTitle,
+                date = date,
+                logger = logger
+            )
+            if (!completionOk) return false
+
+            val userRef = db.collection("users").document(uid)
+
+            db.runTransaction { tx: Transaction ->
+                val snap = tx.get(userRef)
+                val user = snap.toObject(Users::class.java)
+                    ?: throw IllegalStateException("User doc missing")
+
+                val expEarned = RewardsCalculator.calcExpForReminderCompletion(user)
+                val coinsEarned = RewardsCalculator.calcCoinsForReminderCompletion(user)
+
+                val currentLevel = user.level
+                val currentXp = user.currentXp
+                val nextXp = user.xpToNextLevel.toDouble() // derived from level
+
+                var newLevel = currentLevel
+                var newXp = currentXp + expEarned
+                var newLifePoints = user.lifePoints
+                var extraLevelCoins = 0L
+
+                // Level up logic
+                if (newXp >= nextXp) {
+                    val leftover = newXp - nextXp
+                    newLevel = currentLevel + 1
+                    newXp = leftover
+                    newLifePoints = user.lifePoints + 5
+
+                    extraLevelCoins = RewardsCalculator.levelUpBonusCoins(
+                        newLevel = newLevel,
+                        completionCoins = coinsEarned
+                    ) - coinsEarned
+                }
+
+                val totalCoinsToAdd = coinsEarned + extraLevelCoins
+
+                // Update fields in Firestore
+                tx.update(userRef, mapOf(
+                    "level" to newLevel,
+                    "currentXp" to newXp,
+                    "lifePoints" to newLifePoints,
+                    "coinsBalance" to (user.coinsBalance + totalCoinsToAdd),
+                    "lastUpdate" to FieldValue.serverTimestamp(),
+                ))
+
+                null
+            }.await()
+
+            true
+        } catch (e: Exception) {
+            logger.e(TAG, "awardForReminderCompletion failed", e)
+            false
+        }
+    }
     /**
      * Is a call to update the theme saved for the user in the user state
      * Light mode or dark mode

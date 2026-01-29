@@ -34,7 +34,7 @@ object RewardsCalculator {
      * @return Final EXP value to award for this reminder completion.
      * @author fdesouza1992
      */
-    fun calcExpForReminderCompletion(user: Users): Double {
+    fun calcExpForReminderCompletion(user: UsersBase): Double {
         val s = user.stats
 
         // Strength 5% exp, Defense 3% exp, Agility 2% exp
@@ -60,7 +60,7 @@ object RewardsCalculator {
      * @return Final coin amount to award for this reminder completion.
      * @author fdesouza1992
      */
-    fun calcCoinsForReminderCompletion(user: Users): Long {
+    fun calcCoinsForReminderCompletion(user: UsersBase): Long {
         val s = user.stats
 
         // Defense 2% coins, Intelligence 5% coins, Agility 3% coins
