@@ -59,25 +59,16 @@ import kotlin.String
 @Composable
 fun CreateReminderScreen(){
     val userManager = LocalUserManager.current
-//    val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
 
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val showCreateRemindersToolTip = remember { mutableStateOf(false) }
     var createdReminderTitle by remember { mutableStateOf("") } // Title for reminder string <-- This is needed
-    //var doNotRepeat by remember { mutableStateOf(false) }       // if it repeats bool       <-- This is needed            @Todo Stephen Commented this out as not used
+
     var asDaily by remember { mutableStateOf(false) }           // does it repeat as a daily bool <-- This is needed
-    //var asWeekDay by remember { mutableStateOf(false) }         // does it repeat daily bool    <-- This is needed        @Todo Stephen Commented this out as not used
     var repeatReminder by remember { mutableStateOf(false) } // does it repeat forever bool <-- This is needed
     var selectedReminderIndex by remember { mutableIntStateOf(0) } // selected icon for reminder   <-- This is needed
     val iconMenu = remember { mutableStateOf(false) }           // bool to show menu
-//    var selectedHour by remember { mutableIntStateOf(0) }          // selected hour for reminder   <-- This is needed
-//    val selectedHourMenu = remember { mutableStateOf(false) }   // bool to show hour menu
-//    val selectedMinuteMenu = remember { mutableStateOf(false) } // bool to show minute menu
-//    var selectedMinute by remember { mutableIntStateOf(0) }        // selected minute                 <-- This is needed
-//    var selectedAmOrPm by remember {mutableIntStateOf(0)}          // selected AM or PM                <-- This is needed
-//    val amOrPmOptionsMenu = remember {mutableStateOf(false) }   // menu for selecting am or pm
 
     val hourOptions = stringArrayResource(R.array.hour_array).toList()
     val minutesOptions = stringArrayResource(R.array.minutes_array).toList()
@@ -231,27 +222,6 @@ fun CreateReminderScreen(){
     val selectedDayMenu = remember { mutableStateOf(false) }
     val selectedYearMenu = remember { mutableStateOf(false) }
 
-
-//    val today = LocalDate.now()                                                             // Current date
-//    val monthList = (1..12).map { monthNumber ->
-//        Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.getDefault())   // Months list
-//    }
-//    val startYear = today.year                                                               // Years list (current year + 5)
-//    val endYear = startYear + 5
-//    val yearList = (startYear..endYear).toList()
-//    var selectedDay by remember { mutableStateOf(today.dayOfMonth - 1) }             // Default selections
-//    var selectedMonth by remember { mutableStateOf(today.monthValue - 1) }
-//    var selectedYear by remember { mutableStateOf(0) }
-//    val actualYear = yearList[selectedYear]                                                 // Actual selected values
-//    val actualMonth = selectedMonth + 1
-//    val daysInMonth = YearMonth(actualYear, actualMonth).lengthOfMonth()    // Days in selected month/year
-//    val dayList = (1..daysInMonth).map { day ->
-//        SuffixForDays(day)
-//    }
-//    val selectedMonthMenu = remember { mutableStateOf(false) }
-//
-//    val selectedDayMenu = remember { mutableStateOf(false) }
-//    val selectedYearMenu = remember { mutableStateOf(false) }
     var selectedColorIndex by remember { mutableIntStateOf(0) }
     val colorMenu = remember { mutableStateOf(false) }
     val colorOptions = listOf(
@@ -347,7 +317,7 @@ fun CreateReminderScreen(){
                                 color = AppTheme.colors.SecondaryOne,
                                 style = AppTheme.textStyles.HeadingFive
                             )
-                            DropDownIconGridMenu(
+                            DropDownIconMenu(
                                 modifier = Modifier
                                     .width(108.dp)
                                     .height(32.dp),
@@ -491,13 +461,6 @@ fun CreateReminderScreen(){
                                             // Only allow digits
                                             reminderAmountNumber = newText.filter { it.isDigit() }
                                         },
-//                                        onValueChange = { newText ->
-////                                            reminderAmountNumber = newText
-////                                            if (newText.isNotEmpty()) {
-////                                                repeatReminder = false
-//                                                //doNotRepeat = false
-//                                            }
-//                                        },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
@@ -529,10 +492,6 @@ fun CreateReminderScreen(){
                                     checked = repeatReminder,
                                     onCheckedChange = {
                                         repeatReminder = it
-//                                        if (it) {
-//                                            //doNotRepeat = false
-//
-//                                        }
                                     }
                                 )
                                 Text(
@@ -556,13 +515,6 @@ fun CreateReminderScreen(){
                                         onValueChange = { newText ->
                                             repeatAmount = newText.filter { it.isDigit() }
                                         },
-//                                        onValueChange = { newText ->
-//                                            repeatAmount = newText
-//                                            if (newText.isNotEmpty()) {
-//                                                repeatReminder = false
-//                                                //doNotRepeat = false
-//                                            }
-//                                        },
                                         placeholderText = "",
                                         inputFilter = { it.all { char -> char.isDigit() } },
                                         modifier = Modifier
