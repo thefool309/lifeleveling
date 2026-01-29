@@ -431,7 +431,7 @@ fun NavHostContainer(
                         isDarkThemeState.value = newIsDark
                     },
                     onSignOut = onSignOut,
-                    onDeleteAccount = onDeleteAccount,
+//                    onDeleteAccount = onDeleteAccount,
                     onResetLifePoints = onResetLifePoints
                 )
             }
