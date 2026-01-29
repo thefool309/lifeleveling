@@ -191,3 +191,9 @@ data class Privacy(
     val lastUpdate: Timestamp? = null,
     val title: String = ""
 )
+
+data class DailyRemindersState(
+    val reminders: List<Reminder>,
+    val completions: Map<String, Int>,
+    val isLoading: Boolean,
+)

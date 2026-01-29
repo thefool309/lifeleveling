@@ -331,14 +331,6 @@ class UserManager(
     }
 
     /**
-     * Recalculates some data for most accurate representation in UserJourney screen
-     * @author Elyseia
-     */
-    fun userJourneyCalculations() {
-        userData.update { it.copy().recalculatingUserJourney() }
-    }
-
-    /**
      * Calculates how long it has been since the user created their profile.
      * Takes their createdAt time and subtracts if from the current time to get the difference
      * Uses the result of that to calculate a string that will display the number of years and days since creation
@@ -369,7 +361,7 @@ class UserManager(
      * Formats base pieces for display
      * Pulls reminder information from firestore
      * Updates UI state for stats screen
-     * @author Elyseia
+     * @author Elyseia, fdesouza1992
      */
     fun loadUserJourneyStats() {
         viewModelScope.launch(Dispatchers.Default) {
@@ -485,6 +477,14 @@ class UserManager(
         }
     }
 
+    private val _dailyRemindersState = MutableStateFlow(
+        DailyRemindersState(
+            reminders = emptyList(),
+            completions = emptyMap(),
+            isLoading = false
+        )
+    )
+    val dailyRemindersState: StateFlow<DailyRemindersState> = _dailyRemindersState
     /**
      * Retrieves a list of reminders for the user on the selected date and total completed reminders
      * 1. Puts up the loading overlay
@@ -496,29 +496,39 @@ class UserManager(
      * @return A pair that contains a list of reminders for the given date and a map of how many are completed
      * @author fdesouza1992
      */
-    fun getRemindersForDate(date: LocalDate): Pair<List<Reminder>, Map<String, Int>> {
-        var reminders: List<Reminder> = emptyList()
-        var completionsByReminderId: Map<String, Int> = emptyMap()
+    fun getRemindersForDate(date: LocalDate) {
+//        var reminders: List<Reminder> = emptyList()
+//        var completionsByReminderId: Map<String, Int> = emptyMap()
 
-        viewModelScope.launch {
-            userData.update { it.copy(isLoading = true, error = null) }
+        viewModelScope.launch(Dispatchers.Default) {
+            _dailyRemindersState.update { it.copy(isLoading = true) }
 
             try {
                 val uid = authModel.currentUser?.uid ?: error("User not logged in")
 
-                reminders = reminderRepo.getRemindersForDate(date, uid)
-                completionsByReminderId = reminderRepo.getReminderCompletionsForDate(date, uid)
+                val reminders = reminderRepo.getRemindersForDate(date, uid)
+                val completionsByReminderId = reminderRepo.getReminderCompletionsForDate(date, uid)
+
+                _dailyRemindersState.update {
+                    it.copy(
+                        reminders = reminders,
+                        completions = completionsByReminderId,
+                        isLoading = false
+                    )
+                }
             } catch (e: Exception) {
                 logger.e("Reminders", "DailyRemindersList: failed to load for $date", e)
-                userData.update { it.copy(error = "DailyRemindersList: failed to load for $date") }
-                reminders = emptyList()
-                completionsByReminderId = emptyMap()
-            } finally {
-                userData.update { it.copy(isLoading = false) }
+                _dailyRemindersState.update { it.copy(isLoading = false, reminders = emptyList(), completions = emptyMap()) }
+//                userData.update { it.copy(error = "DailyRemindersList: failed to load for $date") }
+//                reminders = emptyList()
+//                completionsByReminderId = emptyMap()
             }
+//            finally {
+//                userData.update { it.copy(isLoading = false) }
+//            }
         }
 
-        return Pair(reminders, completionsByReminderId)
+//        return Pair(reminders, completionsByReminderId)
     }
 
     /**
@@ -641,34 +651,6 @@ class UserManager(
             } catch (e: Exception) {
                 logger.e("Reminders", "MyReminders: delete failed for $reminderId", e)
                 userData.update { it.copy(error = "MyReminders: delete failed for $reminderId") }
-            } finally {
-                userData.update { it.copy(isLoading = false) }
-            }
-        }
-        return result
-    }
-
-    /**
-     * Returns total number of reminder completions across all time.
-     *
-     * We read every document inside `reminderCompletions` and sum the `count` values. Great for showing progress in "My Journey" or achievement screens.
-     * If something goes wrong, we return 0 instead of crashing the app.
-     *
-     * @return The total count of completions across all reminders.
-     * @author fdesouza1992
-     */
-    fun getTotalReminderCompletion(): Long {
-        var result: Long = 0
-        viewModelScope.launch {
-            userData.update { it.copy(isLoading = true, error = null) }
-
-            try {
-                val uid = authModel.currentUser?.uid ?: error("User not logged in")
-
-                result = reminderRepo.getTotalReminderCompletions(uid)
-            } catch (e: Exception) {
-                logger.e("Reminders", "Retrieval of Total Reminder Completions failed.", e)
-                userData.update { it.copy(error = "Retrieval of Total Reminder Completions failed.") }
             } finally {
                 userData.update { it.copy(isLoading = false) }
             }
