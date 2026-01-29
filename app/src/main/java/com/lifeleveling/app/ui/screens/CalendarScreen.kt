@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +61,6 @@ fun CalendarScreen() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
     val navController = LocalNavController.current
-//    val dailyReminders by userManager.dailyRemindersState.collectAsState()
 
     Surface(
         modifier = Modifier
@@ -81,9 +81,10 @@ fun CalendarScreen() {
         val isMonthView = remember { mutableStateOf(true) }
         val jumpedDay = remember { mutableStateOf(LocalDate.now()) }
         val jumpedMonth = remember { mutableStateOf<LocalDate?>(null) }
-//        val monthReminders = remember { mutableStateOf<List<Reminder>>(emptyList()) }
-        val monthReminders = remember(userState.reminders) {
-            userState.reminders.filter { it.enabled }
+        val monthReminders by remember(userState.reminders) {
+            derivedStateOf {
+                userState.reminders.filter { it.enabled }
+            }
         }
 
         val state = rememberCalendarState(
@@ -95,8 +96,6 @@ fun CalendarScreen() {
         )
         LaunchedEffect(jumpedDay) {
             userManager.getRemindersForDate(jumpedDay.value)
-//            val all = userState.reminders
-//            monthReminders.value = all.filter { it.enabled }
         }
 
         LaunchedEffect(jumpedMonth.value) {
@@ -290,8 +289,6 @@ fun CalendarScreen() {
                                             .align(Alignment.CenterEnd),
                                     )
                                 }
-
-//                                val pair = userManager.getRemindersForDate(dayInfo)
 
                                 // Todo add in display of daily reminders
                                 DailyRemindersList(
