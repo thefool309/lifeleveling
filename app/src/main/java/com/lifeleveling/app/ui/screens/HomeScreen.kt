@@ -33,6 +33,7 @@ import androidx.compose.ui.zIndex
 import com.lifeleveling.app.ui.theme.AppTheme
 import com.lifeleveling.app.R
 import com.lifeleveling.app.data.LocalUserManager
+// import com.lifeleveling.app.ui.components.TestUser
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.EquipmentDisplay
 import com.lifeleveling.app.ui.components.HealthDisplay
@@ -41,6 +42,14 @@ import com.lifeleveling.app.ui.components.HighlightCard
 import com.lifeleveling.app.ui.components.LevelAndProgress
 import com.lifeleveling.app.ui.components.LifeExperienceToolTip
 import com.lifeleveling.app.ui.components.SlidingSwitch
+import com.lifeleveling.app.ui.models.StatsUi
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.setValue
+import com.lifeleveling.app.data.FirestoreRepository
+import com.lifeleveling.app.util.AndroidLogger
+import com.lifeleveling.app.util.ILogger
 
 /**
  * The main home screen composable.
