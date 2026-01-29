@@ -1248,6 +1248,7 @@ fun CustomTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     supportingUnit: (@Composable () -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    enabled: Boolean = true,
 ) {
     OutlinedTextField(
         modifier = modifier
@@ -1259,6 +1260,7 @@ fun CustomTextField(
                 onValueChange(input)
             }
         },
+        enabled = enabled,
         singleLine = singleLine,
         textStyle = textStyle.copy(color = textColor),
         colors = OutlinedTextFieldDefaults.colors(

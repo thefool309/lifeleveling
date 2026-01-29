@@ -316,7 +316,7 @@ class FirestoreRepository {
 
     }
     /**
-     * set the currHealth value in the firestore data
+     * set the currHealth value in the firestore data, Suspend function, must be called in view model
      * @return Boolean
      * @param health  a long that contains the new balance
      * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
@@ -337,85 +337,6 @@ class FirestoreRepository {
         }
         catch(e: Exception) {
             logger.e(TAG, "Error Updating User: ", e)
-            return false
-        }
-    }
-    /**
-     * set the coins value in the Users firebase balance
-     * @return Boolean
-     * @param coins  a long that contains the new balance
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
-     */
-    suspend fun setCoins(coins: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e(TAG,"ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            docRef.update("coinsBalance", coins).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e(TAG, "Error Updating User: ", e)
-            return false
-        }
-    }
-
-    /**
-     * add coins to the Users firebase balance
-     * @return Boolean
-     * @param coins  a long that contains the amount of coins to add
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger
-     */
-    suspend fun addCoins(coins: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e(TAG,"ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            var newCoinsBalance = data["coinsBalance"] as Long
-            newCoinsBalance += coins
-            docRef.update("coinsBalance", newCoinsBalance).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e(TAG, "Error Updating User: ", e)
-            return false
-        }
-    }
-    /**
-     * a method to subtract coins from the users firebase balance
-     * @return Boolean
-     * @param coins  a long that contains the amount of coins to subtract
-     * @param logger A parameter that can inherit from any class based on the interface ILogger. Used to modify behavior of the logger.
-     */
-    suspend fun subtractCoins(coins: Long, logger: ILogger) : Boolean {
-        val userId: String? = getUserId()
-        if(userId == null) {
-            logger.e(TAG,"ID is null. Please login to firebase.")
-            return false
-        }
-        val docRef = db.collection("users")
-            .document(userId)
-        try {
-            val data = docRef.get().await()
-            var newCoinsBalance = data["coinsBalance"] as Long
-            newCoinsBalance -= coins
-            docRef.update("coinsBalance", newCoinsBalance).await()
-            updateTimestamp(userId, logger)
-            return true
-        }
-        catch(e: Exception) {
-            logger.e("Firestore", "Error Updating User: ", e)
             return false
         }
     }
@@ -814,6 +735,8 @@ class FirestoreRepository {
             false
         }
     }
+
+
 
     // Thin Wrapper Helpers to maintain all the existing behavior on all files.
     // Reminder API: Delegated to ReminderRepository
