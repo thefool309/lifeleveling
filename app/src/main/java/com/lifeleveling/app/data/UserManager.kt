@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Transaction
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.lifeleveling.app.auth.AuthModel
@@ -21,8 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.lifeleveling.app.R
-import com.lifeleveling.app.data.FirestoreRepository.Companion.TAG
-import kotlinx.coroutines.tasks.await
 import kotlin.Int
 import java.time.LocalDate
 
@@ -97,16 +93,21 @@ class UserManager(
      * Will do level up logic if needed.
      * Leveling up rolls over extra exp, gives coins, and adds 5 life points to the user.
      * After a level up the derived values will also be recalculated
-     * @param amount The double for the amount of experience to be added to the user
+     * @param exp The double for the amount of experience to be added to the user
+     * @param coins The coins to add in if there are any
+     * @return Returns the updated UsersBase object for writing to firestore. Contains new values already updated to userState.
      * @author Elyseia
      */
-    fun addExp(amount: Double) {
+    fun addExp(
+        exp: Double,
+        coins: Long?
+    ): UsersBase {
         val user = userData.value.userBase
         val next = userData.value.xpToNextLevel
-        val newExp = user.currentXp + amount
+        val newExp = user.currentXp + exp
         val updated: UsersBase
         var leveledUp = false
-        var coins = 0L
+        var coins = 0L + (coins ?: 0)
 
         if (newExp >= next) {
             // Level up
@@ -132,6 +133,7 @@ class UserManager(
                 levelUpCoins = coins
             ).recalculateAfterLevelUp()
         }
+        return updated
     }
 
     /**
@@ -161,112 +163,65 @@ class UserManager(
      * @param reminderId Firestore ID of the completed reminder.
      * @param reminderTitle Human-readable title (used for completion tracking / logs).
      * @param date The date the reminder was completed for.
-     * @param logger Logger used for diagnostics and error reporting.
      * @return true if the reward transaction succeeds; false otherwise.
      * @author fdesouza1992
      */
-    suspend fun awardForReminderCompletion(
+    fun awardForReminderCompletion(
         reminderId: String,
         reminderTitle: String,
         date: LocalDate,
-        logger: ILogger,
     ): Boolean {
         val current = userData.value.userBase
-        val expEarned = RewardsCalculator.calcExpForReminderCompletion(current)
-        val newExp = current.
-        val coinsEarned = RewardsCalculator.calcCoinsForReminderCompletion(current)
-        addExp(expEarned)
+        val uid = authModel.currentUser?.uid
+        var result: Boolean = false
 
-        val updated = current.copy(
-            coinsBalance = current.coinsBalance + coinsEarned,
-            allCoinsEarned = current.allCoinsEarned + coinsEarned
-        )
+        if (uid.isNullOrBlank()) {
+            logger.e("UM", "awardForReminderCompletion: user not authenticated")
+            return false
+        }
+
         userData.update { current ->
             current.copy(
-                userBase = updated,
                 isLoading = true,
                 error = null
             )
         }
         viewModelScope.launch {
             try {
+                val expEarned = RewardsCalculator.calcExpForReminderCompletion(current)
+                val coinsEarned = RewardsCalculator.calcCoinsForReminderCompletion(current)
+                val updated = addExp(expEarned, coinsEarned)        // This call will update UI state with new usersBase
+
                 fireRepo.editUser(
                     current.userId,
-                    mapOf(),
+                    mapOf(
+                        "level" to updated.level,
+                        "currentXp" to updated.currentXp,
+                        "lifePointsTotal" to updated.lifePointsTotal,
+                        "coinsBalance" to updated.coinsBalance,
+                        "allCoinsEarned" to updated.allCoinsEarned
+                    ),
                 )
+                val completionOk = reminderRepo.incrementReminderCompletionForDate(
+                    reminderId = reminderId,
+                    reminderTitle = reminderTitle,
+                    date = date,
+                    uid = uid,
+                )
+                if (!completionOk) {
+                    result = false
+                    return@launch
+                }else {
+                    result = true
+                }
                 userData.update { it.copy(isLoading = false, error = null) }
             } catch (e: Exception) {
-                logger.e("FB", "Error updating theme preference to firestore", e)
-                userData.update { it.copy(isLoading = false, error = "Error writing theme preference to firestore") }
+                logger.e("FB", "awardForReminderCompletion failed", e)
+                userData.update { it.copy(isLoading = false, error = "awardForReminderCompletion failed") }
+                result = false
             }
         }
-
-        val uid = getUserId()
-        if (uid.isNullOrBlank()) {
-            logger.e(TAG, "awardForReminderCompletion: user not authenticated")
-            return false
-        }
-
-        return try {
-            val completionOk = reminderRepo.incrementReminderCompletionForDate(
-                reminderId = reminderId,
-                reminderTitle = reminderTitle,
-                date = date,
-                logger = logger
-            )
-            if (!completionOk) return false
-
-            val userRef = db.collection("users").document(uid)
-
-            db.runTransaction { tx: Transaction ->
-                val snap = tx.get(userRef)
-                val user = snap.toObject(Users::class.java)
-                    ?: throw IllegalStateException("User doc missing")
-
-                val expEarned = RewardsCalculator.calcExpForReminderCompletion(user)
-                val coinsEarned = RewardsCalculator.calcCoinsForReminderCompletion(user)
-
-                val currentLevel = user.level
-                val currentXp = user.currentXp
-                val nextXp = user.xpToNextLevel.toDouble() // derived from level
-
-                var newLevel = currentLevel
-                var newXp = currentXp + expEarned
-                var newLifePoints = user.lifePoints
-                var extraLevelCoins = 0L
-
-                // Level up logic
-                if (newXp >= nextXp) {
-                    val leftover = newXp - nextXp
-                    newLevel = currentLevel + 1
-                    newXp = leftover
-                    newLifePoints = user.lifePoints + 5
-
-                    extraLevelCoins = RewardsCalculator.levelUpBonusCoins(
-                        newLevel = newLevel,
-                        completionCoins = coinsEarned
-                    ) - coinsEarned
-                }
-
-                val totalCoinsToAdd = coinsEarned + extraLevelCoins
-
-                // Update fields in Firestore
-                tx.update(userRef, mapOf(
-                    "level" to newLevel,
-                    "currentXp" to newXp,
-                    "lifePoints" to newLifePoints,
-                    "coinsBalance" to (user.coinsBalance + totalCoinsToAdd),
-                    "lastUpdate" to FieldValue.serverTimestamp(),
-                ))
-
-                null
-            }.await()
-
-            true
-        } catch (e: Exception) {
-            logger.e(TAG, "awardForReminderCompletion failed", e)
-            false
-        }
+        return result
     }
     /**
      * Is a call to update the theme saved for the user in the user state
