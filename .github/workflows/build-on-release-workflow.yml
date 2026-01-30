@@ -30,7 +30,7 @@ jobs:
         run: ls ./artifacts # list for sanity
 
       - name: Rename APK
-        run: mv ./artifacts/latest-build/app-release.apk ./app-${{ github.event.release.tag_name }}.apk
+        run: mv ./artifacts/app-release.apk ./app-${{ github.event.release.tag_name }}.apk
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
