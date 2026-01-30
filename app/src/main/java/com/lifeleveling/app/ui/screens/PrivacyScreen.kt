@@ -35,6 +35,7 @@ import com.lifeleveling.app.data.LocalNavController
 import com.lifeleveling.app.data.LocalUserManager
 import com.lifeleveling.app.ui.components.CircleButton
 import com.lifeleveling.app.ui.components.HighlightCard
+import com.lifeleveling.app.ui.components.ScrollFadeEdges
 import com.lifeleveling.app.ui.theme.AppTheme
 
 @Composable
@@ -44,6 +45,7 @@ fun PrivacyScreenFun() {
     val userManager = LocalUserManager.current
     val userState by userManager.uiState.collectAsState()
     var privacyContent by remember { mutableStateOf<String>(" ") }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         userManager.privacyFireBaseFetch { privacy ->
@@ -113,6 +115,9 @@ fun PrivacyScreenFun() {
                     )
 
                 }
+                ScrollFadeEdges(
+                    scrollState = scrollState,
+                )
             }
         }
     }

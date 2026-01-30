@@ -35,7 +35,7 @@ import com.lifeleveling.app.ui.components.SeparatorLine
 @Composable
 fun SelfCareScreen(){
     val navController = LocalNavController.current
-    val context = LocalContext.current
+//    val context = LocalContext.current
 
     Surface(
         modifier = Modifier
@@ -106,9 +106,27 @@ fun SelfCareScreen(){
 
                     SeparatorLine()
 
+//                    Row(modifier = Modifier) {
+//                        Text(
+//                            text = stringResource(R.string.importanceOfSelfCare),
+//                            color = AppTheme.colors.Gray,
+//                            style = AppTheme.textStyles.HeadingSix.copy(
+//                                shadow = Shadow(
+//                                    color = AppTheme.colors.DropShadow,
+//                                    offset = Offset(2f, 2f),
+//                                    blurRadius = 2f,
+//                                )
+//                            ),
+//                            modifier = Modifier
+//                                .align(Alignment.CenterVertically)
+//                        )
+//                    }
+//
+//                    SeparatorLine()
+
                     Row(modifier = Modifier) {
                         Text(
-                            text = stringResource(R.string.importanceOfSelfCare),
+                            text = "Self-Care Articles",
                             color = AppTheme.colors.Gray,
                             style = AppTheme.textStyles.HeadingSix.copy(
                                 shadow = Shadow(
@@ -119,49 +137,32 @@ fun SelfCareScreen(){
                             ),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                        )
-                    }
-
-                    SeparatorLine()
-
-                    Row(modifier = Modifier) {
-                        Text(
-                            text = stringResource(R.string.extraArticles),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(2f, 2f),
-                                    blurRadius = 2f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
+                                .clickable { navController.navigate("SelfCareArticlesScreen")  }
 
                         )
                     }
 
-                    SeparatorLine()
-
-                    Row(modifier = Modifier) {
-                        Text(
-                            text = stringResource(R.string.needAdive),
-                            color = AppTheme.colors.Gray,
-                            style = AppTheme.textStyles.HeadingSix.copy(
-                                shadow = Shadow(
-                                    color = AppTheme.colors.DropShadow,
-                                    offset = Offset(2f, 2f),
-                                    blurRadius = 2f,
-                                )
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .clickable {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.healthline.com/wellness"))
-                                    context.startActivity(intent)
-                                },
-                        )
-                    }
+//                    SeparatorLine()
+//
+//                    Row(modifier = Modifier) {
+//                        Text(
+//                            text = stringResource(R.string.needAdive),
+//                            color = AppTheme.colors.Gray,
+//                            style = AppTheme.textStyles.HeadingSix.copy(
+//                                shadow = Shadow(
+//                                    color = AppTheme.colors.DropShadow,
+//                                    offset = Offset(2f, 2f),
+//                                    blurRadius = 2f,
+//                                )
+//                            ),
+//                            modifier = Modifier
+//                                .align(Alignment.CenterVertically)
+//                                .clickable {
+//                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.healthline.com/wellness"))
+//                                    context.startActivity(intent)
+//                                },
+//                        )
+//                    }
                 }
             }
         }

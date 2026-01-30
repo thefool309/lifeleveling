@@ -26,6 +26,7 @@ import com.lifeleveling.app.ui.screens.TermsAndConditionsScreenFun
 import com.lifeleveling.app.ui.screens.TermsAndPrivacyScreen
 import com.lifeleveling.app.ui.screens.UserAccountScreen
 import com.lifeleveling.app.ui.screens.UserJourneyScreen
+import com.lifeleveling.app.ui.screens.selfcareArticlesScreenFun
 
 /**
  * Holds the navigation logic.
@@ -88,6 +89,7 @@ fun AppNavHost(
             composable("userAccount") { UserAccountScreen() }
             composable("termsandconditions") { TermsAndConditionsScreenFun() }
             composable("privacypolicy") { PrivacyScreenFun() }
+            composable("SelfCareArticlesScreen") { selfcareArticlesScreenFun() }
         }
     }
 }
