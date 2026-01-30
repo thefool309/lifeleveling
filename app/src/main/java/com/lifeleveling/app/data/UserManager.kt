@@ -454,6 +454,7 @@ class UserManager(
                     repeatCount = draft.repeatCount,
                     repeatInterval = draft.repeatInterval,
                     dotColor = draft.dotColor,
+                    enabled = true,
                 )
 
                 // Write to firestore
@@ -466,7 +467,8 @@ class UserManager(
                 userData.update { current ->
                     current.copy(
                         reminders = current.reminders + reminderWithId,
-                    ).updateReminderDependencies()
+                    )
+//                        .updateReminderDependencies()
                 }
             } catch (e: Exception) {
                 logger.e("FB", "Error adding reminder", e)
